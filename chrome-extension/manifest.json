@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "쏙튜브 - YouTube 요약저장",
+  "version": "1.0.0",
+  "description": "YouTube 영상을 쏙튜브에 한 번에 요약저장",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "https://www.ssoktube.com/*",
+    "https://securetoken.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.ssoktube.com/*"],
+      "js": ["content-ssoktube.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.youtube.com/watch*"],
+      "js": ["content-youtube.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.js"],
+      "matches": ["https://www.ssoktube.com/*"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "쏙튜브 요약저장"
+  }
+}
