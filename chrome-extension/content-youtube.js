@@ -114,24 +114,45 @@ function injectButton() {
     btn.disabled = false;
 
     if (response?.success) {
-      // 요약 완료 — 확인 버튼으로 교체
-      btn.innerHTML = `
+      // 요약 완료 — 기존 버튼 제거 후 새 확인 버튼으로 교체 (이벤트 리스너 완전 제거)
+      btn.remove();
+
+      const confirmBtn = document.createElement('button');
+      confirmBtn.innerHTML = `
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
           <polyline points="20 6 9 17 4 12"/>
         </svg>
-        <span>쏙튜브에서 확인하기</span>
+        <span>확인하기</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.7">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
       `;
-      btn.style.background = '#16a34a';
-      btn.disabled = false;
+      Object.assign(confirmBtn.style, {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '6px',
+        padding: '7px 16px',
+        background: '#16a34a',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '20px',
+        fontSize: '13px',
+        fontWeight: '600',
+        cursor: 'pointer',
+        lineHeight: '1',
+        whiteSpace: 'nowrap',
+      });
+      confirmBtn.addEventListener('mouseenter', () => { confirmBtn.style.background = '#15803d'; });
+      confirmBtn.addEventListener('mouseleave', () => { confirmBtn.style.background = '#16a34a'; });
+      confirmBtn.addEventListener('click', () => {
+        window.open(`https://www.ssoktube.com/result/${response.sessionId}`, '_blank');
+      });
 
-      const savedLabel = response.alreadySaved ? '이미 저장된 영상입니다' : (response.saved ? '내 라이브러리에 저장됨' : '요약 완료');
+      wrap.insertBefore(confirmBtn, wrap.firstChild);
+
+      const savedLabel = response.alreadySaved ? '이미 저장된 영상' : (response.saved ? '라이브러리에 저장됨' : '');
       status.textContent = savedLabel;
       status.style.color = '#16a34a';
-
-      // 확인 버튼 클릭 → 결과 페이지 열기
-      btn.onclick = () => {
-        window.open(`https://www.ssoktube.com/result/${response.sessionId}`, '_blank');
-      };
 
     } else if (response?.error === 'login_required') {
       btn.innerHTML = `<span>쏙튜브 요약저장</span>`;
