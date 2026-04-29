@@ -55,8 +55,8 @@ export default function TravelSummary({ data, onSeek, sessionId, commentCounts =
               return (
                 <div key={i} id={`seg-${segId}`} className="bg-zinc-800 rounded-lg p-3 flex flex-col gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <TimestampBadge timestamp={place.timestamp} onSeek={onSeek} />
                     <span className="text-cyan-300 font-medium text-sm">{place.name}</span>
+                    <TimestampBadge timestamp={place.timestamp} onSeek={onSeek} />
                     {place.price && <span className="text-zinc-400 text-xs">{place.price}</span>}
                     <div className="ml-auto flex items-center gap-1.5">
                       <button

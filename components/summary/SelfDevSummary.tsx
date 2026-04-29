@@ -36,12 +36,12 @@ export default function SelfDevSummary({ data, onSeek, sessionId, commentCounts 
         <div id="seg-core-message" className="bg-zinc-800 rounded-lg p-4 border-l-4 border-emerald-500">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className="text-emerald-400 text-sm font-semibold">💬 핵심 메시지</span>
-            <TimestampBadge timestamp={data.core_message.timestamp} onSeek={onSeek} />
             {sessionId && (
               <CommentBubble sessionId={sessionId} segmentId="core-message" segmentLabel="핵심 메시지" initialCount={commentCounts['core-message'] ?? 0} />
             )}
           </div>
           <p className="text-zinc-100 text-lg font-medium leading-relaxed">&quot;{data.core_message.text}&quot;</p>
+          <TimestampBadge timestamp={data.core_message.timestamp} onSeek={onSeek} />
         </div>
 
         {/* 주요 인사이트 */}
@@ -53,13 +53,13 @@ export default function SelfDevSummary({ data, onSeek, sessionId, commentCounts 
               return (
                 <div key={i} id={`seg-${segId}`} className="bg-zinc-800 rounded-lg p-3 flex flex-col gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <TimestampBadge timestamp={insight.timestamp} onSeek={onSeek} />
                     {sessionId && (
                       <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`인사이트 ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
                     )}
                   </div>
                   <div className="flex flex-col gap-1">
                     <p className="text-zinc-200 text-sm">{insight.point}</p>
+                    <TimestampBadge timestamp={insight.timestamp} onSeek={onSeek} />
                     {showTranslate && <TranslateButton text={insight.point} />}
                   </div>
                 </div>
@@ -102,8 +102,10 @@ export default function SelfDevSummary({ data, onSeek, sessionId, commentCounts 
                 const segId = `quote-${i}`
                 return (
                   <div key={i} id={`seg-${segId}`} className="flex items-start gap-3 mt-2">
-                    <TimestampBadge timestamp={quote.timestamp} onSeek={onSeek} />
-                    <p className="text-zinc-300 text-sm italic flex-1">&quot;{quote.text}&quot;</p>
+                    <div className="flex-1 flex flex-col gap-1">
+                      <p className="text-zinc-300 text-sm italic">&quot;{quote.text}&quot;</p>
+                      <TimestampBadge timestamp={quote.timestamp} onSeek={onSeek} />
+                    </div>
                     {sessionId && (
                       <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`명언 ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
                     )}

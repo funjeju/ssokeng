@@ -61,7 +61,6 @@ export default function EnglishSummary({ data, onSeek, sessionId, commentCounts 
               return (
                 <div key={i} id={`seg-${segId}`} className="bg-zinc-800 rounded-lg p-3 flex flex-col gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <TimestampBadge timestamp={expr.timestamp} onSeek={onSeek} />
                     {sessionId && (
                       <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`핵심 표현 - "${expr.text.slice(0, 20)}"`} initialCount={commentCounts[segId] ?? 0} />
                     )}
@@ -69,6 +68,7 @@ export default function EnglishSummary({ data, onSeek, sessionId, commentCounts 
                   <p className="text-zinc-100 font-mono text-sm">&quot;{expr.text}&quot;</p>
                   <p className="text-zinc-300 text-sm">→ {expr.meaning}</p>
                   <p className="text-blue-300 text-xs">💡 {expr.note}</p>
+                  <TimestampBadge timestamp={expr.timestamp} onSeek={onSeek} />
                 </div>
               )
             })}

@@ -76,7 +76,6 @@ export default function StorySummary({ data, onSeek, sessionId, commentCounts = 
                   <div className="flex items-center justify-center w-8 h-8 rounded-full border-4 border-[#32302e] bg-[#23211f] text-pink-500 shadow shrink-0 mt-1 group-hover:bg-pink-500/20 transition-colors z-10" />
                   <div className="flex-1 p-4 rounded-2xl bg-[#23211f] border border-white/5 flex flex-col gap-2 hover:bg-[#3d3a38] transition-colors">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <TimestampBadge timestamp={item.timestamp} onSeek={onSeek} />
                       {sessionId && (
                         <CommentBubble
                           sessionId={sessionId}
@@ -87,6 +86,7 @@ export default function StorySummary({ data, onSeek, sessionId, commentCounts = 
                       )}
                     </div>
                     <p className="text-[#e2e2e2] leading-relaxed text-[15px]">{item.event}</p>
+                    <TimestampBadge timestamp={item.timestamp} onSeek={onSeek} />
                     <div className="flex items-center gap-2 flex-wrap mt-1">
                       {showTranslate && <TranslateButton text={item.event} />}
                       <button

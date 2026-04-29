@@ -90,12 +90,12 @@ export default function NewsSummary({ data, onSeek, sessionId, commentCounts = {
         <div id="seg-background">
           <div className="flex items-center gap-2 mb-2">
             <h3 className="text-zinc-300 font-semibold">배경</h3>
-            <TimestampBadge timestamp={data.background.timestamp} onSeek={onSeek} />
             {sessionId && (
               <CommentBubble sessionId={sessionId} segmentId="background" segmentLabel="배경" initialCount={commentCounts['background'] ?? 0} />
             )}
           </div>
           <p className="text-zinc-300 text-sm">{data.background.desc}</p>
+          <TimestampBadge timestamp={data.background.timestamp} onSeek={onSeek} />
         </div>
 
         {/* 주요 장면 타임라인 */}
@@ -109,9 +109,9 @@ export default function NewsSummary({ data, onSeek, sessionId, commentCounts = {
                   const segId = `key-moment-${i}`
                   return (
                     <div key={i} id={`seg-${segId}`} className="flex items-start gap-3">
-                      <TimestampBadge timestamp={km.timestamp} onSeek={onSeek} />
                       <div className="flex-1 flex flex-col gap-1">
                         <p className="text-zinc-200 text-sm">{km.point}</p>
+                        <TimestampBadge timestamp={km.timestamp} onSeek={onSeek} />
                       </div>
                       {sessionId && (
                         <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`주요 장면 ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
@@ -135,10 +135,10 @@ export default function NewsSummary({ data, onSeek, sessionId, commentCounts = {
                   const segId = `implication-${i}`
                   return (
                     <div key={i} id={`seg-${segId}`} className="flex items-start gap-3">
-                      <TimestampBadge timestamp={imp.timestamp} onSeek={onSeek} />
                       <div className="flex-1 flex flex-col gap-1">
                         <p className="text-zinc-200 text-sm">{imp.point}</p>
                         {showTranslate && <TranslateButton text={imp.point} />}
+                        <TimestampBadge timestamp={imp.timestamp} onSeek={onSeek} />
                       </div>
                       {sessionId && (
                         <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`시사점 ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />

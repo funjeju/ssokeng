@@ -41,8 +41,8 @@ export default function LearningSummary({ data, onSeek, sessionId, commentCounts
               return (
                 <div key={i} id={`seg-${segId}`} className="bg-zinc-800 rounded-lg p-3 flex flex-col gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <TimestampBadge timestamp={concept.timestamp} onSeek={onSeek} />
                     <span className="text-violet-300 font-medium text-sm">{concept.name}</span>
+                    <TimestampBadge timestamp={concept.timestamp} onSeek={onSeek} />
                     {sessionId && (
                       <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`개념 - ${concept.name}`} initialCount={commentCounts[segId] ?? 0} />
                     )}
@@ -65,9 +65,9 @@ export default function LearningSummary({ data, onSeek, sessionId, commentCounts
               const segId = `keypoint-${i}`
               return (
                 <div key={i} id={`seg-${segId}`} className="flex items-start gap-3">
-                  <TimestampBadge timestamp={kp.timestamp} onSeek={onSeek} />
                   <div className="flex-1 flex flex-col gap-1">
                     <p className="text-zinc-200 text-sm">• {kp.point}</p>
+                    <TimestampBadge timestamp={kp.timestamp} onSeek={onSeek} />
                     {showTranslate && <TranslateButton text={kp.point} />}
                   </div>
                   {sessionId && (
@@ -90,8 +90,10 @@ export default function LearningSummary({ data, onSeek, sessionId, commentCounts
                   const segId = `example-${i}`
                   return (
                     <div key={i} id={`seg-${segId}`} className="flex items-start gap-3">
-                      <TimestampBadge timestamp={ex.timestamp} onSeek={onSeek} />
-                      <p className="text-zinc-300 text-sm flex-1">{ex.desc}</p>
+                      <div className="flex-1 flex flex-col gap-1">
+                        <p className="text-zinc-300 text-sm">{ex.desc}</p>
+                        <TimestampBadge timestamp={ex.timestamp} onSeek={onSeek} />
+                      </div>
                       {sessionId && (
                         <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`예시 ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
                       )}

@@ -86,7 +86,6 @@ export default function RecipeSummary({ data, onSeek, sessionId, commentCounts =
                   <span className="shrink-0 mt-0.5 px-1.5 py-0.5 rounded-md bg-blue-500/15 text-blue-400 font-bold text-[11px] leading-tight whitespace-nowrap">{step.step}단계</span>
                   <div className="flex flex-col gap-1 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <TimestampBadge timestamp={step.timestamp} onSeek={onSeek} />
                       {step.tip && <span className="text-emerald-400 text-xs">★</span>}
                       {sessionId && (
                         <CommentBubble
@@ -99,6 +98,7 @@ export default function RecipeSummary({ data, onSeek, sessionId, commentCounts =
                     </div>
                     <p className="text-zinc-200 text-sm">{step.desc}</p>
                     {step.tip && <p className="text-emerald-400 text-xs">{step.tip}</p>}
+                    <TimestampBadge timestamp={step.timestamp} onSeek={onSeek} />
                   </div>
                 </div>
               )
