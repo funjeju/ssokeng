@@ -66,8 +66,7 @@ export default function LearningSummary({ data, onSeek, sessionId, commentCounts
               return (
                 <div key={i} id={`seg-${segId}`} className="flex items-start gap-3">
                   <div className="flex-1 flex flex-col gap-1">
-                    <p className="text-zinc-200 text-sm">• {kp.point}</p>
-                    <TimestampBadge timestamp={kp.timestamp} onSeek={onSeek} />
+                    <p className="text-zinc-200 text-sm">• {kp.point}{' '}<TimestampBadge timestamp={kp.timestamp} onSeek={onSeek} /></p>
                     {showTranslate && <TranslateButton text={kp.point} />}
                   </div>
                   {sessionId && (
@@ -91,8 +90,7 @@ export default function LearningSummary({ data, onSeek, sessionId, commentCounts
                   return (
                     <div key={i} id={`seg-${segId}`} className="flex items-start gap-3">
                       <div className="flex-1 flex flex-col gap-1">
-                        <p className="text-zinc-300 text-sm">{ex.desc}</p>
-                        <TimestampBadge timestamp={ex.timestamp} onSeek={onSeek} />
+                        <p className="text-zinc-300 text-sm">{ex.desc}{' '}<TimestampBadge timestamp={ex.timestamp} onSeek={onSeek} /></p>
                       </div>
                       {sessionId && (
                         <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`예시 ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />

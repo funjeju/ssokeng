@@ -40,8 +40,7 @@ export default function SelfDevSummary({ data, onSeek, sessionId, commentCounts 
               <CommentBubble sessionId={sessionId} segmentId="core-message" segmentLabel="핵심 메시지" initialCount={commentCounts['core-message'] ?? 0} />
             )}
           </div>
-          <p className="text-zinc-100 text-lg font-medium leading-relaxed">&quot;{data.core_message.text}&quot;</p>
-          <TimestampBadge timestamp={data.core_message.timestamp} onSeek={onSeek} />
+          <p className="text-zinc-100 text-lg font-medium leading-relaxed">&quot;{data.core_message.text}&quot;{' '}<TimestampBadge timestamp={data.core_message.timestamp} onSeek={onSeek} /></p>
         </div>
 
         {/* 주요 인사이트 */}
@@ -58,8 +57,7 @@ export default function SelfDevSummary({ data, onSeek, sessionId, commentCounts 
                     )}
                   </div>
                   <div className="flex flex-col gap-1">
-                    <p className="text-zinc-200 text-sm">{insight.point}</p>
-                    <TimestampBadge timestamp={insight.timestamp} onSeek={onSeek} />
+                    <p className="text-zinc-200 text-sm">{insight.point}{' '}<TimestampBadge timestamp={insight.timestamp} onSeek={onSeek} /></p>
                     {showTranslate && <TranslateButton text={insight.point} />}
                   </div>
                 </div>
@@ -103,8 +101,7 @@ export default function SelfDevSummary({ data, onSeek, sessionId, commentCounts 
                 return (
                   <div key={i} id={`seg-${segId}`} className="flex items-start gap-3 mt-2">
                     <div className="flex-1 flex flex-col gap-1">
-                      <p className="text-zinc-300 text-sm italic">&quot;{quote.text}&quot;</p>
-                      <TimestampBadge timestamp={quote.timestamp} onSeek={onSeek} />
+                      <p className="text-zinc-300 text-sm italic">&quot;{quote.text}&quot;{' '}<TimestampBadge timestamp={quote.timestamp} onSeek={onSeek} /></p>
                     </div>
                     {sessionId && (
                       <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`명언 ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />

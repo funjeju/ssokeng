@@ -88,10 +88,12 @@ export default function ReportSummary({ data, onSeek, sessionId, commentCounts =
                     <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`${section.number}. ${section.heading}`} initialCount={commentCounts[segId] ?? 0} />
                   )}
                 </div>
-                <p className="text-zinc-400 text-sm leading-relaxed pl-8">{section.body}</p>
-                {!hideTimestamp && section.timestamp && (
-                  <TimestampBadge timestamp={section.timestamp} onSeek={onSeek} />
-                )}
+                <p className="text-zinc-400 text-sm leading-relaxed pl-8">
+                  {section.body}{' '}
+                  {!hideTimestamp && section.timestamp && (
+                    <TimestampBadge timestamp={section.timestamp} onSeek={onSeek} />
+                  )}
+                </p>
               </div>
             )
           })}

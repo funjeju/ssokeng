@@ -96,9 +96,8 @@ export default function RecipeSummary({ data, onSeek, sessionId, commentCounts =
                         />
                       )}
                     </div>
-                    <p className="text-zinc-200 text-sm">{step.desc}</p>
+                    <p className="text-zinc-200 text-sm">{step.desc}{' '}<TimestampBadge timestamp={step.timestamp} onSeek={onSeek} /></p>
                     {step.tip && <p className="text-emerald-400 text-xs">{step.tip}</p>}
-                    <TimestampBadge timestamp={step.timestamp} onSeek={onSeek} />
                   </div>
                 </div>
               )

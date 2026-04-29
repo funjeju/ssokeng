@@ -15,7 +15,7 @@ export default function TimestampBadge({ timestamp, onSeek }: TimestampBadgeProp
     <Badge
       variant="outline"
       data-ts={timestamp}
-      className="cursor-pointer font-mono text-xs border-zinc-600 text-blue-400 hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors"
+      className="cursor-pointer font-mono text-xs rounded border-zinc-700 text-zinc-500 hover:text-blue-300 hover:border-zinc-500 transition-colors inline-flex"
       onClick={() => onSeek(timestamp)}
     >
       ▶ {timestamp}

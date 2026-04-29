@@ -67,8 +67,7 @@ export default function EnglishSummary({ data, onSeek, sessionId, commentCounts 
                   </div>
                   <p className="text-zinc-100 font-mono text-sm">&quot;{expr.text}&quot;</p>
                   <p className="text-zinc-300 text-sm">→ {expr.meaning}</p>
-                  <p className="text-blue-300 text-xs">💡 {expr.note}</p>
-                  <TimestampBadge timestamp={expr.timestamp} onSeek={onSeek} />
+                  <p className="text-blue-300 text-xs">💡 {expr.note}{' '}<TimestampBadge timestamp={expr.timestamp} onSeek={onSeek} /></p>
                 </div>
               )
             })}

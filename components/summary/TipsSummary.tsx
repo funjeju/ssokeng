@@ -75,8 +75,7 @@ export default function TipsSummary({ data, onSeek, sessionId, commentCounts = {
                         <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`팁 ${tip.number}: ${tip.title}`} initialCount={commentCounts[segId] ?? 0} />
                       )}
                     </div>
-                    <p className="text-zinc-400 text-sm leading-relaxed">{tip.desc}</p>
-                    <TimestampBadge timestamp={tip.timestamp} onSeek={onSeek} />
+                    <p className="text-zinc-400 text-sm leading-relaxed">{tip.desc}{' '}<TimestampBadge timestamp={tip.timestamp} onSeek={onSeek} /></p>
                     {showTranslate && <TranslateButton text={tip.desc} />}
                   </div>
                 </div>

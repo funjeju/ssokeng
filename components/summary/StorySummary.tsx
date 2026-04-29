@@ -85,8 +85,7 @@ export default function StorySummary({ data, onSeek, sessionId, commentCounts = 
                         />
                       )}
                     </div>
-                    <p className="text-[#e2e2e2] leading-relaxed text-[15px]">{item.event}</p>
-                    <TimestampBadge timestamp={item.timestamp} onSeek={onSeek} />
+                    <p className="text-[#e2e2e2] leading-relaxed text-[15px]">{item.event}{' '}<TimestampBadge timestamp={item.timestamp} onSeek={onSeek} /></p>
                     <div className="flex items-center gap-2 flex-wrap mt-1">
                       {showTranslate && <TranslateButton text={item.event} />}
                       <button
