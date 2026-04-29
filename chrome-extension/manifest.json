@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "쏙튜브 - YouTube 요약저장",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "YouTube 영상을 쏙튜브에 한 번에 요약저장",
   "permissions": ["storage"],
   "host_permissions": [
