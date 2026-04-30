@@ -7,6 +7,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { FIRESTORE_BASE } from '@/lib/firestore-rest'
 import { buildStudentEmail } from '@/lib/classroom'
+import { initAdminApp } from '@/lib/firebase-admin'
+import { getFirestore, FieldValue } from 'firebase-admin/firestore'
 
 const API_KEY = process.env.NEXT_PUBLIC_FIREBASE_API_KEY!
 const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!
@@ -133,12 +135,71 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '학생 정보 저장에 실패했습니다. 다시 시도해주세요.' }, { status: 500 })
     }
 
-    // 5. 교사의 masterFolder가 있으면 자동 복제
-    if (classroom.masterFolderId && classroom.teacherId) {
+    // 5. 교사의 masterFolder를 Admin SDK로 서버에서 직접 복제 (보안 규칙 우회)
+    const folderIdsToInherit: string[] = classroom.masterFolderIds?.length
+      ? classroom.masterFolderIds
+      : classroom.masterFolderId
+      ? [classroom.masterFolderId]
+      : []
+
+    if (folderIdsToInherit.length > 0 && classroom.teacherId) {
       try {
-        // 클라이언트 SDK가 필요한 복잡한 작업이라 별도 API 호출로 처리
-        // 여기서는 플래그만 저장하고 클라이언트 로그인 후 처리
-        // (idToken이 있어야 Firestore 클라이언트 SDK 사용 가능)
+        initAdminApp()
+        const adminDb = getFirestore()
+
+        for (const masterFolderId of folderIdsToInherit) {
+          // 교사의 해당 폴더 영상 전체 조회 (Admin SDK = 보안 규칙 우회)
+          const itemsSnap = await adminDb.collection('saved_summaries')
+            .where('userId', '==', classroom.teacherId)
+            .where('folderId', '==', masterFolderId)
+            .get()
+
+          // 학생 폴더 생성
+          const folderRef = adminDb.collection('folders').doc()
+          await folderRef.set({
+            userId: uid,
+            name: `📚 ${classroom.teacherName} 선생님의 수업자료`,
+            visibility: 'private',
+            isClassFolder: true,
+            classCode: upperCode,
+            clonedFrom: {
+              userId: classroom.teacherId,
+              displayName: classroom.teacherName,
+              originalFolderId: masterFolderId,
+            },
+            createdAt: FieldValue.serverTimestamp(),
+          })
+
+          // 영상 일괄 복사
+          if (!itemsSnap.empty) {
+            const batch = adminDb.batch()
+            itemsSnap.docs.forEach(doc => {
+              const item = doc.data()
+              const newRef = adminDb.collection('saved_summaries').doc()
+              batch.set(newRef, {
+                userId: uid,
+                userDisplayName: studentName,
+                userPhotoURL: '',
+                folderId: folderRef.id,
+                sessionId: item.sessionId || '',
+                videoId: item.videoId || '',
+                title: item.title || '',
+                channel: item.channel || '',
+                thumbnail: item.thumbnail || '',
+                category: item.category || '',
+                summary: item.summary || null,
+                contextSummary: item.contextSummary || '',
+                transcript: item.transcript || '',
+                transcriptSource: item.transcriptSource || '',
+                isPublic: false,
+                likeCount: 0,
+                viewCount: 0,
+                createdAt: FieldValue.serverTimestamp(),
+              })
+            })
+            await batch.commit()
+          }
+        }
       } catch (e) {
         console.warn('[Enroll] masterFolder 상속 실패:', e)
       }

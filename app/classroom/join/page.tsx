@@ -4,7 +4,6 @@ import { useState, Suspense } from 'react'
 import { useAuth } from '@/providers/AuthProvider'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { buildStudentEmail } from '@/lib/classroom'
-import { inheritMasterFolder } from '@/lib/classroom'
 import Header from '@/components/common/Header'
 import Link from 'next/link'
 
@@ -46,30 +45,7 @@ function ClassroomJoinForm() {
       const email = buildStudentEmail(classCode.trim().toUpperCase(), studentName.trim())
       await signInStudent(email, password)
 
-      // 3. 로그인 후 masterFolder 상속 (클라이언트 SDK 사용)
-      // masterFolderIds(복수) 우선, 없으면 masterFolderId(단일) 하위호환
-      const folderIdsToInherit: string[] =
-        data.masterFolderIds?.length
-          ? data.masterFolderIds
-          : data.masterFolderId
-          ? [data.masterFolderId]
-          : []
-
-      if (folderIdsToInherit.length > 0 && data.teacherId) {
-        for (const folderId of folderIdsToInherit) {
-          try {
-            await inheritMasterFolder(
-              data.teacherId,
-              folderId,
-              data.uid,
-              studentName.trim(),
-              data.teacherName || '선생님',
-            )
-          } catch (e) {
-            console.warn('[Join] 폴더 상속 실패:', folderId, e)
-          }
-        }
-      }
+      // 3. 폴더 상속은 서버(enroll API)에서 Admin SDK로 처리 완료
 
       setStep('done')
       setTimeout(() => router.push('/mypage'), 2000)
