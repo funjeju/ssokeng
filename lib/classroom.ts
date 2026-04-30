@@ -346,15 +346,17 @@ export function buildQuizHeatmap(logs: ActivityLog[]): VideoHeatmap[] {
   }> = {}
 
   for (const log of logs) {
-    if (log.type !== 'quiz' || !log.videoId) continue
+    if ((log.type !== 'quiz' && log.type !== 'meta') || !log.videoId) continue
     const vid = log.videoId
     if (!byVideo[vid]) byVideo[vid] = { videoTitle: log.videoTitle || '', sessionId: log.sessionId || '', byQ: {} }
     const qi = log.value.questionIdx ?? 0
     if (!byVideo[vid].byQ[qi]) byVideo[vid].byQ[qi] = { question: '', attempts: 0, wrong: 0, confused: 0, unknown: 0 }
     const q = byVideo[vid].byQ[qi]
     if (log.value.question) q.question = log.value.question
-    q.attempts++
-    if (!log.value.correct) q.wrong++
+    if (log.type === 'quiz') {
+      q.attempts++
+      if (!log.value.correct) q.wrong++
+    }
     if (log.value.metaLevel === 'confused') q.confused++
     if (log.value.metaLevel === 'unknown')  q.unknown++
   }

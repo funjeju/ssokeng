@@ -20,12 +20,13 @@ export interface QuizMetaLog {
 interface Props {
   quiz: QuizData
   onClose: () => void
+  onComplete?: () => void
   onAnswer?: (log: QuizAnswerLog) => void
   showMeta?: boolean
   onMeta?: (log: QuizMetaLog) => void
 }
 
-export default function QuizPanel({ quiz, onClose, onAnswer, showMeta, onMeta }: Props) {
+export default function QuizPanel({ quiz, onClose, onComplete, onAnswer, showMeta, onMeta }: Props) {
   const [idx, setIdx] = useState(0)
   const [flipped, setFlipped] = useState(false)
   const [selected, setSelected] = useState<string | null>(null)

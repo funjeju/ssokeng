@@ -128,6 +128,8 @@ export default function ClassDashboard() {
   const [expandedFolder, setExpandedFolder] = useState<string | null>(null)
   const [folderVideos, setFolderVideos] = useState<Record<string, any[]>>({})
   const [loadingVideos, setLoadingVideos] = useState<string | null>(null)
+  const [videoQuizSets, setVideoQuizSets] = useState<Record<string, any>>({})
+  const [quizViewModal, setQuizViewModal] = useState<{ videoTitle: string; quiz: any } | null>(null)
   const [clipModal, setClipModal] = useState<{ item: any; folderId: string } | null>(null)
   const [clipStartStr, setClipStartStr] = useState('')
   const [clipEndStr, setClipEndStr] = useState('')
@@ -384,6 +386,19 @@ export default function ClassDashboard() {
     try {
       const items = await getSavedSummariesByFolder(user.uid, folderId)
       setFolderVideos(prev => ({ ...prev, [folderId]: items }))
+      // 해당 영상들의 quiz_sets 로드
+      const videoIds = items.map((v: any) => v.videoId).filter(Boolean)
+      if (videoIds.length > 0) {
+        const { getDoc, doc: fsDoc } = await import('firebase/firestore')
+        const results = await Promise.all(
+          videoIds.map((vid: string) => getDoc(fsDoc(db, 'quiz_sets', vid)))
+        )
+        const quizMap: Record<string, any> = {}
+        results.forEach((snap, i) => {
+          if (snap.exists()) quizMap[videoIds[i]] = snap.data()
+        })
+        setVideoQuizSets(prev => ({ ...prev, ...quizMap }))
+      }
     } finally {
       setLoadingVideos(null)
     }
@@ -625,16 +640,28 @@ export default function ClassDashboard() {
                         <p className="text-xs text-gray-500 py-2">불러오는 중...</p>
                       ) : videos.length === 0 ? (
                         <p className="text-xs text-gray-500 py-2">영상이 없습니다. 🎬+ 버튼으로 추가하세요.</p>
-                      ) : videos.map((item: any) => (
-                        <div key={item.id} className="flex items-center gap-3 rounded-xl bg-[#23211f] px-3 py-2.5">
-                          {item.thumbnail && <img src={item.thumbnail} alt="" className="w-14 h-8 rounded object-cover shrink-0" />}
-                          <p className="flex-1 text-xs text-gray-200 truncate">{item.title}</p>
-                          <button onClick={() => openClipModal(item, folder.id)}
-                            className="shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors">
-                            🎬 구간 배포
-                          </button>
-                        </div>
-                      ))}
+                      ) : videos.map((item: any) => {
+                        const hasQuiz = item.videoId && videoQuizSets[item.videoId]
+                        return (
+                          <div key={item.id} className="flex items-center gap-3 rounded-xl bg-[#23211f] px-3 py-2.5">
+                            {item.thumbnail && <img src={item.thumbnail} alt="" className="w-14 h-8 rounded object-cover shrink-0" />}
+                            <p className="flex-1 text-xs text-gray-200 truncate">{item.title}</p>
+                            {hasQuiz && (
+                              <button
+                                onClick={() => setQuizViewModal({ videoTitle: item.title, quiz: videoQuizSets[item.videoId] })}
+                                className="shrink-0 px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 transition-colors"
+                                title="등록된 퀴즈 보기"
+                              >
+                                📝 퀴즈
+                              </button>
+                            )}
+                            <button onClick={() => openClipModal(item, folder.id)}
+                              className="shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors">
+                              🎬 구간 배포
+                            </button>
+                          </div>
+                        )
+                      })}
                     </div>
                   )}
                 </div>
@@ -765,6 +792,40 @@ export default function ClassDashboard() {
                   </div>
                 ))
               })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 퀴즈 내용 보기 모달 */}
+      {quizViewModal && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setQuizViewModal(null)}>
+          <div className="bg-[#23211f] rounded-[28px] border border-white/10 w-full max-w-md p-6 space-y-4 max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="flex items-start justify-between shrink-0">
+              <div>
+                <h3 className="text-base font-black">📝 등록된 퀴즈</h3>
+                <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{quizViewModal.videoTitle}</p>
+              </div>
+              <button onClick={() => setQuizViewModal(null)} className="text-gray-400 hover:text-white text-xl ml-4 shrink-0">✕</button>
+            </div>
+            <div className="overflow-y-auto space-y-3 flex-1">
+              {(quizViewModal.quiz.questions || []).map((q: any, i: number) => (
+                <div key={i} className="bg-[#2a2826] rounded-2xl p-4 space-y-2">
+                  <p className="text-xs font-bold text-white">Q{i + 1}. {q.question}</p>
+                  {q.type === 'multiple_choice' && q.options ? (
+                    <div className="space-y-1">
+                      {q.options.map((opt: string, j: number) => (
+                        <p key={j} className={`text-xs px-3 py-1.5 rounded-lg ${opt === q.answer ? 'bg-emerald-500/15 text-emerald-300 font-bold' : 'text-gray-400'}`}>
+                          {['A', 'B', 'C', 'D'][j]}. {opt}
+                          {opt === q.answer && <span className="ml-2">✓ 정답</span>}
+                        </p>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-emerald-300 bg-emerald-500/10 px-3 py-1.5 rounded-lg">정답: {q.answer}</p>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>

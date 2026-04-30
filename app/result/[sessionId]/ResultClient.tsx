@@ -106,6 +106,8 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
   // 퀴즈
   const [quiz, setQuiz] = useState<QuizData | null>(null)
   const [quizLoading, setQuizLoading] = useState(false)
+  const [quizAttemptCount, setQuizAttemptCount] = useState(0) // 완료한 횟수
+  const currentAttemptRef = useRef(1) // 현재 진행 중 도전 번호
 
   // 워크시트
   const [worksheet, setWorksheet] = useState<WorksheetData | null>(null)
@@ -551,6 +553,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
 
   const handleGenerateQuiz = async (force = false) => {
     if (!data || quizLoading) return
+    currentAttemptRef.current = quizAttemptCount + 1
     setQuizLoading(true)
     try {
       const res = await fetch('/api/quiz', {
@@ -625,7 +628,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
 
   // 퀴즈 정답 로그 + 오답 시 복습 스케줄 등록
   const handleQuizAnswer = useCallback((log: { questionIdx: number; question: string; selected: string; correct: boolean; metaLevel?: string }) => {
-    logStudentActivity('quiz', log)
+    logStudentActivity('quiz', { ...log, attempt: currentAttemptRef.current })
     // 오답이면 에빙하우스 복습 스케줄에 추가
     if (!log.correct && user && userProfile?.classCode) {
       const sessionId = data?.sessionId
