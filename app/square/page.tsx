@@ -1,4 +1,7 @@
 // 서버 컴포넌트 — 크롤러/봇이 받는 HTML에 실제 콘텐츠를 포함시킴
+// 빌드 타임 정적 생성 비활성화: Firestore fetch가 빌드 환경에서 타임아웃 발생
+export const dynamic = 'force-dynamic'
+
 import { SavedSummary } from '@/lib/db'
 import { getPublishedPosts } from '@/lib/magazine'
 import SquareClient from './SquareClient'
@@ -50,8 +53,9 @@ async function fetchPublicSummariesServer(): Promise<SavedSummary[]> {
           limit: 300,
         },
       }),
-      // 5분 캐싱: 크롤러엔 충분한 freshness, 사용자는 클라이언트 재갱신으로 보완
+      // 빌드 타임 정적 생성 건너뜀 — 런타임에 5분마다 재검증
       next: { revalidate: 300 },
+      signal: AbortSignal.timeout(8000),
     })
 
     if (!res.ok) return []
