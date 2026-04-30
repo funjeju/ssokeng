@@ -85,7 +85,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (profile?.role === 'student' && profile.classCode) {
         const sessionKey = `login_logged_${u.uid}_${new Date().toDateString()}`
         if (!sessionStorage.getItem(sessionKey)) {
-          sessionStorage.setItem(sessionKey, '1')
           const isMobile = typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0
           fetch('/api/classroom/activity', {
             method: 'POST',
@@ -97,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               type: 'login',
               value: { device: isMobile ? 'mobile' : 'desktop' },
             }),
-          }).catch(() => {})
+          }).then(r => { if (r.ok) sessionStorage.setItem(sessionKey, '1') }).catch(() => {})
         }
       }
     } catch (e) {

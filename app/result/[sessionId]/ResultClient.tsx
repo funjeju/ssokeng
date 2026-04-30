@@ -273,7 +273,6 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
     if (!isClassView || !data || !user || !userProfile?.classCode) return
     const logKey = `play_logged_${sessionId}_${user.uid}_${new Date().toDateString()}`
     if (sessionStorage.getItem(logKey)) return
-    sessionStorage.setItem(logKey, '1')
     fetch('/api/classroom/activity', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -287,7 +286,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
         videoTitle: data.title || '',
         value: { completed: false },
       }),
-    }).catch(() => {})
+    }).then(r => { if (r.ok) sessionStorage.setItem(logKey, '1') }).catch(() => {})
   }, [isClassView, data, user, userProfile, sessionId])
 
   // videoPublishedAt 없는 경우 서버에서 가져와 보완
