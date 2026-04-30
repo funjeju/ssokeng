@@ -222,6 +222,15 @@ function FolderTreeItem({
           </div>
         ) : (
           <div className="flex items-center gap-0.5">
+            {/* 드래그 핸들 */}
+            <span
+              draggable
+              onDragStart={e => onFolderDragStart(e, folder.id)}
+              onDragEnd={onFolderDragEnd}
+              className="w-4 h-7 flex items-center justify-center text-[#4a4745] hover:text-[#a4a09c] cursor-grab active:cursor-grabbing shrink-0 opacity-0 group-hover/folder:opacity-100 transition-opacity select-none"
+              title="드래그해서 폴더 이동"
+            >⠿</span>
+
             {/* 확장/축소 화살표 */}
             <button
               onClick={() => onToggleExpand(folder.id)}
@@ -235,10 +244,7 @@ function FolderTreeItem({
             {/* 폴더 버튼 */}
             <button
               onClick={() => onFolderClick(folder.id)}
-              draggable
-              onDragStart={e => onFolderDragStart(e, folder.id)}
-              onDragEnd={onFolderDragEnd}
-              className={`flex-1 text-left py-2 px-2.5 rounded-xl whitespace-nowrap transition-all text-sm min-w-0 cursor-grab active:cursor-grabbing ${
+              className={`flex-1 text-left py-2 px-2.5 rounded-xl whitespace-nowrap transition-all text-sm min-w-0 ${
                 isActive
                   ? 'bg-orange-500 text-white font-bold'
                   : folder.clonedFrom
