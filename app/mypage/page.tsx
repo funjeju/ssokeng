@@ -1069,7 +1069,13 @@ export default function MyPage() {
                   <span className="text-[10px] px-1.5 py-0.5 bg-blue-500/15 text-blue-400 rounded-full border border-blue-500/20 font-bold">학생</span>
                 )}
               </p>
-              <p className="text-[#75716e] text-xs truncate">{user.email}</p>
+              {userProfile?.role === 'student' && userProfile.schoolName ? (
+                <p className="text-[#75716e] text-xs truncate">
+                  {userProfile.schoolName} {userProfile.grade}학년 {userProfile.classNum}반
+                </p>
+              ) : (
+                <p className="text-[#75716e] text-xs truncate">{user.email}</p>
+              )}
             </div>
             {/* 토큰 잔액 (아바타 우측, 모바일에서도 한 줄) */}
             <div className="flex items-center gap-2 shrink-0 ml-auto">

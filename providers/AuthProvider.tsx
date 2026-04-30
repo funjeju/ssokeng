@@ -65,8 +65,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadProfile = async (u: User) => {
     try {
       // 이메일 미인증 상태(회원가입 직후 로그아웃 전) → 프로필 모달 띄우지 않음
+      // 단, 학생 계정(@cls.ssoktube.com)은 이메일 인증 없이 가입하므로 예외 처리
       const isEmailProvider = u.providerData.some(p => p.providerId === 'password')
-      if (isEmailProvider && !u.emailVerified) {
+      const isStudentEmail = u.email?.endsWith('@cls.ssoktube.com') ?? false
+      if (isEmailProvider && !u.emailVerified && !isStudentEmail) {
         setNeedsProfile(false)
         setLoading(false)
         return
