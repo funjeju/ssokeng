@@ -140,6 +140,17 @@ export async function deleteFolder(folderId: string): Promise<void> {
   // 별도 처리 없이 orphaned 상태로 두면 'all' 쿼리에서는 보임
 }
 
+export async function updateFolderParent(
+  folderId: string,
+  newParentId: string | null,
+  newDepth: number,
+): Promise<void> {
+  await updateDoc(doc(db, 'folders', folderId), {
+    parentId: newParentId,
+    depth: newDepth,
+  })
+}
+
 // Firestore는 undefined 값을 거부 → 재귀적으로 null로 치환
 function stripUndefined(obj: any): any {
   if (obj === undefined) return null

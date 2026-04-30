@@ -46,6 +46,7 @@ export default function QuizPanel({ quiz, onClose, onComplete, onAnswer, showMet
     setPendingMeta(null)
     if (idx + 1 >= total) {
       setDone(true)
+      onComplete?.()
     } else {
       setIdx(i => i + 1)
       setFlipped(false)

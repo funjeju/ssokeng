@@ -1099,8 +1099,8 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
               {/* 광고 ① mid — 요약 직후, 카테고리 관련 광고 (요리→요리, 여행→여행) */}
               <ContextualAdBanner category={data.category} position="mid" />
 
-              {/* 퀴즈 버튼 — 영어/학습 카테고리만 */}
-              {(data.category === 'english' || data.category === 'learning') && (
+              {/* 퀴즈 버튼 — 영어/학습 카테고리만, 패널 열려있으면 숨김 */}
+              {(data.category === 'english' || data.category === 'learning') && !quiz && (
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleGenerateQuiz(false)}
@@ -1113,10 +1113,14 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                         </svg>
-                        퀴즈 생성 중...
+                        퀴즈 불러오는 중...
                       </>
+                    ) : quizAttemptCount === 0 ? (
+                      userProfile?.role === 'student' || isClassView
+                        ? <>🧠 퀴즈 풀기</>
+                        : <>🧠 퀴즈 생성하기</>
                     ) : (
-                      <>🧠 퀴즈 생성하기</>
+                      <>🔁 퀴즈 재도전 <span className="text-[11px] opacity-60">({quizAttemptCount}회 완료)</span></>
                     )}
                   </button>
                   {userProfile?.role === 'teacher' && data.videoId && (
@@ -1615,6 +1619,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
         <QuizPanel
           quiz={quiz}
           onClose={() => setQuiz(null)}
+          onComplete={() => setQuizAttemptCount(c => c + 1)}
           onAnswer={handleQuizAnswer}
           showMeta={data.category === 'learning' || data.category === 'english'}
           onMeta={data.category === 'learning' || data.category === 'english' ? handleQuizMeta : undefined}

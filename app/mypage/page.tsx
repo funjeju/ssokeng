@@ -10,7 +10,7 @@ import {
   getPendingFriendRequests, acceptFriendRequest, rejectFriendRequest, getFriends,
   batchUpdateSortOrder, renameFolder, deleteFolder, createSharedFolder,
   updateFolderVisibility, cloneFolder, createFolder, updateUserAvatar,
-  createSharedFolderWithTree,
+  createSharedFolderWithTree, updateFolderParent,
   Folder, SavedSummary, FriendRequest,
 } from '@/lib/db'
 import { useAuth } from '@/providers/AuthProvider'
@@ -166,6 +166,14 @@ interface FolderTreeItemProps {
   onSubFolderConfirm: (parentId: string) => void
   onSubFolderCancel: () => void
   onSubFolderKeyDown: (e: React.KeyboardEvent, parentId: string) => void
+  // 폴더 드래그 앤 드롭
+  folderDragId: string | null
+  folderDropTarget: string | null
+  onFolderDragStart: (e: React.DragEvent, id: string) => void
+  onFolderDragOver: (e: React.DragEvent, targetId: string | null) => void
+  onFolderDragLeave: (e: React.DragEvent) => void
+  onFolderDrop: (e: React.DragEvent, targetId: string | null) => void
+  onFolderDragEnd: () => void
 }
 
 function FolderTreeItem({
@@ -175,6 +183,8 @@ function FolderTreeItem({
   onRenameCancel, onRenameValueChange, onToggleVisibility, onShareOptions, onShare,
   onDelete, onCreateSubFolder, onSubFolderNameChange, onSubFolderConfirm,
   onSubFolderCancel, onSubFolderKeyDown,
+  folderDragId, folderDropTarget,
+  onFolderDragStart, onFolderDragOver, onFolderDragLeave, onFolderDrop, onFolderDragEnd,
 }: FolderTreeItemProps) {
   const children = buildFolderTree(allFolders, folder.id)
   const hasChildren = children.length > 0
@@ -183,9 +193,18 @@ function FolderTreeItem({
   const depth = folder.depth ?? 0
   const indent = depth * 14
 
+  const isDragging = folderDragId === folder.id
+  const isDropTarget = folderDropTarget === folder.id
+
   return (
     <div>
-      <div className="relative group/folder" style={{ marginLeft: `${indent}px` }}>
+      <div
+        className={`relative group/folder rounded-xl transition-all ${isDropTarget ? 'ring-2 ring-orange-500/60 bg-orange-500/5' : ''} ${isDragging ? 'opacity-40' : ''}`}
+        style={{ marginLeft: `${indent}px` }}
+        onDragOver={e => onFolderDragOver(e, folder.id)}
+        onDragLeave={onFolderDragLeave}
+        onDrop={e => onFolderDrop(e, folder.id)}
+      >
         {renamingId === folder.id ? (
           <div className="flex gap-1 px-1 py-1">
             <input
@@ -216,7 +235,10 @@ function FolderTreeItem({
             {/* 폴더 버튼 */}
             <button
               onClick={() => onFolderClick(folder.id)}
-              className={`flex-1 text-left py-2 px-2.5 rounded-xl whitespace-nowrap transition-all text-sm min-w-0 ${
+              draggable
+              onDragStart={e => onFolderDragStart(e, folder.id)}
+              onDragEnd={onFolderDragEnd}
+              className={`flex-1 text-left py-2 px-2.5 rounded-xl whitespace-nowrap transition-all text-sm min-w-0 cursor-grab active:cursor-grabbing ${
                 isActive
                   ? 'bg-orange-500 text-white font-bold'
                   : folder.clonedFrom
@@ -352,6 +374,13 @@ function FolderTreeItem({
               onSubFolderConfirm={onSubFolderConfirm}
               onSubFolderCancel={onSubFolderCancel}
               onSubFolderKeyDown={onSubFolderKeyDown}
+              folderDragId={folderDragId}
+              folderDropTarget={folderDropTarget}
+              onFolderDragStart={onFolderDragStart}
+              onFolderDragOver={onFolderDragOver}
+              onFolderDragLeave={onFolderDragLeave}
+              onFolderDrop={onFolderDrop}
+              onFolderDragEnd={onFolderDragEnd}
             />
           ))}
         </div>
@@ -563,6 +592,10 @@ export default function MyPage() {
   const [dragId, setDragId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
   const [savingOrder, setSavingOrder] = useState(false)
+  // 폴더 드래그 (폴더 자체를 다른 폴더로 이동)
+  const [folderDragId, setFolderDragId] = useState<string | null>(null)
+  const [folderDropTarget, setFolderDropTarget] = useState<string | null>(null) // null = root drop zone
+
   // 폴더 트리 확장/하위폴더 생성
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [creatingSubFolderIn, setCreatingSubFolderIn] = useState<string | null>(null)
@@ -969,6 +1002,80 @@ export default function MyPage() {
       }
     } catch { alert('폴더 삭제에 실패했습니다.') }
     finally { setFolderMenuId(null); setShareOptionsId(null) }
+  }
+
+  // ── 폴더 드래그 앤 드롭 ──
+  // 드래그된 폴더가 targetId의 자손인지 확인 (순환 방지)
+  const isFolderDescendant = (folderId: string, targetId: string): boolean => {
+    const children = folders.filter(f => f.parentId === targetId)
+    return children.some(c => c.id === folderId || isFolderDescendant(folderId, c.id))
+  }
+
+  const handleFolderDragStart = (e: React.DragEvent, id: string) => {
+    e.stopPropagation()
+    setFolderDragId(id)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', id)
+  }
+
+  const handleFolderDragOver = (e: React.DragEvent, targetId: string | null) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!folderDragId) return
+    if (targetId === folderDragId) return
+    if (targetId && isFolderDescendant(folderDragId, targetId)) return
+    e.dataTransfer.dropEffect = 'move'
+    setFolderDropTarget(targetId)
+  }
+
+  const handleFolderDragLeave = (e: React.DragEvent) => {
+    e.stopPropagation()
+  }
+
+  const handleFolderDrop = async (e: React.DragEvent, targetId: string | null) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!folderDragId) return
+    if (targetId === folderDragId) { setFolderDragId(null); setFolderDropTarget(null); return }
+    if (targetId && isFolderDescendant(folderDragId, targetId)) { setFolderDragId(null); setFolderDropTarget(null); return }
+
+    const dragged = folders.find(f => f.id === folderDragId)
+    if (!dragged) { setFolderDragId(null); setFolderDropTarget(null); return }
+
+    // 이미 같은 위치이면 무시
+    const currentParent = dragged.parentId ?? null
+    if (currentParent === targetId) { setFolderDragId(null); setFolderDropTarget(null); return }
+
+    const targetFolder = targetId ? folders.find(f => f.id === targetId) : null
+    const newDepth = targetFolder ? (targetFolder.depth ?? 0) + 1 : 0
+
+    // depth 제한: 최대 2
+    if (newDepth > 2) { setFolderDragId(null); setFolderDropTarget(null); return }
+
+    // 낙관적 UI 업데이트
+    setFolders(prev => prev.map(f =>
+      f.id === folderDragId ? { ...f, parentId: targetId, depth: newDepth } : f
+    ))
+    setFolderDragId(null)
+    setFolderDropTarget(null)
+
+    // 드롭 후 타겟 폴더 자동 확장
+    if (targetId) setExpandedFolders(prev => new Set([...prev, targetId]))
+
+    try {
+      await updateFolderParent(folderDragId, targetId, newDepth)
+    } catch {
+      alert('폴더 이동에 실패했습니다.')
+      // 실패 시 원래대로
+      setFolders(prev => prev.map(f =>
+        f.id === folderDragId ? { ...f, parentId: currentParent, depth: dragged.depth ?? 0 } : f
+      ))
+    }
+  }
+
+  const handleFolderDragEnd = () => {
+    setFolderDragId(null)
+    setFolderDropTarget(null)
   }
 
   // 카테고리 필터 → 검색 필터 순서로 적용
@@ -1426,6 +1533,22 @@ export default function MyPage() {
               )
             })()}
 
+            {/* 루트 드롭존 (폴더를 최상위로 꺼낼 때) */}
+            {folderDragId && (
+              <div
+                onDragOver={e => handleFolderDragOver(e, null)}
+                onDragLeave={handleFolderDragLeave}
+                onDrop={e => handleFolderDrop(e, null)}
+                className={`text-center text-xs py-2 rounded-xl border border-dashed transition-all mb-1 ${
+                  folderDropTarget === null
+                    ? 'border-orange-500/60 bg-orange-500/10 text-orange-400'
+                    : 'border-white/10 text-[#75716e]'
+                }`}
+              >
+                여기에 드롭 → 최상위로 이동
+              </div>
+            )}
+
             {buildFolderTree(folders, null).map(f => (
               <FolderTreeItem
                 key={f.id}
@@ -1462,6 +1585,13 @@ export default function MyPage() {
                   if (e.key === 'Enter') handleCreateSubFolder(parentId)
                   if (e.key === 'Escape') { setCreatingSubFolderIn(null); setNewSubFolderName('') }
                 }}
+                folderDragId={folderDragId}
+                folderDropTarget={folderDropTarget}
+                onFolderDragStart={handleFolderDragStart}
+                onFolderDragOver={handleFolderDragOver}
+                onFolderDragLeave={handleFolderDragLeave}
+                onFolderDrop={handleFolderDrop}
+                onFolderDragEnd={handleFolderDragEnd}
               />
             ))}
           </div>

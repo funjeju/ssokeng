@@ -39,6 +39,7 @@ interface VideoRecord {
   completed: boolean
   meta: { complete: number; confused: number; unknown: number }
   quiz: { attempts: number; correct: number }
+  quizByAttempt: Record<number, { correct: number; total: number }> // attempt번호 → 결과
   comments: ActivityLog[]
   segments: ActivityLog[]
   lastSeen: any
@@ -57,6 +58,7 @@ function buildVideoRecords(logs: ActivityLog[]): VideoRecord[] {
         completed: false,
         meta: { complete: 0, confused: 0, unknown: 0 },
         quiz: { attempts: 0, correct: 0 },
+        quizByAttempt: {},
         comments: [],
         segments: [],
         lastSeen: log.timestamp,
@@ -77,6 +79,10 @@ function buildVideoRecords(logs: ActivityLog[]): VideoRecord[] {
     if (log.type === 'quiz') {
       vr.quiz.attempts++
       if (log.value.correct) vr.quiz.correct++
+      const att = log.value.attempt ?? 1
+      if (!vr.quizByAttempt[att]) vr.quizByAttempt[att] = { correct: 0, total: 0 }
+      vr.quizByAttempt[att].total++
+      if (log.value.correct) vr.quizByAttempt[att].correct++
     }
     if (log.type === 'comment') vr.comments.push(log)
     if (log.type === 'segment') vr.segments.push(log)
@@ -1155,10 +1161,17 @@ export default function ClassDashboard() {
                           <div className="bg-black/20 rounded-xl p-2.5">
                             <p className="text-[9px] text-gray-500 mb-1.5">퀴즈</p>
                             {vr.quiz.attempts > 0 ? (
-                              <p className="text-[10px]">
-                                <span className="text-blue-400 font-bold">{Math.round(vr.quiz.correct / vr.quiz.attempts * 100)}%</span>
-                                <span className="text-gray-500 ml-1">({vr.quiz.correct}/{vr.quiz.attempts})</span>
-                              </p>
+                              <div className="space-y-0.5">
+                                {Object.entries(vr.quizByAttempt)
+                                  .sort(([a], [b]) => Number(a) - Number(b))
+                                  .map(([att, res]) => (
+                                    <p key={att} className="text-[10px]">
+                                      <span className="text-gray-500 mr-1">{att}차</span>
+                                      <span className="text-blue-400 font-bold">{Math.round(res.correct / res.total * 100)}%</span>
+                                      <span className="text-gray-600 ml-1">({res.correct}/{res.total})</span>
+                                    </p>
+                                  ))}
+                              </div>
                             ) : (
                               <p className="text-[10px] text-gray-600">미응시</p>
                             )}
