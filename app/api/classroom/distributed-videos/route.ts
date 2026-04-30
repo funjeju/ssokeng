@@ -42,7 +42,6 @@ export async function GET(req: NextRequest) {
     const videosSnap = await adminDb.collection('saved_summaries')
       .where('userId', '==', folderData.userId)
       .where('folderId', '==', folderId)
-      .orderBy('createdAt', 'desc')
       .get()
 
     const videos = videosSnap.docs.map(doc => {

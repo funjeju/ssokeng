@@ -1419,7 +1419,7 @@ export default function MyPage() {
               )
               return (
                 <div className="mt-1">
-                  <p className="text-xs font-bold text-emerald-400 px-2 py-1.5 tracking-wide">📖 수업자료</p>
+                  <p className="text-sm font-extrabold text-emerald-400 px-2 py-2 tracking-wide">📖 수업자료</p>
                   {rootDist.map((f: any) => renderDistFolder(f))}
                   <div className="h-px bg-white/5 my-2" />
                 </div>
