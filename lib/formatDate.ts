@@ -12,6 +12,12 @@ export function formatRelativeDate(value: unknown): string {
     ms = value.getTime()
   } else if (typeof value === 'number') {
     ms = value
+  } else if (typeof value === 'string') {
+    const parsed = new Date(value)
+    if (isNaN(parsed.getTime())) return ''
+    ms = parsed.getTime()
+  } else if (typeof value === 'object' && '_seconds' in (value as object)) {
+    ms = (value as { _seconds: number })._seconds * 1000
   } else {
     return ''
   }

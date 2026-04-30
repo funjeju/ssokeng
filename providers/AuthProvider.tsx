@@ -197,8 +197,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   // 로그인 성공 시 모달 자동 닫기
+  // email/password 유저는 emailVerified 확인 후에만 닫음 (인증 전 임시 user 세팅 때 모달 닫힘 방지)
   useEffect(() => {
-    if (user) closeAuthModal()
+    if (!user) return
+    const isEmailPasswordUser = user.providerData.some(p => p.providerId === 'password')
+    const isStudentEmail = user.email?.endsWith('@cls.ssoktube.com') ?? false
+    if (isEmailPasswordUser && !user.emailVerified && !isStudentEmail) return
+    closeAuthModal()
   }, [user])
 
   return (

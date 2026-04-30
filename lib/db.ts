@@ -257,6 +257,7 @@ export async function initNewUserTokens(uid: string, displayName: string, photoU
     tokensEarnedTotal: SIGNUP_BASE_TOKENS,
     plan: 'free',
     profileCompleted: false,
+    createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
 }
@@ -273,6 +274,7 @@ export async function setInitialUserDoc(uid: string, displayName: string, email:
     tokensEarnedTotal: SIGNUP_BASE_TOKENS,
     plan: 'free',
     profileCompleted: false,
+    createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
 }
