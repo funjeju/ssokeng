@@ -1496,7 +1496,7 @@ export default function MyPage() {
                     {videos.map((item: any) => (
                       <Link
                         key={item.id}
-                        href={item.sessionId ? `/result/${item.sessionId}` : `https://youtube.com/watch?v=${item.videoId}`}
+                        href={item.sessionId ? `/result/${item.sessionId}?classView=1` : `https://youtube.com/watch?v=${item.videoId}`}
                         className="flex flex-col bg-[#23211f] rounded-2xl border border-white/5 hover:border-emerald-500/30 transition-colors overflow-hidden"
                       >
                         {item.thumbnail && (

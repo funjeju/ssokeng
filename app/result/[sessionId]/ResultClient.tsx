@@ -69,6 +69,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const fromSquare = searchParams.get('from') === 'square'
+  const isClassView = searchParams.get('classView') === '1'
   const isTempReanalyze = searchParams.get('temp') === '1'
   const { user, userProfile, openAuthModal } = useAuth()
   const [data, setData] = useState<SummarizeResponse | null>(null)
@@ -267,6 +268,28 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
     fetchSummary()
   }, [sessionId, user])
 
+  // 수업자료 영상 시청 로그 (1회)
+  useEffect(() => {
+    if (!isClassView || !data || !user || !userProfile?.classCode) return
+    const logKey = `play_logged_${sessionId}_${user.uid}_${new Date().toDateString()}`
+    if (sessionStorage.getItem(logKey)) return
+    sessionStorage.setItem(logKey, '1')
+    fetch('/api/classroom/activity', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        studentId: user.uid,
+        studentName: userProfile.studentName || userProfile.displayName || '',
+        classCode: userProfile.classCode,
+        type: 'play',
+        videoId: data.videoId || '',
+        sessionId: data.sessionId || sessionId,
+        videoTitle: data.title || '',
+        value: { completed: false },
+      }),
+    }).catch(() => {})
+  }, [isClassView, data, user, userProfile, sessionId])
+
   // videoPublishedAt 없는 경우 서버에서 가져와 보완
   useEffect(() => {
     if (!data?.videoId || data.videoPublishedAt) return
@@ -341,7 +364,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
 
   // 미저장 이탈 방지 경고 (브라우저 새로고침/닫기)
   useEffect(() => {
-    const isUnsaved = !!data && !savedItem && !fromSquare
+    const isUnsaved = !!data && !savedItem && !fromSquare && !isClassView
     
     // 헤더 연동을 위한 전역 플래그 설정
     if (typeof window !== 'undefined') {
@@ -1376,7 +1399,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
 
         {/* 하단 버튼 영역 — 저장하기(flex-1) + 댓글/PDF/공유(아이콘) */}
         <div className="flex gap-2 mt-4">
-          {savedItem ? (
+          {!isClassView && (savedItem ? (
             <button
               onClick={handleToggleVisibility}
               disabled={togglingVisibility}
@@ -1395,7 +1418,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
             >
               {fromSquare ? '📥 나도 저장' : '📚 저장하기'}
             </Button>
-          )}
+          ))}
 
           {/* 시청파티 버튼 — YouTube 영상만, 로그인 필요 */}
           {data.videoId && (

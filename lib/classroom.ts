@@ -286,11 +286,15 @@ export async function getStudentLogs(
   const q = query(
     collection(db, 'activity_logs'),
     where('studentId', '==', studentId),
-    orderBy('timestamp', 'desc'),
     limit(limitCount)
   )
   const snap = await getDocs(q)
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }) as ActivityLog)
+  const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }) as ActivityLog)
+  return docs.sort((a, b) => {
+    const ta = (a.timestamp as any)?.toMillis?.() ?? 0
+    const tb = (b.timestamp as any)?.toMillis?.() ?? 0
+    return tb - ta
+  })
 }
 
 export async function getClassLogs(
@@ -300,11 +304,15 @@ export async function getClassLogs(
   const q = query(
     collection(db, 'activity_logs'),
     where('classCode', '==', classCode),
-    orderBy('timestamp', 'desc'),
     limit(limitCount)
   )
   const snap = await getDocs(q)
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }) as ActivityLog)
+  const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }) as ActivityLog)
+  return docs.sort((a, b) => {
+    const ta = (a.timestamp as any)?.toMillis?.() ?? 0
+    const tb = (b.timestamp as any)?.toMillis?.() ?? 0
+    return tb - ta
+  })
 }
 
 // ─────────────────────────────────────────────
