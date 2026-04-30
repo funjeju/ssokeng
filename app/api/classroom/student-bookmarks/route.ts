@@ -17,19 +17,21 @@ export async function GET(req: NextRequest) {
     await getAuth().verifyIdToken(token)
 
     const db = getFirestore()
+    // orderBy 제거 — where+orderBy 복합 인덱스 없으면 에러, JS 정렬로 대체
     const snap = await db.collection('video_bookmarks')
       .where('userId', '==', uid)
-      .orderBy('createdAt', 'desc')
       .get()
 
-    const bookmarks = snap.docs.map(d => {
-      const data = d.data()
-      return {
-        id: d.id,
-        ...data,
-        createdAt: data.createdAt?.toMillis?.() ?? 0,
-      }
-    })
+    const bookmarks = snap.docs
+      .map(d => {
+        const data = d.data()
+        return {
+          id: d.id,
+          ...data,
+          createdAt: data.createdAt?.toMillis?.() ?? 0,
+        }
+      })
+      .sort((a, b) => b.createdAt - a.createdAt)
 
     return NextResponse.json({ bookmarks })
   } catch (error: any) {

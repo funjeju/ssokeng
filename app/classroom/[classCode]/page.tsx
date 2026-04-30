@@ -39,10 +39,11 @@ interface VideoRecord {
   completed: boolean
   meta: { complete: number; confused: number; unknown: number }
   quiz: { attempts: number; correct: number }
-  quizByAttempt: Record<number, { correct: number; total: number }> // attempt번호 → 결과
+  quizByAttempt: Record<number, { correct: number; total: number }>
   comments: ActivityLog[]
   segments: ActivityLog[]
   lastSeen: any
+  watchSessions: { startedAt?: string; stoppedAt?: string; durationSec: number; percent: number }[]
 }
 
 function buildVideoRecords(logs: ActivityLog[]): VideoRecord[] {
@@ -62,14 +63,31 @@ function buildVideoRecords(logs: ActivityLog[]): VideoRecord[] {
         comments: [],
         segments: [],
         lastSeen: log.timestamp,
+        watchSessions: [],
       }
     }
     const vr = byVideo[log.videoId]
     if (!vr.lastSeen && log.timestamp) vr.lastSeen = log.timestamp
+    if (log.type === 'play_start') {
+      vr.watchSessions.push({ startedAt: log.value.startedAt, durationSec: 0, percent: 0 })
+    }
     if (log.type === 'play') {
       vr.watchDurationSec += log.value.durationSec || 0
       vr.percentWatched = Math.max(vr.percentWatched, log.value.percentWatched || 0)
       if (log.value.completed) vr.completed = true
+      // 마지막 미완료 세션 업데이트 or 새 세션 추가
+      const lastSession = vr.watchSessions[vr.watchSessions.length - 1]
+      if (lastSession && !lastSession.stoppedAt) {
+        lastSession.stoppedAt = log.value.stoppedAt
+        lastSession.durationSec = log.value.durationSec || 0
+        lastSession.percent = log.value.percentWatched || 0
+      } else {
+        vr.watchSessions.push({
+          stoppedAt: log.value.stoppedAt,
+          durationSec: log.value.durationSec || 0,
+          percent: log.value.percentWatched || 0,
+        })
+      }
     }
     if (log.type === 'meta') {
       if (log.value.metaLevel === 'complete') vr.meta.complete++
@@ -1167,7 +1185,7 @@ export default function ClassDashboard() {
                         </div>
 
                         {/* 시청 진행률 바 */}
-                        <div className="mb-3">
+                        <div className="mb-2">
                           <div className="flex items-center justify-between text-[10px] text-gray-500 mb-1">
                             <span>시청률</span>
                             <span className="text-white font-bold">{vr.percentWatched}% · {fmtDuration(vr.watchDurationSec)}</span>
@@ -1179,6 +1197,29 @@ export default function ClassDashboard() {
                             />
                           </div>
                         </div>
+
+                        {/* 시청 세션 타임라인 */}
+                        {vr.watchSessions.length > 0 && (
+                          <div className="mb-3 space-y-0.5">
+                            {vr.watchSessions.slice(-4).map((s, si) => {
+                              const fmt = (iso?: string) => {
+                                if (!iso) return '?'
+                                const d = new Date(iso)
+                                return d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+                              }
+                              return (
+                                <div key={si} className="flex items-center gap-1.5 text-[9px] text-gray-500">
+                                  <span className="text-orange-400">▶ {fmt(s.startedAt)}</span>
+                                  {s.stoppedAt && <>
+                                    <span>→</span>
+                                    <span>⏸ {fmt(s.stoppedAt)}</span>
+                                    <span className="text-gray-600">({fmtDuration(s.durationSec)} · {s.percent}%)</span>
+                                  </>}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
 
                         {/* 자기점검 + 퀴즈 */}
                         <div className="grid grid-cols-2 gap-2 mb-3">

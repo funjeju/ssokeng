@@ -81,9 +81,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // 프로필 미완성이면 온보딩 모달 띄움
       setNeedsProfile(!profile?.profileCompleted)
 
-      // 학생 계정이면 로그인 로그 기록 (세션당 1회)
+      // 학생 계정이면 로그인 로그 기록 (탭/세션당 1회 — 로그아웃 후 재로그인 시 재기록)
       if (profile?.role === 'student' && profile.classCode) {
-        const sessionKey = `login_logged_${u.uid}_${new Date().toDateString()}`
+        const sessionKey = `login_session_${u.uid}`  // 날짜가 아닌 탭 세션 기준
         if (!sessionStorage.getItem(sessionKey)) {
           const isMobile = typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0
           fetch('/api/classroom/activity', {
@@ -175,6 +175,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // 학생 계정이면 로그아웃 로그 기록 (firebaseSignOut 전에)
       if (userProfile?.role === 'student' && userProfile?.classCode && user) {
+        // 세션 키 제거 — 다음 로그인 시 로그인 이벤트 재기록 가능
+        try { sessionStorage.removeItem(`login_session_${user.uid}`) } catch {}
         fetch('/api/classroom/activity', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

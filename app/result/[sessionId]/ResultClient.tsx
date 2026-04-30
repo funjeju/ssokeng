@@ -154,6 +154,15 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
     return secs >= 1800  // 30분 이상
   }, [data?.transcript])
 
+  // 퀴즈 완료 횟수 복원 (새로고침해도 재도전 버튼 유지)
+  useEffect(() => {
+    if (!sessionId) return
+    try {
+      const stored = localStorage.getItem(`quiz_attempts_${sessionId}`)
+      if (stored) setQuizAttemptCount(parseInt(stored) || 0)
+    } catch {}
+  }, [sessionId])
+
   useEffect(() => {
     if (!data?.videoId) return
     import('qrcode').then(QRCode => {
@@ -573,6 +582,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           summary: data.summary,
           title: data.title,
           videoId: data.videoId || null,
+          sessionId: data.videoId ? null : (data.sessionId || sessionId),
           force,
         }),
       })
@@ -630,9 +640,14 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
     }).catch(() => {})
   }, [user, data])
 
-  // 시청 완료율 로그
+  // 시청 시작 로그 (최초 재생 1회)
+  const handlePlayStart = useCallback(() => {
+    logStudentActivity('play_start', { startedAt: new Date().toISOString() })
+  }, [logStudentActivity])
+
+  // 시청 완료율 로그 (일시정지 / 80% 완료 시)
   const handleWatchLog = useCallback((log: { durationSec: number; percentWatched: number; completed: boolean }) => {
-    logStudentActivity('play', log)
+    logStudentActivity('play', { ...log, stoppedAt: new Date().toISOString() })
   }, [logStudentActivity])
 
   // 퀴즈 정답 로그 + 오답 시 복습 스케줄 등록
@@ -866,6 +881,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                 videoId={data.videoId}
                 onPlayerReady={handlePlayerReady}
                 onWatchLog={handleWatchLog}
+                onPlayStart={handlePlayStart}
                 quizTimestamps={
                   (userProfile?.role === 'teacher' || userProfile?.role === 'student')
                     ? videoQuizzes.map(q => q.timestampSec)
@@ -1638,7 +1654,13 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
         <QuizPanel
           quiz={quiz}
           onClose={() => setQuiz(null)}
-          onComplete={() => setQuizAttemptCount(c => c + 1)}
+          onComplete={() => {
+              setQuizAttemptCount(c => {
+                const next = c + 1
+                try { localStorage.setItem(`quiz_attempts_${sessionId}`, String(next)) } catch {}
+                return next
+              })
+            }}
           onAnswer={handleQuizAnswer}
           showMeta={data.category === 'learning' || data.category === 'english'}
           onMeta={data.category === 'learning' || data.category === 'english' ? handleQuizMeta : undefined}

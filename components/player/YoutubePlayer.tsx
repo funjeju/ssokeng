@@ -11,9 +11,10 @@ export interface WatchLog {
 interface YoutubePlayerProps {
   videoId: string
   onPlayerReady?: (player: YT.Player) => void
-  onWatchLog?: (log: WatchLog) => void  // 시청 완료 시 콜백
-  quizTimestamps?: number[]             // 퀴즈 타임스탬프 목록 (초)
-  onQuizTrigger?: (timestampSec: number) => void  // 해당 시점 도달 시 콜백
+  onWatchLog?: (log: WatchLog) => void
+  onPlayStart?: () => void              // 최초 재생 시작 시 콜백
+  quizTimestamps?: number[]
+  onQuizTrigger?: (timestampSec: number) => void
 }
 
 declare global {
@@ -23,21 +24,22 @@ declare global {
   }
 }
 
-export default function YoutubePlayer({ videoId, onPlayerReady, onWatchLog, quizTimestamps, onQuizTrigger }: YoutubePlayerProps) {
+export default function YoutubePlayer({ videoId, onPlayerReady, onWatchLog, onPlayStart, quizTimestamps, onQuizTrigger }: YoutubePlayerProps) {
   const playerRef = useRef<YT.Player | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const watchStartRef = useRef<number>(0)       // 재생 시작 시각
-  const totalWatchedRef = useRef<number>(0)     // 누적 시청 초
-  const reportedRef = useRef<boolean>(false)    // 80% 이미 보고했는지
+  const watchStartRef = useRef<number>(0)
+  const totalWatchedRef = useRef<number>(0)
+  const reportedRef = useRef<boolean>(false)
+  const playStartFiredRef = useRef<boolean>(false)  // onPlayStart 최초 1회만
   const tickRef = useRef<number | null>(null)
-  // 퀴즈 감지용 refs (stale closure 방지)
   const quizTimestampsRef = useRef<number[]>([])
   const onQuizTriggerRef = useRef<((ts: number) => void) | undefined>(undefined)
+  const onPlayStartRef = useRef<(() => void) | undefined>(undefined)
   const shownQuizRef = useRef<Set<number>>(new Set())
 
-  // refs를 최신 props로 동기화
   useEffect(() => { quizTimestampsRef.current = quizTimestamps ?? [] }, [quizTimestamps])
   useEffect(() => { onQuizTriggerRef.current = onQuizTrigger }, [onQuizTrigger])
+  useEffect(() => { onPlayStartRef.current = onPlayStart }, [onPlayStart])
 
   const stopTick = useCallback(() => {
     if (tickRef.current !== null) {
@@ -70,7 +72,11 @@ export default function YoutubePlayer({ videoId, onPlayerReady, onWatchLog, quiz
           const player = e.target
           if (e.data === window.YT.PlayerState.PLAYING) {
             watchStartRef.current = Date.now()
-            // 주기적으로 시청 시간 누적
+            // 최초 재생 시작 콜백
+            if (!playStartFiredRef.current && onPlayStartRef.current) {
+              playStartFiredRef.current = true
+              onPlayStartRef.current()
+            }
             tickRef.current = window.setInterval(() => {
               totalWatchedRef.current += 1
 
