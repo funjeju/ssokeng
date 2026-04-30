@@ -8,8 +8,9 @@ interface TimestampBadgeProps {
 }
 
 export default function TimestampBadge({ timestamp, onSeek }: TimestampBadgeProps) {
-  // 빈 문자열이거나 "00:00"이면 PDF/웹 소스 → 숨김
   if (!timestamp || timestamp === '00:00') return null
+
+  const isPdfRef = /^p\.?\d+/i.test(timestamp)
 
   return (
     <Badge
@@ -18,7 +19,7 @@ export default function TimestampBadge({ timestamp, onSeek }: TimestampBadgeProp
       className="cursor-pointer font-mono text-xs rounded border-zinc-700 text-zinc-500 hover:text-blue-300 hover:border-zinc-500 transition-colors inline-flex"
       onClick={() => onSeek(timestamp)}
     >
-      ▶ {timestamp}
+      {isPdfRef ? `📄 ${timestamp}` : `▶ ${timestamp}`}
     </Badge>
   )
 }

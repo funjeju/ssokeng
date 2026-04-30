@@ -3,6 +3,8 @@ import { classifyCategory, generateSummary, generateReportSummary, generateConte
 import { randomUUID } from 'crypto'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { buildContentThumbnail } from '@/lib/thumbnail'
+import { initAdminApp } from '@/lib/firebase-admin'
+import { getStorage } from 'firebase-admin/storage'
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!)
 
@@ -54,7 +56,8 @@ async function extractPdfWithGemini(buffer: ArrayBuffer): Promise<string> {
         data: base64,
       },
     },
-    `이 PDF의 모든 텍스트 내용을 그대로 추출해주세요.
+    `이 PDF의 모든 텍스트 내용을 추출해주세요.
+각 페이지가 시작될 때 반드시 "[PAGE N]" 형식으로 페이지 번호를 표시하세요. 예: [PAGE 1], [PAGE 2]
 페이지 순서대로 빠짐없이 추출하고, 표나 목록 구조도 가능한 유지해주세요.
 마크다운 형식이나 설명 없이 내용만 출력하세요.`,
   ])
@@ -74,11 +77,11 @@ export async function POST(req: NextRequest) {
     if (!file.name.toLowerCase().endsWith('.pdf')) {
       return NextResponse.json({ error: 'PDF 파일만 업로드할 수 있습니다.' }, { status: 400 })
     }
-    // TODO: 요금제 차등화 — 무료: 20MB, 유료Pro: 100MB, 어드민: 무제한
     const idToken = req.headers.get('Authorization')?.replace('Bearer ', '')
+    if (!idToken) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     const isAdmin = idToken ? await import('@/lib/admin').then(m => m.checkIsAdminByToken(idToken)) : false
-    if (!isAdmin && file.size > 20 * 1024 * 1024) {
-      return NextResponse.json({ error: 'PDF 파일은 20MB 이하만 가능합니다.' }, { status: 400 })
+    if (!isAdmin && file.size > 30 * 1024 * 1024) {
+      return NextResponse.json({ error: 'PDF 파일은 30MB 이하만 가능합니다.' }, { status: 400 })
     }
 
     const buffer = await file.arrayBuffer()
@@ -107,6 +110,20 @@ export async function POST(req: NextRequest) {
 
     const sessionId = randomUUID()
     const thumbnail = buildContentThumbnail(category, title, 'pdf')
+
+    // Firebase Storage에 PDF 원본 업로드
+    let pdfUrl = ''
+    try {
+      initAdminApp()
+      const bucket = getStorage().bucket()
+      const storageFile = bucket.file(`pdfs/${sessionId}.pdf`)
+      await storageFile.save(Buffer.from(buffer), { metadata: { contentType: 'application/pdf' } })
+      await storageFile.makePublic()
+      pdfUrl = `https://storage.googleapis.com/${bucket.name}/pdfs/${sessionId}.pdf`
+    } catch (e) {
+      console.warn('[PDF] Storage upload failed:', e)
+    }
+
     const result = {
       sessionId,
       videoId: '',
@@ -123,6 +140,7 @@ export async function POST(req: NextRequest) {
       videoPublishedAt: '',
       summarizedAt: new Date().toISOString(),
       reportSummary: reportSummary || '',
+      pdfUrl,
     }
 
     // Firestore에 저장

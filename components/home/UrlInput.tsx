@@ -107,10 +107,9 @@ export default function UrlInput() {
       setError('PDF 문서 또는 음성 파일(MP3, WAV, M4A 등)만 지원합니다.')
       return
     }
-    // TODO: 요금제 차등화 — 무료: 20MB, 유료Pro: 100MB, 어드민: 무제한
     const isAdmin = user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL
-    if (!isAdmin && file.size > 20 * 1024 * 1024) {
-      setError('20MB 이하 파일만 업로드할 수 있습니다.')
+    if (!isAdmin && file.size > 30 * 1024 * 1024) {
+      setError('30MB 이하 파일만 업로드할 수 있습니다.')
       return
     }
 
@@ -381,7 +380,7 @@ export default function UrlInput() {
                   <p className="text-white text-[11px] font-semibold mb-0.5">파일 업로드</p>
                   <p className="text-[#a4a09c] text-[10px]">📄 PDF 문서</p>
                   <p className="text-[#a4a09c] text-[10px]">🎙 MP3 · WAV · M4A · 등</p>
-                  <p className="text-[#75716e] text-[9px] mt-0.5">최대 20MB</p>
+                  <p className="text-[#75716e] text-[9px] mt-0.5">최대 30MB</p>
                 </div>
               </div>
 

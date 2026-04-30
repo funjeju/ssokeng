@@ -167,4 +167,5 @@ export interface SummarizeResponse {
   summarizedAt?: string       // 요약 생성 일시 (ISO 8601)
   reportSummary?: string      // 보고서형 서술 요약 (PDF용)
   ytCommentSummary?: string   // 유튜브 댓글 방향성 AI 요약 (~280자)
+  pdfUrl?: string             // Firebase Storage PDF 원본 URL
 }

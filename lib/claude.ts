@@ -263,8 +263,10 @@ conclusion은 한 문장 핵심 결론입니다.
 
   const sampled = sampleTranscript(transcript)  // 기본 6만자
 
-  const sourceNote = source !== 'youtube'
-    ? `\n※ 이 콘텐츠는 ${source === 'pdf' ? 'PDF 문서' : '웹 페이지'}입니다. timestamp 필드는 모두 빈 문자열("")로 채우세요.`
+  const sourceNote = source === 'pdf'
+    ? `\n※ 이 콘텐츠는 PDF 문서입니다. 텍스트에 [PAGE N] 마커가 있습니다. timestamp 필드에는 해당 내용이 등장하는 페이지를 반드시 "p.N" 형식으로 기입하세요 (예: "p.3", "p.7"). MM:SS 형식은 사용하지 마세요. 페이지를 특정할 수 없으면 빈 문자열로 채우세요.`
+    : source === 'web'
+    ? `\n※ 이 콘텐츠는 웹 페이지입니다. timestamp 필드는 모두 빈 문자열("")로 채우세요.`
     : ''
 
   // 원문 언어 출력 모드: 한국어로 쓰지 않고 원문 언어 그대로 출력
