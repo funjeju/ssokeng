@@ -1398,8 +1398,9 @@ export default function MyPage() {
 
             {/* 수업자료 섹션 (학생 전용) */}
             {distFolders.length > 0 && (() => {
-              const rootDist = distFolders.filter(f => !f.parentId)
-              const getDistChildren = (pid: string) => distFolders.filter(f => f.parentId === pid)
+              const distFolderIds = new Set(distFolders.map((f: any) => f.id))
+              const rootDist = distFolders.filter((f: any) => !f.parentId || !distFolderIds.has(f.parentId))
+              const getDistChildren = (pid: string) => distFolders.filter((f: any) => f.parentId === pid)
               const renderDistFolder = (folder: any, depth: number = 0): React.ReactNode => (
                 <div key={folder.id}>
                   <button
@@ -1413,13 +1414,13 @@ export default function MyPage() {
                   >
                     📁 {folder.name}
                   </button>
-                  {getDistChildren(folder.id).map(child => renderDistFolder(child, depth + 1))}
+                  {getDistChildren(folder.id).map((child: any) => renderDistFolder(child, depth + 1))}
                 </div>
               )
               return (
                 <div className="mt-1">
-                  <p className="text-[10px] font-bold text-emerald-500/70 px-2 py-1.5 uppercase tracking-wider">📖 수업자료</p>
-                  {rootDist.map(f => renderDistFolder(f))}
+                  <p className="text-xs font-bold text-emerald-400 px-2 py-1.5 tracking-wide">📖 수업자료</p>
+                  {rootDist.map((f: any) => renderDistFolder(f))}
                   <div className="h-px bg-white/5 my-2" />
                 </div>
               )
