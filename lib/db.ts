@@ -130,6 +130,10 @@ export async function updateFolderVisibility(folderId: string, visibility: 'priv
   await updateDoc(doc(db, 'folders', folderId), { visibility })
 }
 
+export async function moveVideoToFolder(summaryId: string, folderId: string | null): Promise<void> {
+  await updateDoc(doc(db, 'saved_summaries', summaryId), { folderId: folderId ?? null })
+}
+
 export async function deleteFolder(folderId: string): Promise<void> {
   await deleteDoc(doc(db, 'folders', folderId))
   // 폴더 안 항목들은 folderId를 빈 문자열로 초기화 (모든 저장 항목에서는 계속 보임)

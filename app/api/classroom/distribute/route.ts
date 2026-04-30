@@ -35,9 +35,37 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '폴더 접근 권한이 없습니다.' }, { status: 403 })
     }
 
-    await folderRef.update({ distributedClassCodes: FieldValue.arrayUnion(upperCode) })
+    // 이 선생님의 모든 폴더를 가져와서 하위폴더 트리를 찾음
+    const allFoldersSnap = await adminDb.collection('folders').where('userId', '==', teacherUid).get()
+    const allFolderDocs = allFoldersSnap.docs
 
-    return NextResponse.json({ success: true, folderId, classCode: upperCode })
+    // BFS로 모든 하위폴더 ID 수집
+    function getDescendantIds(parentId: string): string[] {
+      const result: string[] = []
+      const queue = [parentId]
+      while (queue.length > 0) {
+        const current = queue.shift()!
+        const children = allFolderDocs.filter(d => d.data().parentId === current)
+        for (const child of children) {
+          result.push(child.id)
+          queue.push(child.id)
+        }
+      }
+      return result
+    }
+
+    const descendantIds = getDescendantIds(folderId)
+    const affectedIds = [folderId, ...descendantIds]
+
+    const batch = adminDb.batch()
+    for (const id of affectedIds) {
+      batch.update(adminDb.collection('folders').doc(id), {
+        distributedClassCodes: FieldValue.arrayUnion(upperCode),
+      })
+    }
+    await batch.commit()
+
+    return NextResponse.json({ success: true, folderId, classCode: upperCode, affectedIds })
   } catch (error: any) {
     console.error('[Distribute] Error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })

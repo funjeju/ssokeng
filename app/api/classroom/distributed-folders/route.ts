@@ -38,6 +38,7 @@ export async function GET(req: NextRequest) {
         id: doc.id,
         name: data.name,
         userId: data.userId,
+        parentId: data.parentId || null,
         distributedClassCodes: data.distributedClassCodes || [],
         createdAt: data.createdAt?.toDate?.()?.toISOString() || null,
       }

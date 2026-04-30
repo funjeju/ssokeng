@@ -118,6 +118,11 @@ export default function ClassDashboard() {
   const [pdfRef, setPdfRef] = useState<HTMLDivElement | null>(null)
   const [distributingFolder, setDistributingFolder] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [videoPickerFolder, setVideoPickerFolder] = useState<{ id: string; name: string } | null>(null)
+  const [libraryVideos, setLibraryVideos] = useState<any[]>([])
+  const [librarySearch, setLibrarySearch] = useState('')
+  const [loadingLibrary, setLoadingLibrary] = useState(false)
+  const [movingVideo, setMovingVideo] = useState<string | null>(null)
 
   // 클립 배포 관련 상태
   const [expandedFolder, setExpandedFolder] = useState<string | null>(null)
@@ -207,8 +212,9 @@ export default function ClassDashboard() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      setFolders(prev => prev.map(f => f.id === folderId
-        ? { ...f, distributedClassCodes: [...(f.distributedClassCodes || []), classCode] }
+      const affected = new Set<string>(data.affectedIds || [folderId])
+      setFolders(prev => prev.map(f => affected.has(f.id)
+        ? { ...f, distributedClassCodes: [...new Set([...(f.distributedClassCodes || []), classCode])] }
         : f
       ))
     } catch (e: any) {
@@ -220,7 +226,12 @@ export default function ClassDashboard() {
 
   const handleRecall = async (folderId: string) => {
     if (!user) return
-    if (!confirm('이 폴더를 회수하면 학생 화면에서 즉시 사라집니다. 계속하시겠습니까?')) return
+    const folder = folders.find(f => f.id === folderId)
+    const childCount = folders.filter(f => f.parentId === folderId).length
+    const msg = childCount > 0
+      ? `이 폴더와 하위폴더 ${childCount}개를 회수하면 학생 화면에서 즉시 사라집니다. 계속하시겠습니까?`
+      : '이 폴더를 회수하면 학생 화면에서 즉시 사라집니다. 계속하시겠습니까?'
+    if (!confirm(msg)) return
     setDistributingFolder(folderId)
     try {
       const token = await user.getIdToken()
@@ -231,7 +242,8 @@ export default function ClassDashboard() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      setFolders(prev => prev.map(f => f.id === folderId
+      const affected = new Set<string>(data.affectedIds || [folderId])
+      setFolders(prev => prev.map(f => affected.has(f.id)
         ? { ...f, distributedClassCodes: (f.distributedClassCodes || []).filter((c: string) => c !== classCode) }
         : f
       ))
@@ -239,6 +251,49 @@ export default function ClassDashboard() {
       alert('회수 중 오류: ' + e.message)
     } finally {
       setDistributingFolder(null)
+    }
+  }
+
+  const handleCreateSubfolder = async (parentFolder: any) => {
+    const name = prompt('하위폴더 이름을 입력하세요')
+    if (!name?.trim() || !user) return
+    const { createFolder } = await import('@/lib/db')
+    const newFolder = await createFolder(user.uid, name.trim(), parentFolder.id, (parentFolder.depth || 0) + 1)
+    const withCodes = { ...newFolder, distributedClassCodes: [] }
+    setFolders(prev => [...prev, withCodes])
+    // 부모가 이 클래스에 배포 중이면 새 하위폴더도 자동 배포
+    if ((parentFolder.distributedClassCodes || []).includes(classCode)) {
+      await handleDistribute(newFolder.id)
+    }
+  }
+
+  const openVideoPickerForFolder = async (folder: { id: string; name: string }) => {
+    setVideoPickerFolder(folder)
+    setLibrarySearch('')
+    if (!user) return
+    setLoadingLibrary(true)
+    try {
+      const { getSavedSummariesByFolder } = await import('@/lib/db')
+      const all = await getSavedSummariesByFolder(user.uid, 'all')
+      setLibraryVideos(all)
+    } finally {
+      setLoadingLibrary(false)
+    }
+  }
+
+  const handleMoveVideo = async (summaryId: string, targetFolderId: string) => {
+    if (!user) return
+    setMovingVideo(summaryId)
+    try {
+      const { moveVideoToFolder, getSavedSummariesByFolder } = await import('@/lib/db')
+      await moveVideoToFolder(summaryId, targetFolderId)
+      const updated = await getSavedSummariesByFolder(user.uid, targetFolderId)
+      setFolderVideos(prev => ({ ...prev, [targetFolderId]: updated }))
+      setLibraryVideos(prev => prev.filter(v => v.id !== summaryId))
+    } catch (e: any) {
+      alert('영상 추가 중 오류: ' + e.message)
+    } finally {
+      setMovingVideo(null)
     }
   }
 
@@ -501,111 +556,134 @@ export default function ClassDashboard() {
         )}
 
         {/* 수업자료 관리 탭 */}
-        {activeTab === 'folders' && (
-          <div className="bg-[#23211f] rounded-[28px] border border-white/10 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-gray-400">
-                <span className="text-emerald-400 font-bold">배포</span>를 누르면 학생 화면에 폴더와 영상이 실시간으로 보입니다.
-                <span className="text-red-400 font-bold ml-1">회수</span>하면 즉시 사라집니다.
-              </p>
-              <button
-                onClick={async () => {
-                  const name = prompt('새 수업 폴더 이름을 입력하세요')
-                  if (!name?.trim() || !user) return
-                  const { createFolder } = await import('@/lib/db')
-                  const newFolder = await createFolder(user.uid, name.trim())
-                  setFolders(prev => [...prev, newFolder])
-                }}
-                className="shrink-0 ml-4 flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors"
-              >
-                ＋ 새 수업 만들기
-              </button>
-            </div>
-            {folders.filter(f => (f.distributedClassCodes || []).includes(classCode)).length > 0 && (
-              <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl px-4 py-3 mb-4 text-xs text-emerald-300">
-                현재 배포 중 <span className="font-bold text-emerald-400">{folders.filter(f => (f.distributedClassCodes || []).includes(classCode)).length}개</span> 폴더
-              </div>
-            )}
-            {folders.length === 0 ? (
-              <p className="text-gray-500 text-sm">폴더가 없습니다. 위의 "새 수업 만들기" 버튼으로 수업을 시작하세요.</p>
-            ) : (
-              <div className="space-y-3">
-                {folders.map(folder => {
-                  const isDistributed = (folder.distributedClassCodes || []).includes(classCode)
-                  const isExpanded = expandedFolder === folder.id
-                  const videos = folderVideos[folder.id] || []
-                  const isBusy = distributingFolder === folder.id
-                  return (
-                    <div key={folder.id} className={`rounded-2xl border transition-colors ${isDistributed ? 'bg-emerald-500/5 border-emerald-500/30' : 'bg-[#1a1918] border-white/5'}`}>
-                      {/* 폴더 헤더 */}
-                      <div className="flex items-center justify-between px-5 py-4">
-                        <button className="flex items-center gap-3 flex-1 text-left" onClick={() => handleExpandFolder(folder.id)}>
-                          <span className="text-xl">{isExpanded ? '📂' : '📁'}</span>
-                          <div>
-                            <p className="font-bold text-sm">{folder.name}</p>
-                            {isDistributed && (
-                              <span className="text-[9px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full">✓ 배포 중</span>
-                            )}
-                          </div>
-                          <span className="text-[10px] text-gray-500 ml-1">{isExpanded ? '▲' : '▼'}</span>
-                        </button>
-                        <div className="flex gap-2 flex-wrap justify-end">
-                          <button
-                            onClick={() => openFolderReport({ id: folder.id, name: folder.name })}
-                            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 transition-colors"
-                          >
-                            📋 보고서
-                          </button>
-                          {isDistributed ? (
-                            <button
-                              onClick={() => handleRecall(folder.id)}
-                              disabled={isBusy}
-                              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-red-500/10 text-red-400 hover:bg-red-500/20 disabled:opacity-50 transition-colors"
-                            >
-                              {isBusy ? '처리 중...' : '회수'}
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleDistribute(folder.id)}
-                              disabled={isBusy}
-                              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50 transition-colors"
-                            >
-                              {isBusy ? '처리 중...' : '배포'}
-                            </button>
-                          )}
+        {activeTab === 'folders' && (() => {
+          const rootFolders = folders.filter(f => !f.parentId)
+          const getChildren = (pid: string) => folders.filter(f => f.parentId === pid)
+          const distributedCount = folders.filter(f => (f.distributedClassCodes || []).includes(classCode)).length
+
+          const renderFolder = (folder: any, depth: number = 0): React.ReactNode => {
+            const isDistributed = (folder.distributedClassCodes || []).includes(classCode)
+            const isExpanded = expandedFolder === folder.id
+            const videos = folderVideos[folder.id] || []
+            const isBusy = distributingFolder === folder.id
+            const children = getChildren(folder.id)
+
+            return (
+              <div key={folder.id}>
+                <div className={`rounded-2xl border transition-colors ${isDistributed ? 'bg-emerald-500/5 border-emerald-500/30' : 'bg-[#1a1918] border-white/5'}`}>
+                  <div className="flex items-center justify-between px-4 py-3 gap-2">
+                    <button className="flex items-center gap-2 flex-1 text-left min-w-0" onClick={() => handleExpandFolder(folder.id)}>
+                      <span className="text-base shrink-0">{isExpanded ? '📂' : '📁'}</span>
+                      <div className="min-w-0">
+                        <p className="font-bold text-sm truncate">{folder.name}</p>
+                        <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                          {isDistributed && <span className="text-[9px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-full">✓ 배포 중</span>}
+                          {children.length > 0 && <span className="text-[9px] text-gray-600">하위 {children.length}개</span>}
                         </div>
                       </div>
-
-                      {/* 영상 목록 (펼쳤을 때) */}
-                      {isExpanded && (
-                        <div className="border-t border-white/5 px-5 pb-4 pt-3 space-y-2">
-                          {loadingVideos === folder.id ? (
-                            <p className="text-xs text-gray-500 py-2">불러오는 중...</p>
-                          ) : videos.length === 0 ? (
-                            <p className="text-xs text-gray-500 py-2">이 폴더에 영상이 없습니다.</p>
-                          ) : videos.map(item => (
-                            <div key={item.id} className="flex items-center gap-3 rounded-xl bg-[#23211f] px-3 py-2.5">
-                              {item.thumbnail && (
-                                <img src={item.thumbnail} alt="" className="w-14 h-8 rounded object-cover shrink-0" />
-                              )}
-                              <p className="flex-1 text-xs text-gray-200 truncate">{item.title}</p>
-                              <button
-                                onClick={() => openClipModal(item, folder.id)}
-                                className="shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors"
-                              >
-                                🎬 구간 배포
-                              </button>
-                            </div>
-                          ))}
-                        </div>
+                      <span className="text-[9px] text-gray-600 shrink-0 ml-1">{isExpanded ? '▲' : '▼'}</span>
+                    </button>
+                    <div className="flex gap-1.5 flex-wrap justify-end shrink-0">
+                      <button
+                        onClick={() => handleCreateSubfolder(folder)}
+                        className="px-2 py-1.5 rounded-lg text-[11px] font-bold bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors"
+                        title="하위폴더 만들기"
+                      >
+                        📁+
+                      </button>
+                      <button
+                        onClick={() => openVideoPickerForFolder({ id: folder.id, name: folder.name })}
+                        className="px-2 py-1.5 rounded-lg text-[11px] font-bold bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 transition-colors"
+                        title="영상 추가"
+                      >
+                        🎬+
+                      </button>
+                      <button
+                        onClick={() => openFolderReport({ id: folder.id, name: folder.name })}
+                        className="px-2 py-1.5 rounded-lg text-[11px] font-bold bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 transition-colors"
+                      >
+                        📋
+                      </button>
+                      {isDistributed ? (
+                        <button onClick={() => handleRecall(folder.id)} disabled={isBusy}
+                          className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-red-500/10 text-red-400 hover:bg-red-500/20 disabled:opacity-50 transition-colors">
+                          {isBusy ? '...' : '회수'}
+                        </button>
+                      ) : (
+                        <button onClick={() => handleDistribute(folder.id)} disabled={isBusy}
+                          className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50 transition-colors">
+                          {isBusy ? '...' : '배포'}
+                        </button>
                       )}
                     </div>
-                  )
-                })}
+                  </div>
+
+                  {/* 영상 목록 */}
+                  {isExpanded && (
+                    <div className="border-t border-white/5 px-4 pb-3 pt-2 space-y-2">
+                      {loadingVideos === folder.id ? (
+                        <p className="text-xs text-gray-500 py-2">불러오는 중...</p>
+                      ) : videos.length === 0 ? (
+                        <p className="text-xs text-gray-500 py-2">영상이 없습니다. 🎬+ 버튼으로 추가하세요.</p>
+                      ) : videos.map((item: any) => (
+                        <div key={item.id} className="flex items-center gap-3 rounded-xl bg-[#23211f] px-3 py-2.5">
+                          {item.thumbnail && <img src={item.thumbnail} alt="" className="w-14 h-8 rounded object-cover shrink-0" />}
+                          <p className="flex-1 text-xs text-gray-200 truncate">{item.title}</p>
+                          <button onClick={() => openClipModal(item, folder.id)}
+                            className="shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors">
+                            🎬 구간 배포
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 하위폴더 */}
+                {children.length > 0 && (
+                  <div className="ml-5 mt-1.5 mb-2 border-l-2 border-white/10 pl-3 space-y-1.5">
+                    {children.map(child => renderFolder(child, depth + 1))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        )}
+            )
+          }
+
+          return (
+            <div className="bg-[#23211f] rounded-[28px] border border-white/10 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm text-gray-400">
+                  <span className="text-emerald-400 font-bold">배포</span>를 누르면 학생 화면에 폴더와 영상이 실시간으로 보입니다.
+                  <span className="text-red-400 font-bold ml-1">회수</span>하면 즉시 사라집니다.
+                </p>
+                <button
+                  onClick={async () => {
+                    const name = prompt('새 수업 폴더 이름을 입력하세요')
+                    if (!name?.trim() || !user) return
+                    const { createFolder } = await import('@/lib/db')
+                    const newFolder = await createFolder(user.uid, name.trim())
+                    setFolders(prev => [...prev, { ...newFolder, distributedClassCodes: [] }])
+                  }}
+                  className="shrink-0 ml-4 flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors"
+                >
+                  ＋ 새 수업 만들기
+                </button>
+              </div>
+              {distributedCount > 0 && (
+                <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl px-4 py-3 mb-4 text-xs text-emerald-300">
+                  현재 배포 중 <span className="font-bold text-emerald-400">{distributedCount}개</span> 폴더
+                </div>
+              )}
+              {rootFolders.length === 0 ? (
+                <p className="text-gray-500 text-sm">폴더가 없습니다. 위의 "새 수업 만들기" 버튼으로 수업을 시작하세요.</p>
+              ) : (
+                <div className="space-y-2">
+                  {rootFolders.map(folder => renderFolder(folder))}
+                </div>
+              )}
+            </div>
+          )
+        })()}
 
         {/* 히트맵 탭 */}
         {activeTab === 'heatmap' && (
@@ -644,6 +722,53 @@ export default function ClassDashboard() {
           </div>
         )}
       </main>
+
+      {/* 영상 추가 피커 모달 */}
+      {videoPickerFolder && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setVideoPickerFolder(null)}>
+          <div className="bg-[#23211f] rounded-[28px] border border-white/10 w-full max-w-lg p-6 space-y-4 max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between shrink-0">
+              <div>
+                <h3 className="text-base font-black">🎬 영상 추가</h3>
+                <p className="text-xs text-gray-400 mt-0.5">폴더: {videoPickerFolder.name}</p>
+              </div>
+              <button onClick={() => setVideoPickerFolder(null)} className="text-gray-400 hover:text-white text-xl">✕</button>
+            </div>
+            <input
+              type="text"
+              placeholder="영상 제목 검색..."
+              value={librarySearch}
+              onChange={e => setLibrarySearch(e.target.value)}
+              className="shrink-0 w-full px-4 py-2.5 rounded-xl bg-[#1a1918] border border-white/10 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50"
+            />
+            <div className="overflow-y-auto flex-1 space-y-2">
+              {loadingLibrary ? (
+                <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-orange-500" /></div>
+              ) : (() => {
+                const filtered = libraryVideos.filter(v =>
+                  v.folderId !== videoPickerFolder.id &&
+                  (v.title || '').toLowerCase().includes(librarySearch.toLowerCase())
+                )
+                return filtered.length === 0 ? (
+                  <p className="text-gray-600 text-sm text-center py-8">추가할 수 있는 영상이 없습니다.</p>
+                ) : filtered.map((v: any) => (
+                  <div key={v.id} className="flex items-center gap-3 bg-[#2a2826] rounded-xl px-3 py-2.5">
+                    {v.thumbnail && <img src={v.thumbnail} alt="" className="w-14 h-8 rounded object-cover shrink-0" />}
+                    <p className="flex-1 text-xs text-gray-200 truncate">{v.title}</p>
+                    <button
+                      onClick={() => handleMoveVideo(v.id, videoPickerFolder.id)}
+                      disabled={movingVideo === v.id}
+                      className="shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50 transition-colors"
+                    >
+                      {movingVideo === v.id ? '...' : '추가'}
+                    </button>
+                  </div>
+                ))
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 클립 배포 모달 */}
       {clipModal && (

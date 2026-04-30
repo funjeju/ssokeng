@@ -549,7 +549,7 @@ function InviteButton({ isTeacher }: { isTeacher?: boolean }) {
 
 export default function MyPage() {
   const { user, userProfile, needsProfile, refreshProfile, loading: authLoading, openAuthModal } = useAuth()
-  const [activeTab, setActiveTab] = useState<'library' | 'friends' | 'travel' | 'blog' | 'shorts' | 'bookmarks' | 'quizzes' | 'youtube' | 'class'>('library')
+  const [activeTab, setActiveTab] = useState<'library' | 'friends' | 'travel' | 'blog' | 'shorts' | 'bookmarks' | 'quizzes' | 'youtube'>('library')
   const [folders, setFolders] = useState<Folder[]>([])
   const [summaries, setSummaries] = useState<SavedSummary[]>([])
   const [allSummaries, setAllSummaries] = useState<SavedSummary[]>([])
@@ -576,6 +576,10 @@ export default function MyPage() {
   const catDropdownRef = useRef<HTMLDivElement>(null)
   const [creatingFolder, setCreatingFolder] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
+  // 학생 수업자료 (사이드바 통합)
+  const [distFolders, setDistFolders] = useState<any[]>([])
+  const [distFolderVideos, setDistFolderVideos] = useState<Record<string, any[]>>({})
+  const [activeDistFolder, setActiveDistFolder] = useState<string | null>(null)
   const [showAvatarPicker, setShowAvatarPicker] = useState(false)
   const [showAvatarMenu, setShowAvatarMenu] = useState(false)
   const [showPhotoUpload, setShowPhotoUpload] = useState(false)
@@ -642,6 +646,36 @@ export default function MyPage() {
     }
     fetchInit()
   }, [user])
+
+  // 학생 수업자료 폴더 로드
+  useEffect(() => {
+    if (!user || userProfile?.role !== 'student' || !userProfile?.classCode) return
+    const loadDist = async () => {
+      try {
+        const token = await user.getIdToken()
+        const res = await fetch('/api/classroom/distributed-folders', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        const data = await res.json()
+        setDistFolders(data.folders || [])
+      } catch { /* 조용히 실패 */ }
+    }
+    loadDist()
+  }, [user, userProfile?.classCode])
+
+  const handleDistFolderClick = async (folderId: string) => {
+    setActiveDistFolder(folderId)
+    setActiveFolder('')
+    if (distFolderVideos[folderId] !== undefined) return
+    try {
+      const token = await user!.getIdToken()
+      const res = await fetch(`/api/classroom/distributed-videos?folderId=${folderId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const data = await res.json()
+      setDistFolderVideos(prev => ({ ...prev, [folderId]: data.videos || [] }))
+    } catch { /* 조용히 실패 */ }
+  }
 
   const handleAvatarChange = async (emoji: string) => {
     if (!user) return
@@ -810,6 +844,7 @@ export default function MyPage() {
 
   const handleFolderClick = async (folderId: string) => {
     setActiveFolder(folderId)
+    setActiveDistFolder(null)
     setSelectedCategory('all')
     setFolderMenuId(null)
     setShareOptionsId(null)
@@ -1220,16 +1255,6 @@ export default function MyPage() {
               </svg>
               가져오기
             </button>
-            {userProfile?.role === 'student' && userProfile?.classCode && (
-              <button
-                onClick={() => setActiveTab('class')}
-                className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
-                  activeTab === 'class' ? 'bg-emerald-600 text-white shadow' : 'text-emerald-400 hover:text-emerald-300 bg-emerald-500/10'
-                }`}
-              >
-                📖 수업자료
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -1309,10 +1334,6 @@ export default function MyPage() {
         </div>
       )}
 
-      {activeTab === 'class' && user && (
-        <ClassMaterialsTab user={user} />
-      )}
-
       {activeTab === 'library' && (
       <>
 
@@ -1369,11 +1390,41 @@ export default function MyPage() {
             <button
               onClick={() => handleFolderClick('all')}
               className={`text-left px-4 py-3 rounded-xl whitespace-nowrap transition-colors text-sm ${
-                activeFolder === 'all' ? 'bg-orange-500 text-white font-bold' : 'bg-[#32302e] text-[#a4a09c] hover:bg-[#3d3a38]'
+                activeFolder === 'all' && !activeDistFolder ? 'bg-orange-500 text-white font-bold' : 'bg-[#32302e] text-[#a4a09c] hover:bg-[#3d3a38]'
               }`}
             >
               🌐 모든 저장 항목
             </button>
+
+            {/* 수업자료 섹션 (학생 전용) */}
+            {distFolders.length > 0 && (() => {
+              const rootDist = distFolders.filter(f => !f.parentId)
+              const getDistChildren = (pid: string) => distFolders.filter(f => f.parentId === pid)
+              const renderDistFolder = (folder: any, depth: number = 0): React.ReactNode => (
+                <div key={folder.id}>
+                  <button
+                    onClick={() => handleDistFolderClick(folder.id)}
+                    className={`w-full text-left rounded-xl transition-colors text-sm truncate ${
+                      activeDistFolder === folder.id
+                        ? 'bg-emerald-600 text-white font-bold'
+                        : 'text-emerald-300 hover:bg-emerald-500/10'
+                    }`}
+                    style={{ padding: `8px 12px 8px ${16 + depth * 14}px` }}
+                  >
+                    📁 {folder.name}
+                  </button>
+                  {getDistChildren(folder.id).map(child => renderDistFolder(child, depth + 1))}
+                </div>
+              )
+              return (
+                <div className="mt-1">
+                  <p className="text-[10px] font-bold text-emerald-500/70 px-2 py-1.5 uppercase tracking-wider">📖 수업자료</p>
+                  {rootDist.map(f => renderDistFolder(f))}
+                  <div className="h-px bg-white/5 my-2" />
+                </div>
+              )
+            })()}
+
             {buildFolderTree(folders, null).map(f => (
               <FolderTreeItem
                 key={f.id}
@@ -1417,6 +1468,54 @@ export default function MyPage() {
 
         {/* Content Grid */}
         <main className="flex-1">
+          {/* 수업자료 폴더 선택 시 */}
+          {activeDistFolder && (() => {
+            const folder = distFolders.find(f => f.id === activeDistFolder)
+            const videos = distFolderVideos[activeDistFolder]
+            return (
+              <div>
+                <nav className="flex items-center gap-1 text-xs text-[#75716e] mb-4 overflow-x-auto scrollbar-none">
+                  <button onClick={() => handleFolderClick('all')} className="hover:text-white whitespace-nowrap transition-colors">모든 저장 항목</button>
+                  <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  <span className="text-emerald-400 font-semibold whitespace-nowrap">📖 수업자료</span>
+                  <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  <span className="text-white font-semibold whitespace-nowrap">{folder?.name}</span>
+                </nav>
+                {videos === undefined ? (
+                  <div className="flex justify-center py-20">
+                    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-emerald-500" />
+                  </div>
+                ) : videos.length === 0 ? (
+                  <div className="bg-[#32302e]/50 rounded-[28px] p-12 text-center border border-white/5">
+                    <span className="text-3xl block mb-3">📭</span>
+                    <p className="text-white font-medium">이 폴더에 영상이 없습니다</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                    {videos.map((item: any) => (
+                      <Link
+                        key={item.id}
+                        href={item.sessionId ? `/result/${item.sessionId}` : `https://youtube.com/watch?v=${item.videoId}`}
+                        className="flex flex-col bg-[#23211f] rounded-2xl border border-white/5 hover:border-emerald-500/30 transition-colors overflow-hidden"
+                      >
+                        {item.thumbnail && (
+                          <img src={item.thumbnail} alt="" className="w-full aspect-video object-cover" />
+                        )}
+                        <div className="p-3">
+                          <p className="text-sm text-white font-bold line-clamp-2 leading-snug">{item.title}</p>
+                          {item.channel && <p className="text-[10px] text-gray-500 mt-1 truncate">{item.channel}</p>}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })()}
+
+          {/* 일반 라이브러리 (수업자료 폴더 미선택 시) */}
+          {!activeDistFolder && <>
+
           {/* 브레드크럼 */}
           {activeFolder !== 'all' && (() => {
             const path = getFolderPath(folders, activeFolder)
@@ -1761,6 +1860,8 @@ export default function MyPage() {
               )}
             </>
           )}
+
+          </> /* !activeDistFolder 닫기 */}
         </main>
       </div>
       </>
@@ -1988,46 +2089,42 @@ function ClassMaterialsTab({ user }: { user: any }) {
         <p className="text-[#75716e] text-sm mt-0.5">선생님이 배포한 폴더와 영상을 확인하세요.</p>
       </div>
 
-      {folders.length === 0 ? (
-        <div className="bg-[#32302e]/50 rounded-[28px] p-12 text-center border border-white/5">
-          <span className="text-3xl mb-3 block">📚</span>
-          <p className="text-white font-medium mb-1">아직 배포된 수업자료가 없습니다</p>
-          <p className="text-[#75716e] text-sm">선생님이 폴더를 배포하면 여기에 나타납니다.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {folders.map(folder => {
-            const isExpanded = expandedFolder === folder.id
-            const videos = folderVideos[folder.id] || []
-            return (
-              <div key={folder.id} className="bg-[#23211f] rounded-2xl border border-emerald-500/20">
+      {(() => {
+        const rootFolders = folders.filter(f => !f.parentId)
+        const getChildren = (pid: string) => folders.filter(f => f.parentId === pid)
+
+        const renderFolder = (folder: any, depth: number = 0): React.ReactNode => {
+          const isExpanded = expandedFolder === folder.id
+          const videos = folderVideos[folder.id] || []
+          const children = getChildren(folder.id)
+          return (
+            <div key={folder.id}>
+              <div className={`bg-[#23211f] rounded-2xl border ${depth === 0 ? 'border-emerald-500/20' : 'border-white/10'}`}>
                 <button
-                  className="w-full flex items-center gap-3 px-5 py-4 text-left"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-left"
                   onClick={() => handleExpandFolder(folder.id)}
                 >
-                  <span className="text-xl shrink-0">{isExpanded ? '📂' : '📁'}</span>
-                  <span className="flex-1 font-bold text-sm text-white">{folder.name}</span>
-                  <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">수업자료</span>
-                  <span className="text-[10px] text-gray-500 ml-1 shrink-0">{isExpanded ? '▲' : '▼'}</span>
+                  <span className="text-base shrink-0">{isExpanded ? '📂' : '📁'}</span>
+                  <span className="flex-1 font-bold text-sm text-white truncate">{folder.name}</span>
+                  {depth === 0 && <span className="text-[9px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-full shrink-0">수업자료</span>}
+                  <span className="text-[9px] text-gray-500 ml-1 shrink-0">{isExpanded ? '▲' : '▼'}</span>
                 </button>
 
                 {isExpanded && (
-                  <div className="border-t border-white/5 px-5 pb-4 pt-3">
+                  <div className="border-t border-white/5 px-4 pb-3 pt-2">
                     {loadingVideos === folder.id ? (
                       <p className="text-xs text-gray-500 py-2">불러오는 중...</p>
                     ) : videos.length === 0 ? (
                       <p className="text-xs text-gray-500 py-2">이 폴더에 영상이 없습니다.</p>
                     ) : (
                       <div className="space-y-2">
-                        {videos.map(item => (
+                        {videos.map((item: any) => (
                           <Link
                             key={item.id}
                             href={item.sessionId ? `/result/${item.sessionId}` : `https://youtube.com/watch?v=${item.videoId}`}
                             className="flex items-center gap-3 rounded-xl bg-[#1a1918] px-3 py-2.5 hover:bg-[#2a2826] transition-colors"
                           >
-                            {item.thumbnail && (
-                              <img src={item.thumbnail} alt="" className="w-14 h-8 rounded object-cover shrink-0" />
-                            )}
+                            {item.thumbnail && <img src={item.thumbnail} alt="" className="w-14 h-8 rounded object-cover shrink-0" />}
                             <div className="flex-1 min-w-0">
                               <p className="text-xs text-gray-200 truncate font-medium">{item.title}</p>
                               {item.channel && <p className="text-[10px] text-gray-500 truncate mt-0.5">{item.channel}</p>}
@@ -2040,10 +2137,28 @@ function ClassMaterialsTab({ user }: { user: any }) {
                   </div>
                 )}
               </div>
-            )
-          })}
-        </div>
-      )}
+
+              {children.length > 0 && (
+                <div className="ml-4 mt-1 mb-1.5 border-l-2 border-white/10 pl-3 space-y-1.5">
+                  {children.map(child => renderFolder(child, depth + 1))}
+                </div>
+              )}
+            </div>
+          )
+        }
+
+        return rootFolders.length === 0 ? (
+          <div className="bg-[#32302e]/50 rounded-[28px] p-12 text-center border border-white/5">
+            <span className="text-3xl mb-3 block">📚</span>
+            <p className="text-white font-medium mb-1">아직 배포된 수업자료가 없습니다</p>
+            <p className="text-[#75716e] text-sm">선생님이 폴더를 배포하면 여기에 나타납니다.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {rootFolders.map(folder => renderFolder(folder))}
+          </div>
+        )
+      })()}
     </div>
   )
 }
