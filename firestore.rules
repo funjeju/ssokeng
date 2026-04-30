@@ -24,12 +24,16 @@ service cloud.firestore {
     }
 
     // folders: 본인 폴더 읽기/쓰기, 공개 항목 또는 친구 관계인 경우 읽기 허용
+    // distributedClassCodes에 classCode custom claim이 포함된 학생도 읽기 허용
     match /folders/{docId} {
       allow read: if resource.data.visibility == 'public'
                   || (request.auth != null && (
                       request.auth.uid == resource.data.userId ||
                       request.auth.token.email == resource.data.userId ||
-                      exists(/databases/$(database)/documents/friendships/$(request.auth.uid < resource.data.userId ? request.auth.uid + '_' + resource.data.userId : resource.data.userId + '_' + request.auth.uid))
+                      exists(/databases/$(database)/documents/friendships/$(request.auth.uid < resource.data.userId ? request.auth.uid + '_' + resource.data.userId : resource.data.userId + '_' + request.auth.uid)) ||
+                      (request.auth.token.classCode != null &&
+                       resource.data.distributedClassCodes != null &&
+                       request.auth.token.classCode in resource.data.distributedClassCodes)
                   ));
       allow create: if request.auth != null;
       allow update, delete: if request.auth != null && (request.auth.uid == resource.data.userId || request.auth.token.email == resource.data.userId);

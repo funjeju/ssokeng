@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { FIRESTORE_BASE } from '@/lib/firestore-rest'
 import { buildStudentEmail } from '@/lib/classroom'
 import { initAdminApp } from '@/lib/firebase-admin'
+import { getAuth } from 'firebase-admin/auth'
 import { getFirestore, FieldValue } from 'firebase-admin/firestore'
 
 const API_KEY = process.env.NEXT_PUBLIC_FIREBASE_API_KEY!
@@ -135,7 +136,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '학생 정보 저장에 실패했습니다. 다시 시도해주세요.' }, { status: 500 })
     }
 
-    // 5. 교사의 masterFolder를 Admin SDK로 서버에서 직접 복제 (보안 규칙 우회)
+    // 5. custom claim 설정 (classCode) — 학생이 배포된 폴더에 직접 접근할 수 있도록
+    try {
+      initAdminApp()
+      await getAuth().setCustomUserClaims(uid, { classCode: upperCode, role: 'student' })
+    } catch (e) {
+      console.warn('[Enroll] custom claim 설정 실패:', e)
+    }
+
+    // 6. 교사의 masterFolder를 Admin SDK로 서버에서 직접 복제 (보안 규칙 우회)
     const folderIdsToInherit: string[] = classroom.masterFolderIds?.length
       ? classroom.masterFolderIds
       : classroom.masterFolderId

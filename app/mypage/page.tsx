@@ -549,7 +549,7 @@ function InviteButton({ isTeacher }: { isTeacher?: boolean }) {
 
 export default function MyPage() {
   const { user, userProfile, needsProfile, refreshProfile } = useAuth()
-  const [activeTab, setActiveTab] = useState<'library' | 'friends' | 'travel' | 'blog' | 'shorts' | 'bookmarks' | 'quizzes' | 'youtube'>('library')
+  const [activeTab, setActiveTab] = useState<'library' | 'friends' | 'travel' | 'blog' | 'shorts' | 'bookmarks' | 'quizzes' | 'youtube' | 'class'>('library')
   const [folders, setFolders] = useState<Folder[]>([])
   const [summaries, setSummaries] = useState<SavedSummary[]>([])
   const [allSummaries, setAllSummaries] = useState<SavedSummary[]>([])
@@ -1198,6 +1198,16 @@ export default function MyPage() {
               </svg>
               가져오기
             </button>
+            {userProfile?.role === 'student' && userProfile?.classCode && (
+              <button
+                onClick={() => setActiveTab('class')}
+                className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
+                  activeTab === 'class' ? 'bg-emerald-600 text-white shadow' : 'text-emerald-400 hover:text-emerald-300 bg-emerald-500/10'
+                }`}
+              >
+                📖 수업자료
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -1275,6 +1285,10 @@ export default function MyPage() {
             <div className="text-center py-20 text-[#75716e] text-sm">로그인 후 이용할 수 있습니다.</div>
           )}
         </div>
+      )}
+
+      {activeTab === 'class' && user && (
+        <ClassMaterialsTab user={user} />
       )}
 
       {activeTab === 'library' && (
@@ -1886,6 +1900,126 @@ export default function MyPage() {
               </>
             )}
           </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── 학생 수업자료 탭 ──
+function ClassMaterialsTab({ user }: { user: any }) {
+  const [folders, setFolders] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [expandedFolder, setExpandedFolder] = useState<string | null>(null)
+  const [folderVideos, setFolderVideos] = useState<Record<string, any[]>>({})
+  const [loadingVideos, setLoadingVideos] = useState<string | null>(null)
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const token = await user.getIdToken()
+        const res = await fetch('/api/classroom/distributed-folders', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        const data = await res.json()
+        setFolders(data.folders || [])
+      } catch (e) {
+        console.error('[ClassMaterials] 폴더 로드 실패:', e)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [user])
+
+  const handleExpandFolder = async (folderId: string) => {
+    if (expandedFolder === folderId) { setExpandedFolder(null); return }
+    setExpandedFolder(folderId)
+    if (folderVideos[folderId]) return
+    setLoadingVideos(folderId)
+    try {
+      const token = await user.getIdToken()
+      const res = await fetch(`/api/classroom/distributed-videos?folderId=${folderId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const data = await res.json()
+      setFolderVideos(prev => ({ ...prev, [folderId]: data.videos || [] }))
+    } catch (e) {
+      console.error('[ClassMaterials] 영상 로드 실패:', e)
+    } finally {
+      setLoadingVideos(null)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-emerald-500" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
+      <div className="mb-5">
+        <h2 className="text-white font-bold text-lg">📖 선생님 수업자료</h2>
+        <p className="text-[#75716e] text-sm mt-0.5">선생님이 배포한 폴더와 영상을 확인하세요.</p>
+      </div>
+
+      {folders.length === 0 ? (
+        <div className="bg-[#32302e]/50 rounded-[28px] p-12 text-center border border-white/5">
+          <span className="text-3xl mb-3 block">📚</span>
+          <p className="text-white font-medium mb-1">아직 배포된 수업자료가 없습니다</p>
+          <p className="text-[#75716e] text-sm">선생님이 폴더를 배포하면 여기에 나타납니다.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {folders.map(folder => {
+            const isExpanded = expandedFolder === folder.id
+            const videos = folderVideos[folder.id] || []
+            return (
+              <div key={folder.id} className="bg-[#23211f] rounded-2xl border border-emerald-500/20">
+                <button
+                  className="w-full flex items-center gap-3 px-5 py-4 text-left"
+                  onClick={() => handleExpandFolder(folder.id)}
+                >
+                  <span className="text-xl shrink-0">{isExpanded ? '📂' : '📁'}</span>
+                  <span className="flex-1 font-bold text-sm text-white">{folder.name}</span>
+                  <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0">수업자료</span>
+                  <span className="text-[10px] text-gray-500 ml-1 shrink-0">{isExpanded ? '▲' : '▼'}</span>
+                </button>
+
+                {isExpanded && (
+                  <div className="border-t border-white/5 px-5 pb-4 pt-3">
+                    {loadingVideos === folder.id ? (
+                      <p className="text-xs text-gray-500 py-2">불러오는 중...</p>
+                    ) : videos.length === 0 ? (
+                      <p className="text-xs text-gray-500 py-2">이 폴더에 영상이 없습니다.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {videos.map(item => (
+                          <Link
+                            key={item.id}
+                            href={item.sessionId ? `/result/${item.sessionId}` : `https://youtube.com/watch?v=${item.videoId}`}
+                            className="flex items-center gap-3 rounded-xl bg-[#1a1918] px-3 py-2.5 hover:bg-[#2a2826] transition-colors"
+                          >
+                            {item.thumbnail && (
+                              <img src={item.thumbnail} alt="" className="w-14 h-8 rounded object-cover shrink-0" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs text-gray-200 truncate font-medium">{item.title}</p>
+                              {item.channel && <p className="text-[10px] text-gray-500 truncate mt-0.5">{item.channel}</p>}
+                            </div>
+                            <span className="text-[10px] text-orange-400 shrink-0">보기 →</span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
     </div>

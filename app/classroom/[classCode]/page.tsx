@@ -8,8 +8,7 @@ import Link from 'next/link'
 import { formatRelativeDate } from '@/lib/formatDate'
 import {
   getClass, getClassStudents, getClassLogs, summarizeStudentLogs,
-  toggleMasterFolder, getMasterFolderIds, pushVideoToClass,
-  buildQuizHeatmap,
+  pushVideoToClass, buildQuizHeatmap,
   ClassRoom, ActivityLog, VideoHeatmap
 } from '@/lib/classroom'
 import { getUserFolders, getSavedSummariesByFolder } from '@/lib/db'
@@ -117,7 +116,7 @@ export default function ClassDashboard() {
   const [reportNote, setReportNote] = useState('')
   const [savingReportNote, setSavingReportNote] = useState(false)
   const [pdfRef, setPdfRef] = useState<HTMLDivElement | null>(null)
-  const [pushingFolder, setPushingFolder] = useState<string | null>(null)
+  const [distributingFolder, setDistributingFolder] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
   // 클립 배포 관련 상태
@@ -196,28 +195,50 @@ export default function ClassDashboard() {
     if (!authLoading) loadData()
   }, [authLoading, loadData])
 
-  const masterFolderIds = classroom ? getMasterFolderIds(classroom) : []
-
-  const handleToggleMasterFolder = async (folderId: string) => {
-    if (!classCode || !classroom) return
-    const newIds = await toggleMasterFolder(classCode, folderId, masterFolderIds)
-    setClassroom(prev => prev ? { ...prev, masterFolderIds: newIds } : prev)
-  }
-
-  const handlePushToAll = async (folderId: string) => {
-    if (!classroom || !user) return
-    if (!confirm('현재 이 폴더의 모든 영상을 기존 학생 전체에게 배포하시겠습니까?')) return
-    setPushingFolder(folderId)
+  const handleDistribute = async (folderId: string) => {
+    if (!user) return
+    setDistributingFolder(folderId)
     try {
-      const items = await getSavedSummariesByFolder(user.uid, folderId)
-      for (const item of items) {
-        await pushVideoToClass(classCode, folderId, user.uid, userProfile?.displayName || '선생님', item)
-      }
-      alert(`${items.length}개 영상이 ${students.length}명에게 배포됐습니다.`)
+      const token = await user.getIdToken()
+      const res = await fetch('/api/classroom/distribute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ folderId, classCode }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setFolders(prev => prev.map(f => f.id === folderId
+        ? { ...f, distributedClassCodes: [...(f.distributedClassCodes || []), classCode] }
+        : f
+      ))
     } catch (e: any) {
       alert('배포 중 오류: ' + e.message)
     } finally {
-      setPushingFolder(null)
+      setDistributingFolder(null)
+    }
+  }
+
+  const handleRecall = async (folderId: string) => {
+    if (!user) return
+    if (!confirm('이 폴더를 회수하면 학생 화면에서 즉시 사라집니다. 계속하시겠습니까?')) return
+    setDistributingFolder(folderId)
+    try {
+      const token = await user.getIdToken()
+      const res = await fetch('/api/classroom/recall', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ folderId, classCode }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setFolders(prev => prev.map(f => f.id === folderId
+        ? { ...f, distributedClassCodes: (f.distributedClassCodes || []).filter((c: string) => c !== classCode) }
+        : f
+      ))
+    } catch (e: any) {
+      alert('회수 중 오류: ' + e.message)
+    } finally {
+      setDistributingFolder(null)
     }
   }
 
@@ -484,8 +505,8 @@ export default function ClassDashboard() {
           <div className="bg-[#23211f] rounded-[28px] border border-white/10 p-6">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm text-gray-400">
-                폴더를 <span className="text-orange-400 font-bold">기준 폴더</span>로 지정하면 학생에게 자동 복제됩니다.
-                기존 학생에게도 즉시 배포하려면 <span className="text-blue-400">전체 배포</span>를 사용하세요.
+                <span className="text-emerald-400 font-bold">배포</span>를 누르면 학생 화면에 폴더와 영상이 실시간으로 보입니다.
+                <span className="text-red-400 font-bold ml-1">회수</span>하면 즉시 사라집니다.
               </p>
               <button
                 onClick={async () => {
@@ -500,9 +521,9 @@ export default function ClassDashboard() {
                 ＋ 새 수업 만들기
               </button>
             </div>
-            {masterFolderIds.length > 0 && (
-              <div className="bg-orange-500/5 border border-orange-500/20 rounded-2xl px-4 py-3 mb-4 text-xs text-orange-300">
-                기준 폴더 <span className="font-bold text-orange-400">{masterFolderIds.length}개</span> 지정됨
+            {folders.filter(f => (f.distributedClassCodes || []).includes(classCode)).length > 0 && (
+              <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl px-4 py-3 mb-4 text-xs text-emerald-300">
+                현재 배포 중 <span className="font-bold text-emerald-400">{folders.filter(f => (f.distributedClassCodes || []).includes(classCode)).length}개</span> 폴더
               </div>
             )}
             {folders.length === 0 ? (
@@ -510,19 +531,20 @@ export default function ClassDashboard() {
             ) : (
               <div className="space-y-3">
                 {folders.map(folder => {
-                  const isMaster = masterFolderIds.includes(folder.id)
+                  const isDistributed = (folder.distributedClassCodes || []).includes(classCode)
                   const isExpanded = expandedFolder === folder.id
                   const videos = folderVideos[folder.id] || []
+                  const isBusy = distributingFolder === folder.id
                   return (
-                    <div key={folder.id} className={`rounded-2xl border transition-colors ${isMaster ? 'bg-orange-500/5 border-orange-500/30' : 'bg-[#1a1918] border-white/5'}`}>
+                    <div key={folder.id} className={`rounded-2xl border transition-colors ${isDistributed ? 'bg-emerald-500/5 border-emerald-500/30' : 'bg-[#1a1918] border-white/5'}`}>
                       {/* 폴더 헤더 */}
                       <div className="flex items-center justify-between px-5 py-4">
                         <button className="flex items-center gap-3 flex-1 text-left" onClick={() => handleExpandFolder(folder.id)}>
                           <span className="text-xl">{isExpanded ? '📂' : '📁'}</span>
                           <div>
                             <p className="font-bold text-sm">{folder.name}</p>
-                            {isMaster && (
-                              <span className="text-[9px] text-orange-400 font-bold bg-orange-500/10 px-2 py-0.5 rounded-full">✓ 기준 폴더</span>
+                            {isDistributed && (
+                              <span className="text-[9px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full">✓ 배포 중</span>
                             )}
                           </div>
                           <span className="text-[10px] text-gray-500 ml-1">{isExpanded ? '▲' : '▼'}</span>
@@ -534,21 +556,23 @@ export default function ClassDashboard() {
                           >
                             📋 보고서
                           </button>
-                          <button
-                            onClick={() => handleToggleMasterFolder(folder.id)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                              isMaster ? 'bg-orange-500/20 text-orange-400 hover:bg-orange-500/30' : 'bg-white/5 text-gray-400 hover:bg-white/10'
-                            }`}
-                          >
-                            {isMaster ? '✓ 기준폴더 해제' : '기준폴더 지정'}
-                          </button>
-                          <button
-                            onClick={() => handlePushToAll(folder.id)}
-                            disabled={pushingFolder === folder.id}
-                            className="px-3 py-1.5 rounded-lg text-xs bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 disabled:opacity-50 transition-colors font-bold"
-                          >
-                            {pushingFolder === folder.id ? '배포 중...' : '전체 배포'}
-                          </button>
+                          {isDistributed ? (
+                            <button
+                              onClick={() => handleRecall(folder.id)}
+                              disabled={isBusy}
+                              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-red-500/10 text-red-400 hover:bg-red-500/20 disabled:opacity-50 transition-colors"
+                            >
+                              {isBusy ? '처리 중...' : '회수'}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleDistribute(folder.id)}
+                              disabled={isBusy}
+                              className="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50 transition-colors"
+                            >
+                              {isBusy ? '처리 중...' : '배포'}
+                            </button>
+                          )}
                         </div>
                       </div>
 
