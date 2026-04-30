@@ -236,6 +236,7 @@ function MultipleChoice({ q, selected, onSelect, onNext, showMeta, onMetaSelect,
 }) {
   const options = q.options ?? []
   const confirmed = selected !== null
+  const isCorrect = confirmed && selected === q.answer
 
   return (
     <div className="flex flex-col gap-3 flex-1">
@@ -243,10 +244,10 @@ function MultipleChoice({ q, selected, onSelect, onNext, showMeta, onMetaSelect,
       <div className="flex flex-col gap-2 flex-1">
         {options.map((opt, i) => {
           const isSelected = selected === opt
-          const isCorrect = opt === q.answer
+          const isOptCorrect = opt === q.answer
           let style = 'bg-[#32302e] border-white/10 text-[#e2e2e2] hover:border-orange-500/30 hover:text-white'
           if (confirmed) {
-            if (isCorrect) style = 'bg-emerald-500/15 border-emerald-500/50 text-emerald-300'
+            if (isOptCorrect) style = 'bg-emerald-500/15 border-emerald-500/50 text-emerald-300'
             else if (isSelected) style = 'bg-red-500/15 border-red-500/50 text-red-300'
             else style = 'bg-[#32302e] border-white/5 text-[#75716e] opacity-60'
           } else if (isSelected) {
@@ -267,11 +268,18 @@ function MultipleChoice({ q, selected, onSelect, onNext, showMeta, onMetaSelect,
       </div>
       {confirmed && (
         <div className="flex flex-col gap-2 mt-1">
-          {showMeta && onMetaSelect && (
+          {showMeta && onMetaSelect && isCorrect ? (
+            // 정답: 학생이 직접 이해도 선택
             <MetaRow pendingMeta={pendingMeta ?? null} onSelect={onMetaSelect} />
-          )}
+          ) : confirmed && !isCorrect ? (
+            // 오답: 자동 전혀모름
+            <p className="text-center text-xs text-red-400/70 py-1">❓ 전혀모름으로 기록됩니다</p>
+          ) : null}
           <button
-            onClick={() => onNext(selected === q.answer)}
+            onClick={() => {
+              if (!isCorrect) onMetaSelect?.('unknown')
+              onNext(isCorrect)
+            }}
             className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl text-sm transition-colors"
           >
             다음 →

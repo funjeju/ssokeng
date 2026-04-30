@@ -550,14 +550,20 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
     }
   }
 
-  const handleGenerateQuiz = async () => {
+  const handleGenerateQuiz = async (force = false) => {
     if (!data || quizLoading) return
     setQuizLoading(true)
     try {
       const res = await fetch('/api/quiz', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category: data.category, summary: data.summary, title: data.title }),
+        body: JSON.stringify({
+          category: data.category,
+          summary: data.summary,
+          title: data.title,
+          videoId: data.videoId || null,
+          force,
+        }),
       })
       if (!res.ok) throw new Error('퀴즈 생성 실패')
       setQuiz(await res.json())
@@ -1093,23 +1099,35 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
 
               {/* 퀴즈 버튼 — 영어/학습 카테고리만 */}
               {(data.category === 'english' || data.category === 'learning') && (
-                <button
-                  onClick={handleGenerateQuiz}
-                  disabled={quizLoading}
-                  className="w-full py-3.5 rounded-2xl border border-dashed border-violet-500/40 bg-violet-500/5 hover:bg-violet-500/10 text-violet-400 hover:text-violet-300 font-semibold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  {quizLoading ? (
-                    <>
-                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                      </svg>
-                      퀴즈 생성 중...
-                    </>
-                  ) : (
-                    <>🧠 퀴즈 생성하기</>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleGenerateQuiz(false)}
+                    disabled={quizLoading}
+                    className="flex-1 py-3.5 rounded-2xl border border-dashed border-violet-500/40 bg-violet-500/5 hover:bg-violet-500/10 text-violet-400 hover:text-violet-300 font-semibold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {quizLoading ? (
+                      <>
+                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                        </svg>
+                        퀴즈 생성 중...
+                      </>
+                    ) : (
+                      <>🧠 퀴즈 생성하기</>
+                    )}
+                  </button>
+                  {userProfile?.role === 'teacher' && data.videoId && (
+                    <button
+                      onClick={() => { if (confirm('기존 퀴즈를 새로 생성하시겠습니까?')) handleGenerateQuiz(true) }}
+                      disabled={quizLoading}
+                      title="퀴즈 재생성 (선생님 전용)"
+                      className="px-3 py-3.5 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 text-[#75716e] hover:text-white text-xs font-bold transition-all disabled:opacity-50"
+                    >
+                      🔄
+                    </button>
                   )}
-                </button>
+                </div>
               )}
 
               {/* 워크시트 버튼 — 영어 카테고리만 */}
