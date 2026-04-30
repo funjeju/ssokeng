@@ -86,6 +86,21 @@ export default function RootLayout({
             if(window.wcs) { wcs_do(); }
           `}}
         />
+        {/* Google Analytics 4 */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-HVYDMZLWRK"
+          strategy="afterInteractive"
+        />
+        <Script
+          id="ga4-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{ __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-HVYDMZLWRK');
+          `}}
+        />
         {/* Google Tag Manager */}
         <Script
           id="gtm-head"
