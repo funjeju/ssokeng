@@ -313,14 +313,17 @@ export default function ClassDashboard() {
     setStudentBookmarks([])
     setLoadingLogs(true)
     try {
-      const [logs, reviewRes, bookmarks] = await Promise.all([
+      const token = await user!.getIdToken()
+      const [logs, reviewRes, bookmarkRes] = await Promise.all([
         getClassLogs(classCode, 1000),
         fetch(`/api/review-schedule?uid=${student.uid}`).then(r => r.json()).catch(() => ({ items: [] })),
-        getBookmarks(student.uid).catch(() => []),
+        fetch(`/api/classroom/student-bookmarks?uid=${student.uid}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }).then(r => r.json()).catch(() => ({ bookmarks: [] })),
       ])
       setStudentLogs(logs.filter(l => l.studentId === student.uid))
       setStudentReviews(reviewRes.items || [])
-      setStudentBookmarks(bookmarks)
+      setStudentBookmarks(bookmarkRes.bookmarks || [])
     } finally {
       setLoadingLogs(false)
     }
@@ -465,7 +468,27 @@ export default function ClassDashboard() {
   )
 
   const videoRecords = buildVideoRecords(studentLogs)
-  const loginLogs = studentLogs.filter(l => l.type === 'login' || l.type === 'logout')
+
+  // 로그인/로그아웃을 세션 쌍으로 묶기 (오래된 순 → 쌍 짓기 → 최신 순 정렬)
+  const loginSessions = (() => {
+    const sorted = [...studentLogs]
+      .filter(l => l.type === 'login' || l.type === 'logout')
+      .sort((a, b) => (a.timestamp?.toMillis?.() ?? 0) - (b.timestamp?.toMillis?.() ?? 0))
+    const sessions: { loginLog: ActivityLog | null; logoutLog: ActivityLog | null }[] = []
+    for (const log of sorted) {
+      if (log.type === 'login') {
+        sessions.push({ loginLog: log, logoutLog: null })
+      } else {
+        const last = sessions[sessions.length - 1]
+        if (last && !last.logoutLog) {
+          last.logoutLog = log
+        } else {
+          sessions.push({ loginLog: null, logoutLog: log })
+        }
+      }
+    }
+    return sessions.reverse()
+  })()
 
   return (
     <div className="min-h-screen bg-[#1a1918] text-white">
@@ -728,7 +751,16 @@ export default function ClassDashboard() {
                 <span className="text-red-400 font-bold ml-1">빨간색</span> = 오답 60% 이상 → 수업 개입 필요
               </p>
             </div>
-            <QuizHeatmap heatmaps={heatmaps} />
+            <QuizHeatmap
+              heatmaps={heatmaps}
+              folders={folders.map(f => ({ id: f.id, name: f.name, depth: f.depth, parentId: f.parentId }))}
+              folderVideos={Object.fromEntries(
+                Object.entries(folderVideos).map(([fid, videos]) => [
+                  fid,
+                  videos.map((v: any) => ({ videoId: v.videoId, sessionId: v.sessionId, title: v.title }))
+                ])
+              )}
+            />
           </div>
         )}
 
@@ -1257,22 +1289,41 @@ export default function ClassDashboard() {
                 )
               ) : (
                 /* 접속 기록 탭 */
-                loginLogs.length === 0 ? (
+                loginSessions.length === 0 ? (
                   <p className="text-gray-600 text-sm text-center py-12">접속 기록이 없습니다.</p>
                 ) : (
                   <div className="space-y-2">
-                    {loginLogs.map((log, i) => (
-                      <div key={i} className="flex items-center gap-3 bg-[#1a1918] rounded-xl px-4 py-3 text-xs">
-                        <span className="text-lg">{log.type === 'login' ? '🔐' : '🚪'}</span>
-                        <div className="flex-1">
-                          <p className="text-gray-300 font-medium">{log.type === 'login' ? '로그인' : '로그아웃'}</p>
-                          {log.value.device && <p className="text-gray-600">{log.value.device}</p>}
+                    {loginSessions.map((session, i) => {
+                      const loginTs = session.loginLog?.timestamp
+                      const logoutTs = session.logoutLog?.timestamp
+                      const device = session.loginLog?.value?.device
+                      const fmtTime = (ts: any) => {
+                        if (!ts) return null
+                        const d = ts?.toDate?.() || new Date(ts)
+                        return d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+                      }
+                      const fmtDate = (ts: any) => {
+                        if (!ts) return null
+                        return formatRelativeDate(ts?.toDate?.() || ts)
+                      }
+                      return (
+                        <div key={i} className="bg-[#1a1918] rounded-xl px-4 py-3 text-xs border border-white/5">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-gray-400 font-medium">{fmtDate(loginTs || logoutTs)}</span>
+                            {device && <span className="text-[10px] text-gray-600">{device}</span>}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-green-400 font-bold">
+                              🔐 {loginTs ? fmtTime(loginTs) : '기록 없음'}
+                            </span>
+                            <span className="text-gray-600">→</span>
+                            <span className={logoutTs ? 'text-gray-400' : 'text-yellow-600'}>
+                              🚪 {logoutTs ? fmtTime(logoutTs) : '로그아웃 미기록'}
+                            </span>
+                          </div>
                         </div>
-                        <span className="text-gray-500">
-                          {log.timestamp ? formatRelativeDate(log.timestamp?.toDate?.() || log.timestamp) : ''}
-                        </span>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )
               )}

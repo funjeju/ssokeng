@@ -282,7 +282,7 @@ function FolderTreeItem({
         )}
 
         {/* 드롭다운 메뉴 */}
-        {folderMenuId === folder.id && renamingId !== folder.id && (
+        {(folderMenuId === folder.id || folderMoveOpenId === folder.id) && renamingId !== folder.id && (
           <div
             className="absolute right-0 top-full mt-1 z-30 bg-[#2a2826] border border-white/10 rounded-xl shadow-xl overflow-hidden min-w-[160px]"
             onClick={e => e.stopPropagation()}

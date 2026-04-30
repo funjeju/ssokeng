@@ -47,12 +47,12 @@ export default function YoutubePlayer({ videoId, onPlayerReady, onWatchLog, quiz
   }, [])
 
   const report = useCallback((player: YT.Player, completed: boolean) => {
-    if (!onWatchLog || reportedRef.current) return
+    if (!onWatchLog) return
     const duration = player.getDuration?.() || 0
     if (!duration) return
     const pct = Math.min(100, Math.round((totalWatchedRef.current / duration) * 100))
-    if (pct >= 10) {  // 10% 이상 봤을 때만 기록 (우발적 클릭 제외)
-      reportedRef.current = true
+    if (pct >= 5) {  // 5% 이상 봤을 때만 기록 (우발적 클릭 제외)
+      if (completed) reportedRef.current = true
       onWatchLog({ durationSec: Math.round(totalWatchedRef.current), percentWatched: pct, completed })
     }
   }, [onWatchLog])
@@ -104,6 +104,10 @@ export default function YoutubePlayer({ videoId, onPlayerReady, onWatchLog, quiz
             if (watchStartRef.current) {
               totalWatchedRef.current += (Date.now() - watchStartRef.current) / 1000
               watchStartRef.current = 0
+            }
+            // 일시정지 시 현재까지의 진행률 기록 (완료 아님)
+            if (e.data === window.YT.PlayerState.PAUSED && !reportedRef.current) {
+              report(player, false)
             }
           } else if (e.data === window.YT.PlayerState.ENDED) {
             stopTick()
