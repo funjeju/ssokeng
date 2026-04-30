@@ -548,7 +548,7 @@ function InviteButton({ isTeacher }: { isTeacher?: boolean }) {
 }
 
 export default function MyPage() {
-  const { user, userProfile, needsProfile, refreshProfile } = useAuth()
+  const { user, userProfile, needsProfile, refreshProfile, loading: authLoading, openAuthModal } = useAuth()
   const [activeTab, setActiveTab] = useState<'library' | 'friends' | 'travel' | 'blog' | 'shorts' | 'bookmarks' | 'quizzes' | 'youtube' | 'class'>('library')
   const [folders, setFolders] = useState<Folder[]>([])
   const [summaries, setSummaries] = useState<SavedSummary[]>([])
@@ -969,6 +969,22 @@ export default function MyPage() {
       return updated
     })
     setAllSummaries(update)
+  }
+
+  if (!authLoading && !user) {
+    return (
+      <div className="min-h-screen bg-[#252423] flex flex-col items-center justify-center gap-5 px-4">
+        <p className="text-5xl">🔐</p>
+        <p className="text-white font-bold text-lg">로그인이 필요합니다</p>
+        <p className="text-[#75716e] text-sm text-center">마이페이지는 로그인 후 이용할 수 있습니다.</p>
+        <button
+          onClick={() => openAuthModal('login')}
+          className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-sm transition-colors"
+        >
+          로그인하기
+        </button>
+      </div>
+    )
   }
 
   return (

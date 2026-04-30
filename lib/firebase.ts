@@ -18,9 +18,3 @@ export const db = getFirestore(app)
 export const auth = getAuth(app)
 export const storage = getStorage(app)
 
-// 디버그용 (확인 후 삭제)
-import { getApp } from 'firebase/app'
-const currentApp = getApp()
-console.log("🔥 Firebase Project ID:", currentApp.options.projectId)
-console.log("🔥 Firebase Auth Domain:", currentApp.options.authDomain)
-console.log("🔥 Firebase API Key:", currentApp.options.apiKey?.slice(0, 10) + "...")
