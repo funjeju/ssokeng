@@ -970,30 +970,39 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
               <p className="text-white text-sm font-semibold truncate">{data.title}</p>
             </div>
           </div>
-        ) : (data as any).sourceType === 'pdf' && (data as any).pdfUrl ? (
-          <div className="sticky top-[68px] md:top-[76px] z-40 bg-zinc-950 pb-2 shadow-[0_15px_20px_-10px_rgba(9,9,11,1)]">
-            <div className="rounded-xl overflow-hidden border border-white/10 ring-1 ring-black/50" style={{ height: '70vh' }}>
-              <iframe
-                src={`${(data as any).pdfUrl}#page=${pdfViewerPage}`}
-                className="w-full h-full"
-                title={data.title}
-              />
+        ) : (data as any).sourceType === 'pdf' ? (() => {
+          // pdfUrl 없는 기존 PDF도 sessionId 프록시로 fallback
+          const pdfSrc = (data as any).pdfUrl || `/api/pdf/${(data as any).sessionId || sessionId}`
+          return (
+            <div className="sticky top-[68px] md:top-[76px] z-40 bg-zinc-950 pb-2 shadow-[0_15px_20px_-10px_rgba(9,9,11,1)]">
+              <div className="rounded-xl overflow-hidden border border-white/10 ring-1 ring-black/50" style={{ height: '70vh' }}>
+                <iframe
+                  src={`${pdfSrc}#page=${pdfViewerPage}`}
+                  className="w-full h-full"
+                  title={data.title}
+                />
+              </div>
+              <div className="flex items-center gap-2 px-1 pt-2 text-xs text-zinc-500">
+                <span>📄 {data.title}</span>
+                <span className="ml-auto">p.{pdfViewerPage}</span>
+                <a href={pdfSrc} target="_blank" rel="noopener noreferrer"
+                  className="text-orange-400 hover:text-orange-300">원본 열기 ↗</a>
+              </div>
             </div>
-            <div className="flex items-center gap-2 px-1 pt-2 text-xs text-zinc-500">
-              <span>📄 {data.title}</span>
-              <span className="ml-auto">p.{pdfViewerPage}</span>
-              <a href={(data as any).pdfUrl} target="_blank" rel="noopener noreferrer"
-                className="text-orange-400 hover:text-orange-300">원본 열기 ↗</a>
-            </div>
-          </div>
-        ) : (data as any).sourceUrl || (data as any).sourceType === 'pdf' ? (
+          )
+        })()
+        ) : (data as any).sourceUrl ? (
           <div className="rounded-xl bg-[#2a2826] border border-white/10 p-5 flex items-center gap-4">
             {data.thumbnail && (
               <img src={data.thumbnail} alt="" className="w-20 h-[45px] rounded-lg object-cover shrink-0" />
             )}
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-[#75716e] mb-0.5">📄 PDF 문서</p>
+              <p className="text-xs text-[#75716e] mb-0.5">🌐 웹페이지</p>
               <p className="text-white text-sm font-semibold truncate">{data.title}</p>
+              <a href={(data as any).sourceUrl} target="_blank" rel="noopener noreferrer"
+                className="text-xs text-orange-400 hover:underline truncate block mt-0.5">
+                {(data as any).sourceUrl}
+              </a>
             </div>
           </div>
         ) : null}

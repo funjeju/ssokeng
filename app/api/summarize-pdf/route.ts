@@ -111,15 +111,14 @@ export async function POST(req: NextRequest) {
     const sessionId = randomUUID()
     const thumbnail = buildContentThumbnail(category, title, 'pdf')
 
-    // Firebase Storage에 PDF 원본 업로드
+    // Firebase Storage에 PDF 원본 업로드 (Admin SDK 프록시로 제공)
     let pdfUrl = ''
     try {
       initAdminApp()
       const bucket = getStorage().bucket()
       const storageFile = bucket.file(`pdfs/${sessionId}.pdf`)
       await storageFile.save(Buffer.from(buffer), { metadata: { contentType: 'application/pdf' } })
-      await storageFile.makePublic()
-      pdfUrl = `https://storage.googleapis.com/${bucket.name}/pdfs/${sessionId}.pdf`
+      pdfUrl = `/api/pdf/${sessionId}`
     } catch (e) {
       console.warn('[PDF] Storage upload failed:', e)
     }
