@@ -106,11 +106,38 @@ function injectButton() {
     status.textContent = '최대 2~3분 소요됩니다';
     status.style.color = '#9ca3af';
 
-    const response = await chrome.runtime.sendMessage({
-      type: 'SUMMARIZE_AND_SAVE',
-      videoUrl: window.location.href,
-    });
+    // 1분 경과 시 메시지 변경
+    const t1 = setTimeout(() => {
+      if (btn.disabled) {
+        status.textContent = '자막 분석 중... 조금만 더 기다려 주세요';
+        status.style.color = '#f59e0b';
+      }
+    }, 60_000);
 
+    // 3분 경과 시 타임아웃 처리
+    const t2 = setTimeout(() => {
+      if (btn.disabled) {
+        clearTimeout(t1);
+        btn.disabled = false;
+        btn.innerHTML = `<span>쏙튜브 요약저장</span>`;
+        btn.style.background = '#2563eb';
+        status.style.color = '#dc2626';
+        status.innerHTML = `시간 초과 — <a href="https://www.ssoktube.com/?v=${getVideoId()}" target="_blank" style="color:#2563eb;text-decoration:underline">쏙튜브에서 직접 열기</a>`;
+      }
+    }, 180_000);
+
+    let response;
+    try {
+      response = await chrome.runtime.sendMessage({
+        type: 'SUMMARIZE_AND_SAVE',
+        videoUrl: window.location.href,
+      });
+    } catch (e) {
+      response = { success: false, error: '확장 오류: ' + e.message };
+    }
+
+    clearTimeout(t1);
+    clearTimeout(t2);
     btn.disabled = false;
 
     if (response?.success) {

@@ -238,9 +238,13 @@ export default function UrlInput() {
 
     try {
       setStep(2)
+      const headers: HeadersInit = { 'Content-Type': 'application/json' }
+      if (user) {
+        try { headers['Authorization'] = `Bearer ${await user.getIdToken()}` } catch {}
+      }
       const res = await fetch('/api/summarize', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ url, category: selectedCategory === 'auto' ? undefined : selectedCategory }),
         signal: controller.signal,
       })
@@ -278,9 +282,13 @@ export default function UrlInput() {
 
     try {
       setStep(4)
+      const headers: HeadersInit = { 'Content-Type': 'application/json' }
+      if (user) {
+        try { headers['Authorization'] = `Bearer ${await user.getIdToken()}` } catch {}
+      }
       const res = await fetch('/api/summarize', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           url,
           category: selectedCategory === 'auto' ? undefined : selectedCategory,

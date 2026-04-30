@@ -4,6 +4,8 @@ import { classifyCategory, generateSummary, generateReportSummary, generateConte
 import { fetchVideoComments, formatCommentsForPrompt } from '@/lib/youtube-comments'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { randomUUID } from 'crypto'
+import { initAdminApp } from '@/lib/firebase-admin'
+import { getAuth } from 'firebase-admin/auth'
 
 async function translateTranscriptToKorean(transcript: string): Promise<string> {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!)
@@ -281,13 +283,25 @@ function extractTranscriptDuration(transcript: string): number {
 
 export async function POST(req: NextRequest) {
   try {
+    // 선택적 인증 — 로그인 유저면 userId 추출
+    let userId = ''
+    let userDisplayName = ''
+    const authHeader = req.headers.get('Authorization')
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        initAdminApp()
+        const decoded = await getAuth().verifyIdToken(authHeader.slice(7))
+        userId = decoded.uid
+        userDisplayName = (decoded as any).name || decoded.email || ''
+      } catch { /* 토큰 만료/무효 — 익명으로 진행 */ }
+    }
+
     const {
       url,
       category: userCategory,
       summaryLang,           // 'ko' | 'original' — 언어 선택 후 재호출 시 포함
       cachedTranscript,      // 1차 호출에서 반환된 자막 캐시
       cachedVideoInfo,       // 1차 호출에서 반환된 영상 정보 캐시
-      forceAutoCaption,      // true: 한국어 자막 건너뛰고 자동자막으로 추출
       noSave,                // true: Firestore 저장 안 함 (타인 요약 임시 재분석)
     } = await req.json()
 
@@ -344,6 +358,7 @@ export async function POST(req: NextRequest) {
         videoPublishedAt: '',
         summarizedAt: new Date().toISOString(),
         reportSummary: reportSummary || '',
+        ...(userId && { userId, userDisplayName }),
       }
 
       try {
@@ -529,6 +544,7 @@ export async function POST(req: NextRequest) {
       reportSummary: reportSummary || '',
       ytCommentSummary,
       ytCommentsContext,
+      ...(userId && { userId, userDisplayName }),
     }
 
     // Firestore 저장 (noSave=true 이면 임시 재분석이므로 저장 스킵)

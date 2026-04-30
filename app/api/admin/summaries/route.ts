@@ -40,8 +40,8 @@ export async function POST(req: NextRequest) {
       return {
         ...s,
         isSaved: !!saved,
-        userDisplayName: saved?.userDisplayName || '익명 (캐시)',
-        userId: saved?.userId || '',
+        userDisplayName: s.userDisplayName || saved?.userDisplayName || '익명 (캐시)',
+        userId: s.userId || saved?.userId || '',
         createdAt: s.summarizedAt || s.createdAt || '',
         originalId: s.id,
       }
