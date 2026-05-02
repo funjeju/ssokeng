@@ -24,15 +24,27 @@ const CATEGORIES = [
 ]
 
 const GUEST_STORAGE_KEY = 'nextcurator_guest_usage'
+const GUEST_DAILY_LIMIT = 2
+
+function getTodayStr() {
+  return new Date().toISOString().slice(0, 10)
+}
 
 function getGuestUsage(): number {
-  try { return JSON.parse(localStorage.getItem(GUEST_STORAGE_KEY) || '0') }
-  catch { return 0 }
+  try {
+    const raw = localStorage.getItem(GUEST_STORAGE_KEY)
+    if (!raw) return 0
+    const { count, date } = JSON.parse(raw)
+    if (date !== getTodayStr()) return 0  // 날짜 바뀌면 리셋
+    return count ?? 0
+  } catch { return 0 }
 }
 
 function incrementGuestUsage() {
-  try { localStorage.setItem(GUEST_STORAGE_KEY, String(getGuestUsage() + 1)) }
-  catch {}
+  try {
+    const count = getGuestUsage()
+    localStorage.setItem(GUEST_STORAGE_KEY, JSON.stringify({ count: count + 1, date: getTodayStr() }))
+  } catch {}
 }
 
 type ModalType = 'guest_info' | 'guest_limit_duration' | 'guest_limit_count' | 'lang_choice' | null
@@ -110,6 +122,12 @@ export default function UrlInput() {
     const isAdmin = user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL
     if (!isAdmin && file.size > 30 * 1024 * 1024) {
       setError('30MB 이하 파일만 업로드할 수 있습니다.')
+      return
+    }
+
+    // 비회원 하루 2회 한도
+    if (!user && getGuestUsage() >= GUEST_DAILY_LIMIT) {
+      setModal('guest_limit_count')
       return
     }
 
@@ -316,9 +334,9 @@ export default function UrlInput() {
     // 로그인 유저 → 바로 실행
     if (user) { runSummarize(); return }
 
-    // 비회원: 이미 1번 이상 사용했는지 확인
+    // 비회원: 하루 2회 한도
     const usageCount = getGuestUsage()
-    if (usageCount >= 1) { setModal('guest_limit_count'); return }
+    if (usageCount >= GUEST_DAILY_LIMIT) { setModal('guest_limit_count'); return }
 
     // 비회원: 영상 길이 확인
     setCheckingDuration(true)
@@ -576,9 +594,9 @@ export default function UrlInput() {
               <>
                 <div className="text-center">
                   <div className="text-4xl mb-3">🔒</div>
-                  <h2 className="text-lg font-bold text-white mb-2">무료 체험 완료</h2>
+                  <h2 className="text-lg font-bold text-white mb-2">오늘 무료 체험 완료</h2>
                   <p className="text-[#a4a09c] text-sm leading-relaxed">
-                    비회원 무료 요약 1회를 이미 사용했습니다.<br />
+                    비회원은 하루 2회까지 무료로 이용할 수 있습니다.<br />
                     회원가입하면 <span className="text-white font-semibold">무제한</span>으로 이용할 수 있습니다.
                   </p>
                 </div>

@@ -78,7 +78,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'PDF 파일만 업로드할 수 있습니다.' }, { status: 400 })
     }
     const idToken = req.headers.get('Authorization')?.replace('Bearer ', '')
-    if (!idToken) return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 })
     const isAdmin = idToken ? await import('@/lib/admin').then(m => m.checkIsAdminByToken(idToken)) : false
     if (!isAdmin && file.size > 30 * 1024 * 1024) {
       return NextResponse.json({ error: 'PDF 파일은 30MB 이하만 가능합니다.' }, { status: 400 })
