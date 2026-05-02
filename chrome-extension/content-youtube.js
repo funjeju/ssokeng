@@ -3,6 +3,8 @@
 let currentVideoId = null;
 let injected = false;
 let retryTimer = null;
+let retryCount = 0;
+const MAX_RETRY = 10;
 
 function getVideoId() {
   return new URL(window.location.href).searchParams.get('v');
@@ -10,11 +12,16 @@ function getVideoId() {
 
 // 버튼이 있는 컨테이너를 찾는 함수 — YouTube DOM 구조 변경에 대응
 function findTitleContainer() {
+  // 최신 YouTube 구조 우선 (2024~2025)
   return (
-    document.querySelector('ytd-watch-metadata #above-the-fold #title') ||
-    document.querySelector('#above-the-fold #title') ||
+    document.querySelector('ytd-watch-metadata h1.ytd-watch-metadata') ||
+    document.querySelector('#above-the-fold h1') ||
     document.querySelector('ytd-watch-metadata h1') ||
-    document.querySelector('#title.ytd-watch-metadata') ||
+    document.querySelector('#above-the-fold #title h1') ||
+    document.querySelector('#above-the-fold #title') ||
+    document.querySelector('#title h1') ||
+    document.querySelector('h1.title') ||
+    document.querySelector('ytd-watch-metadata #title') ||
     null
   );
 }
@@ -28,11 +35,15 @@ function injectButton() {
 
   const titleEl = findTitleContainer();
   if (!titleEl) {
-    // 아직 DOM이 준비 안 됨 — 1.5초 후 재시도
+    // 아직 DOM이 준비 안 됨 — 점진적 재시도 (최대 10회)
+    if (retryCount >= MAX_RETRY) return;
+    retryCount++;
     if (retryTimer) clearTimeout(retryTimer);
-    retryTimer = setTimeout(injectButton, 1500);
+    const delay = retryCount <= 3 ? 800 : retryCount <= 6 ? 1500 : 2500;
+    retryTimer = setTimeout(injectButton, delay);
     return;
   }
+  retryCount = 0;
 
   // 이전 버튼 제거 (영상 전환 시)
   document.getElementById('ssoktube-btn-wrap')?.remove();
@@ -208,9 +219,10 @@ function injectButton() {
 function resetAndInject() {
   injected = false;
   currentVideoId = null;
+  retryCount = 0;
   document.getElementById('ssoktube-btn-wrap')?.remove();
   if (retryTimer) clearTimeout(retryTimer);
-  retryTimer = setTimeout(injectButton, 1500);
+  retryTimer = setTimeout(injectButton, 1000);
 }
 
 // ── YouTube SPA 네비게이션 감지 ──
