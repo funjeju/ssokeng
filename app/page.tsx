@@ -17,19 +17,21 @@ export default function Home() {
         {/* Title: 모바일에서는 헤더 로고가 있으므로 숨김 */}
         <div className="text-center flex flex-col gap-3">
           {/* 데스크탑: 풀 로고 */}
-          <div className="hidden md:flex flex-col items-center gap-1.5">
+          <div className="hidden md:flex flex-row items-center gap-5">
             <img
               src="/logo.png"
               alt="SSOKTUBE"
-              className="h-20 w-auto"
+              className="h-16 w-auto shrink-0"
               style={{ filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.5)) drop-shadow(0 0 6px rgba(255,255,255,0.25))' }}
             />
-            <p className="text-xl font-bold text-white/90 tracking-wide">
-              유튜브를 <span className="text-orange-400">SSOK</span>쏙 내 지식을 <span className="text-emerald-400">SSUK</span>쑥
-            </p>
-            <p className="text-sm font-medium text-white/40 tracking-wide">
-              가장 스마트한 유튜브 저장소
-            </p>
+            <div className="flex flex-col gap-1 text-left">
+              <p className="text-xl font-bold text-white/90 tracking-wide">
+                유튜브를 <span className="text-orange-400">SSOK</span>쏙 내 지식을 <span className="text-emerald-400">SSUK</span>쑥
+              </p>
+              <p className="text-sm font-medium text-white/40 tracking-wide">
+                가장 스마트한 유튜브 저장소
+              </p>
+            </div>
           </div>
           {/* 모바일: 슬로건만 */}
           <div className="md:hidden flex flex-col items-center gap-1">
