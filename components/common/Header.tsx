@@ -58,8 +58,8 @@ export default function Header({ title = 'SSOKTUBE' }: { title?: string }) {
     <div className="sticky top-0 z-50 bg-[#252423]/90 backdrop-blur-xl border-b border-white/5 py-2.5 px-4 md:px-8 mb-6">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/" onClick={handleNav} className="text-sm font-black tracking-tight hover:opacity-80 transition-opacity whitespace-nowrap">
-            <span className="text-orange-400">SSOK</span><span className="text-white">TUBE</span>
+          <Link href="/" onClick={handleNav} className="hover:opacity-80 transition-opacity shrink-0">
+            <img src="/logo.png" alt="SSOKTUBE" className="h-7 w-auto" style={{ filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.5)) drop-shadow(0 0 2px rgba(255,255,255,0.3))' }} />
           </Link>
           <nav className="hidden md:flex items-center gap-4 text-sm font-medium">
             {/* 학생 계정: 수업자료 바로가기 */}
