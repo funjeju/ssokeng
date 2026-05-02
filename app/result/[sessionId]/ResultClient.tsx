@@ -1696,7 +1696,18 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           onMeta={data.category === 'learning' || data.category === 'english' ? handleQuizMeta : undefined}
         />
       )}
-      {worksheet && <WorksheetPanel worksheet={worksheet} onClose={() => setWorksheet(null)} />}
+      {worksheet && (
+        <WorksheetPanel
+          worksheet={worksheet}
+          onClose={() => setWorksheet(null)}
+          userId={user?.uid}
+          sessionId={data?.sessionId}
+          videoId={data?.videoId}
+          videoTitle={data?.title}
+          channel={data?.channel}
+          thumbnail={data?.thumbnail}
+        />
+      )}
 
       {/* 레시피 음성 제어 — YouTube 영상이 있을 때만 */}
       {data.category === 'recipe' && data.videoId && (data.summary as any)?.steps?.length > 0 && (

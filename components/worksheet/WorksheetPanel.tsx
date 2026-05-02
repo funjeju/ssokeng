@@ -2,10 +2,17 @@
 
 import { useState, useRef } from 'react'
 import { WorksheetData, VocabItem, WorksheetQuestion } from '@/types/summary'
+import { saveWorksheet } from '@/lib/db'
 
 interface Props {
   worksheet: WorksheetData
   onClose: () => void
+  userId?: string
+  sessionId?: string
+  videoId?: string
+  videoTitle?: string
+  channel?: string
+  thumbnail?: string
 }
 
 const LEVEL_COLOR: Record<string, string> = {
@@ -226,10 +233,35 @@ function ExerciseTab({ worksheet }: { worksheet: WorksheetData }) {
 }
 
 // ── 메인 패널 ─────────────────────────────────
-export default function WorksheetPanel({ worksheet, onClose }: Props) {
+export default function WorksheetPanel({ worksheet, onClose, userId, sessionId, videoId, videoTitle, channel, thumbnail }: Props) {
   const [tab, setTab] = useState<'vocab' | 'exercise' | 'print'>('vocab')
   const printRef = useRef<HTMLDivElement>(null)
   const [printing, setPrinting] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  const handleSave = async () => {
+    if (!userId || saving || saved) return
+    setSaving(true)
+    try {
+      await saveWorksheet({
+        userId,
+        sessionId: sessionId ?? '',
+        videoId: videoId ?? '',
+        title: videoTitle ?? worksheet.title,
+        channel,
+        thumbnail,
+        level: worksheet.level,
+        levelLabel: worksheet.levelLabel,
+        worksheet,
+      })
+      setSaved(true)
+    } catch (e) {
+      console.error('[WorksheetPanel] save error:', e)
+    } finally {
+      setSaving(false)
+    }
+  }
 
   const handlePrint = async () => {
     if (!printRef.current) return
@@ -264,6 +296,19 @@ export default function WorksheetPanel({ worksheet, onClose }: Props) {
             </div>
             <p className="text-[#75716e] text-xs mt-0.5">단어 {worksheet.vocabulary.length}개 · 문제 {worksheet.exercises.reduce((s, e) => s + e.questions.length, 0)}개</p>
           </div>
+          {userId && (
+            <button
+              onClick={handleSave}
+              disabled={saving || saved}
+              className={`h-7 px-3 rounded-full text-xs font-semibold transition-all shrink-0 ${
+                saved
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                  : 'bg-orange-500/20 text-orange-400 border border-orange-500/30 hover:bg-orange-500/30'
+              } disabled:opacity-50`}
+            >
+              {saved ? '✓ 저장됨' : saving ? '저장 중...' : '저장'}
+            </button>
+          )}
           <button onClick={onClose} className="w-7 h-7 rounded-full bg-[#32302e] text-[#75716e] hover:text-white flex items-center justify-center text-sm transition-colors shrink-0">
             ✕
           </button>

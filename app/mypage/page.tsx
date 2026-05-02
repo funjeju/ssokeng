@@ -25,6 +25,7 @@ import SavedBlogDrafts from '@/components/blog/SavedBlogDrafts'
 import SavedShortsScripts from '@/components/shorts/SavedShortsScripts'
 import SavedBookmarks from '@/components/bookmarks/SavedBookmarks'
 import SavedVideoQuizzes from '@/components/video-quiz/SavedVideoQuizzes'
+import SavedWorksheets from '@/components/worksheet/SavedWorksheets'
 import YouTubeImportTab from '@/components/youtube-import/YouTubeImportTab'
 
 
@@ -612,7 +613,7 @@ function InviteButton({ isTeacher }: { isTeacher?: boolean }) {
 
 export default function MyPage() {
   const { user, userProfile, needsProfile, refreshProfile, loading: authLoading, openAuthModal } = useAuth()
-  const [activeTab, setActiveTab] = useState<'library' | 'friends' | 'travel' | 'blog' | 'shorts' | 'bookmarks' | 'quizzes' | 'youtube'>('library')
+  const [activeTab, setActiveTab] = useState<'library' | 'friends' | 'travel' | 'blog' | 'shorts' | 'bookmarks' | 'quizzes' | 'worksheets' | 'youtube'>('library')
   const [folders, setFolders] = useState<Folder[]>([])
   const [summaries, setSummaries] = useState<SavedSummary[]>([])
   const [allSummaries, setAllSummaries] = useState<SavedSummary[]>([])
@@ -1338,6 +1339,14 @@ export default function MyPage() {
               🧩 퀴즈
             </button>
             <button
+              onClick={() => setActiveTab('worksheets')}
+              className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
+                activeTab === 'worksheets' ? 'bg-[#3d3a38] text-white shadow' : 'text-[#75716e] hover:text-white'
+              }`}
+            >
+              📝 워크시트
+            </button>
+            <button
               onClick={() => setActiveTab('youtube')}
               className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
                 activeTab === 'youtube' ? 'bg-[#3d3a38] text-white shadow' : 'text-[#75716e] hover:text-white'
@@ -1405,6 +1414,16 @@ export default function MyPage() {
             <p className="text-[#75716e] text-sm mt-0.5">영상 특정 시점에 추가한 퀴즈를 관리하세요. 영상이 해당 시점에 도달하면 자동으로 표시됩니다.</p>
           </div>
           <SavedVideoQuizzes userId={user?.uid ?? getLocalUserId()} />
+        </div>
+      )}
+
+      {activeTab === 'worksheets' && (
+        <div className="max-w-2xl mx-auto px-6 pb-12">
+          <div className="mb-5">
+            <h2 className="text-white font-bold text-lg">📝 저장된 워크시트</h2>
+            <p className="text-[#75716e] text-sm mt-0.5">영어 영상 분석 후 생성한 워크시트를 저장하고 다시 꺼내볼 수 있어요.</p>
+          </div>
+          <SavedWorksheets userId={user?.uid ?? getLocalUserId()} />
         </div>
       )}
 

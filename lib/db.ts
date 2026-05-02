@@ -204,6 +204,41 @@ export async function saveSummary({
 }
 
 // ─────────────────────────────────────────────
+// 워크시트
+// ─────────────────────────────────────────────
+export interface SavedWorksheet {
+  id: string
+  userId: string
+  sessionId: string
+  videoId: string
+  title: string
+  channel?: string
+  thumbnail?: string
+  level: 'elementary' | 'middle' | 'advanced'
+  levelLabel: string
+  worksheet: any  // WorksheetData
+  createdAt: any
+}
+
+export async function saveWorksheet(data: Omit<SavedWorksheet, 'id' | 'createdAt'>): Promise<string> {
+  const docRef = await addDoc(collection(db, 'saved_worksheets'), {
+    ...data,
+    createdAt: serverTimestamp(),
+  })
+  return docRef.id
+}
+
+export async function getSavedWorksheets(userId: string): Promise<SavedWorksheet[]> {
+  const q = query(collection(db, 'saved_worksheets'), where('userId', '==', userId))
+  const snap = await getDocs(q)
+  return snap.docs.map(d => ({ id: d.id, ...d.data() } as SavedWorksheet))
+}
+
+export async function deleteSavedWorksheet(id: string): Promise<void> {
+  await deleteDoc(doc(db, 'saved_worksheets', id))
+}
+
+// ─────────────────────────────────────────────
 // 유저 프로필
 // ─────────────────────────────────────────────
 export async function upsertUserProfile(profile: Omit<UserProfile, 'updatedAt'>): Promise<void> {
