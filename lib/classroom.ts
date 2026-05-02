@@ -35,7 +35,7 @@ export interface ActivityLog {
   studentId: string
   studentName: string
   classCode: string
-  type: 'login' | 'logout' | 'play' | 'quiz' | 'meta' | 'comment' | 'segment'
+  type: 'login' | 'logout' | 'play' | 'play_start' | 'quiz' | 'meta' | 'comment' | 'segment'
   videoId?: string
   sessionId?: string
   videoTitle?: string
