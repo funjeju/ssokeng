@@ -258,6 +258,24 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
           )}
         </header>
 
+        {/* 전체 요약 */}
+        {(post as any).executiveSummary && (
+          <div className="mb-8 rounded-2xl bg-[#1e2a1e] border border-emerald-500/20 px-5 py-4">
+            <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-3">⚡ 핵심 요약</p>
+            <ul className="space-y-2">
+              {((post as any).executiveSummary as string)
+                .split('\n')
+                .filter((l: string) => l.trim())
+                .map((line: string, i: number) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-[#c4c0bc] leading-relaxed">
+                    <span className="text-emerald-400 shrink-0 mt-0.5">•</span>
+                    <span>{line.replace(/^[•\-]\s*/, '')}</span>
+                  </li>
+                ))}
+            </ul>
+          </div>
+        )}
+
         {/* 본문 — 마크다운 렌더링 */}
         <div className="space-y-1">
           <ReactMarkdown

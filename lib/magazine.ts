@@ -29,6 +29,8 @@ export interface CuratedPost {
   body: string               // Full markdown article
   seoDescription: string     // 150-char Google snippet
   seoKeywords: string[]
+  executiveSummary?: string   // 전체 요약 (bullet points, 글 최상단 표시용)
+  videoUrl?: string           // 원본 영상/콘텐츠 링크
   faq?: { question: string; answer: string }[]
   checklist?: string[]
   comments?: { popular_summary: string; popular_highlights: { text: string; likes: number }[]; recent_summary: string; recent_highlights: { text: string; likes: number }[] }
@@ -420,6 +422,9 @@ export async function generateMagazinePost(
   const hasComments = !!commentsContext
   const hasPlatform = !!platformComments?.length
   const persona = getPersona(item.category, item.title)
+  const videoUrl = item.videoId
+    ? `https://www.youtube.com/watch?v=${item.videoId}`
+    : `/result/${item.sessionId}`
 
   // 플랫폼 댓글 포맷: 세그먼트 말풍선은 구간 표시
   let platformContext = ''
@@ -466,10 +471,16 @@ ${hasPlatform ? `\n[SSOKTUBE 플랫폼 유저 반응 — 실제 학습자들의 
 [섹션 작성 원칙]
 - 단순 요약 나열 금지. 에디터의 분석·평가·실용 조언 반드시 포함
 - body는 마크다운(##, ###, **볼드**) 적극 활용, 최소 800자
-- intro: 검색자의 핵심 궁금증을 바로 해결하는 도입부 (featured snippet 노출 목표), 3문장 이내로 간결하게
-- 소스 데이터(요약+자막)가 충분하면 각 섹션 300-450자, 부족하면 억지로 늘리지 말고 실제 내용 분량에 맞게 작성 (패딩 금지)
+- body 구조는 반드시 아래 순서를 지킬 것:
+  1) intro (3문장 이내, 검색자의 핵심 궁금증 즉시 해결)
+  2) 목차 (## 섹션 제목들을 마크다운 목록으로 나열, 예: - [섹션 제목](#섹션-앵커))
+  3) ## 본문 섹션들 (순서대로)
+  4) ## 마무리 (결론 + 원본 영상 링크)
+- 목차의 앵커는 한글 섹션 제목을 그대로 사용 (예: #금양-상장폐지-원인)
+- 소스 데이터가 충분하면 각 섹션 300-450자, 부족하면 억지로 늘리지 말 것 (패딩 금지)
 - 각 섹션은 반드시 원문 인용·구체적 수치·독자 질문 중 하나로 시작할 것. "~은 ~합니다"로 시작 금지
-- conclusion: 핵심 메시지 한 문장 압축 + 독자가 취할 구체적 다음 행동. "여러분의 생각은?", "댓글로 의견 공유" 류 뻔한 마무리 절대 금지
+- 마무리 섹션 마지막 줄에 반드시 원본 영상 링크 삽입: [▶ 원본 영상 보기](${videoUrl})
+- conclusion 어디에도 "여러분의 생각은?", "댓글로 의견 공유", "영상 시청하여 안목을 높여보세요" 류 뻔한 마무리 절대 금지
 
 [문체 금지 규칙 — 아래 표현은 절대 사용 금지]
 - "이는 ~을 시사합니다" / "이는 ~을 보여줍니다" / "이는 ~을 명확히 합니다"
@@ -511,7 +522,8 @@ JSON 형식:
 {
   "title": "SEO 최적화 제목",
   "subtitle": "독자 호기심 자극 부제 20-40자",
-  "body": "## 섹션\\n\\n내용...",
+  "executiveSummary": "• 핵심 포인트 1 (구체적 수치·사실 포함)\\n• 핵심 포인트 2\\n• 핵심 포인트 3\\n• 핵심 포인트 4",
+  "body": "intro 3문장\\n\\n## 목차\\n- [섹션1](#앵커)\\n- [섹션2](#앵커)\\n\\n## 섹션1\\n\\n내용...",
   "seoDescription": "155자 이내 메타 설명",
   "slug": "english-slug-here",
   "seoKeywords": ["키워드1","키워드2","키워드3","키워드4","키워드5"],
@@ -549,6 +561,7 @@ JSON 형식:
 
   let parsed: {
     title: string; subtitle: string; body: string; seoDescription: string; slug?: string
+    executiveSummary?: string
     seoKeywords: string[]; tags?: string[]
     faq?: { question: string; answer: string }[]
     checklist?: string[]
@@ -577,6 +590,8 @@ JSON 형식:
     tags: allTags,
     summaryIds: [item.sessionId || item.id],
     videoTitles: [item.title],
+    executiveSummary: parsed.executiveSummary ?? undefined,
+    videoUrl,
     body: parsed.body,
     seoDescription: (parsed.seoDescription ?? '').slice(0, 155),
     seoKeywords: parsed.seoKeywords ?? [],
