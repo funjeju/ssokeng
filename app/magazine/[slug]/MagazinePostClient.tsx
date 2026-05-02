@@ -13,6 +13,38 @@ const TOPIC_META: Record<string, { label: string; emoji: string; color: string; 
   'ai-usecases': { label: 'AI 활용',  emoji: '🚀', color: 'bg-emerald-500/15', textColor: 'text-emerald-400', borderColor: 'border-emerald-500/30', url: '/magazine/topic/ai-usecases' },
 }
 
+function toAnchor(text: string) {
+  return text.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w가-힣-]/g, '')
+}
+
+function parseToc(body: string): { title: string; anchor: string }[] {
+  return [...body.matchAll(/^##\s+(.+)$/gm)]
+    .map(m => ({ title: m[1].trim(), anchor: toAnchor(m[1]) }))
+}
+
+function TableOfContents({ body }: { body: string }) {
+  const items = parseToc(body)
+  if (items.length < 2) return null
+  return (
+    <nav className="mb-8 rounded-2xl bg-[#2a2826] border border-white/8 px-5 py-4">
+      <p className="text-[10px] font-bold text-[#75716e] uppercase tracking-widest mb-3">📋 목차</p>
+      <ol className="space-y-1.5">
+        {items.map((item, i) => (
+          <li key={i} className="flex items-start gap-2">
+            <span className="text-orange-500 text-xs font-bold shrink-0 mt-0.5">{i + 1}.</span>
+            <a
+              href={`#${item.anchor}`}
+              className="text-sm text-[#a4a09c] hover:text-white transition-colors leading-snug"
+            >
+              {item.title}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  )
+}
+
 function formatDate(iso: string) {
   if (!iso) return ''
   return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(iso))
@@ -258,6 +290,9 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
           )}
         </header>
 
+        {/* 목차 */}
+        <TableOfContents body={post.body} />
+
         {/* 전체 요약 */}
         {(post as any).executiveSummary && (
           <div className="mb-8 rounded-2xl bg-[#1e2a1e] border border-emerald-500/20 px-5 py-4">
@@ -280,9 +315,14 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
         <div className="space-y-1">
           <ReactMarkdown
             components={{
-              h2: ({ children }) => (
-                <h2 className="text-xl font-black text-white mt-10 mb-4 pb-2 border-b border-white/10">{children}</h2>
-              ),
+              h2: ({ children }) => {
+                const text = typeof children === 'string' ? children : String(children ?? '')
+                return (
+                  <h2 id={toAnchor(text)} className="text-xl font-black text-white mt-10 mb-4 pb-2 border-b border-white/10 scroll-mt-20">
+                    {children}
+                  </h2>
+                )
+              },
               h3: ({ children }) => (
                 <h3 className="text-base font-black text-orange-400 mt-6 mb-2">{children}</h3>
               ),
@@ -403,27 +443,6 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
           </section>
         )}
 
-        {/* 핵심 체크리스트 */}
-        {post.checklist && post.checklist.length > 0 && (
-          <section className="mt-14">
-            <h2 className="text-base font-black text-white mb-5 flex items-center gap-2">
-              <span className="w-1 h-4 rounded-full bg-orange-500" />
-              핵심 체크리스트
-            </h2>
-            <div className="p-5 rounded-2xl bg-[#2a2826] border border-white/8 space-y-3">
-              {post.checklist.map((item, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <span className="shrink-0 w-5 h-5 rounded-full bg-orange-500/20 border border-orange-500/40 flex items-center justify-center mt-0.5">
-                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6l3 3 5-5" stroke="#f97316" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </span>
-                  <p className="text-sm text-[#c4c0bc] leading-relaxed">{item}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
 
         {/* 시청자 댓글 경향 */}
         {post.comments && (
