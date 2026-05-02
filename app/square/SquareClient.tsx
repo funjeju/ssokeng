@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import Header from '@/components/common/Header'
 import { getPublicSummaries, toggleLike, getUserLikedIds, incrementViewCount, getOrCreateConversation, updateSummaryVisibility, SavedSummary } from '@/lib/db'
@@ -544,6 +544,8 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
     return 'grid'
   })
   const [activeTab, setActiveTab] = useState<'feed' | 'magazine'>('feed')
+  const [displayCount, setDisplayCount] = useState(24)
+  const sentinelRef = useRef<HTMLDivElement>(null)
   const colCount = useColumnCount()
 
   const toggleViewMode = (mode: ViewMode) => {
@@ -698,6 +700,21 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
       return getMs(b.createdAt) - getMs(a.createdAt)
     })
 
+  const visibleFiltered = useMemo(() => filtered.slice(0, displayCount), [filtered, displayCount])
+
+  // 필터/정렬/검색 바뀌면 처음부터 다시
+  useEffect(() => { setDisplayCount(24) }, [activeCategory, sortType, committedQuery])
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel) return
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) setDisplayCount(prev => prev + 24)
+    }, { rootMargin: '300px' })
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [displayCount])
+
   const topCategories = useMemo(
     () => getUserTopCategories(likedIds, allSummaries),
     [likedIds, allSummaries]
@@ -726,7 +743,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
     let adIndex = 0
     let magIndex = 0
 
-    filtered.forEach((item, i) => {
+    visibleFiltered.forEach((item, i) => {
       result.push(item)
 
       const pos = i + 1
@@ -761,7 +778,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
     })
 
     return result
-  }, [filtered, effectiveCats, isPersonalized, recommendationPool, magazinePosts])
+  }, [visibleFiltered, effectiveCats, isPersonalized, recommendationPool, magazinePosts])
 
   // flat 배열 → N열에 행 우선(좌→우) 순서로 분배
   // CSS columns는 열 우선이라 추천/광고 카드 위치가 틀어지므로, 직접 분배
@@ -917,7 +934,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
           </div>
         ) : viewMode === 'list' ? (
           <div className="flex flex-col gap-2">
-            {filtered.map(item => (
+            {visibleFiltered.map(item => (
               <SummaryListRow
                 key={item.id}
                 item={item}
@@ -961,6 +978,14 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
                 })}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* 인피니트 스크롤 센티넬 */}
+        {!loading && displayCount < filtered.length && (
+          <div ref={sentinelRef} className="flex items-center justify-center py-6 gap-2">
+            <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-orange-500/60" />
+            <span className="text-[#75716e] text-xs">{filtered.length - displayCount}개 더</span>
           </div>
         )}
         </>
