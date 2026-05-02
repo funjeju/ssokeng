@@ -990,8 +990,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
               </div>
             </div>
           )
-        })()
-        ) : (data as any).sourceUrl ? (
+        })() : (data as any).sourceUrl ? (
           <div className="rounded-xl bg-[#2a2826] border border-white/10 p-5 flex items-center gap-4">
             {data.thumbnail && (
               <img src={data.thumbnail} alt="" className="w-20 h-[45px] rounded-lg object-cover shrink-0" />
