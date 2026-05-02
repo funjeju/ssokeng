@@ -65,16 +65,14 @@ ${hasComments ? `\n유튜브 댓글 데이터:\n${commentsContext}` : ''}
 - "영상에서는 ~라고 했다" 형태 지양, 독자가 실제로 활용할 수 있는 방식으로 서술
 - 각 section의 text는 300-450자, 분석·비교·맥락 설명 포함
 - timestamp가 있는 섹션은 timestamp 필드에 "MM:SS" 형태로 기입, 없으면 null
-- intro: 검색자의 핵심 궁금증을 바로 해결하는 도입부, LSI 키워드 자연 포함
-- conclusion: 핵심 요약 + 독자 행동 유도(CTA) + "원본 영상에서 더 자세히"
+- intro: 검색자의 핵심 궁금증을 바로 해결하는 도입부, LSI 키워드 자연 포함, 3문장 이내
+- sections 순서: intro → H2 본문 섹션들 → conclusion (목차는 컴포넌트가 자동 생성하므로 sections에 포함하지 말 것)
+- conclusion: 핵심 메시지 한 문장 압축 + 원본 영상 링크 안내. "여러분의 생각은?", "댓글로 공유" 같은 뻔한 마무리 금지
 
 [FAQ — 5개 필수]
 - 이 주제로 구글에서 실제로 검색할 법한 질문과 답변
 - 질문: 검색 쿼리 형태 ("~하는 방법", "~이란", "~차이")
 - 답변: 2-4문장, 영상 내용 기반이지만 독자적 설명 추가
-
-[체크리스트 — 3-5개]
-- 이 영상 시청 후 독자가 바로 실천할 수 있는 구체적 행동 항목
 
 [reading_time]
 모든 section text + FAQ 답변 합산 글자수 / 500 (정수, 최소 2)
@@ -109,7 +107,7 @@ JSON 형식:
     {"question": "질문4?", "answer": "답변4"},
     {"question": "질문5?", "answer": "답변5"}
   ],
-  "checklist": ["실천 항목 1", "실천 항목 2", "실천 항목 3"]${hasComments ? `,
+  "checklist": []${hasComments ? `,
   "comments": {
     "popular_summary": "인기 댓글 경향 요약",
     "popular_highlights": [{"text": "댓글 원문", "likes": 123}, {"text": "댓글2", "likes": 45}],

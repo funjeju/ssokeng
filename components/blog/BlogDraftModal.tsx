@@ -73,12 +73,7 @@ function buildHtml(draft: BlogDraft): string {
   const faq = draft.faq ?? []
   const checklist = draft.checklist ?? []
 
-  const checklistHtml = checklist.length > 0
-    ? `<h2 style="margin:32px 0 12px;font-weight:700;">✅ 바로 실천하기</h2>
-<ul style="margin:0 0 24px;padding-left:20px;line-height:2;">
-${checklist.map(item => `  <li>${item}</li>`).join('\n')}
-</ul>`
-    : ''
+  const checklistHtml = ''
 
   const faqHtml = faq.length > 0
     ? `<h2 style="margin:32px 0 12px;font-weight:700;">자주 묻는 질문</h2>
@@ -211,11 +206,6 @@ function buildPlainText(draft: BlogDraft): string {
     if (s.timestamp) {
       lines.push(`▶ ${s.timestamp} 구간`)
     }
-    lines.push('')
-  }
-  if (draft.checklist?.length) {
-    lines.push('─'.repeat(40), '', '✅ 바로 실천하기', '')
-    draft.checklist.forEach((item, i) => lines.push(`${i + 1}. ${item}`))
     lines.push('')
   }
   if (draft.faq?.length) {
@@ -400,6 +390,22 @@ export default function BlogDraftModal({ data, onClose }: Props) {
                   <p className="text-xs text-zinc-400">
                     📹 {draft.channel} | 읽는 시간 약 {draft.reading_time}분
                   </p>
+
+                  {/* 목차 */}
+                  {draft.sections.filter(s => s.heading).length >= 2 && (
+                    <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-200">
+                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">📋 목차</p>
+                      <ol className="space-y-1">
+                        {draft.sections.filter(s => s.heading).map((s, i) => (
+                          <li key={s.id} className="flex items-start gap-2 text-xs">
+                            <span className="text-orange-500 font-bold shrink-0">{i + 1}.</span>
+                            <span className="text-zinc-600">{s.heading}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+
                   {draft.sections.map(s => (
                     <div key={s.id}>
                       {s.heading && (
@@ -412,19 +418,6 @@ export default function BlogDraftModal({ data, onClose }: Props) {
                     </div>
                   ))}
 
-                  {/* 체크리스트 */}
-                  {draft.checklist?.length > 0 && (
-                    <div className="mt-4 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
-                      <p className="text-xs font-bold text-emerald-700 mb-2">✅ 바로 실천하기</p>
-                      <ul className="space-y-1">
-                        {draft.checklist.map((item, i) => (
-                          <li key={i} className="text-xs text-emerald-800 flex gap-2">
-                            <span className="shrink-0">{i + 1}.</span>{item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
 
                   {/* FAQ */}
                   {draft.faq?.length > 0 && (
