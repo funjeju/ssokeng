@@ -431,9 +431,9 @@ export default function UrlInput() {
               variant="default"
               onClick={handleSubmit}
               disabled={!url.trim() || checkingDuration}
-              className="h-[56px] md:w-[140px] text-base font-bold tracking-wide rounded-[20px] transition-all duration-300
-                         bg-white text-black hover:bg-[#e2e2e2] hover:scale-[1.02] active:scale-[0.98]
-                         disabled:bg-white/10 disabled:text-white/30 disabled:cursor-not-allowed disabled:transform-none"
+              className="h-[56px] md:w-[140px] text-base font-bold tracking-wide rounded-[20px] transition-all duration-150
+                         bg-white text-black hover:bg-[#e2e2e2] hover:scale-[1.02] active:scale-[0.94] active:bg-[#d0d0d0]
+                         disabled:bg-white/10 disabled:text-white/30 disabled:cursor-not-allowed disabled:transform-none select-none"
             >
               {checkingDuration ? '확인 중...' : 'Start Now'}
             </Button>
@@ -514,7 +514,7 @@ export default function UrlInput() {
                   </Button>
                   <button
                     onClick={() => { setModal(null); signInWithGoogle() }}
-                    className="w-full h-12 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-2xl text-sm hover:opacity-90 transition-opacity"
+                    className="w-full h-12 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-2xl text-sm hover:opacity-90 active:scale-95 active:opacity-75 transition-all select-none"
                   >
                     Google로 회원가입 (무제한)
                   </button>
@@ -539,7 +539,7 @@ export default function UrlInput() {
                 <div className="flex flex-col gap-2">
                   <button
                     onClick={() => { setModal(null); signInWithGoogle() }}
-                    className="w-full h-12 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-2xl text-sm hover:opacity-90 transition-opacity"
+                    className="w-full h-12 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-2xl text-sm hover:opacity-90 active:scale-95 active:opacity-75 transition-all select-none"
                   >
                     Google로 회원가입하기
                   </button>
@@ -609,7 +609,7 @@ export default function UrlInput() {
                 <div className="flex flex-col gap-2">
                   <button
                     onClick={() => { setModal(null); signInWithGoogle() }}
-                    className="w-full h-12 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-2xl text-sm hover:opacity-90 transition-opacity"
+                    className="w-full h-12 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-2xl text-sm hover:opacity-90 active:scale-95 active:opacity-75 transition-all select-none"
                   >
                     Google로 무료 회원가입
                   </button>

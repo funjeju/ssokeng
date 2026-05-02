@@ -78,17 +78,17 @@ export default function Header({ title = 'SSOKTUBE' }: { title?: string }) {
                   🏫 내 클래스
                 </Link>
                 {isOnSquare
-                  ? <Link href="/" onClick={handleNav} className="text-orange-400 hover:text-orange-300 transition-colors font-bold">✦ 요약하기</Link>
-                  : <Link href="/square" onClick={handleNav} className="text-[#a4a09c] hover:text-white transition-colors">SQUARE K</Link>
+                  ? <Link href="/" onClick={handleNav} className="text-orange-400 hover:text-orange-300 active:opacity-60 active:scale-95 transition-all font-bold select-none">✦ 요약하기</Link>
+                  : <Link href="/square" onClick={handleNav} className="text-[#a4a09c] hover:text-white active:opacity-60 active:scale-95 transition-all select-none">SQUARE K</Link>
                 }
               </>
             ) : (
               /* 일반 계정 */
               <>
-                <Link href="/mypage" onClick={handleNav} className="text-[#a4a09c] hover:text-white transition-colors">My Page</Link>
+                <Link href="/mypage" onClick={handleNav} className="text-[#a4a09c] hover:text-white active:opacity-60 active:scale-95 transition-all select-none">My Page</Link>
                 {isOnSquare
-                  ? <Link href="/" onClick={handleNav} className="text-orange-400 hover:text-orange-300 transition-colors font-bold">✦ 요약하기</Link>
-                  : <Link href="/square" onClick={handleNav} className="text-[#a4a09c] hover:text-white transition-colors">SQUARE K</Link>
+                  ? <Link href="/" onClick={handleNav} className="text-orange-400 hover:text-orange-300 active:opacity-60 active:scale-95 transition-all font-bold select-none">✦ 요약하기</Link>
+                  : <Link href="/square" onClick={handleNav} className="text-[#a4a09c] hover:text-white active:opacity-60 active:scale-95 transition-all select-none">SQUARE K</Link>
                 }
               </>
             )}
@@ -115,7 +115,7 @@ export default function Header({ title = 'SSOKTUBE' }: { title?: string }) {
             <Link
               href="/"
               onClick={handleNav}
-              className="md:hidden flex items-center px-2.5 py-1 rounded-lg text-xs font-black text-orange-400 hover:bg-orange-500/10 transition-colors border border-orange-500/20 whitespace-nowrap"
+              className="md:hidden flex items-center px-2.5 py-1 rounded-lg text-xs font-black text-orange-400 hover:bg-orange-500/10 active:bg-orange-500/25 active:scale-95 transition-all border border-orange-500/20 whitespace-nowrap select-none"
             >
               ✦ 요약하기
             </Link>
@@ -123,7 +123,7 @@ export default function Header({ title = 'SSOKTUBE' }: { title?: string }) {
             <Link
               href="/square"
               onClick={handleNav}
-              className="md:hidden flex items-center px-2.5 py-1 rounded-lg text-xs font-black text-orange-400 hover:bg-orange-500/10 transition-colors border border-orange-500/20 whitespace-nowrap"
+              className="md:hidden flex items-center px-2.5 py-1 rounded-lg text-xs font-black text-orange-400 hover:bg-orange-500/10 active:bg-orange-500/25 active:scale-95 transition-all border border-orange-500/20 whitespace-nowrap select-none"
             >
               SQUARE K
             </Link>

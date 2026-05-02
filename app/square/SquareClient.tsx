@@ -106,7 +106,7 @@ function SummaryCard({ item, likedIds, likingIds, user, messagingId, commentCoun
 }) {
   const router = useRouter()
   return (
-    <div className="relative group rounded-[18px] bg-[#32302e] border border-white/5 overflow-hidden hover:border-white/20 transition-all shadow-md cursor-pointer"
+    <div className="relative group rounded-[18px] bg-[#32302e] border border-white/5 overflow-hidden hover:border-white/20 active:scale-[0.97] active:opacity-75 transition-all shadow-md cursor-pointer select-none"
       onClick={() => {
         incrementViewCount(item.id)
         router.push(`/result/${item.sessionId}?from=square`)
@@ -336,7 +336,7 @@ function SummaryListRow({ item, likedIds, likingIds, user, messagingId, commentC
 
   return (
     <div
-      className="flex gap-3 rounded-[14px] bg-[#32302e] border border-white/5 hover:border-white/20 transition-all shadow-sm cursor-pointer p-2.5"
+      className="flex gap-3 rounded-[14px] bg-[#32302e] border border-white/5 hover:border-white/20 active:scale-[0.98] active:opacity-75 transition-all shadow-sm cursor-pointer p-2.5 select-none"
       onClick={() => { incrementViewCount(item.id); router.push(`/result/${item.sessionId}?from=square`) }}
     >
       {/* 썸네일 */}
@@ -859,7 +859,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95 active:opacity-70 select-none ${
                   activeCategory === cat.id
                     ? 'bg-orange-500 text-white'
                     : 'bg-[#32302e] text-[#a4a09c] hover:text-white'
