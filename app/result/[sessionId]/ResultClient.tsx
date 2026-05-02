@@ -82,6 +82,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
   const [showShortsModal, setShowShortsModal] = useState(false)
   const [activeRoomId, setActiveRoomId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'summary' | 'transcript' | 'segments' | 'reanalyze'>('summary')
+  const [transcriptDisplayLang, setTranscriptDisplayLang] = useState<'ko' | 'en'>('ko')
   const [sharing, setSharing] = useState(false)
   const [shareCopied, setShareCopied] = useState(false)
   const [togglingVisibility, setTogglingVisibility] = useState(false)
@@ -1375,15 +1376,38 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           )}
 
           {activeTab === 'transcript' && (
-            <div className="bg-[#2a2826] rounded-2xl p-6 border border-white/5 space-y-3 shadow-lg h-[500px] overflow-y-auto">
-              <h2 className="text-xl font-bold border-b border-white/10 pb-4 mb-4">전체 자막</h2>
+            <div className="bg-[#2a2826] rounded-2xl p-6 border border-white/5 shadow-lg h-[500px] overflow-y-auto">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+                <h2 className="text-xl font-bold">전체 자막</h2>
+                {data.transcriptOriginal && (
+                  <div className="flex gap-1 bg-white/5 rounded-lg p-1">
+                    <button
+                      onClick={() => setTranscriptDisplayLang('ko')}
+                      className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${transcriptDisplayLang === 'ko' ? 'bg-orange-500 text-white' : 'text-zinc-400 hover:text-white'}`}
+                    >
+                      한글
+                    </button>
+                    <button
+                      onClick={() => setTranscriptDisplayLang('en')}
+                      className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${transcriptDisplayLang === 'en' ? 'bg-orange-500 text-white' : 'text-zinc-400 hover:text-white'}`}
+                    >
+                      English
+                    </button>
+                  </div>
+                )}
+              </div>
               {data.transcriptSource === 'none' ? (
                 <div className="flex flex-col items-center gap-3 py-14 text-center">
                   <span className="text-3xl">🙈</span>
                   <p className="text-zinc-400 text-sm">자막을 가져올 수 없는 영상입니다.<br />자막이 비활성화되어 있거나 처리 중 오류가 발생했을 수 있습니다.</p>
                 </div>
-              ) : data.transcript ? (() => {
-                const lines = data.transcript.split('\n')
+              ) : (() => {
+                const rawTranscript = (transcriptDisplayLang === 'en' && data.transcriptOriginal)
+                  ? data.transcriptOriginal
+                  : data.transcript
+                if (!rawTranscript) return <p className="text-zinc-500 text-center py-10">자막 데이터가 없습니다.</p>
+
+                const lines = rawTranscript.split('\n')
                 const parsed: { ts: string; text: string }[] = []
                 for (const line of lines) {
                   const m = line.match(/^\[([\d:]+)\]\s(.*)/)
@@ -1419,9 +1443,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                     </p>
                   </div>
                 ))
-              })() : (
-                <p className="text-zinc-500 text-center py-10">자막 데이터가 없습니다.</p>
-              )}
+              })()}
             </div>
           )}
 

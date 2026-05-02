@@ -392,19 +392,23 @@ export default function BlogDraftModal({ data, onClose }: Props) {
                   </p>
 
                   {/* 목차 */}
-                  {draft.sections.filter(s => s.heading).length >= 2 && (
-                    <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-200">
-                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">📋 목차</p>
-                      <ol className="space-y-1">
-                        {draft.sections.filter(s => s.heading).map((s, i) => (
-                          <li key={s.id} className="flex items-start gap-2 text-xs">
-                            <span className="text-orange-500 font-bold shrink-0">{i + 1}.</span>
-                            <span className="text-zinc-600">{s.heading}</span>
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  )}
+                  {(() => {
+                    const tocItems = draft.sections.filter(s => s.heading != null && s.heading !== '')
+                    if (tocItems.length === 0) return null
+                    return (
+                      <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-200">
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">📋 목차</p>
+                        <ol className="space-y-1">
+                          {tocItems.map((s, i) => (
+                            <li key={s.id} className="flex items-start gap-2 text-xs">
+                              <span className="text-orange-500 font-bold shrink-0">{i + 1}.</span>
+                              <span className="text-zinc-600">{s.heading}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    )
+                  })()}
 
                   {draft.sections.map(s => (
                     <div key={s.id}>

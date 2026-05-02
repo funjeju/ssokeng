@@ -441,7 +441,9 @@ export async function POST(req: NextRequest) {
 
     // 한국어 출력 모드 + 비한국어 자막 → 자막 자체를 한국어로 번역 후 저장
     // 이후 모든 재분석은 한국어 자막 기반으로 자연스럽게 한국어 출력
+    let transcriptOriginal: string | undefined
     if (outputLang === 'ko' && transcriptLang !== 'ko' && transcript.trim().length > 50) {
+      transcriptOriginal = transcript  // 번역 전 원문 보존
       try {
         console.log('[Summarize] 🌐 Translating transcript to Korean...')
         transcript = await translateTranscriptToKorean(transcript)
@@ -450,6 +452,7 @@ export async function POST(req: NextRequest) {
         console.log('[Summarize] ✅ Transcript translated to Korean')
       } catch (e) {
         console.warn('[Summarize] ⚠️ Transcript translation failed, using original:', e)
+        transcriptOriginal = undefined  // 번역 실패 시 원문 그대로이므로 따로 저장 불필요
       }
     }
 
@@ -536,6 +539,7 @@ export async function POST(req: NextRequest) {
       summary,
       contextSummary,
       transcript,
+      ...(transcriptOriginal ? { transcriptOriginal } : {}),
       transcriptSource,
       transcriptWarning,
       videoPublishedAt: videoInfo.publishedAt || '',

@@ -162,6 +162,7 @@ export interface SummarizeResponse {
   category: Category
   summary: SummaryData
   transcript?: string
+  transcriptOriginal?: string  // 번역 전 원문 자막 (영어 자막을 한국어로 번역한 경우에만 존재)
   transcriptSource?: string
   videoPublishedAt?: string   // YouTube 업로드 날짜 (ISO 8601)
   summarizedAt?: string       // 요약 생성 일시 (ISO 8601)
