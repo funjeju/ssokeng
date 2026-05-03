@@ -9,6 +9,7 @@ const classifyModel = genAI.getGenerativeModel({
   generationConfig: {
     temperature: 0.1,
     maxOutputTokens: 1000,
+    responseMimeType: 'application/json',
     // @ts-expect-error thinkingConfig not yet in types but supported
     thinkingConfig: { thinkingBudget: 0 },
   },
@@ -104,9 +105,8 @@ function extractJSON(text: string): unknown {
 }
 
 export async function classifyCategory(transcript: string): Promise<{ category: Category; confidence: number }> {
-  const result = await classifyModel.generateContent(`Classify this YouTube transcript into exactly one of these categories:
-- "recipe": cooking, baking, food preparation
-- "english": videos whose MAIN PURPOSE is teaching English language (lessons, expressions, grammar). NOT just videos that contain English words.
+  try {
+    const result = await classifyModel.generateContent(`Classify this YouTube transcript into exactly one of these categories:
 - "recipe": cooking, baking, food preparation
 - "english": videos whose MAIN PURPOSE is teaching English language (lessons, expressions, grammar). NOT just videos that contain English words.
 - "learning": academic lectures, science, math, history, certifications. NOT travel guides, NOT destination/place lists, NOT product reviews.
@@ -121,13 +121,17 @@ ${transcript.slice(0, 2000)}
 
 Respond with JSON: {"category": "news", "confidence": 0.95}`)
 
-  const text = result.response.text().trim()
-  const parsed = extractJSON(text) as { category: Category; confidence: number }
+    const text = result.response.text().trim()
+    const parsed = extractJSON(text) as { category: Category; confidence: number }
 
-  if (!VALID_CATEGORIES.includes(parsed.category)) {
+    if (!VALID_CATEGORIES.includes(parsed.category)) {
+      return { category: 'news', confidence: 0.5 }
+    }
+    return parsed
+  } catch (e) {
+    console.warn('[classifyCategory] ⚠️ Gemini non-JSON response, defaulting to news:', e instanceof Error ? e.message : e)
     return { category: 'news', confidence: 0.5 }
   }
-  return parsed
 }
 
 const SUMMARY_PROMPTS: Record<Category, string> = {
