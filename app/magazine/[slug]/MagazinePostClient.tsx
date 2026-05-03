@@ -17,6 +17,16 @@ function toAnchor(text: string) {
   return text.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w가-힣-]/g, '')
 }
 
+function extractTextContent(node: React.ReactNode): string {
+  if (typeof node === 'string') return node
+  if (typeof node === 'number') return String(node)
+  if (Array.isArray(node)) return node.map(extractTextContent).join('')
+  if (node && typeof node === 'object' && 'props' in (node as React.ReactElement)) {
+    return extractTextContent((node as React.ReactElement).props.children)
+  }
+  return ''
+}
+
 function parseToc(body: string): { title: string; anchor: string }[] {
   return [...body.matchAll(/^##\s+(.+)$/gm)]
     .map(m => ({ title: m[1].trim(), anchor: toAnchor(m[1]) }))
@@ -34,7 +44,11 @@ function TableOfContents({ body }: { body: string }) {
             <span className="text-orange-500 text-xs font-bold shrink-0 mt-0.5">{i + 1}.</span>
             <a
               href={`#${item.anchor}`}
-              className="text-sm text-[#a4a09c] hover:text-white transition-colors leading-snug"
+              onClick={(e) => {
+                e.preventDefault()
+                document.getElementById(item.anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }}
+              className="text-sm text-[#a4a09c] hover:text-white transition-colors leading-snug cursor-pointer"
             >
               {item.title}
             </a>
@@ -316,7 +330,7 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
           <ReactMarkdown
             components={{
               h2: ({ children }) => {
-                const text = typeof children === 'string' ? children : String(children ?? '')
+                const text = extractTextContent(children)
                 return (
                   <h2 id={toAnchor(text)} className="text-xl font-black text-white mt-10 mb-4 pb-2 border-b border-white/10 scroll-mt-20">
                     {children}
@@ -359,9 +373,23 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
                   : <code className="bg-[#1c1a18] text-orange-300 text-xs px-1.5 py-0.5 rounded">{children}</code>
               },
               hr: () => <hr className="my-8 border-white/10" />,
-              a: ({ href, children }) => (
-                <a href={href} className="text-orange-400 hover:text-orange-300 underline underline-offset-2" target="_blank" rel="noopener noreferrer">{children}</a>
-              ),
+              a: ({ href, children }) => {
+                if (href?.startsWith('#')) {
+                  return (
+                    <a
+                      href={href}
+                      className="text-orange-400 hover:text-orange-300 underline underline-offset-2 cursor-pointer"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        document.getElementById(href.slice(1))?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                      }}
+                    >
+                      {children}
+                    </a>
+                  )
+                }
+                return <a href={href} className="text-orange-400 hover:text-orange-300 underline underline-offset-2" target="_blank" rel="noopener noreferrer">{children}</a>
+              },
             }}
           >
             {post.body}

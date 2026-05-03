@@ -83,6 +83,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
   const [activeRoomId, setActiveRoomId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'summary' | 'transcript' | 'segments' | 'reanalyze'>('summary')
   const [transcriptDisplayLang, setTranscriptDisplayLang] = useState<'ko' | 'en'>('ko')
+  const [transcriptCopied, setTranscriptCopied] = useState(false)
   const [sharing, setSharing] = useState(false)
   const [shareCopied, setShareCopied] = useState(false)
   const [togglingVisibility, setTogglingVisibility] = useState(false)
@@ -1379,22 +1380,38 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
             <div className="bg-[#2a2826] rounded-2xl p-6 border border-white/5 shadow-lg h-[500px] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
                 <h2 className="text-xl font-bold">전체 자막</h2>
-                {data.transcriptOriginal && (
-                  <div className="flex gap-1 bg-white/5 rounded-lg p-1">
-                    <button
-                      onClick={() => setTranscriptDisplayLang('ko')}
-                      className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${transcriptDisplayLang === 'ko' ? 'bg-orange-500 text-white' : 'text-zinc-400 hover:text-white'}`}
-                    >
-                      한글
-                    </button>
-                    <button
-                      onClick={() => setTranscriptDisplayLang('en')}
-                      className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${transcriptDisplayLang === 'en' ? 'bg-orange-500 text-white' : 'text-zinc-400 hover:text-white'}`}
-                    >
-                      English
-                    </button>
-                  </div>
-                )}
+                <div className="flex items-center gap-2">
+                  {data.transcriptOriginal && (
+                    <div className="flex gap-1 bg-white/5 rounded-lg p-1">
+                      <button
+                        onClick={() => setTranscriptDisplayLang('ko')}
+                        className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${transcriptDisplayLang === 'ko' ? 'bg-orange-500 text-white' : 'text-zinc-400 hover:text-white'}`}
+                      >
+                        한글
+                      </button>
+                      <button
+                        onClick={() => setTranscriptDisplayLang('en')}
+                        className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${transcriptDisplayLang === 'en' ? 'bg-orange-500 text-white' : 'text-zinc-400 hover:text-white'}`}
+                      >
+                        English
+                      </button>
+                    </div>
+                  )}
+                  <button
+                    onClick={async () => {
+                      const text = (transcriptDisplayLang === 'en' && data?.transcriptOriginal)
+                        ? data.transcriptOriginal
+                        : data?.transcript
+                      if (!text) return
+                      await navigator.clipboard.writeText(text)
+                      setTranscriptCopied(true)
+                      setTimeout(() => setTranscriptCopied(false), 2000)
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/8 hover:bg-white/12 text-zinc-400 hover:text-white transition-all"
+                  >
+                    {transcriptCopied ? '✓ 복사됨' : '📋 복사'}
+                  </button>
+                </div>
               </div>
               {data.transcriptSource === 'none' ? (
                 <div className="flex flex-col items-center gap-3 py-14 text-center">

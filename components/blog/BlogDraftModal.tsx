@@ -402,7 +402,12 @@ export default function BlogDraftModal({ data, onClose }: Props) {
                           {tocItems.map((s, i) => (
                             <li key={s.id} className="flex items-start gap-2 text-xs">
                               <span className="text-orange-500 font-bold shrink-0">{i + 1}.</span>
-                              <span className="text-zinc-600">{s.heading}</span>
+                              <button
+                                className="text-zinc-600 hover:text-orange-500 transition-colors text-left"
+                                onClick={() => document.getElementById(`blog-section-${s.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                              >
+                                {s.heading}
+                              </button>
                             </li>
                           ))}
                         </ol>
@@ -413,7 +418,7 @@ export default function BlogDraftModal({ data, onClose }: Props) {
                   {draft.sections.map(s => (
                     <div key={s.id}>
                       {s.heading && (
-                        <h2 className="text-base font-bold mt-4 mb-1 text-zinc-700">{s.heading}</h2>
+                        <h2 id={`blog-section-${s.id}`} className="text-base font-bold mt-4 mb-1 text-zinc-700 scroll-mt-4">{s.heading}</h2>
                       )}
                       <p className="text-sm leading-relaxed text-zinc-600">{s.text}</p>
                       {s.timestamp && (
