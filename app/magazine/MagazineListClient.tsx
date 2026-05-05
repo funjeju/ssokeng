@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { getPublishedPosts, CuratedPost } from '@/lib/magazine'
+import type { CuratedPost } from '@/lib/magazine'
 
 const TOPIC_META: Record<string, { label: string; emoji: string; desc: string; color: string; textColor: string; borderColor: string }> = {
   'ai-news':     { label: 'AI 소식',  emoji: '📰', desc: '최신 AI 업계 뉴스·발표',  color: 'bg-blue-500/15',   textColor: 'text-blue-400',   borderColor: 'border-blue-500/30'   },
@@ -130,8 +130,9 @@ export default function MagazineListClient() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getPublishedPosts(50)
-      .then(setPosts)
+    fetch('/api/magazine/posts?limit=50')
+      .then(r => r.json())
+      .then(data => Array.isArray(data) && setPosts(data))
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
