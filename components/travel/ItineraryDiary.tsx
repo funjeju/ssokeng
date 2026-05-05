@@ -103,7 +103,7 @@ export default function ItineraryDiary({ result, regionName, regionEmoji, startD
         <button
           onClick={handleDownloadPdf}
           disabled={downloading}
-          className="flex items-center gap-2 px-4 py-2 bg-white/8 hover:bg-white/15 border border-white/10 rounded-xl text-sm text-zinc-300 hover:text-white transition-all disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] border border-[var(--border-default)] rounded-xl text-sm text-zinc-300 hover:text-white transition-all disabled:opacity-50"
         >
           {downloading ? (
             <><span className="w-3.5 h-3.5 rounded-full border border-zinc-400 border-t-transparent animate-spin" /> 저장 중...</>

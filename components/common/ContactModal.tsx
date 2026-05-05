@@ -44,10 +44,10 @@ export default function ContactModal({ onClose }: ContactModalProps) {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-[#1c1a18] rounded-3xl border border-white/10 shadow-2xl p-6">
+      <div className="relative w-full max-w-md bg-[var(--bg-base)] rounded-3xl border border-[var(--border-default)] shadow-2xl p-6">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-[#75716e] hover:text-white transition-colors text-xl leading-none"
+          className="absolute top-4 right-4 text-[var(--text-subtle)] hover:text-white transition-colors text-xl leading-none"
         >✕</button>
 
         {done ? (
@@ -55,7 +55,7 @@ export default function ContactModal({ onClose }: ContactModalProps) {
           <div className="text-center py-6">
             <div className="text-5xl mb-4">✅</div>
             <h2 className="text-lg font-bold text-white mb-2">전송 완료!</h2>
-            <p className="text-[#a4a09c] text-sm leading-relaxed">
+            <p className="text-[var(--text-muted)] text-sm leading-relaxed">
               소중한 의견 감사합니다.<br/>확인 후 빠르게 답변드리겠습니다.
             </p>
             <button
@@ -69,7 +69,7 @@ export default function ContactModal({ onClose }: ContactModalProps) {
           <form onSubmit={handleSubmit}>
             <div className="mb-5">
               <h2 className="text-lg font-bold text-white mb-0.5">문의하기</h2>
-              <p className="text-[#75716e] text-xs">버그 신고, 제안, 제휴 문의를 보내주세요.</p>
+              <p className="text-[var(--text-subtle)] text-xs">버그 신고, 제안, 제휴 문의를 보내주세요.</p>
             </div>
 
             {/* 유형 선택 */}
@@ -82,7 +82,7 @@ export default function ContactModal({ onClose }: ContactModalProps) {
                   className={`flex flex-col items-center gap-1 px-2 py-3 rounded-2xl border text-center transition-all ${
                     type === opt.id
                       ? 'border-orange-500/60 bg-orange-500/10 text-white'
-                      : 'border-white/10 bg-[#2a2826] text-[#a4a09c] hover:border-white/20 hover:text-white'
+                      : 'border-[var(--border-default)] bg-[var(--bg-surface-2)] text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-white'
                   }`}
                 >
                   <span className="text-lg leading-none">{opt.label.split(' ')[0]}</span>
@@ -91,28 +91,28 @@ export default function ContactModal({ onClose }: ContactModalProps) {
               ))}
             </div>
             {type && (
-              <p className="text-[#75716e] text-xs mb-4 -mt-2 px-1">
+              <p className="text-[var(--text-subtle)] text-xs mb-4 -mt-2 px-1">
                 {TYPE_OPTIONS.find(o => o.id === type)?.desc}
               </p>
             )}
 
             {/* 이메일 */}
             <div className="mb-3">
-              <label className="block text-xs text-[#75716e] mb-1.5">
-                이메일 <span className="text-[#4a4745]">(답변 받으실 경우 입력)</span>
+              <label className="block text-xs text-[var(--text-subtle)] mb-1.5">
+                이메일 <span className="text-[var(--text-subtle)]">(답변 받으실 경우 입력)</span>
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="example@email.com"
-                className="w-full bg-[#2a2826] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-[#4a4745] focus:outline-none focus:border-orange-500/50 transition-colors"
+                className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 transition-colors"
               />
             </div>
 
             {/* 내용 */}
             <div className="mb-4">
-              <label className="block text-xs text-[#75716e] mb-1.5">
+              <label className="block text-xs text-[var(--text-subtle)] mb-1.5">
                 내용 <span className="text-orange-400">*</span>
               </label>
               <textarea
@@ -120,7 +120,7 @@ export default function ContactModal({ onClose }: ContactModalProps) {
                 onChange={e => setMessage(e.target.value)}
                 placeholder="자세히 적어주실수록 빠른 처리가 가능합니다."
                 rows={4}
-                className="w-full bg-[#2a2826] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-[#4a4745] focus:outline-none focus:border-orange-500/50 transition-colors resize-none"
+                className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 transition-colors resize-none"
               />
             </div>
 
@@ -129,7 +129,7 @@ export default function ContactModal({ onClose }: ContactModalProps) {
             <button
               type="submit"
               disabled={sending || !type || !message.trim()}
-              className="w-full py-3 bg-orange-500 hover:bg-orange-600 disabled:bg-[#3a3836] disabled:text-[#75716e] text-white font-bold rounded-2xl text-sm transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 bg-orange-500 hover:bg-orange-600 disabled:bg-[var(--bg-elevated-2)] disabled:text-[var(--text-subtle)] text-white font-bold rounded-2xl text-sm transition-colors flex items-center justify-center gap-2"
             >
               {sending ? (
                 <>

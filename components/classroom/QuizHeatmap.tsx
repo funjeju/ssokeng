@@ -29,8 +29,8 @@ function VideoHeatmapCard({ video }: { video: VideoHeatmap }) {
   const highWrong = video.questions.filter(q => q.wrongRate >= 0.6)
   const total = video.questions.reduce((s, q) => s + q.attempts, 0)
   return (
-    <div className="bg-[#1a1918] rounded-2xl border border-white/5 overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+    <div className="bg-[var(--bg-base)] rounded-2xl border border-[var(--border-subtle)] overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-subtle)]">
         <p className="text-sm font-bold text-white truncate flex-1">{video.videoTitle || '(제목 없음)'}</p>
         {video.sessionId && (
           <Link href={`/result/${video.sessionId}`} className="shrink-0 text-[10px] text-orange-400 hover:text-orange-300 ml-3">
@@ -43,7 +43,7 @@ function VideoHeatmapCard({ video }: { video: VideoHeatmap }) {
           <div key={q.questionIdx} className="space-y-0.5">
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-gray-500 w-12 shrink-0">Q{q.questionIdx + 1}</span>
-              <div className="flex-1 h-5 bg-white/5 rounded-full overflow-hidden relative">
+              <div className="flex-1 h-5 bg-[var(--overlay-subtle)] rounded-full overflow-hidden relative">
                 <div
                   className={`h-full rounded-full transition-all ${
                     q.wrongRate === 0 ? 'bg-emerald-500/40' :
@@ -73,7 +73,7 @@ function VideoHeatmapCard({ video }: { video: VideoHeatmap }) {
           </div>
         ))}
       </div>
-      <div className="px-4 py-2 border-t border-white/5 flex gap-4">
+      <div className="px-4 py-2 border-t border-[var(--border-subtle)] flex gap-4">
         <span className="text-[10px] text-gray-500">총 {video.questions.length}문제 · {total}회 응시</span>
         {highWrong.length > 0 && (
           <span className="text-[10px] text-red-400 font-bold">
@@ -108,7 +108,7 @@ function HelpNeededView({ heatmaps }: { heatmaps: VideoHeatmap[] }) {
       <p className="text-xs text-gray-400 pb-1">오답률 + 이해도 미달 기준으로 가장 도움이 필요한 문제 순서입니다.</p>
       {sorted.map((q, i) => (
         <div key={`${q.videoId}-${q.questionIdx}`}
-          className={`rounded-xl px-4 py-3 border text-xs ${q.wrongRate >= 0.6 ? 'bg-red-500/8 border-red-500/20' : q.wrongRate >= 0.3 ? 'bg-orange-500/8 border-orange-500/15' : 'bg-[#1a1918] border-white/5'}`}
+          className={`rounded-xl px-4 py-3 border text-xs ${q.wrongRate >= 0.6 ? 'bg-red-500/8 border-red-500/20' : q.wrongRate >= 0.3 ? 'bg-orange-500/8 border-orange-500/15' : 'bg-[var(--bg-base)] border-[var(--border-subtle)]'}`}
         >
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-gray-500 font-mono w-5 shrink-0">#{i + 1}</span>
@@ -173,13 +173,13 @@ export default function QuizHeatmap({ heatmaps, folders = [], folderVideos = {} 
       <div className="flex gap-2 mb-5">
         <button
           onClick={() => setView('folders')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors ${view === 'folders' ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors ${view === 'folders' ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
         >
           📁 영상별 히트맵
         </button>
         <button
           onClick={() => setView('help')}
-          className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${view === 'help' ? 'bg-red-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${view === 'help' ? 'bg-red-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
         >
           🆘 도움 필요
           {heatmaps.flatMap(h => h.questions).filter(q => q.wrongRate >= 0.6).length > 0 && (
@@ -202,7 +202,7 @@ export default function QuizHeatmap({ heatmaps, folders = [], folderVideos = {} 
                 key={h.videoId}
                 onClick={() => setSelectedVideoId(h.videoId)}
                 className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-colors truncate ${
-                  selectedVideoId === h.videoId ? 'bg-orange-500 text-white font-bold' : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                  selectedVideoId === h.videoId ? 'bg-orange-500 text-white font-bold' : 'bg-[var(--overlay-subtle)] text-gray-300 hover:bg-[var(--overlay-default)]'
                 }`}
               >
                 📊 {h.videoTitle || '(제목 없음)'}
@@ -219,7 +219,7 @@ export default function QuizHeatmap({ heatmaps, folders = [], folderVideos = {} 
                 <div key={folder.id}>
                   <button
                     onClick={() => toggleFolder(folder.id)}
-                    className="w-full text-left px-3 py-2 rounded-xl text-xs text-gray-400 hover:bg-white/5 flex items-center gap-1.5 transition-colors"
+                    className="w-full text-left px-3 py-2 rounded-xl text-xs text-gray-400 hover:bg-[var(--overlay-subtle)] flex items-center gap-1.5 transition-colors"
                   >
                     <svg className={`w-2.5 h-2.5 transition-transform shrink-0 ${isOpen ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
@@ -234,7 +234,7 @@ export default function QuizHeatmap({ heatmaps, folders = [], folderVideos = {} 
                           key={v.videoId}
                           onClick={() => setSelectedVideoId(v.videoId)}
                           className={`w-full text-left px-3 py-1.5 rounded-lg text-[11px] transition-colors truncate ${
-                            selectedVideoId === v.videoId ? 'bg-orange-500 text-white font-bold' : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                            selectedVideoId === v.videoId ? 'bg-orange-500 text-white font-bold' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'
                           }`}
                         >
                           📊 {v.title}
@@ -249,7 +249,7 @@ export default function QuizHeatmap({ heatmaps, folders = [], folderVideos = {} 
                           <div key={sf.id}>
                             <button
                               onClick={() => toggleFolder(sf.id)}
-                              className="w-full text-left px-3 py-1.5 rounded-lg text-[11px] text-gray-500 hover:bg-white/5 flex items-center gap-1.5 transition-colors"
+                              className="w-full text-left px-3 py-1.5 rounded-lg text-[11px] text-gray-500 hover:bg-[var(--overlay-subtle)] flex items-center gap-1.5 transition-colors"
                             >
                               <svg className={`w-2 h-2 transition-transform shrink-0 ${sfOpen ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
@@ -261,7 +261,7 @@ export default function QuizHeatmap({ heatmaps, folders = [], folderVideos = {} 
                                 key={v.videoId}
                                 onClick={() => setSelectedVideoId(v.videoId)}
                                 className={`w-full text-left px-3 py-1.5 ml-3 rounded-lg text-[11px] transition-colors truncate ${
-                                  selectedVideoId === v.videoId ? 'bg-orange-500 text-white font-bold' : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                                  selectedVideoId === v.videoId ? 'bg-orange-500 text-white font-bold' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'
                                 }`}
                               >
                                 📊 {v.title}
@@ -282,7 +282,7 @@ export default function QuizHeatmap({ heatmaps, folders = [], folderVideos = {} 
                 key={h.videoId}
                 onClick={() => setSelectedVideoId(h.videoId)}
                 className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-colors truncate ${
-                  selectedVideoId === h.videoId ? 'bg-orange-500 text-white font-bold' : 'bg-white/5 text-gray-300 hover:bg-white/10'
+                  selectedVideoId === h.videoId ? 'bg-orange-500 text-white font-bold' : 'bg-[var(--overlay-subtle)] text-gray-300 hover:bg-[var(--overlay-default)]'
                 }`}
               >
                 📊 {h.videoTitle || '(제목 없음)'}

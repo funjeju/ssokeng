@@ -190,16 +190,16 @@ export default function YouTubeImportTab() {
     <div className="flex flex-col gap-4">
       {/* 상단: 연동 버튼 + 안내 */}
       <div className="flex items-center justify-between">
-        <p className="text-[#75716e] text-xs">
+        <p className="text-[var(--text-subtle)] text-xs">
           YouTube 정책상 보안 연결은 브라우저 세션마다 재인증이 필요합니다
         </p>
         <button
           onClick={handleSync}
           disabled={!gisReady || syncing}
-          className="flex items-center gap-2 px-4 py-2 bg-[#32302e] hover:bg-[#3d3a38] border border-white/10 hover:border-red-500/30 rounded-xl transition-all text-sm font-semibold text-white disabled:opacity-50 shrink-0"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] border border-[var(--border-default)] hover:border-red-500/30 rounded-xl transition-all text-sm font-semibold text-white disabled:opacity-50 shrink-0"
         >
           {syncing ? (
-            <svg className="w-4 h-4 animate-spin text-[#75716e]" fill="none" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 animate-spin text-[var(--text-subtle)]" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
             </svg>
@@ -217,13 +217,13 @@ export default function YouTubeImportTab() {
       {playlists.length === 0 && !syncing ? (
         <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
           <span className="text-4xl opacity-20">📋</span>
-          <p className="text-[#75716e] text-sm">YouTube 연동하기를 눌러 재생목록을 가져오세요</p>
+          <p className="text-[var(--text-subtle)] text-sm">YouTube 연동하기를 눌러 재생목록을 가져오세요</p>
         </div>
       ) : (
         <div className="flex flex-col md:flex-row gap-4">
           {/* 좌측: 재생목록 */}
           <aside className="w-full md:w-56 shrink-0">
-            <p className="text-[#75716e] text-[10px] mb-2 uppercase tracking-wider">내 재생목록</p>
+            <p className="text-[var(--text-subtle)] text-[10px] mb-2 uppercase tracking-wider">내 재생목록</p>
             <div className="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 scrollbar-none">
               {playlists.map(pl => (
                 <button
@@ -232,14 +232,14 @@ export default function YouTubeImportTab() {
                   className={`relative text-left px-3 py-2.5 rounded-xl whitespace-nowrap md:whitespace-normal transition-all border ${
                     selectedPlaylist?.id === pl.id
                       ? 'bg-red-500/15 border-red-500/30 text-white'
-                      : 'bg-[#32302e] border-transparent text-[#a4a09c] hover:bg-[#3d3a38] hover:text-white'
+                      : 'bg-[var(--bg-elevated)] border-transparent text-[var(--text-muted)] hover:bg-[var(--bg-elevated-2)] hover:text-white'
                   }`}
                 >
                   {newPlaylistIds.has(pl.id) && (
                     <span className="absolute -top-1 -right-1 text-[9px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-full">NEW</span>
                   )}
                   <p className="text-sm font-medium truncate max-w-[170px]">{pl.title}</p>
-                  <p className="text-[10px] text-[#75716e] mt-0.5">{pl.itemCount}개</p>
+                  <p className="text-[10px] text-[var(--text-subtle)] mt-0.5">{pl.itemCount}개</p>
                 </button>
               ))}
             </div>
@@ -250,7 +250,7 @@ export default function YouTubeImportTab() {
             {!selectedPlaylist ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
                 <span className="text-3xl mb-2 opacity-20">👈</span>
-                <p className="text-[#75716e] text-sm">재생목록을 선택하면 영상이 표시됩니다</p>
+                <p className="text-[var(--text-subtle)] text-sm">재생목록을 선택하면 영상이 표시됩니다</p>
               </div>
             ) : loadingVideos ? (
               <div className="flex justify-center py-16">
@@ -260,10 +260,10 @@ export default function YouTubeImportTab() {
               <>
                 <div className="flex items-center gap-2 mb-4">
                   <h3 className="text-white font-semibold text-sm truncate">{selectedPlaylist.title}</h3>
-                  <span className="text-[#75716e] text-xs shrink-0">{videos.length}개</span>
+                  <span className="text-[var(--text-subtle)] text-xs shrink-0">{videos.length}개</span>
                 </div>
                 {videos.length === 0 ? (
-                  <p className="text-center py-12 text-[#75716e] text-sm">영상이 없습니다.</p>
+                  <p className="text-center py-12 text-[var(--text-subtle)] text-sm">영상이 없습니다.</p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {videos.map(video => {
@@ -271,8 +271,8 @@ export default function YouTubeImportTab() {
                       const isNew = newPlaylistIds.has(selectedPlaylist.id) &&
                         !playlists.find(p => p.id === selectedPlaylist.id)?.videoIds.includes(video.videoId)
                       return (
-                        <div key={video.videoId} className="bg-[#32302e] rounded-2xl border border-white/5 overflow-hidden hover:border-white/15 transition-all group">
-                          <div className="relative overflow-hidden aspect-video bg-[#23211f]">
+                        <div key={video.videoId} className="bg-[var(--bg-elevated)] rounded-2xl border border-[var(--border-subtle)] overflow-hidden hover:border-[var(--border-strong)] transition-all group">
+                          <div className="relative overflow-hidden aspect-video bg-[var(--bg-surface)]">
                             {video.thumbnail
                               ? <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                               : <div className="w-full h-full flex items-center justify-center text-3xl opacity-20">▶</div>
@@ -282,8 +282,8 @@ export default function YouTubeImportTab() {
                             )}
                           </div>
                           <div className="p-3">
-                            <p className="text-[#e2e2e2] text-xs font-semibold leading-snug mb-1 line-clamp-2 group-hover:text-white transition-colors">{video.title}</p>
-                            {video.channelTitle && <p className="text-[#75716e] text-[10px] mb-3 truncate">{video.channelTitle}</p>}
+                            <p className="text-[var(--text-primary)] text-xs font-semibold leading-snug mb-1 line-clamp-2 group-hover:text-white transition-colors">{video.title}</p>
+                            {video.channelTitle && <p className="text-[var(--text-subtle)] text-[10px] mb-3 truncate">{video.channelTitle}</p>}
                             {isSummarized ? (
                               <div className="w-full py-2 bg-emerald-500/10 text-emerald-400 text-xs font-bold rounded-xl text-center border border-emerald-500/20 flex items-center justify-center gap-1">
                                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>

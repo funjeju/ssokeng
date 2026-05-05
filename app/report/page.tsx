@@ -20,7 +20,7 @@ interface ReportResult {
 const IMPORTANCE_COLOR: Record<string, string> = {
   high: 'text-red-400 bg-red-500/10 border-red-500/20',
   medium: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20',
-  low: 'text-zinc-400 bg-white/5 border-white/10',
+  low: 'text-zinc-400 bg-[var(--overlay-subtle)] border-[var(--border-default)]',
 }
 const PRIORITY_COLOR: Record<string, string> = {
   high: 'text-orange-400',
@@ -105,7 +105,7 @@ export default function ReportPage() {
     : mySummaries
 
   return (
-    <div className="min-h-screen bg-[#252423]">
+    <div className="min-h-screen bg-[var(--bg-page)]">
       <Header title="멀티 영상 인사이트 보고서" />
 
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-8">
@@ -117,19 +117,19 @@ export default function ReportPage() {
         </div>
 
         {/* 보고서 설정 */}
-        <div className="bg-[#2a2826] border border-white/8 rounded-2xl p-5 space-y-3">
+        <div className="bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-2xl p-5 space-y-3">
           <p className="text-white font-semibold text-sm">보고서 정보</p>
           <input
             value={reportTitle}
             onChange={e => setReportTitle(e.target.value)}
             placeholder="보고서 제목 (선택)"
-            className="w-full bg-[#1c1a18] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-orange-500/40"
+            className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-orange-500/40"
           />
           <input
             value={reportPurpose}
             onChange={e => setReportPurpose(e.target.value)}
             placeholder="작성 목적 (예: 마케팅 트렌드 조사, 요리 레시피 비교...)"
-            className="w-full bg-[#1c1a18] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-orange-500/40"
+            className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-orange-500/40"
           />
         </div>
 
@@ -163,7 +163,7 @@ export default function ReportPage() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="내 라이브러리에서 검색..."
-                className="w-full bg-[#2a2826] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/20"
+                className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-[var(--border-strong)]"
               />
               {loadingLibrary ? (
                 <div className="flex justify-center py-6">
@@ -183,12 +183,12 @@ export default function ReportPage() {
                           isSelected
                             ? 'bg-orange-500/15 border-orange-500/30'
                             : isDisabled
-                              ? 'bg-[#2a2826] border-white/5 opacity-40 cursor-not-allowed'
-                              : 'bg-[#2a2826] border-white/5 hover:border-white/15'
+                              ? 'bg-[var(--bg-surface-2)] border-[var(--border-subtle)] opacity-40 cursor-not-allowed'
+                              : 'bg-[var(--bg-surface-2)] border-[var(--border-subtle)] hover:border-[var(--border-strong)]'
                         }`}
                       >
                         <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border text-[9px] font-bold ${
-                          isSelected ? 'bg-orange-500 border-orange-500 text-white' : 'border-white/20 text-transparent'
+                          isSelected ? 'bg-orange-500 border-orange-500 text-white' : 'border-[var(--border-strong)] text-transparent'
                         }`}>
                           {isSelected ? selectedVideos.findIndex(v => v.id === s.id) + 1 : ''}
                         </div>
@@ -208,7 +208,7 @@ export default function ReportPage() {
             </div>
           )}
           {!user && (
-            <p className="text-zinc-600 text-sm text-center py-4 bg-[#2a2826] rounded-xl">로그인하면 내 라이브러리에서 바로 선택할 수 있어요.</p>
+            <p className="text-zinc-600 text-sm text-center py-4 bg-[var(--bg-surface-2)] rounded-xl">로그인하면 내 라이브러리에서 바로 선택할 수 있어요.</p>
           )}
         </div>
 
@@ -240,7 +240,7 @@ export default function ReportPage() {
               <button
                 onClick={handleDownloadPdf}
                 disabled={downloading}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/8 hover:bg-white/15 text-white text-sm font-bold transition-all border border-white/10 disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-white text-sm font-bold transition-all border border-[var(--border-default)] disabled:opacity-50"
               >
                 {downloading ? (
                   <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -256,11 +256,11 @@ export default function ReportPage() {
               </button>
             </div>
 
-            <div ref={reportRef} className="bg-white text-[#1c1a18] rounded-2xl p-8 space-y-7 font-sans">
+            <div ref={reportRef} className="bg-white text-[var(--bg-base)] rounded-2xl p-8 space-y-7 font-sans">
               {/* 보고서 헤더 */}
               <div className="border-b-2 border-orange-500 pb-5">
                 <div className="text-orange-500 text-xs font-bold uppercase tracking-widest mb-1">SSOKTUBE AI Report</div>
-                <h1 className="text-2xl font-black text-[#1c1a18]">
+                <h1 className="text-2xl font-black text-[var(--bg-base)]">
                   {reportTitle || '종합 인사이트 보고서'}
                 </h1>
                 <p className="text-zinc-500 text-sm mt-1">
@@ -277,7 +277,7 @@ export default function ReportPage() {
 
               {/* Executive Summary */}
               <div>
-                <h2 className="text-base font-black text-[#1c1a18] mb-2">📌 핵심 요약</h2>
+                <h2 className="text-base font-black text-[var(--bg-base)] mb-2">📌 핵심 요약</h2>
                 <p className="text-zinc-700 text-sm leading-relaxed bg-orange-50 rounded-xl p-4 border-l-4 border-orange-500">
                   {result.executive_summary}
                 </p>
@@ -286,13 +286,13 @@ export default function ReportPage() {
               {/* Key Themes */}
               {result.key_themes?.length > 0 && (
                 <div>
-                  <h2 className="text-base font-black text-[#1c1a18] mb-3">🔍 주요 테마</h2>
+                  <h2 className="text-base font-black text-[var(--bg-base)] mb-3">🔍 주요 테마</h2>
                   <div className="space-y-3">
                     {result.key_themes.map((t, i) => (
                       <div key={i} className="flex gap-3 items-start">
                         <span className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-black flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
                         <div>
-                          <p className="font-bold text-sm text-[#1c1a18]">{t.theme}</p>
+                          <p className="font-bold text-sm text-[var(--bg-base)]">{t.theme}</p>
                           <p className="text-zinc-600 text-xs mt-0.5 leading-relaxed">{t.description}</p>
                           <div className="flex gap-1 mt-1">
                             {t.videos?.map(n => (
@@ -309,7 +309,7 @@ export default function ReportPage() {
               {/* Insights */}
               {result.insights?.length > 0 && (
                 <div>
-                  <h2 className="text-base font-black text-[#1c1a18] mb-3">💡 핵심 인사이트</h2>
+                  <h2 className="text-base font-black text-[var(--bg-base)] mb-3">💡 핵심 인사이트</h2>
                   <div className="space-y-2">
                     {result.insights.map((ins, i) => (
                       <div key={i} className="flex items-start gap-3 p-3 rounded-xl border border-zinc-100 bg-zinc-50">
@@ -331,7 +331,7 @@ export default function ReportPage() {
               {/* Comparison */}
               {result.comparison && (
                 <div>
-                  <h2 className="text-base font-black text-[#1c1a18] mb-3">⚖️ 비교 분석</h2>
+                  <h2 className="text-base font-black text-[var(--bg-base)] mb-3">⚖️ 비교 분석</h2>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs font-bold text-emerald-700 mb-2 uppercase">공통점</p>
@@ -360,7 +360,7 @@ export default function ReportPage() {
               {/* Action Items */}
               {result.action_items?.length > 0 && (
                 <div>
-                  <h2 className="text-base font-black text-[#1c1a18] mb-3">🚀 실행 방안</h2>
+                  <h2 className="text-base font-black text-[var(--bg-base)] mb-3">🚀 실행 방안</h2>
                   <div className="space-y-2">
                     {result.action_items.map((a, i) => (
                       <div key={i} className="flex items-start gap-3">
@@ -379,7 +379,7 @@ export default function ReportPage() {
               {/* Conclusion */}
               {result.conclusion && (
                 <div className="border-t-2 border-zinc-100 pt-5">
-                  <h2 className="text-base font-black text-[#1c1a18] mb-2">📝 결론</h2>
+                  <h2 className="text-base font-black text-[var(--bg-base)] mb-2">📝 결론</h2>
                   <p className="text-zinc-700 text-sm leading-relaxed">{result.conclusion}</p>
                 </div>
               )}

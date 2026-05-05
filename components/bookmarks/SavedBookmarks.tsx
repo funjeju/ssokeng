@@ -64,7 +64,7 @@ export default function SavedBookmarks({ userId }: { userId: string }) {
           <div
             key={sessionId}
             onClick={() => router.push(`/result/${sessionId}`)}
-            className="group bg-[#2a2826] border border-white/8 rounded-2xl overflow-hidden cursor-pointer hover:border-yellow-500/30 hover:bg-[#2f2c2a] transition-all"
+            className="group bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-2xl overflow-hidden cursor-pointer hover:border-yellow-500/30 hover:bg-[var(--bg-page)] transition-all"
           >
             {/* 썸네일 */}
             <div className="relative w-full aspect-video bg-zinc-800 overflow-hidden">
@@ -97,7 +97,7 @@ export default function SavedBookmarks({ userId }: { userId: string }) {
                   <div
                     key={bm.id}
                     onClick={e => { e.stopPropagation(); router.push(`/result/${sessionId}?t=${bm.timestampLabel}`) }}
-                    className="flex items-center gap-2 group/bm hover:bg-white/5 rounded-lg px-1.5 py-1 -mx-1.5 transition-colors"
+                    className="flex items-center gap-2 group/bm hover:bg-[var(--overlay-subtle)] rounded-lg px-1.5 py-1 -mx-1.5 transition-colors"
                   >
                     <span className="shrink-0 font-mono text-[10px] text-yellow-400 bg-yellow-500/10 px-1.5 py-0.5 rounded border border-yellow-500/15">
                       {bm.timestampLabel}

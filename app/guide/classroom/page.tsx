@@ -11,13 +11,13 @@ export default function ClassroomGuidePage() {
   return (
     <article className="flex flex-col gap-10 max-w-2xl">
       <div>
-        <div className="flex items-center gap-2 text-[#75716e] text-xs mb-4">
+        <div className="flex items-center gap-2 text-[var(--text-subtle)] text-xs mb-4">
           <Link href="/guide" className="hover:text-white transition-colors">사용설명서</Link>
           <span>›</span>
           <span className="text-white">클래스룸</span>
         </div>
         <h1 className="text-2xl font-black text-white mb-3">🎓 선생님, 유튜브 영상이 10초 만에 수업 워크시트가 됩니다</h1>
-        <p className="text-[#a4a09c] text-sm leading-relaxed">
+        <p className="text-[var(--text-muted)] text-sm leading-relaxed">
           유튜브에는 훌륭한 교육 영상이 넘쳐나지만 수업에 활용하려면 자료 만들기가 번거립니다. 쏙튜브 <strong className="text-white">클래스룸</strong>은 유튜브 영상을 AI 워크시트로 자동 변환하고, 클래스 코드 하나로 학생들에게 배포하며, 누가 어떤 자료를 언제 학습했는지 대시보드로 관리할 수 있는 교육용 도구입니다. 교사·강사·튜터 모두 활용할 수 있습니다.
         </p>
       </div>
@@ -32,7 +32,7 @@ export default function ClassroomGuidePage() {
             '학생들에게 영상 시청 후 과제를 제출받고 싶은 교수·강사',
             '학생 학습 이력을 체계적으로 관리하고 싶은 교육 기관 담당자',
           ].map(t => (
-            <li key={t} className="flex items-start gap-2 text-[#a4a09c] text-sm">
+            <li key={t} className="flex items-start gap-2 text-[var(--text-muted)] text-sm">
               <span className="text-lime-400 mt-0.5 shrink-0">✓</span>{t}
             </li>
           ))}
@@ -48,11 +48,11 @@ export default function ClassroomGuidePage() {
             { icon: '📊', title: '학습 현황 대시보드', desc: '어떤 학생이 어떤 자료를 언제 열람했는지, 워크시트 완료율이 얼마인지 한눈에 확인할 수 있습니다. 참여하지 않은 학생에게 알림을 보낼 수도 있습니다.' },
             { icon: '📱', title: '학생 모바일 접속', desc: '학생은 별도 회원 가입·설치 없이 클래스 코드만으로 스마트폰에서 학습 자료에 접근합니다. iOS·Android 모두 지원합니다.' },
           ].map(item => (
-            <div key={item.title} className="flex gap-4 bg-[#32302e] rounded-2xl p-4">
+            <div key={item.title} className="flex gap-4 bg-[var(--bg-elevated)] rounded-2xl p-4">
               <span className="text-2xl shrink-0">{item.icon}</span>
               <div>
                 <p className="text-white font-semibold text-sm">{item.title}</p>
-                <p className="text-[#75716e] text-xs mt-1 leading-relaxed">{item.desc}</p>
+                <p className="text-[var(--text-subtle)] text-xs mt-1 leading-relaxed">{item.desc}</p>
               </div>
             </div>
           ))}
@@ -67,11 +67,11 @@ export default function ClassroomGuidePage() {
             { icon: '📰', title: '사회·역사 — 뉴스 5W1H 분석', desc: 'KBS·JTBC 뉴스 유튜브를 AI가 5W1H 형식으로 정리한 자료를 배포. 학생들이 사건의 맥락을 구조적으로 파악하는 데 도움이 됩니다.' },
             { icon: '🍳', title: '가정·직업 — 실습 영상 정리', desc: '요리·목공·코딩 실습 유튜브에서 단계별 과정을 추출해 체크리스트·실습 가이드로 변환합니다. 학생들이 영상을 멈추지 않고 실습할 수 있습니다.' },
           ].map(item => (
-            <div key={item.title} className="flex gap-3 bg-[#32302e] rounded-2xl p-4">
+            <div key={item.title} className="flex gap-3 bg-[var(--bg-elevated)] rounded-2xl p-4">
               <span className="text-xl shrink-0">{item.icon}</span>
               <div>
                 <p className="text-white font-semibold text-sm">{item.title}</p>
-                <p className="text-[#75716e] text-xs mt-1 leading-relaxed">{item.desc}</p>
+                <p className="text-[var(--text-subtle)] text-xs mt-1 leading-relaxed">{item.desc}</p>
               </div>
             </div>
           ))}
@@ -82,10 +82,10 @@ export default function ClassroomGuidePage() {
         <h2 className="text-lime-400 font-bold text-sm mb-3">클래스룸 추천 과목</h2>
         <div className="grid grid-cols-3 gap-2">
           {['영어', '사회', '역사', '과학', '경제', '도덕', '가정', '직업', '정보·코딩'].map(t => (
-            <div key={t} className="bg-[#32302e] rounded-lg px-2 py-1.5 text-[#a4a09c] text-xs text-center">{t}</div>
+            <div key={t} className="bg-[var(--bg-elevated)] rounded-lg px-2 py-1.5 text-[var(--text-muted)] text-xs text-center">{t}</div>
           ))}
         </div>
-        <p className="text-[#4a4745] text-xs mt-3">유튜브 자막이 있는 모든 교육 영상에서 워크시트 생성 가능합니다.</p>
+        <p className="text-[var(--text-subtle)] text-xs mt-3">유튜브 자막이 있는 모든 교육 영상에서 워크시트 생성 가능합니다.</p>
       </section>
 
       <section className="flex flex-col gap-3">
@@ -95,19 +95,19 @@ export default function ClassroomGuidePage() {
             { q: '학생 수 제한이 있나요?', a: '기본 플랜에서 클래스당 학생 수 제한이 있습니다. 학원·학교 단위의 대규모 이용은 교육 기관 플랜을 별도 문의해주세요.' },
             { q: 'CEFR 레벨 조정은 어떻게 하나요?', a: '워크시트 생성 시 대상 학생의 영어 레벨을 A1~C2 중 선택하면 어휘 난이도·질문 수준이 자동으로 조정됩니다.' },
           ].map(item => (
-            <div key={item.q} className="bg-[#32302e] rounded-xl p-4">
+            <div key={item.q} className="bg-[var(--bg-elevated)] rounded-xl p-4">
               <p className="text-white text-sm font-semibold mb-1">Q. {item.q}</p>
-              <p className="text-[#75716e] text-xs leading-relaxed">{item.a}</p>
+              <p className="text-[var(--text-subtle)] text-xs leading-relaxed">{item.a}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <div className="flex items-center gap-3 pt-2 border-t border-white/5">
+      <div className="flex items-center gap-3 pt-2 border-t border-[var(--border-subtle)]">
         <Link href="/mypage" className="px-5 py-2.5 bg-lime-700 hover:bg-lime-600 text-white font-bold text-sm rounded-xl transition-colors">
           클래스룸 시작하기
         </Link>
-        <Link href="/guide/square" className="text-[#75716e] text-sm hover:text-white transition-colors">
+        <Link href="/guide/square" className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors">
           ← 스퀘어 활용법
         </Link>
       </div>

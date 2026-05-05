@@ -44,7 +44,7 @@ function KpiCard({
   label: string; value: number | string; unit?: string; sub?: string; color: string; icon: string
 }) {
   return (
-    <div className="bg-gradient-to-br from-[#2a2826] to-[#1e1d1b] rounded-2xl border border-white/5 p-5 flex flex-col gap-1">
+    <div className="bg-gradient-to-br from-[var(--bg-surface-2)] to-[var(--bg-base)] rounded-2xl border border-[var(--border-subtle)] p-5 flex flex-col gap-1">
       <div className="flex items-center justify-between">
         <p className="text-gray-400 text-[11px]">{label}</p>
         <span className="text-lg">{icon}</span>
@@ -61,7 +61,7 @@ function KpiCard({
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-[#1c1a18] border border-white/10 rounded-xl px-3 py-2 text-xs shadow-xl">
+    <div className="bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs shadow-xl">
       <p className="text-gray-400 mb-1">{label}</p>
       {payload.map((p: any) => (
         <p key={p.name} style={{ color: p.color }}>{p.name}: <span className="font-bold text-white">{p.value}</span></p>
@@ -162,7 +162,7 @@ export default function AnalyticsTab({ getAuthHeader }: { getAuthHeader: () => P
       </div>
 
       {/* ── 일별 영상 분석 + 저장 Bar ── */}
-      <div className="bg-[#23211f] rounded-[28px] border border-white/5 p-6">
+      <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-subtle)] p-6">
         <div className="flex items-center justify-between mb-5">
           <div>
             <h3 className="text-white font-bold">일별 영상 분석 현황</h3>
@@ -187,7 +187,7 @@ export default function AnalyticsTab({ getAuthHeader }: { getAuthHeader: () => P
       </div>
 
       {/* ── 신규 가입자 Area + 누적 Line ── */}
-      <div className="bg-[#23211f] rounded-[28px] border border-white/5 p-6">
+      <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-subtle)] p-6">
         <div className="flex items-center justify-between mb-5">
           <div>
             <h3 className="text-white font-bold">유저 성장 추이</h3>
@@ -226,7 +226,7 @@ export default function AnalyticsTab({ getAuthHeader }: { getAuthHeader: () => P
       {/* ── 회원 구성 파이 + 핵심 지표 ── */}
       <div className="grid md:grid-cols-2 gap-4">
         {/* 파이차트 */}
-        <div className="bg-[#23211f] rounded-[28px] border border-white/5 p-6">
+        <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-subtle)] p-6">
           <h3 className="text-white font-bold mb-1">회원 역할 분포</h3>
           <p className="text-gray-500 text-xs mb-4">최근 30일 신규 가입 기준</p>
           {pieData.length > 0 ? (
@@ -258,7 +258,7 @@ export default function AnalyticsTab({ getAuthHeader }: { getAuthHeader: () => P
         </div>
 
         {/* 투자자용 핵심 지표 */}
-        <div className="bg-[#23211f] rounded-[28px] border border-white/5 p-6 flex flex-col gap-3">
+        <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-subtle)] p-6 flex flex-col gap-3">
           <h3 className="text-white font-bold mb-1">📈 투자 핵심 지표</h3>
           {[
             {
@@ -292,7 +292,7 @@ export default function AnalyticsTab({ getAuthHeader }: { getAuthHeader: () => P
               color: 'text-emerald-400',
             },
           ].map(m => (
-            <div key={m.label} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+            <div key={m.label} className="flex items-center justify-between py-2 border-b border-[var(--border-subtle)] last:border-0">
               <div>
                 <p className="text-gray-400 text-[10px] font-mono uppercase tracking-wider">{m.label}</p>
                 <p className="text-gray-500 text-[9px]">{m.desc}</p>

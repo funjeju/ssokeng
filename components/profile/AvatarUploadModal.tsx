@@ -160,17 +160,17 @@ export default function AvatarUploadModal({
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-[#1c1a18] rounded-3xl border border-white/10 shadow-2xl p-6 w-full max-w-sm">
-        <button onClick={onClose} className="absolute top-4 right-4 text-[#75716e] hover:text-white text-xl leading-none">✕</button>
+      <div className="relative bg-[var(--bg-base)] rounded-3xl border border-[var(--border-default)] shadow-2xl p-6 w-full max-w-sm">
+        <button onClick={onClose} className="absolute top-4 right-4 text-[var(--text-subtle)] hover:text-white text-xl leading-none">✕</button>
         <h2 className="text-lg font-bold text-white mb-5 text-center">📷 프로필 사진 변경</h2>
 
         {!imgSrc ? (
           <>
             <label className="block cursor-pointer">
-              <div className="border-2 border-dashed border-white/20 hover:border-orange-500/50 rounded-2xl p-10 text-center transition-colors">
+              <div className="border-2 border-dashed border-[var(--border-strong)] hover:border-orange-500/50 rounded-2xl p-10 text-center transition-colors">
                 <p className="text-5xl mb-3">🖼️</p>
                 <p className="text-white font-semibold text-sm">이미지 클릭하여 선택</p>
-                <p className="text-[#75716e] text-xs mt-1.5">JPG · PNG · GIF · 최대 3MB</p>
+                <p className="text-[var(--text-subtle)] text-xs mt-1.5">JPG · PNG · GIF · 최대 3MB</p>
               </div>
               <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
             </label>
@@ -193,11 +193,11 @@ export default function AvatarUploadModal({
               onTouchMove={onTouchMove}
               onTouchEnd={onDragEnd}
             />
-            <p className="text-[#75716e] text-xs">드래그로 위치 · 슬라이더로 크기 조정</p>
+            <p className="text-[var(--text-subtle)] text-xs">드래그로 위치 · 슬라이더로 크기 조정</p>
 
             {/* 줌 슬라이더 */}
             <div className="w-full flex items-center gap-3">
-              <span className="text-sm text-[#75716e]">🔍−</span>
+              <span className="text-sm text-[var(--text-subtle)]">🔍−</span>
               <input
                 type="range"
                 min={0.3}
@@ -207,7 +207,7 @@ export default function AvatarUploadModal({
                 onChange={handleZoom}
                 className="flex-1 accent-orange-500"
               />
-              <span className="text-sm text-[#75716e]">🔍+</span>
+              <span className="text-sm text-[var(--text-subtle)]">🔍+</span>
             </div>
 
             {error && <p className="text-red-400 text-xs text-center">{error}</p>}
@@ -215,7 +215,7 @@ export default function AvatarUploadModal({
             <div className="flex gap-3 w-full pt-1">
               <button
                 onClick={() => { setImgSrc(null); setError('') }}
-                className="flex-1 py-3 bg-[#2a2826] hover:bg-[#32302e] text-[#a4a09c] font-semibold rounded-2xl text-sm transition-colors"
+                className="flex-1 py-3 bg-[var(--bg-surface-2)] hover:bg-[var(--bg-elevated)] text-[var(--text-muted)] font-semibold rounded-2xl text-sm transition-colors"
               >
                 다시 선택
               </button>

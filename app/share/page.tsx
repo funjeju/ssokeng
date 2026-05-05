@@ -34,10 +34,10 @@ function ShareHandler() {
 
 export default function SharePage() {
   return (
-    <div className="min-h-screen bg-[#1a1917] flex items-center justify-center">
+    <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         <div className="w-10 h-10 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-        <p className="text-[#75716e] text-sm">쏙튜브로 이동 중...</p>
+        <p className="text-[var(--text-subtle)] text-sm">쏙튜브로 이동 중...</p>
       </div>
       <Suspense>
         <ShareHandler />

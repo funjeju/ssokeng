@@ -62,16 +62,16 @@ export default function ConversationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#252423] font-sans flex flex-col">
+    <div className="min-h-screen bg-[var(--bg-page)] font-sans flex flex-col">
       <Header title="🎬 Next Curator" />
 
       {/* 상대방 정보 */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/5 bg-[#252423]">
-        <button onClick={() => router.back()} className="text-[#a4a09c] hover:text-white mr-1">←</button>
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border-subtle)] bg-[var(--bg-page)]">
+        <button onClick={() => router.back()} className="text-[var(--text-muted)] hover:text-white mr-1">←</button>
         {other?.photoURL ? (
-          <img src={other.photoURL} alt="" className="w-8 h-8 rounded-full border border-white/10" />
+          <img src={other.photoURL} alt="" className="w-8 h-8 rounded-full border border-[var(--border-default)]" />
         ) : (
-          <div className="w-8 h-8 rounded-full bg-[#32302e] flex items-center justify-center">👤</div>
+          <div className="w-8 h-8 rounded-full bg-[var(--bg-elevated)] flex items-center justify-center">👤</div>
         )}
         <span className="text-white font-semibold text-sm">{other?.displayName || '익명'}</span>
       </div>
@@ -83,7 +83,7 @@ export default function ConversationPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-orange-500" />
           </div>
         ) : messages.length === 0 ? (
-          <p className="text-center text-[#75716e] text-sm py-10">첫 메시지를 보내보세요!</p>
+          <p className="text-center text-[var(--text-subtle)] text-sm py-10">첫 메시지를 보내보세요!</p>
         ) : (
           messages.map(msg => {
             const isMine = msg.senderId === user?.uid
@@ -92,7 +92,7 @@ export default function ConversationPage() {
                 <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
                   isMine
                     ? 'bg-orange-500 text-white rounded-br-sm'
-                    : 'bg-[#32302e] text-[#e2e2e2] rounded-bl-sm border border-white/5'
+                    : 'bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-bl-sm border border-[var(--border-subtle)]'
                 }`}>
                   {msg.text}
                 </div>
@@ -104,13 +104,13 @@ export default function ConversationPage() {
       </div>
 
       {/* 입력창 */}
-      <div className="px-4 py-3 border-t border-white/5 flex gap-2 bg-[#252423]">
+      <div className="px-4 py-3 border-t border-[var(--border-subtle)] flex gap-2 bg-[var(--bg-page)]">
         <input
           value={text}
           onChange={e => setText(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
           placeholder="메시지 입력..."
-          className="flex-1 bg-[#32302e] border border-white/10 rounded-full px-4 py-2.5 text-sm text-white placeholder:text-[#75716e] outline-none focus:border-orange-500/50"
+          className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-full px-4 py-2.5 text-sm text-white placeholder:text-[var(--text-subtle)] outline-none focus:border-orange-500/50"
         />
         <button
           onClick={handleSend}

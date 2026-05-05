@@ -144,7 +144,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
   }
 
   const stageBadge = (status?: string) => {
-    if (!status)            return 'bg-[#2a2826] text-[#4a4846] border-white/8'
+    if (!status)            return 'bg-[var(--bg-surface-2)] text-[var(--text-subtle)] border-[var(--border-default)]'
     if (status === 'done')    return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
     if (status === 'failed')  return 'bg-red-500/20 text-red-400 border-red-500/30'
     if (status === 'skipped') return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
@@ -159,19 +159,19 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
       onClick={onClose}
     >
       <div
-        className="w-full max-w-3xl bg-[#1c1a18] rounded-2xl border border-white/10 overflow-hidden shadow-2xl"
+        className="w-full max-w-3xl bg-[var(--bg-base)] rounded-2xl border border-[var(--border-default)] overflow-hidden shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
         {/* 헤더 */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/8 bg-[#161412]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-default)] bg-[var(--bg-base)]">
           <div className="flex items-center gap-3">
             <span className="text-2xl">{meta.emoji}</span>
             <div>
               <p className={`text-sm font-black ${meta.color}`}>{meta.label} 파이프라인 로그</p>
-              <p className="text-[11px] text-[#75716e]">{kstDate} (KST) · ID: {log.id}</p>
+              <p className="text-[11px] text-[var(--text-subtle)]">{kstDate} (KST) · ID: {log.id}</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-[#75716e] hover:text-white transition-colors text-xl leading-none">✕</button>
+          <button onClick={onClose} className="text-[var(--text-subtle)] hover:text-white transition-colors text-xl leading-none">✕</button>
         </div>
 
         <div className="p-6 space-y-5 overflow-y-auto max-h-[75vh]">
@@ -182,7 +182,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
               <div className="flex items-center gap-2">
                 <span className="text-blue-400 font-black text-sm">① Scout</span>
                 {log.scout?.diag && (
-                  <span className="text-[10px] text-[#75716e]">
+                  <span className="text-[10px] text-[var(--text-subtle)]">
                     쿼리 {log.scout.diag.queriesRun}개 → 원본 {log.scout.diag.rawFound}개 → 필터 후 {log.scout.diag.afterFilter}개
                   </span>
                 )}
@@ -210,7 +210,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
               <div className="divide-y divide-blue-500/10">
                 {log.scout.candidates.map((c, i) => (
                   <div key={c.videoId} className="flex items-center gap-3 px-4 py-2.5">
-                    <span className="text-[10px] text-[#4a4846] w-4 shrink-0">{i + 1}</span>
+                    <span className="text-[10px] text-[var(--text-subtle)] w-4 shrink-0">{i + 1}</span>
                     <a
                       href={`https://www.youtube.com/watch?v=${c.videoId}`}
                       target="_blank"
@@ -222,7 +222,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
                     </a>
                     <div className="flex-1 min-w-0">
                       <p className="text-[11px] text-white font-medium truncate">{c.title}</p>
-                      <p className="text-[9px] text-[#4a4846]">
+                      <p className="text-[9px] text-[var(--text-subtle)]">
                         {c.channelTitle} · {Math.floor(c.durationSec / 60)}분{c.durationSec % 60}초
                         {(() => { if (!c.publishedAt) return ''; const d = new Date(c.publishedAt); return isNaN(d.getTime()) ? '' : ` · ${new Intl.DateTimeFormat('ko-KR', { month: 'short', day: 'numeric' }).format(d)}` })()}
                       </p>
@@ -239,7 +239,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
               <div className="flex items-center gap-2">
                 <span className="text-purple-400 font-black text-sm">② Evaluate</span>
                 {log.evaluate?.results && (
-                  <span className="text-[10px] text-[#75716e]">
+                  <span className="text-[10px] text-[var(--text-subtle)]">
                     {log.evaluate.results.filter(r => r.decision === 'PASS').length} PASS · {log.evaluate.results.filter(r => r.decision === 'HOLD').length} HOLD · {log.evaluate.results.filter(r => r.decision === 'FAIL').length} FAIL
                   </span>
                 )}
@@ -258,7 +258,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
                 {log.evaluate.results.map((r, i) => (
                   <div key={r.videoId} className="px-4 py-3">
                     <div className="flex items-start gap-2 mb-2">
-                      <span className="text-[10px] text-[#4a4846] w-4 shrink-0 mt-0.5">{i + 1}</span>
+                      <span className="text-[10px] text-[var(--text-subtle)] w-4 shrink-0 mt-0.5">{i + 1}</span>
                       <a
                         href={`https://www.youtube.com/watch?v=${r.videoId}`}
                         target="_blank"
@@ -271,22 +271,22 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className={`text-[10px] font-black px-1.5 py-0.5 rounded border ${decisionBadge(r.decision)}`}>{r.decision}</span>
-                          <span className="text-[10px] text-[#a4a09c] font-bold">{r.compositeScore.toFixed(1)}점</span>
-                          <span className="text-[9px] text-[#4a4846]">{r.channelTitle}</span>
+                          <span className="text-[10px] text-[var(--text-muted)] font-bold">{r.compositeScore.toFixed(1)}점</span>
+                          <span className="text-[9px] text-[var(--text-subtle)]">{r.channelTitle}</span>
                         </div>
                         <p className="text-[11px] text-white font-medium truncate">{r.title}</p>
                       </div>
                     </div>
                     <div className="ml-8 grid grid-cols-2 gap-2">
-                      <div className="bg-[#1c1a18] rounded-lg p-2 border border-white/6">
-                        <p className="text-[9px] text-[#75716e] font-bold mb-1">🤖 Gemini</p>
-                        <p className="text-[9px] text-[#a4a09c]">정보 {r.geminiInfo}/10 · 위험 {r.geminiRisk}/10</p>
-                        <p className="text-[9px] text-[#75716e] mt-0.5 leading-snug">{r.geminiReason}</p>
+                      <div className="bg-[var(--bg-base)] rounded-lg p-2 border border-[var(--border-subtle)]">
+                        <p className="text-[9px] text-[var(--text-subtle)] font-bold mb-1">🤖 Gemini</p>
+                        <p className="text-[9px] text-[var(--text-muted)]">정보 {r.geminiInfo}/10 · 위험 {r.geminiRisk}/10</p>
+                        <p className="text-[9px] text-[var(--text-subtle)] mt-0.5 leading-snug">{r.geminiReason}</p>
                       </div>
-                      <div className="bg-[#1c1a18] rounded-lg p-2 border border-white/6">
-                        <p className="text-[9px] text-[#75716e] font-bold mb-1">🧠 Claude</p>
-                        <p className="text-[9px] text-[#a4a09c]">정보 {r.claudeInfo}/10 · 위험 {r.claudeRisk}/10</p>
-                        <p className="text-[9px] text-[#75716e] mt-0.5 leading-snug">{r.claudeReason}</p>
+                      <div className="bg-[var(--bg-base)] rounded-lg p-2 border border-[var(--border-subtle)]">
+                        <p className="text-[9px] text-[var(--text-subtle)] font-bold mb-1">🧠 Claude</p>
+                        <p className="text-[9px] text-[var(--text-muted)]">정보 {r.claudeInfo}/10 · 위험 {r.claudeRisk}/10</p>
+                        <p className="text-[9px] text-[var(--text-subtle)] mt-0.5 leading-snug">{r.claudeReason}</p>
                       </div>
                     </div>
                   </div>
@@ -320,10 +320,10 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
               <div className="flex items-center gap-2">
                 <span className="text-orange-400 font-black text-sm">③ Summarize</span>
                 {currentLog.summarize?.title && (
-                  <span className="text-[10px] text-[#75716e] truncate max-w-xs">{currentLog.summarize.title}</span>
+                  <span className="text-[10px] text-[var(--text-subtle)] truncate max-w-xs">{currentLog.summarize.title}</span>
                 )}
                 {currentLog.summarize?.transcriptLength && (
-                  <span className="text-[10px] text-[#4a4846]">자막 {currentLog.summarize.transcriptLength}자</span>
+                  <span className="text-[10px] text-[var(--text-subtle)]">자막 {currentLog.summarize.transcriptLength}자</span>
                 )}
               </div>
               <div className="flex items-center gap-2">
@@ -373,7 +373,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
               <div className="flex items-center gap-2">
                 <span className="text-emerald-400 font-black text-sm">④ Publish</span>
                 {currentLog.publish?.postTitle && (
-                  <span className="text-[10px] text-[#75716e] truncate max-w-xs">{currentLog.publish.postTitle}</span>
+                  <span className="text-[10px] text-[var(--text-subtle)] truncate max-w-xs">{currentLog.publish.postTitle}</span>
                 )}
               </div>
               <div className="flex items-center gap-2">
@@ -431,7 +431,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
 
         </div>
 
-        <div className="flex justify-between px-6 py-4 border-t border-white/8 bg-[#161412]">
+        <div className="flex justify-between px-6 py-4 border-t border-[var(--border-default)] bg-[var(--bg-base)]">
           <button
             onClick={() => {
               if (!confirm('이 파이프라인 로그를 삭제하시겠습니까?')) return
@@ -444,7 +444,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-[#2a2826] text-[#a4a09c] hover:text-white text-sm font-bold border border-white/8 transition-colors"
+            className="px-4 py-2 rounded-xl bg-[var(--bg-surface-2)] text-[var(--text-muted)] hover:text-white text-sm font-bold border border-[var(--border-default)] transition-colors"
           >
             닫기
           </button>
@@ -679,16 +679,16 @@ export default function CurationTab({ getAuthHeader }: {
     <div className="space-y-6">
 
       {/* ── AI 파이프라인 설정 ── */}
-      <div className="bg-[#2a2826] rounded-2xl border border-white/8 p-6">
+      <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] p-6">
         <div className="flex items-center justify-between mb-5">
           <div>
             <h2 className="text-white font-black text-base">🤖 AI 파이프라인 설정</h2>
-            <p className="text-[11px] text-[#75716e] mt-1">
+            <p className="text-[11px] text-[var(--text-subtle)] mt-1">
               KST 06:00 / 14:00 / 22:00 — Scout → Evaluate → Summarize → Publish (각 10분 간격)
             </p>
           </div>
           <label className="flex items-center gap-2 cursor-pointer shrink-0 ml-4">
-            <span className="text-xs text-[#a4a09c]">{settings?.enabled ? '자동 ON' : '자동 OFF'}</span>
+            <span className="text-xs text-[var(--text-muted)]">{settings?.enabled ? '자동 ON' : '자동 OFF'}</span>
             <button
               onClick={async () => {
                 if (!settings) return
@@ -696,7 +696,7 @@ export default function CurationTab({ getAuthHeader }: {
                 setSettings(next)
                 await callAdmin('saveSettings', { settings: next })
               }}
-              className={`relative w-11 h-6 rounded-full transition-colors ${settings?.enabled ? 'bg-orange-500' : 'bg-[#3d3a38]'}`}
+              className={`relative w-11 h-6 rounded-full transition-colors ${settings?.enabled ? 'bg-orange-500' : 'bg-[var(--bg-elevated-2)]'}`}
             >
               <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${settings?.enabled ? 'translate-x-6' : 'translate-x-1'}`} />
             </button>
@@ -706,12 +706,12 @@ export default function CurationTab({ getAuthHeader }: {
         {/* 파이프라인 타이밍 시각화 */}
         <div className="grid grid-cols-3 gap-3 mb-5">
           {PIPELINE_SCHEDULE.map(({ label, slots: slotNames, times }) => (
-            <div key={label} className="bg-[#1c1a18] rounded-xl border border-white/8 p-3">
-              <p className="text-[11px] font-bold text-[#a4a09c] mb-2">{label}</p>
+            <div key={label} className="bg-[var(--bg-base)] rounded-xl border border-[var(--border-default)] p-3">
+              <p className="text-[11px] font-bold text-[var(--text-muted)] mb-2">{label}</p>
               <div className="space-y-1">
                 {(['scout','evaluate','summarize','publish'] as PipelineStage[]).map((stage, i) => (
                   <div key={stage} className="flex items-center gap-1.5">
-                    <span className="text-[10px] text-[#4a4846] w-9 shrink-0">{times[i]}</span>
+                    <span className="text-[10px] text-[var(--text-subtle)] w-9 shrink-0">{times[i]}</span>
                     <span className={`text-[10px] font-bold ${STAGE_META[stage].color.split(' ')[1]}`}>
                       {['Scout','Evaluate','Summarize','Publish'][i]}
                     </span>
@@ -723,7 +723,7 @@ export default function CurationTab({ getAuthHeader }: {
         </div>
 
         {settings && (
-          <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-[#1c1a18] border border-white/8 mb-4">
+          <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] mb-4">
             <input
               type="checkbox"
               checked={settings.autoPublish}
@@ -736,22 +736,22 @@ export default function CurationTab({ getAuthHeader }: {
             />
             <div>
               <p className="text-sm text-white font-bold">생성 즉시 자동 발행</p>
-              <p className="text-[11px] text-[#75716e]">미체크 시 초안으로 저장 후 수동 발행</p>
+              <p className="text-[11px] text-[var(--text-subtle)]">미체크 시 초안으로 저장 후 수동 발행</p>
             </div>
           </label>
         )}
 
-        {saving && <p className="text-xs text-[#75716e]">저장 중...</p>}
+        {saving && <p className="text-xs text-[var(--text-subtle)]">저장 중...</p>}
       </div>
 
       {/* ── AI 파이프라인 슬롯 현황 ── */}
-      <div className="bg-[#2a2826] rounded-2xl border border-white/8 p-6">
+      <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-white font-black text-base">📡 파이프라인 슬롯 현황</h2>
           <button
             onClick={loadSlots}
             disabled={loadingSlots}
-            className="px-3 py-1.5 rounded-lg bg-[#1c1a18] hover:bg-[#252423] text-[#a4a09c] text-[11px] font-bold border border-white/8 transition-colors disabled:opacity-50"
+            className="px-3 py-1.5 rounded-lg bg-[var(--bg-base)] hover:bg-[var(--bg-page)] text-[var(--text-muted)] text-[11px] font-bold border border-[var(--border-default)] transition-colors disabled:opacity-50"
           >
             {loadingSlots ? '로딩...' : '↻ 새로고침'}
           </button>
@@ -771,7 +771,7 @@ export default function CurationTab({ getAuthHeader }: {
                   <div className="flex items-center justify-between mb-3">
                     <span className={`text-sm font-black ${meta.color}`}>{meta.emoji} {meta.label}</span>
                     {slot?.status && (
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${SLOT_STATUS_BADGE[slot.status] ?? 'bg-[#1c1a18] text-[#75716e] border-white/10'}`}>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${SLOT_STATUS_BADGE[slot.status] ?? 'bg-[var(--bg-base)] text-[var(--text-subtle)] border-[var(--border-default)]'}`}>
                         {slot.status}
                       </span>
                     )}
@@ -784,13 +784,13 @@ export default function CurationTab({ getAuthHeader }: {
                           href={`https://www.youtube.com/watch?v=${slot.videoId}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[10px] text-[#75716e] hover:text-red-400 transition-colors"
+                          className="text-[10px] text-[var(--text-subtle)] hover:text-red-400 transition-colors"
                         >
                           ▶ YouTube
                         </a>
                       )}
                       {slot.savedAt && (
-                        <p className="text-[10px] text-[#4a4846]">{formatDate(slot.savedAt)}</p>
+                        <p className="text-[10px] text-[var(--text-subtle)]">{formatDate(slot.savedAt)}</p>
                       )}
                     </div>
                   ) : (() => {
@@ -798,16 +798,16 @@ export default function CurationTab({ getAuthHeader }: {
                     return sq ? (
                       <div>
                         <div className="flex items-center gap-1.5 mb-1">
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded border font-bold ${sq.status === 'scouted' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 'bg-[#1c1a18] text-[#75716e] border-white/10'}`}>
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded border font-bold ${sq.status === 'scouted' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 'bg-[var(--bg-base)] text-[var(--text-subtle)] border-[var(--border-default)]'}`}>
                             Scout {sq.status} · {sq.count}개
                           </span>
                         </div>
                         {sq.titles.map((t, i) => (
-                          <p key={i} className="text-[10px] text-[#75716e] truncate">· {t}</p>
+                          <p key={i} className="text-[10px] text-[var(--text-subtle)] truncate">· {t}</p>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-[11px] text-[#4a4846]">슬롯 비어있음</p>
+                      <p className="text-[11px] text-[var(--text-subtle)]">슬롯 비어있음</p>
                     )
                   })()}
                 </div>
@@ -818,14 +818,14 @@ export default function CurationTab({ getAuthHeader }: {
       </div>
 
       {/* ── 파이프라인 수동 실행 ── */}
-      <div className="bg-[#2a2826] rounded-2xl border border-white/8 p-6">
+      <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] p-6">
         <h2 className="text-white font-black text-base mb-1">⚙️ 파이프라인 수동 실행</h2>
-        <p className="text-[11px] text-[#75716e] mb-4">각 단계를 순서대로 수동 실행합니다. Publish는 슬롯에 ready 상태 요약이 있어야 동작합니다.</p>
+        <p className="text-[11px] text-[var(--text-subtle)] mb-4">각 단계를 순서대로 수동 실행합니다. Publish는 슬롯에 ready 상태 요약이 있어야 동작합니다.</p>
         <div className="space-y-4">
           {(Object.keys(SUBCATEGORY_META) as AiSubcategory[]).map(sub => {
             const meta = SUBCATEGORY_META[sub]
             return (
-              <div key={sub} className="bg-[#1c1a18] rounded-xl border border-white/8 p-4">
+              <div key={sub} className="bg-[var(--bg-base)] rounded-xl border border-[var(--border-default)] p-4">
                 <p className={`text-xs font-black mb-3 ${meta.color}`}>{meta.emoji} {meta.label}</p>
                 <PipelineTrigger subcategory={sub} onDone={loadSlots} />
               </div>
@@ -835,16 +835,16 @@ export default function CurationTab({ getAuthHeader }: {
       </div>
 
       {/* ── AI 파이프라인 실행 로그 ── */}
-      <div className="bg-[#2a2826] rounded-2xl border border-white/8 p-6">
+      <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-white font-black text-base">
             🔬 파이프라인 실행 로그
-            <span className="text-[#75716e] font-normal text-sm ml-2">({pipelineLogs.length}건)</span>
+            <span className="text-[var(--text-subtle)] font-normal text-sm ml-2">({pipelineLogs.length}건)</span>
           </h2>
           <button
             onClick={loadPipelineLogs}
             disabled={loadingPipelineLogs}
-            className="px-3 py-1.5 rounded-lg bg-[#1c1a18] hover:bg-[#252423] text-[#a4a09c] text-[11px] font-bold border border-white/8 transition-colors disabled:opacity-50"
+            className="px-3 py-1.5 rounded-lg bg-[var(--bg-base)] hover:bg-[var(--bg-page)] text-[var(--text-muted)] text-[11px] font-bold border border-[var(--border-default)] transition-colors disabled:opacity-50"
           >
             {loadingPipelineLogs ? '로딩...' : '↻ 새로고침'}
           </button>
@@ -855,7 +855,7 @@ export default function CurationTab({ getAuthHeader }: {
             <div className="w-5 h-5 rounded-full border-2 border-orange-500/30 border-t-orange-500 animate-spin" />
           </div>
         ) : pipelineLogs.length === 0 ? (
-          <p className="text-[#75716e] text-sm text-center py-6">아직 파이프라인 실행 기록이 없습니다.</p>
+          <p className="text-[var(--text-subtle)] text-sm text-center py-6">아직 파이프라인 실행 기록이 없습니다.</p>
         ) : (
           <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
             {pipelineLogs.map(log => {
@@ -877,22 +877,22 @@ export default function CurationTab({ getAuthHeader }: {
                 <div
                   key={log.id}
                   onClick={() => setSelectedPipelineLog(log)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[#1c1a18] border border-white/6 hover:border-orange-500/30 hover:bg-[#221f1d] transition-all cursor-pointer"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[var(--bg-base)] border border-[var(--border-subtle)] hover:border-orange-500/30 hover:bg-[var(--bg-page)] transition-all cursor-pointer"
                 >
                   <span className={`text-sm shrink-0 ${meta.color}`}>{meta.emoji}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className={`text-[10px] font-bold ${meta.color}`}>{meta.label}</span>
-                      <span className="text-[10px] text-[#4a4846]">{kstDate}</span>
+                      <span className="text-[10px] text-[var(--text-subtle)]">{kstDate}</span>
                     </div>
                     {log.evaluate?.winner && (
-                      <p className="text-[10px] text-[#a4a09c] truncate mt-0.5">🏆 {log.evaluate.winner.title}</p>
+                      <p className="text-[10px] text-[var(--text-muted)] truncate mt-0.5">🏆 {log.evaluate.winner.title}</p>
                     )}
                   </div>
                   <div className="flex gap-1 shrink-0">
                     {stages.map(s => {
                       const st = (s.data as any)?.status
-                      const cls = !s.data ? 'bg-[#2a2826] text-[#4a4846] border-white/8'
+                      const cls = !s.data ? 'bg-[var(--bg-surface-2)] text-[var(--text-subtle)] border-[var(--border-default)]'
                         : st === 'done'    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20'
                         : st === 'failed'  ? 'bg-red-500/15 text-red-400 border-red-500/20'
                         : st === 'skipped' ? 'bg-yellow-500/15 text-yellow-400 border-yellow-500/20'
@@ -934,15 +934,15 @@ export default function CurationTab({ getAuthHeader }: {
       )}
 
       {/* ── 특정 요약으로 매거진 생성 ── */}
-      <div className="bg-[#2a2826] rounded-2xl border border-white/8 p-6">
+      <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] p-6">
         <h2 className="text-white font-black text-base mb-1">⚡ 특정 요약으로 매거진 생성</h2>
-        <p className="text-[11px] text-[#75716e] mb-4">스퀘어 요약 페이지 URL 또는 sessionId를 지정해서 매거진을 즉시 생성합니다.</p>
+        <p className="text-[11px] text-[var(--text-subtle)] mb-4">스퀘어 요약 페이지 URL 또는 sessionId를 지정해서 매거진을 즉시 생성합니다.</p>
 
         <div className="flex flex-wrap gap-3 mb-4">
           <button
             onClick={() => handleTrigger(false)}
             disabled={triggering}
-            className="px-4 py-2.5 rounded-xl bg-[#32302e] hover:bg-[#3a3836] text-white text-sm font-bold border border-white/10 transition-colors disabled:opacity-50"
+            className="px-4 py-2.5 rounded-xl bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-white text-sm font-bold border border-[var(--border-default)] transition-colors disabled:opacity-50"
           >
             {triggering ? '생성 중...' : '📝 최적 요약으로 초안 생성'}
           </button>
@@ -955,25 +955,25 @@ export default function CurationTab({ getAuthHeader }: {
           </button>
         </div>
         {triggerResult && (
-          <p className="mb-4 text-sm text-[#a4a09c] bg-[#1c1a18] rounded-xl px-3 py-2 border border-white/8">{triggerResult}</p>
+          <p className="mb-4 text-sm text-[var(--text-muted)] bg-[var(--bg-base)] rounded-xl px-3 py-2 border border-[var(--border-default)]">{triggerResult}</p>
         )}
 
-        <div className="pt-4 border-t border-white/8">
-          <p className="text-[11px] text-[#75716e] mb-2 font-bold uppercase tracking-wide">URL / SessionId 지정</p>
+        <div className="pt-4 border-t border-[var(--border-default)]">
+          <p className="text-[11px] text-[var(--text-subtle)] mb-2 font-bold uppercase tracking-wide">URL / SessionId 지정</p>
           <div className="flex gap-2">
             <input
               type="text"
               value={urlInput}
               onChange={e => { setUrlInput(e.target.value); setUrlResult('') }}
               placeholder="https://ssoktube.com/result/abc123 또는 sessionId"
-              className="flex-1 bg-[#1c1a18] border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-[#4a4846] focus:outline-none focus:border-orange-500/50 min-w-0"
+              className="flex-1 bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-white placeholder-[#4a4846] focus:outline-none focus:border-orange-500/50 min-w-0"
             />
           </div>
           <div className="flex gap-2 mt-2">
             <button
               onClick={() => handleUrlTrigger(false)}
               disabled={urlTriggering || !urlInput.trim()}
-              className="px-4 py-2 rounded-xl bg-[#32302e] hover:bg-[#3a3836] text-white text-sm font-bold border border-white/10 transition-colors disabled:opacity-40"
+              className="px-4 py-2 rounded-xl bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-white text-sm font-bold border border-[var(--border-default)] transition-colors disabled:opacity-40"
             >
               {urlTriggering ? '생성 중...' : '📝 초안으로 생성'}
             </button>
@@ -986,41 +986,41 @@ export default function CurationTab({ getAuthHeader }: {
             </button>
           </div>
           {urlResult && (
-            <p className="mt-2 text-sm text-[#a4a09c] bg-[#1c1a18] rounded-xl px-3 py-2 border border-white/8">{urlResult}</p>
+            <p className="mt-2 text-sm text-[var(--text-muted)] bg-[var(--bg-base)] rounded-xl px-3 py-2 border border-[var(--border-default)]">{urlResult}</p>
           )}
         </div>
       </div>
 
       {/* ── 발행 로그 ── */}
-      <div className="bg-[#2a2826] rounded-2xl border border-white/8 p-6">
+      <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] p-6">
         <h2 className="text-white font-black text-base mb-4">
           📋 발행 로그
-          <span className="text-[#75716e] font-normal text-sm ml-2">({logs.length}건)</span>
+          <span className="text-[var(--text-subtle)] font-normal text-sm ml-2">({logs.length}건)</span>
         </h2>
         {loadingLogs ? (
           <div className="flex justify-center py-6">
             <div className="w-5 h-5 rounded-full border-2 border-orange-500/30 border-t-orange-500 animate-spin" />
           </div>
         ) : logs.length === 0 ? (
-          <p className="text-[#75716e] text-sm text-center py-6">아직 발행 기록이 없습니다.</p>
+          <p className="text-[var(--text-subtle)] text-sm text-center py-6">아직 발행 기록이 없습니다.</p>
         ) : (
           <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
             {logs.map(log => {
               const s = LOG_STATUS[log.status] ?? LOG_STATUS.error
               return (
-                <div key={log.id} className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-[#1c1a18] border border-white/6">
+                <div key={log.id} className="flex items-start gap-3 px-3 py-2.5 rounded-xl bg-[var(--bg-base)] border border-[var(--border-subtle)]">
                   <span className="text-sm mt-0.5 shrink-0">{s.icon}</span>
                   <div className="flex-1 min-w-0">
                     <p className={`text-xs font-bold ${s.color}`}>
                       {log.status === 'success' ? log.postTitle : log.status === 'skipped' ? `스킵: ${log.reason}` : `오류: ${log.error}`}
                     </p>
                     {log.videoTitle && (
-                      <p className="text-[10px] text-[#75716e] mt-0.5 truncate">📹 {log.videoTitle}</p>
+                      <p className="text-[10px] text-[var(--text-subtle)] mt-0.5 truncate">📹 {log.videoTitle}</p>
                     )}
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-[10px] text-[#75716e]">{formatDate(log.createdAt)}</p>
-                    <p className="text-[9px] text-[#4a4846] mt-0.5">{log.triggerType === 'cron' ? '자동' : '수동'}</p>
+                    <p className="text-[10px] text-[var(--text-subtle)]">{formatDate(log.createdAt)}</p>
+                    <p className="text-[9px] text-[var(--text-subtle)] mt-0.5">{log.triggerType === 'cron' ? '자동' : '수동'}</p>
                   </div>
                 </div>
               )
@@ -1030,10 +1030,10 @@ export default function CurationTab({ getAuthHeader }: {
       </div>
 
       {/* ── 포스트 목록 ── */}
-      <div className="bg-[#2a2826] rounded-2xl border border-white/8 p-6">
+      <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-white font-black text-base">
-            📄 포스트 목록 <span className="text-[#75716e] font-normal text-sm">({posts.length}개)</span>
+            📄 포스트 목록 <span className="text-[var(--text-subtle)] font-normal text-sm">({posts.length}개)</span>
           </h2>
           <Link
             href="/magazine"
@@ -1049,17 +1049,17 @@ export default function CurationTab({ getAuthHeader }: {
             <div className="w-6 h-6 rounded-full border-2 border-orange-500/30 border-t-orange-500 animate-spin" />
           </div>
         ) : posts.length === 0 ? (
-          <p className="text-[#75716e] text-sm text-center py-8">아직 생성된 포스트가 없습니다.</p>
+          <p className="text-[var(--text-subtle)] text-sm text-center py-8">아직 생성된 포스트가 없습니다.</p>
         ) : (
           <div className="space-y-2">
             {posts.map(post => (
               <div
                 key={post.id}
                 onClick={() => setPreviewPost(post)}
-                className="flex items-start gap-3 p-3 rounded-xl bg-[#1c1a18] border border-white/6 hover:border-orange-500/30 hover:bg-[#221f1d] transition-all cursor-pointer group"
+                className="flex items-start gap-3 p-3 rounded-xl bg-[var(--bg-base)] border border-[var(--border-subtle)] hover:border-orange-500/30 hover:bg-[var(--bg-page)] transition-all cursor-pointer group"
               >
                 {post.heroThumbnail && !post.heroThumbnail.startsWith('data:') && (
-                  <img src={post.heroThumbnail} alt="" className="w-16 h-10 object-cover rounded-lg shrink-0 bg-[#252423]" />
+                  <img src={post.heroThumbnail} alt="" className="w-16 h-10 object-cover rounded-lg shrink-0 bg-[var(--bg-page)]" />
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="text-white text-sm font-bold line-clamp-1 group-hover:text-orange-400 transition-colors">{post.title}</p>
@@ -1067,9 +1067,9 @@ export default function CurationTab({ getAuthHeader }: {
                     <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold border ${STATUS_BADGE[post.status] ?? STATUS_BADGE.draft}`}>
                       {post.status === 'published' ? '발행됨' : '초안'}
                     </span>
-                    <span className="text-[10px] text-[#75716e]">👁 {post.viewCount ?? 0}</span>
-                    <span className="text-[10px] text-[#75716e]">{post.readTime}분 읽기</span>
-                    <span className="text-[10px] text-[#75716e]">{formatDate(post.createdAt)}</span>
+                    <span className="text-[10px] text-[var(--text-subtle)]">👁 {post.viewCount ?? 0}</span>
+                    <span className="text-[10px] text-[var(--text-subtle)]">{post.readTime}분 읽기</span>
+                    <span className="text-[10px] text-[var(--text-subtle)]">{formatDate(post.createdAt)}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0" onClick={e => e.stopPropagation()}>
@@ -1077,7 +1077,7 @@ export default function CurationTab({ getAuthHeader }: {
                     <Link
                       href={`/magazine/${post.slug}`}
                       target="_blank"
-                      className="px-2 py-1 rounded-lg bg-[#32302e] text-[#a4a09c] hover:text-white text-[10px] font-bold border border-white/8 transition-colors"
+                      className="px-2 py-1 rounded-lg bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-white text-[10px] font-bold border border-[var(--border-default)] transition-colors"
                     >
                       보기
                     </Link>
@@ -1112,17 +1112,17 @@ export default function CurationTab({ getAuthHeader }: {
           onClick={() => setPreviewPost(null)}
         >
           <div
-            className="w-full max-w-2xl bg-[#1c1a18] rounded-2xl border border-white/10 overflow-hidden shadow-2xl"
+            className="w-full max-w-2xl bg-[var(--bg-base)] rounded-2xl border border-[var(--border-default)] overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/8">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-default)]">
               <div className="flex items-center gap-2">
                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${STATUS_BADGE[previewPost.status] ?? STATUS_BADGE.draft}`}>
                   {previewPost.status === 'published' ? '발행됨' : '초안'}
                 </span>
-                <span className="text-xs text-[#75716e]">{formatDate(previewPost.createdAt)}</span>
+                <span className="text-xs text-[var(--text-subtle)]">{formatDate(previewPost.createdAt)}</span>
               </div>
-              <button onClick={() => setPreviewPost(null)} className="text-[#75716e] hover:text-white transition-colors text-lg">✕</button>
+              <button onClick={() => setPreviewPost(null)} className="text-[var(--text-subtle)] hover:text-white transition-colors text-lg">✕</button>
             </div>
 
             {previewPost.heroThumbnail && !previewPost.heroThumbnail.startsWith('data:') && (
@@ -1131,12 +1131,12 @@ export default function CurationTab({ getAuthHeader }: {
 
             <div className="px-6 py-5">
               <h2 className="text-white font-black text-xl mb-1">{previewPost.title}</h2>
-              {previewPost.subtitle && <p className="text-[#a4a09c] text-sm mb-4">{previewPost.subtitle}</p>}
-              <div className="flex items-center gap-3 text-[10px] text-[#75716e] mb-5 flex-wrap">
+              {previewPost.subtitle && <p className="text-[var(--text-muted)] text-sm mb-4">{previewPost.subtitle}</p>}
+              <div className="flex items-center gap-3 text-[10px] text-[var(--text-subtle)] mb-5 flex-wrap">
                 <span>👁 {previewPost.viewCount ?? 0}</span>
                 <span>{previewPost.readTime}분 읽기</span>
                 {previewPost.tags?.slice(0, 3).map(t => (
-                  <span key={t} className="px-1.5 py-0.5 bg-[#2a2826] rounded border border-white/8">{t}</span>
+                  <span key={t} className="px-1.5 py-0.5 bg-[var(--bg-surface-2)] rounded border border-[var(--border-default)]">{t}</span>
                 ))}
               </div>
 
@@ -1147,12 +1147,12 @@ export default function CurationTab({ getAuthHeader }: {
                   <h3 className="text-white font-bold text-sm mb-3">자주 묻는 질문</h3>
                   <div className="space-y-2">
                     {previewPost.faq.map((f, i) => (
-                      <details key={i} className="bg-[#2a2826] rounded-xl border border-white/8 px-4 py-3 group">
-                        <summary className="text-[#a4a09c] text-sm cursor-pointer list-none flex items-center justify-between gap-2">
+                      <details key={i} className="bg-[var(--bg-surface-2)] rounded-xl border border-[var(--border-default)] px-4 py-3 group">
+                        <summary className="text-[var(--text-muted)] text-sm cursor-pointer list-none flex items-center justify-between gap-2">
                           <span>{f.question}</span>
                           <span className="text-xs opacity-50 group-open:rotate-180 transition-transform">▼</span>
                         </summary>
-                        <p className="text-[#75716e] text-sm mt-2 leading-relaxed">{f.answer}</p>
+                        <p className="text-[var(--text-subtle)] text-sm mt-2 leading-relaxed">{f.answer}</p>
                       </details>
                     ))}
                   </div>
@@ -1164,7 +1164,7 @@ export default function CurationTab({ getAuthHeader }: {
                   <h3 className="text-white font-bold text-sm mb-3">핵심 체크리스트</h3>
                   <ul className="space-y-1.5">
                     {previewPost.checklist.map((item, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-[#a4a09c]">
+                      <li key={i} className="flex items-start gap-2 text-sm text-[var(--text-muted)]">
                         <span className="text-emerald-400 mt-0.5 shrink-0">✓</span>
                         <span>{item}</span>
                       </li>
@@ -1178,21 +1178,21 @@ export default function CurationTab({ getAuthHeader }: {
                   <h3 className="text-white font-bold text-sm">💬 시청자 반응</h3>
                   <div className="bg-orange-500/8 rounded-xl p-3 border border-orange-500/20">
                     <p className="text-[10px] font-bold text-orange-400 mb-1.5">🔥 인기 댓글 경향</p>
-                    <p className="text-xs text-[#a4a09c] leading-relaxed mb-2">{(previewPost as any).comments.popular_summary}</p>
+                    <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-2">{(previewPost as any).comments.popular_summary}</p>
                     {(previewPost as any).comments.popular_highlights?.map((h: any, i: number) => (
-                      <div key={i} className="bg-[#1c1a18] rounded-lg px-3 py-2 mb-1.5 border-l-2 border-orange-500">
-                        <p className="text-xs text-[#e4e4e7] leading-relaxed">"{h.text}"</p>
-                        <p className="text-[9px] text-[#75716e] mt-0.5">👍 {h.likes?.toLocaleString()}</p>
+                      <div key={i} className="bg-[var(--bg-base)] rounded-lg px-3 py-2 mb-1.5 border-l-2 border-orange-500">
+                        <p className="text-xs text-[var(--text-primary)] leading-relaxed">"{h.text}"</p>
+                        <p className="text-[9px] text-[var(--text-subtle)] mt-0.5">👍 {h.likes?.toLocaleString()}</p>
                       </div>
                     ))}
                   </div>
                   <div className="bg-indigo-500/8 rounded-xl p-3 border border-indigo-500/20">
                     <p className="text-[10px] font-bold text-indigo-400 mb-1.5">🕐 최신 댓글 경향</p>
-                    <p className="text-xs text-[#a4a09c] leading-relaxed mb-2">{(previewPost as any).comments.recent_summary}</p>
+                    <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-2">{(previewPost as any).comments.recent_summary}</p>
                     {(previewPost as any).comments.recent_highlights?.map((h: any, i: number) => (
-                      <div key={i} className="bg-[#1c1a18] rounded-lg px-3 py-2 mb-1.5 border-l-2 border-indigo-500">
-                        <p className="text-xs text-[#e4e4e7] leading-relaxed">"{h.text}"</p>
-                        <p className="text-[9px] text-[#75716e] mt-0.5">👍 {h.likes?.toLocaleString()}</p>
+                      <div key={i} className="bg-[var(--bg-base)] rounded-lg px-3 py-2 mb-1.5 border-l-2 border-indigo-500">
+                        <p className="text-xs text-[var(--text-primary)] leading-relaxed">"{h.text}"</p>
+                        <p className="text-[9px] text-[var(--text-subtle)] mt-0.5">👍 {h.likes?.toLocaleString()}</p>
                       </div>
                     ))}
                   </div>
@@ -1202,11 +1202,11 @@ export default function CurationTab({ getAuthHeader }: {
                 <div className="mt-3">
                   <div className="bg-emerald-500/8 rounded-xl p-3 border border-emerald-500/20">
                     <p className="text-[10px] font-bold text-emerald-400 mb-1.5">💡 SSOKTUBE 학습자 반응</p>
-                    <p className="text-xs text-[#a4a09c] leading-relaxed mb-2">{(previewPost as any).platformReactions.summary}</p>
+                    <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-2">{(previewPost as any).platformReactions.summary}</p>
                     {(previewPost as any).platformReactions.highlights?.map((h: any, i: number) => (
-                      <div key={i} className="bg-[#1c1a18] rounded-lg px-3 py-2 mb-1.5 border-l-2 border-emerald-500">
+                      <div key={i} className="bg-[var(--bg-base)] rounded-lg px-3 py-2 mb-1.5 border-l-2 border-emerald-500">
                         <p className="text-[9px] text-emerald-400/70 font-bold mb-0.5">[{h.context}]</p>
-                        <p className="text-xs text-[#e4e4e7] leading-relaxed">"{h.text}"</p>
+                        <p className="text-xs text-[var(--text-primary)] leading-relaxed">"{h.text}"</p>
                       </div>
                     ))}
                   </div>
@@ -1214,10 +1214,10 @@ export default function CurationTab({ getAuthHeader }: {
               )}
             </div>
 
-            <div className="flex items-center gap-2 px-6 py-4 border-t border-white/8 bg-[#161412]">
+            <div className="flex items-center gap-2 px-6 py-4 border-t border-[var(--border-default)] bg-[var(--bg-base)]">
               {previewPost.status === 'published' && (
                 <Link href={`/magazine/${previewPost.slug}`} target="_blank"
-                  className="px-4 py-2 rounded-xl bg-[#32302e] text-[#a4a09c] hover:text-white text-sm font-bold border border-white/8 transition-colors">
+                  className="px-4 py-2 rounded-xl bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-white text-sm font-bold border border-[var(--border-default)] transition-colors">
                   발행 글 보기 →
                 </Link>
               )}
@@ -1232,7 +1232,7 @@ export default function CurationTab({ getAuthHeader }: {
                 삭제
               </button>
               <button onClick={() => setPreviewPost(null)}
-                className="ml-auto px-4 py-2 rounded-xl bg-[#2a2826] text-[#a4a09c] hover:text-white text-sm font-bold border border-white/8 transition-colors">
+                className="ml-auto px-4 py-2 rounded-xl bg-[var(--bg-surface-2)] text-[var(--text-muted)] hover:text-white text-sm font-bold border border-[var(--border-default)] transition-colors">
                 닫기
               </button>
             </div>

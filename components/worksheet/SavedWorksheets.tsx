@@ -49,8 +49,8 @@ export default function SavedWorksheets({ userId }: { userId: string }) {
     return (
       <div className="flex flex-col items-center gap-3 py-20 text-center">
         <span className="text-4xl">📝</span>
-        <p className="text-[#75716e] text-sm">저장된 워크시트가 없습니다.</p>
-        <p className="text-[#504d4a] text-xs">영어 영상 분석 후 워크시트를 생성하고 저장해보세요.</p>
+        <p className="text-[var(--text-subtle)] text-sm">저장된 워크시트가 없습니다.</p>
+        <p className="text-[var(--text-subtle)] text-xs">영어 영상 분석 후 워크시트를 생성하고 저장해보세요.</p>
       </div>
     )
   }
@@ -59,7 +59,7 @@ export default function SavedWorksheets({ userId }: { userId: string }) {
     <>
       <div className="space-y-3">
         {items.map(item => (
-          <div key={item.id} className="bg-[#23211f] rounded-2xl border border-white/5 hover:border-white/10 transition-all overflow-hidden">
+          <div key={item.id} className="bg-[var(--bg-surface)] rounded-2xl border border-[var(--border-subtle)] hover:border-[var(--border-default)] transition-all overflow-hidden">
             <div className="flex gap-3 p-4">
               {item.thumbnail && (
                 <img src={item.thumbnail} alt="" className="w-20 h-14 rounded-xl object-cover shrink-0" />
@@ -71,23 +71,23 @@ export default function SavedWorksheets({ userId }: { userId: string }) {
                   </span>
                 </div>
                 <p className="text-white text-sm font-semibold truncate">{item.title}</p>
-                {item.channel && <p className="text-[#75716e] text-xs mt-0.5">{item.channel}</p>}
-                <p className="text-[#504d4a] text-xs mt-1">
+                {item.channel && <p className="text-[var(--text-subtle)] text-xs mt-0.5">{item.channel}</p>}
+                <p className="text-[var(--text-subtle)] text-xs mt-1">
                   단어 {item.worksheet?.vocabulary?.length ?? 0}개 · 문제 {item.worksheet?.exercises?.reduce((s: number, e: any) => s + e.questions.length, 0) ?? 0}개
                 </p>
               </div>
             </div>
-            <div className="flex border-t border-white/5">
+            <div className="flex border-t border-[var(--border-subtle)]">
               <button
                 onClick={() => setViewing(item)}
-                className="flex-1 py-2.5 text-xs font-semibold text-orange-400 hover:bg-white/5 transition-colors"
+                className="flex-1 py-2.5 text-xs font-semibold text-orange-400 hover:bg-[var(--overlay-subtle)] transition-colors"
               >
                 📖 열기
               </button>
               <button
                 onClick={() => handleDelete(item.id)}
                 disabled={deleting === item.id}
-                className="flex-1 py-2.5 text-xs font-semibold text-[#75716e] hover:text-red-400 hover:bg-white/5 transition-colors border-l border-white/5 disabled:opacity-40"
+                className="flex-1 py-2.5 text-xs font-semibold text-[var(--text-subtle)] hover:text-red-400 hover:bg-[var(--overlay-subtle)] transition-colors border-l border-[var(--border-subtle)] disabled:opacity-40"
               >
                 {deleting === item.id ? '삭제 중...' : '🗑️ 삭제'}
               </button>

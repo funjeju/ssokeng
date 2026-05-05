@@ -39,10 +39,10 @@ export default function StudentLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1a1918] text-white">
+    <div className="min-h-screen bg-[var(--bg-base)] text-white">
       <Header title="📖 학생 로그인" />
       <main className="max-w-lg mx-auto px-4 py-12">
-        <div className="bg-[#23211f] rounded-[28px] border border-white/10 p-8">
+        <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] p-8">
           <h1 className="text-2xl font-black mb-2">학생 로그인</h1>
           <p className="text-gray-400 text-sm mb-8">클래스 코드와 이름으로 로그인하세요.</p>
 
@@ -55,7 +55,7 @@ export default function StudentLoginPage() {
                 onChange={e => setClassCode(e.target.value.toUpperCase())}
                 placeholder="예) AB1C23"
                 maxLength={6}
-                className="w-full bg-[#1a1918] border border-white/10 rounded-xl px-4 py-3 text-sm font-mono tracking-widest focus:outline-none focus:border-orange-500 transition-colors uppercase"
+                className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm font-mono tracking-widest focus:outline-none focus:border-orange-500 transition-colors uppercase"
               />
             </div>
             <div>
@@ -65,7 +65,7 @@ export default function StudentLoginPage() {
                 value={studentName}
                 onChange={e => setStudentName(e.target.value)}
                 placeholder="본인 이름"
-                className="w-full bg-[#1a1918] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"
+                className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"
               />
             </div>
             <div>
@@ -75,7 +75,7 @@ export default function StudentLoginPage() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="비밀번호"
-                className="w-full bg-[#1a1918] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"
+                className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"
               />
             </div>
 
@@ -90,7 +90,7 @@ export default function StudentLoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-white/5 text-center">
+          <div className="mt-6 pt-6 border-t border-[var(--border-subtle)] text-center">
             <p className="text-xs text-gray-500">
               처음 참여하는 학생이라면{' '}
               <Link href="/classroom/join" className="text-orange-400 hover:underline">여기서 가입</Link>

@@ -129,6 +129,85 @@
   }
 }
 
+/* ── 쏙튜브 시맨틱 컬러 시스템 ───────────────────────────────── */
+/* 다크 모드 (기본) */
+:root,
+html.dark {
+  --bg-base:       #1a1918;   /* 앱 최외곽 */
+  --bg-page:       #252423;   /* 페이지 배경 */
+  --bg-surface:    #23211f;   /* 카드·모달 */
+  --bg-surface-2:  #2a2826;   /* 보조 서피스 */
+  --bg-elevated:   #32302e;   /* 인풋·리스트 아이템 */
+  --bg-elevated-2: #3d3a38;   /* 호버·팝업 */
+
+  --text-primary:   #e2e2e2;
+  --text-secondary: #c4c0bc;
+  --text-muted:     #a4a09c;
+  --text-subtle:    #75716e;
+
+  --border-subtle:   rgba(255,255,255,0.05);
+  --border-default:  rgba(255,255,255,0.10);
+  --border-strong:   rgba(255,255,255,0.16);
+  --border-emphasis: rgba(255,255,255,0.25);
+
+  --overlay-subtle:  rgba(255,255,255,0.05);
+  --overlay-default: rgba(255,255,255,0.10);
+}
+
+/* 라이트 모드 — 따뜻한 파스텔 에듀테크 */
+html.light {
+  --bg-base:       #eceae4;   /* 앱 최외곽 */
+  --bg-page:       #f5f2ec;   /* 페이지 배경 */
+  --bg-surface:    #ffffff;   /* 카드·모달 */
+  --bg-surface-2:  #faf7f2;   /* 보조 서피스 */
+  --bg-elevated:   #ede9e1;   /* 인풋·리스트 아이템 */
+  --bg-elevated-2: #e2ddd5;   /* 호버·팝업 */
+
+  --text-primary:   #1a1816;
+  --text-secondary: #4a4540;
+  --text-muted:     #8a837a;
+  --text-subtle:    #b4ada6;
+
+  --border-subtle:   rgba(30,20,10,0.05);
+  --border-default:  rgba(30,20,10,0.09);
+  --border-strong:   rgba(30,20,10,0.14);
+  --border-emphasis: rgba(30,20,10,0.22);
+
+  --overlay-subtle:  rgba(0,0,0,0.04);
+  --overlay-default: rgba(0,0,0,0.08);
+}
+/* ──────────────────────────────────────────────────────────── */
+
+/* ── 라이트 모드 전역 오버라이드 ─────────────────────────────── */
+/* text-white → 라이트모드에서 기본 텍스트 색으로 전환 */
+html.light .text-white {
+  color: var(--text-primary);
+}
+/* hover:text-white → 라이트모드에서 hover도 기본 텍스트 색으로 */
+html.light .hover\:text-white:hover {
+  color: var(--text-primary);
+}
+/* 반투명 white 텍스트도 적절히 전환 */
+html.light .text-white\/40,
+html.light .text-white\/50,
+html.light .text-white\/60,
+html.light .text-white\/70 {
+  color: var(--text-muted);
+}
+/* 진행 바·분리선 등 bg-white/XX → 라이트모드 */
+html.light .bg-white\/20,
+html.light .bg-white\/25 {
+  background-color: var(--overlay-default);
+}
+/* 라이트모드 shadow 강화 (카드 구분감) */
+html.light .shadow-2xl {
+  box-shadow: 0 8px 30px rgba(0,0,0,0.10);
+}
+html.light .shadow-xl {
+  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+}
+/* ──────────────────────────────────────────────────────────── */
+
 
 @keyframes bounce-up {
   0%   { transform: translateY(0)   scale(1);   opacity: 1; }

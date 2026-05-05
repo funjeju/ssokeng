@@ -36,8 +36,8 @@ function TableOfContents({ body }: { body: string }) {
   const items = parseToc(body)
   if (items.length < 2) return null
   return (
-    <nav className="mb-8 rounded-2xl bg-[#2a2826] border border-white/8 px-5 py-4">
-      <p className="text-[10px] font-bold text-[#75716e] uppercase tracking-widest mb-3">📋 목차</p>
+    <nav className="mb-8 rounded-2xl bg-[var(--bg-surface-2)] border border-[var(--border-default)] px-5 py-4">
+      <p className="text-[10px] font-bold text-[var(--text-subtle)] uppercase tracking-widest mb-3">📋 목차</p>
       <ol className="space-y-1.5">
         {items.map((item, i) => (
           <li key={i} className="flex items-start gap-2">
@@ -48,7 +48,7 @@ function TableOfContents({ body }: { body: string }) {
                 e.preventDefault()
                 document.getElementById(item.anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
               }}
-              className="text-sm text-[#a4a09c] hover:text-white transition-colors leading-snug cursor-pointer"
+              className="text-sm text-[var(--text-muted)] hover:text-white transition-colors leading-snug cursor-pointer"
             >
               {item.title}
             </a>
@@ -67,22 +67,22 @@ function formatDate(iso: string) {
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className="rounded-xl bg-[#2a2826] border border-white/8 overflow-hidden">
+    <div className="rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-default)] overflow-hidden">
       <button
         onClick={() => setOpen(v => !v)}
         className="w-full flex items-center justify-between px-4 py-3.5 text-left"
       >
         <span className="text-sm font-bold text-white pr-4">{question}</span>
         <svg
-          className={`shrink-0 w-4 h-4 text-[#75716e] transition-transform ${open ? 'rotate-180' : ''}`}
+          className={`shrink-0 w-4 h-4 text-[var(--text-subtle)] transition-transform ${open ? 'rotate-180' : ''}`}
           fill="none" stroke="currentColor" viewBox="0 0 24 24"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
       {open && (
-        <div className="px-4 pb-4 pt-1 border-t border-white/6">
-          <p className="text-sm text-[#a4a09c] leading-relaxed">{answer}</p>
+        <div className="px-4 pb-4 pt-1 border-t border-[var(--border-subtle)]">
+          <p className="text-sm text-[var(--text-muted)] leading-relaxed">{answer}</p>
         </div>
       )}
     </div>
@@ -152,14 +152,14 @@ function CommentsSection({ postId }: { postId: string }) {
       </h2>
 
       {/* 작성 폼 */}
-      <form onSubmit={submit} className="mb-6 p-4 rounded-xl bg-[#2a2826] border border-white/8">
+      <form onSubmit={submit} className="mb-6 p-4 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-default)]">
         <input
           type="text"
           placeholder="닉네임 (선택)"
           value={author}
           onChange={e => setAuthor(e.target.value)}
           maxLength={30}
-          className="w-full bg-transparent text-xs text-white placeholder-[#4a4845] outline-none mb-3 border-b border-white/8 pb-2"
+          className="w-full bg-transparent text-xs text-white placeholder-[#4a4845] outline-none mb-3 border-b border-[var(--border-default)] pb-2"
         />
         <textarea
           placeholder="댓글을 남겨주세요..."
@@ -169,8 +169,8 @@ function CommentsSection({ postId }: { postId: string }) {
           rows={3}
           className="w-full bg-transparent text-sm text-white placeholder-[#4a4845] outline-none resize-none"
         />
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/8">
-          <span className="text-[10px] text-[#4a4845]">{text.length}/500</span>
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-[var(--border-default)]">
+          <span className="text-[10px] text-[var(--text-subtle)]">{text.length}/500</span>
           <button
             type="submit"
             disabled={!text.trim() || submitting}
@@ -183,19 +183,19 @@ function CommentsSection({ postId }: { postId: string }) {
 
       {/* 댓글 목록 */}
       {comments.length === 0 ? (
-        <p className="text-center text-xs text-[#4a4845] py-8">첫 번째 댓글을 남겨보세요!</p>
+        <p className="text-center text-xs text-[var(--text-subtle)] py-8">첫 번째 댓글을 남겨보세요!</p>
       ) : (
         <div className="space-y-3">
           {comments.map(c => (
-            <div key={c.id} className="p-4 rounded-xl bg-[#2a2826] border border-white/6">
+            <div key={c.id} className="p-4 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)]">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-[#c4c0bc]">{c.author}</span>
-                <span className="text-[10px] text-[#4a4845]">{formatDate(c.createdAt)}</span>
+                <span className="text-xs font-bold text-[var(--text-secondary)]">{c.author}</span>
+                <span className="text-[10px] text-[var(--text-subtle)]">{formatDate(c.createdAt)}</span>
               </div>
-              <p className="text-sm text-[#a4a09c] leading-relaxed whitespace-pre-wrap">{c.text}</p>
+              <p className="text-sm text-[var(--text-muted)] leading-relaxed whitespace-pre-wrap">{c.text}</p>
               <button
                 onClick={() => like(c.id)}
-                className={`mt-2 flex items-center gap-1 text-[10px] transition-colors ${liked.has(c.id) ? 'text-orange-400' : 'text-[#4a4845] hover:text-orange-400'}`}
+                className={`mt-2 flex items-center gap-1 text-[10px] transition-colors ${liked.has(c.id) ? 'text-orange-400' : 'text-[var(--text-subtle)] hover:text-orange-400'}`}
               >
                 ♥ {c.likeCount > 0 && c.likeCount}
               </button>
@@ -211,13 +211,13 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
   const topic = TOPIC_META[(post as any).topicCluster] ?? null
 
   return (
-    <div className="min-h-screen bg-[#252423]">
+    <div className="min-h-screen bg-[var(--bg-page)]">
       <Header />
 
       <article className="max-w-3xl mx-auto px-4 pb-20">
 
         {/* 브레드크럼 */}
-        <nav aria-label="breadcrumb" className="flex items-center gap-2 text-xs text-[#75716e] pt-4 mb-6">
+        <nav aria-label="breadcrumb" className="flex items-center gap-2 text-xs text-[var(--text-subtle)] pt-4 mb-6">
           <Link href="/" className="hover:text-orange-400 transition-colors">홈</Link>
           <span>/</span>
           <Link href="/magazine" className="hover:text-orange-400 transition-colors">AI 매거진</Link>
@@ -233,13 +233,13 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
 
         {/* 히어로 */}
         {post.heroThumbnail && !post.heroThumbnail.startsWith('data:') && (
-          <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-8 bg-[#1c1a18]">
+          <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-8 bg-[var(--bg-base)]">
             <img
               src={post.heroThumbnail}
               alt={post.title}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#252423]/80 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-page)]/80 via-transparent to-transparent" />
             <div className="absolute bottom-4 left-4 flex items-center gap-2">
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-500 text-white">
                 🤖 AI 매거진
@@ -275,10 +275,10 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
             {post.title}
           </h1>
           {post.subtitle && (
-            <p className="text-lg text-[#a4a09c] font-medium mb-4">{post.subtitle}</p>
+            <p className="text-lg text-[var(--text-muted)] font-medium mb-4">{post.subtitle}</p>
           )}
 
-          <div className="flex items-center gap-3 text-xs text-[#75716e] flex-wrap">
+          <div className="flex items-center gap-3 text-xs text-[var(--text-subtle)] flex-wrap">
             <span>SSOKTUBE AI 에디터</span>
             <span>·</span>
             <span>{formatDate(post.publishedAt)}</span>
@@ -296,7 +296,7 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
           {post.tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-4">
               {post.tags.slice(0, 8).map(tag => (
-                <span key={tag} className="px-2 py-0.5 rounded-full text-[10px] bg-[#32302e] text-[#a4a09c] border border-white/8">
+                <span key={tag} className="px-2 py-0.5 rounded-full text-[10px] bg-[var(--bg-elevated)] text-[var(--text-muted)] border border-[var(--border-default)]">
                   #{tag}
                 </span>
               ))}
@@ -316,7 +316,7 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
                 .split('\n')
                 .filter((l: string) => l.trim())
                 .map((line: string, i: number) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-[#c4c0bc] leading-relaxed">
+                  <li key={i} className="flex items-start gap-2 text-sm text-[var(--text-secondary)] leading-relaxed">
                     <span className="text-emerald-400 shrink-0 mt-0.5">•</span>
                     <span>{line.replace(/^[•\-]\s*/, '')}</span>
                   </li>
@@ -332,7 +332,7 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
               h2: ({ children }) => {
                 const text = extractTextContent(children)
                 return (
-                  <h2 id={toAnchor(text)} className="text-xl font-black text-white mt-10 mb-4 pb-2 border-b border-white/10 scroll-mt-20">
+                  <h2 id={toAnchor(text)} className="text-xl font-black text-white mt-10 mb-4 pb-2 border-b border-[var(--border-default)] scroll-mt-20">
                     {children}
                   </h2>
                 )
@@ -341,16 +341,16 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
                 <h3 className="text-base font-black text-orange-400 mt-6 mb-2">{children}</h3>
               ),
               h4: ({ children }) => (
-                <h4 className="text-sm font-bold text-[#c4c0bc] mt-4 mb-1">{children}</h4>
+                <h4 className="text-sm font-bold text-[var(--text-secondary)] mt-4 mb-1">{children}</h4>
               ),
               p: ({ children }) => (
-                <p className="text-[#c4c0bc] leading-relaxed my-3 text-sm md:text-base">{children}</p>
+                <p className="text-[var(--text-secondary)] leading-relaxed my-3 text-sm md:text-base">{children}</p>
               ),
               strong: ({ children }) => (
                 <strong className="text-white font-bold">{children}</strong>
               ),
               em: ({ children }) => (
-                <em className="text-[#a4a09c] italic">{children}</em>
+                <em className="text-[var(--text-muted)] italic">{children}</em>
               ),
               ul: ({ children }) => (
                 <ul className="my-3 pl-5 space-y-1 list-disc marker:text-orange-500">{children}</ul>
@@ -359,20 +359,20 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
                 <ol className="my-3 pl-5 space-y-1 list-decimal marker:text-orange-500">{children}</ol>
               ),
               li: ({ children }) => (
-                <li className="text-[#c4c0bc] text-sm md:text-base leading-relaxed">{children}</li>
+                <li className="text-[var(--text-secondary)] text-sm md:text-base leading-relaxed">{children}</li>
               ),
               blockquote: ({ children }) => (
-                <blockquote className="my-4 pl-4 border-l-4 border-orange-500 bg-[#2a2826] rounded-r-lg py-3 pr-3 text-[#a4a09c] italic">
+                <blockquote className="my-4 pl-4 border-l-4 border-orange-500 bg-[var(--bg-surface-2)] rounded-r-lg py-3 pr-3 text-[var(--text-muted)] italic">
                   {children}
                 </blockquote>
               ),
               code: ({ children, className }) => {
                 const isBlock = className?.includes('language-')
                 return isBlock
-                  ? <code className="block bg-[#1c1a18] text-orange-300 text-xs p-3 rounded-lg my-3 overflow-x-auto">{children}</code>
-                  : <code className="bg-[#1c1a18] text-orange-300 text-xs px-1.5 py-0.5 rounded">{children}</code>
+                  ? <code className="block bg-[var(--bg-base)] text-orange-300 text-xs p-3 rounded-lg my-3 overflow-x-auto">{children}</code>
+                  : <code className="bg-[var(--bg-base)] text-orange-300 text-xs px-1.5 py-0.5 rounded">{children}</code>
               },
-              hr: () => <hr className="my-8 border-white/10" />,
+              hr: () => <hr className="my-8 border-[var(--border-default)]" />,
               a: ({ href, children }) => {
                 if (href?.startsWith('#')) {
                   return (
@@ -403,7 +403,7 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
               <span className="w-1 h-4 rounded-full bg-indigo-500" />
               심층 분석
             </h2>
-            <p className="text-[11px] text-[#75716e] mb-5 ml-3">SSOKTUBE 에디터의 전문 해설</p>
+            <p className="text-[11px] text-[var(--text-subtle)] mb-5 ml-3">SSOKTUBE 에디터의 전문 해설</p>
 
             {/* 배경 맥락 */}
             {post.deepDive.background && (
@@ -411,7 +411,7 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
                 <p className="text-xs font-bold text-indigo-400 mb-3 flex items-center gap-1.5">
                   <span>🌐</span> 배경 맥락
                 </p>
-                <p className="text-sm text-[#c4c0bc] leading-relaxed whitespace-pre-wrap">{post.deepDive.background}</p>
+                <p className="text-sm text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">{post.deepDive.background}</p>
               </div>
             )}
 
@@ -423,12 +423,12 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
                 </p>
                 <div className="space-y-3">
                   {post.deepDive.concepts.map((c, i) => (
-                    <div key={i} className="p-5 rounded-2xl bg-[#1e1c1a] border border-white/8">
+                    <div key={i} className="p-5 rounded-2xl bg-[var(--bg-base)] border border-[var(--border-default)]">
                       <p className="text-sm font-black text-white mb-2 flex items-center gap-2">
                         <span className="w-5 h-5 rounded-full bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-[10px] font-black text-indigo-400 shrink-0">{i + 1}</span>
                         {c.term}
                       </p>
-                      <p className="text-sm text-[#a4a09c] leading-relaxed">{c.explanation}</p>
+                      <p className="text-sm text-[var(--text-muted)] leading-relaxed">{c.explanation}</p>
                     </div>
                   ))}
                 </div>
@@ -447,7 +447,7 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
                       <span className="shrink-0 w-6 h-6 rounded-full bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-xs font-black text-indigo-400 mt-0.5">
                         {i + 1}
                       </span>
-                      <p className="text-sm text-[#c4c0bc] leading-relaxed pt-0.5">{step}</p>
+                      <p className="text-sm text-[var(--text-secondary)] leading-relaxed pt-0.5">{step}</p>
                     </div>
                   ))}
                 </div>
@@ -481,26 +481,26 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
             </h2>
             <div className="space-y-4">
               {post.comments.popular_summary && (
-                <div className="p-4 rounded-2xl bg-[#2a2826] border border-white/8">
+                <div className="p-4 rounded-2xl bg-[var(--bg-surface-2)] border border-[var(--border-default)]">
                   <p className="text-xs font-bold text-orange-400 mb-2">🔥 인기 댓글 경향</p>
-                  <p className="text-sm text-[#a4a09c] leading-relaxed mb-3">{post.comments.popular_summary}</p>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-3">{post.comments.popular_summary}</p>
                   {post.comments.popular_highlights?.map((h, i) => (
                     <div key={i} className="flex items-start gap-2 mt-2">
-                      <span className="shrink-0 text-xs text-[#4a4845] mt-0.5">❝</span>
-                      <p className="text-xs text-[#c4c0bc] leading-relaxed flex-1">{h.text}</p>
+                      <span className="shrink-0 text-xs text-[var(--text-subtle)] mt-0.5">❝</span>
+                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed flex-1">{h.text}</p>
                       {h.likes > 0 && <span className="shrink-0 text-[10px] text-orange-400">♥ {h.likes}</span>}
                     </div>
                   ))}
                 </div>
               )}
               {post.comments.recent_summary && (
-                <div className="p-4 rounded-2xl bg-[#2a2826] border border-white/8">
+                <div className="p-4 rounded-2xl bg-[var(--bg-surface-2)] border border-[var(--border-default)]">
                   <p className="text-xs font-bold text-blue-400 mb-2">💬 최근 댓글 경향</p>
-                  <p className="text-sm text-[#a4a09c] leading-relaxed mb-3">{post.comments.recent_summary}</p>
+                  <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-3">{post.comments.recent_summary}</p>
                   {post.comments.recent_highlights?.map((h, i) => (
                     <div key={i} className="flex items-start gap-2 mt-2">
-                      <span className="shrink-0 text-xs text-[#4a4845] mt-0.5">❝</span>
-                      <p className="text-xs text-[#c4c0bc] leading-relaxed flex-1">{h.text}</p>
+                      <span className="shrink-0 text-xs text-[var(--text-subtle)] mt-0.5">❝</span>
+                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed flex-1">{h.text}</p>
                       {h.likes > 0 && <span className="shrink-0 text-[10px] text-blue-400">♥ {h.likes}</span>}
                     </div>
                   ))}
@@ -512,13 +512,13 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
             {(post as any).platformReactions && (
               <div className="p-4 rounded-2xl bg-[#1e2a1e] border border-emerald-500/20">
                 <p className="text-xs font-bold text-emerald-400 mb-2">💡 SSOKTUBE 학습자 반응</p>
-                <p className="text-sm text-[#a4a09c] leading-relaxed mb-3">{(post as any).platformReactions.summary}</p>
+                <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-3">{(post as any).platformReactions.summary}</p>
                 {(post as any).platformReactions.highlights?.map((h: any, i: number) => (
                   <div key={i} className="flex items-start gap-2 mt-2">
                     <span className="shrink-0 text-[10px] font-bold text-emerald-500/60 mt-0.5 whitespace-nowrap">
                       [{h.context}]
                     </span>
-                    <p className="text-xs text-[#c4c0bc] leading-relaxed flex-1">"{h.text}"</p>
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed flex-1">"{h.text}"</p>
                   </div>
                 ))}
               </div>
@@ -539,15 +539,15 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
                 href={`/result/${post.summaryIds[i]}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 rounded-xl bg-[#2a2826] border border-white/6 hover:border-orange-500/30 hover:bg-[#32302e] transition-all group"
+                className="flex items-center gap-3 p-3 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] hover:border-orange-500/30 hover:bg-[var(--bg-elevated)] transition-all group"
               >
                 <span className="shrink-0 w-5 h-5 rounded-full bg-orange-500/20 flex items-center justify-center text-[10px] font-black text-orange-400">
                   {i + 1}
                 </span>
-                <span className="text-sm text-[#c4c0bc] group-hover:text-white transition-colors line-clamp-1">
+                <span className="text-sm text-[var(--text-secondary)] group-hover:text-white transition-colors line-clamp-1">
                   {title}
                 </span>
-                <svg className="shrink-0 ml-auto w-3.5 h-3.5 text-[#75716e] group-hover:text-orange-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="shrink-0 ml-auto w-3.5 h-3.5 text-[var(--text-subtle)] group-hover:text-orange-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </a>
@@ -569,12 +569,12 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
                   <Link
                     key={p.id}
                     href={`/magazine/${p.slug}`}
-                    className="group flex flex-col rounded-2xl bg-[#2a2826] border border-white/6 hover:border-orange-500/30 overflow-hidden transition-all"
+                    className="group flex flex-col rounded-2xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] hover:border-orange-500/30 overflow-hidden transition-all"
                   >
                     {p.heroThumbnail && !p.heroThumbnail.startsWith('data:') ? (
                       <img src={p.heroThumbnail} alt={p.title} className="w-full h-28 object-cover" />
                     ) : (
-                      <div className="w-full h-28 bg-[#1c1a18] flex items-center justify-center text-3xl">🤖</div>
+                      <div className="w-full h-28 bg-[var(--bg-base)] flex items-center justify-center text-3xl">🤖</div>
                     )}
                     <div className="p-3 flex flex-col gap-1">
                       {relTopic ? (
@@ -587,7 +587,7 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
                       <p className="text-sm text-white font-bold line-clamp-2 group-hover:text-orange-400 transition-colors leading-snug">
                         {p.title}
                       </p>
-                      <p className="text-[11px] text-[#75716e] mt-1">{p.readTime}분 읽기</p>
+                      <p className="text-[11px] text-[var(--text-subtle)] mt-1">{p.readTime}분 읽기</p>
                     </div>
                   </Link>
                 )
@@ -604,7 +604,7 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
           <div className="p-6 rounded-2xl bg-gradient-to-br from-orange-500/10 to-amber-500/5 border border-orange-500/20">
             <p className="text-xs font-bold text-orange-400 mb-1">✦ AI 영상 분석</p>
             <p className="text-white font-bold mb-1">유튜브 영상을 바로 요약해보세요</p>
-            <p className="text-[#a4a09c] text-sm mb-4">링크 하나로 핵심 내용을 AI가 정리해드립니다.</p>
+            <p className="text-[var(--text-muted)] text-sm mb-4">링크 하나로 핵심 내용을 AI가 정리해드립니다.</p>
             <Link
               href="/"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold transition-colors"
@@ -612,13 +612,13 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
               지금 바로 요약하기 →
             </Link>
           </div>
-          <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/0 border border-white/8">
-            <p className="text-xs font-bold text-[#a4a09c] mb-1">🤖 AI 매거진</p>
+          <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/0 border border-[var(--border-default)]">
+            <p className="text-xs font-bold text-[var(--text-muted)] mb-1">🤖 AI 매거진</p>
             <p className="text-white font-bold mb-1">더 많은 AI 기사 보기</p>
-            <p className="text-[#a4a09c] text-sm mb-4">AI 소식, 도구, 활용 사례를 매일 3회 업데이트합니다.</p>
+            <p className="text-[var(--text-muted)] text-sm mb-4">AI 소식, 도구, 활용 사례를 매일 3회 업데이트합니다.</p>
             <Link
               href="/magazine"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-sm font-bold border border-white/10 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--overlay-default)] hover:bg-[var(--overlay-default)] text-white text-sm font-bold border border-[var(--border-default)] transition-colors"
             >
               AI 매거진 전체 보기 →
             </Link>

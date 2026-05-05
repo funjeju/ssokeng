@@ -196,13 +196,13 @@ export default function ProfilePage() {
 
   const friendButtonConfig = {
     none:             { label: '친구 추가', icon: '➕', style: 'bg-orange-500 hover:bg-orange-600 text-white' },
-    pending_sent:     { label: '요청됨', icon: '⏳', style: 'bg-[#32302e] border border-white/10 text-[#a4a09c]' },
+    pending_sent:     { label: '요청됨', icon: '⏳', style: 'bg-[var(--bg-elevated)] border border-[var(--border-default)] text-[var(--text-muted)]' },
     pending_received: { label: '수락하기', icon: '✅', style: 'bg-emerald-600 hover:bg-emerald-700 text-white' },
-    friends:          { label: '친구', icon: '✓', style: 'bg-[#32302e] border border-orange-500/40 text-orange-400' },
+    friends:          { label: '친구', icon: '✓', style: 'bg-[var(--bg-elevated)] border border-orange-500/40 text-orange-400' },
   }[friendStatus]
 
   return (
-    <div className="min-h-screen bg-[#252423] font-sans">
+    <div className="min-h-screen bg-[var(--bg-page)] font-sans">
       <Header title="🎬 Next Curator" />
       <div className="max-w-2xl mx-auto px-4 pb-16">
 
@@ -215,14 +215,14 @@ export default function ProfilePage() {
             {/* 프로필 카드 */}
             <div className="flex flex-col items-center gap-4 py-10">
               {profile?.photoURL ? (
-                <img src={profile.photoURL} alt="" className="w-20 h-20 rounded-full border-2 border-white/10 shadow-xl" />
+                <img src={profile.photoURL} alt="" className="w-20 h-20 rounded-full border-2 border-[var(--border-default)] shadow-xl" />
               ) : (
-                <div className="w-20 h-20 rounded-full bg-[#32302e] flex items-center justify-center text-3xl">👤</div>
+                <div className="w-20 h-20 rounded-full bg-[var(--bg-elevated)] flex items-center justify-center text-3xl">👤</div>
               )}
 
               <div className="text-center">
                 <h1 className="text-xl font-bold text-white">{profile?.displayName || '익명'}</h1>
-                <p className="text-[#75716e] text-sm mt-1">
+                <p className="text-[var(--text-subtle)] text-sm mt-1">
                   공개된 폴더 {folders.length}개
                 </p>
                 {friendStatus === 'friends' && (
@@ -250,7 +250,7 @@ export default function ProfilePage() {
                     <button
                       onClick={handleReject}
                       disabled={friendLoading}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-[#32302e] border border-white/10 text-[#a4a09c] hover:text-white transition-all disabled:opacity-50"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-[var(--bg-elevated)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-white transition-all disabled:opacity-50"
                     >
                       거절
                     </button>
@@ -260,7 +260,7 @@ export default function ProfilePage() {
                   <button
                     onClick={handleMessage}
                     disabled={messaging}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-[#32302e] hover:bg-[#3d3a38] border border-white/10 rounded-full text-sm text-white transition-all disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-4 py-2 bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] border border-[var(--border-default)] rounded-full text-sm text-white transition-all disabled:opacity-50"
                   >
                     ✉️ {messaging ? '이동 중...' : '쪽지'}
                   </button>
@@ -270,8 +270,8 @@ export default function ProfilePage() {
 
             {/* 친구 큐레이션 안내 */}
             {friendStatus !== 'friends' && !isMyProfile && (
-              <div className="mb-5 px-4 py-3 rounded-xl bg-[#32302e]/60 border border-white/5 text-center">
-                <p className="text-[#75716e] text-xs">
+              <div className="mb-5 px-4 py-3 rounded-xl bg-[var(--bg-elevated)]/60 border border-[var(--border-subtle)] text-center">
+                <p className="text-[var(--text-subtle)] text-xs">
                   {friendStatus === 'none'
                     ? '친구를 맺으면 이 유저의 전체 큐레이션을 볼 수 있어요'
                     : friendStatus === 'pending_sent'
@@ -283,7 +283,7 @@ export default function ProfilePage() {
 
             {/* 폴더 목록 그리드 */}
             {folders.length === 0 ? (
-              <div className="text-center py-20 text-[#75716e]">
+              <div className="text-center py-20 text-[var(--text-subtle)]">
                 공개된 폴더가 없습니다.
               </div>
             ) : (
@@ -292,14 +292,14 @@ export default function ProfilePage() {
                   <button
                     key={f.id}
                     onClick={() => handleOpenFolder(f)}
-                    className="group relative flex flex-col gap-3 p-4 rounded-3xl bg-[#32302e] border border-white/5 hover:border-orange-500/40 transition-all text-left"
+                    className="group relative flex flex-col gap-3 p-4 rounded-3xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] hover:border-orange-500/40 transition-all text-left"
                   >
-                    <div className="w-full aspect-[4/3] rounded-2xl bg-[#252423] flex items-center justify-center text-4xl shadow-inner group-hover:scale-[1.02] transition-transform">
+                    <div className="w-full aspect-[4/3] rounded-2xl bg-[var(--bg-page)] flex items-center justify-center text-4xl shadow-inner group-hover:scale-[1.02] transition-transform">
                       {f.clonedFrom ? '✨' : '📁'}
                     </div>
                     <div>
                       <h3 className="text-white font-bold truncate">{f.name}</h3>
-                      <p className="text-[#75716e] text-xs mt-1">큐레이션 보기 →</p>
+                      <p className="text-[var(--text-subtle)] text-xs mt-1">큐레이션 보기 →</p>
                     </div>
                   </button>
                 ))}
@@ -310,9 +310,9 @@ export default function ProfilePage() {
             {selectedFolder && (
               <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
                 <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setSelectedFolder(null)} />
-                <div className="relative w-full max-w-2xl max-h-[85vh] bg-[#252423] rounded-[32px] overflow-hidden flex flex-col shadow-2xl border border-white/10 slide-up">
+                <div className="relative w-full max-w-2xl max-h-[85vh] bg-[var(--bg-page)] rounded-[32px] overflow-hidden flex flex-col shadow-2xl border border-[var(--border-default)] slide-up">
                   {/* 모달 헤더 */}
-                  <div className="flex items-center justify-between px-6 py-5 border-b border-white/5 bg-[#2a2826]">
+                  <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--border-subtle)] bg-[var(--bg-surface-2)]">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl text-orange-500">📁</span>
                       <h2 className="text-xl font-bold text-white truncate max-w-[300px]">{selectedFolder.name}</h2>
@@ -327,7 +327,7 @@ export default function ProfilePage() {
                           {cloning ? '복제 중...' : '✨ 폴더 전체 복제'}
                         </button>
                       )}
-                      <button onClick={() => setSelectedFolder(null)} className="text-[#75716e] hover:text-white p-1">✕</button>
+                      <button onClick={() => setSelectedFolder(null)} className="text-[var(--text-subtle)] hover:text-white p-1">✕</button>
                     </div>
                   </div>
 
@@ -338,11 +338,11 @@ export default function ProfilePage() {
                         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-orange-500" />
                       </div>
                     ) : folderItems.length === 0 ? (
-                      <p className="text-center text-[#75716e] py-20">폴더가 비어있습니다.</p>
+                      <p className="text-center text-[var(--text-subtle)] py-20">폴더가 비어있습니다.</p>
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {folderItems.map(item => (
-                          <div key={item.id} className="group flex flex-col rounded-2xl bg-[#32302e] border border-white/5 overflow-hidden border-transparent hover:border-orange-500/30 transition-all">
+                          <div key={item.id} className="group flex flex-col rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] overflow-hidden border-transparent hover:border-orange-500/30 transition-all">
                             <Link href={`/result/${item.sessionId}`} className="relative aspect-video overflow-hidden">
                               <img src={item.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
@@ -353,7 +353,7 @@ export default function ProfilePage() {
                               <p className="text-white text-xs font-bold line-clamp-2 leading-tight">{item.title}</p>
                               <button
                                 onClick={() => handleSaveItem(item)}
-                                className="w-full py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-[#a4a09c] hover:text-white text-[10px] font-medium transition-all"
+                                className="w-full py-1.5 rounded-xl bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-[var(--text-muted)] hover:text-white text-[10px] font-medium transition-all"
                               >
                                 내 라이브러리에 저장
                               </button>

@@ -39,24 +39,24 @@ export default function GuidePage() {
     <div className="flex flex-col gap-10">
       <div>
         <h1 className="text-2xl font-black text-white mb-2">쏙튜브 사용설명서</h1>
-        <p className="text-[#75716e] text-sm leading-relaxed max-w-xl">
+        <p className="text-[var(--text-subtle)] text-sm leading-relaxed max-w-xl">
           유튜브 영상을 더 스마트하게 활용하는 법. 요리·영어·뉴스·여행부터 블로그 초안 생성, 숏폼 스크립트까지 — 모든 기능을 단계별로 안내합니다.
         </p>
       </div>
       {SECTIONS.map(section => (
         <section key={section.title}>
-          <h2 className="text-xs font-bold text-[#75716e] uppercase tracking-widest mb-3">{section.title}</h2>
+          <h2 className="text-xs font-bold text-[var(--text-subtle)] uppercase tracking-widest mb-3">{section.title}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {section.items.map(item => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-start gap-3 bg-[#32302e] hover:bg-[#3d3a38] border border-white/5 hover:border-white/15 rounded-2xl p-4 transition-all group"
+                className="flex items-start gap-3 bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] rounded-2xl p-4 transition-all group"
               >
                 <span className="text-2xl mt-0.5">{item.icon}</span>
                 <div>
                   <p className="text-white font-semibold text-sm group-hover:text-orange-400 transition-colors">{item.title}</p>
-                  <p className="text-[#75716e] text-xs mt-0.5">{item.desc}</p>
+                  <p className="text-[var(--text-subtle)] text-xs mt-0.5">{item.desc}</p>
                 </div>
               </Link>
             ))}

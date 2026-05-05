@@ -41,9 +41,9 @@ function FeaturedCard({ post }: { post: CuratedPost }) {
   return (
     <Link
       href={`/magazine/${post.slug}`}
-      className="group relative flex flex-col md:flex-row rounded-2xl overflow-hidden bg-[#2a2826] border border-white/8 hover:border-orange-500/30 transition-all hover:shadow-xl hover:shadow-orange-500/5"
+      className="group relative flex flex-col md:flex-row rounded-2xl overflow-hidden bg-[var(--bg-surface-2)] border border-[var(--border-default)] hover:border-orange-500/30 transition-all hover:shadow-xl hover:shadow-orange-500/5"
     >
-      <div className="relative md:w-[55%] aspect-video md:aspect-auto bg-[#1c1a18] overflow-hidden shrink-0">
+      <div className="relative md:w-[55%] aspect-video md:aspect-auto bg-[var(--bg-base)] overflow-hidden shrink-0">
         {hasThumb ? (
           <img
             src={post.heroThumbnail}
@@ -53,8 +53,8 @@ function FeaturedCard({ post }: { post: CuratedPost }) {
         ) : (
           <div className="w-full h-full flex items-center justify-center text-5xl opacity-20">🤖</div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#2a2826]/80 hidden md:block" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#2a2826]/90 via-transparent to-transparent md:hidden" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[var(--bg-surface-2)]/80 hidden md:block" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-surface-2)]/90 via-transparent to-transparent md:hidden" />
       </div>
       <div className="flex flex-col justify-center p-6 md:p-8 flex-1">
         {topic && (
@@ -66,9 +66,9 @@ function FeaturedCard({ post }: { post: CuratedPost }) {
           {post.title}
         </h2>
         {post.subtitle && (
-          <p className="text-sm text-[#a4a09c] leading-relaxed mb-4 line-clamp-2">{post.subtitle}</p>
+          <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-4 line-clamp-2">{post.subtitle}</p>
         )}
-        <div className="flex items-center gap-3 text-[11px] text-[#75716e]">
+        <div className="flex items-center gap-3 text-[11px] text-[var(--text-subtle)]">
           <span>{formatDate(post.publishedAt)}</span>
           <span>·</span>
           <span>{post.readTime}분 읽기</span>
@@ -77,7 +77,7 @@ function FeaturedCard({ post }: { post: CuratedPost }) {
         {post.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-3">
             {post.tags.slice(0, 4).map(tag => (
-              <span key={tag} className="px-2 py-0.5 rounded text-[10px] bg-[#32302e] text-[#75716e]">#{tag}</span>
+              <span key={tag} className="px-2 py-0.5 rounded text-[10px] bg-[var(--bg-elevated)] text-[var(--text-subtle)]">#{tag}</span>
             ))}
           </div>
         )}
@@ -92,15 +92,15 @@ function PostCard({ post }: { post: CuratedPost }) {
   return (
     <Link
       href={`/magazine/${post.slug}`}
-      className="group flex flex-col rounded-2xl overflow-hidden bg-[#2a2826] border border-white/6 hover:border-orange-500/30 transition-all hover:shadow-lg hover:shadow-orange-500/5"
+      className="group flex flex-col rounded-2xl overflow-hidden bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] hover:border-orange-500/30 transition-all hover:shadow-lg hover:shadow-orange-500/5"
     >
-      <div className="relative aspect-video bg-[#1c1a18] overflow-hidden">
+      <div className="relative aspect-video bg-[var(--bg-base)] overflow-hidden">
         {hasThumb ? (
           <img src={post.heroThumbnail} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-3xl opacity-20">🤖</div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#2a2826]/80 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-surface-2)]/80 via-transparent to-transparent" />
         {topic && (
           <span className={`absolute bottom-3 left-3 px-2 py-0.5 rounded-full text-[10px] font-bold border ${topic.color} ${topic.textColor} ${topic.borderColor}`}>
             {topic.emoji} {topic.label}
@@ -112,16 +112,16 @@ function PostCard({ post }: { post: CuratedPost }) {
           {post.title}
         </h3>
         {post.subtitle && (
-          <p className="text-xs text-[#75716e] line-clamp-2 leading-relaxed">{post.subtitle}</p>
+          <p className="text-xs text-[var(--text-subtle)] line-clamp-2 leading-relaxed">{post.subtitle}</p>
         )}
         {post.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-auto pt-2">
             {post.tags.slice(0, 3).map(tag => (
-              <span key={tag} className="px-1.5 py-0.5 rounded text-[9px] bg-[#32302e] text-[#75716e]">#{tag}</span>
+              <span key={tag} className="px-1.5 py-0.5 rounded text-[9px] bg-[var(--bg-elevated)] text-[var(--text-subtle)]">#{tag}</span>
             ))}
           </div>
         )}
-        <div className="flex items-center gap-2 text-[10px] text-[#75716e] pt-1 border-t border-white/6">
+        <div className="flex items-center gap-2 text-[10px] text-[var(--text-subtle)] pt-1 border-t border-[var(--border-subtle)]">
           <span>{formatDate(post.publishedAt)}</span>
           <span>·</span>
           <span>{post.readTime}분</span>
@@ -181,15 +181,15 @@ export default async function MagazineBoardPage() {
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
       ))}
 
-      <div className="min-h-screen bg-[#252423]">
+      <div className="min-h-screen bg-[var(--bg-page)]">
         <Header />
         <main className="max-w-5xl mx-auto px-4 pb-24">
 
           {/* 브레드크럼 */}
-          <nav aria-label="breadcrumb" className="flex items-center gap-2 text-xs text-[#75716e] pt-4 mb-6">
+          <nav aria-label="breadcrumb" className="flex items-center gap-2 text-xs text-[var(--text-subtle)] pt-4 mb-6">
             <Link href="/" className="hover:text-orange-400 transition-colors">홈</Link>
             <span>/</span>
-            <span className="text-[#a4a09c]">AI 매거진</span>
+            <span className="text-[var(--text-muted)]">AI 매거진</span>
           </nav>
 
           {/* 헤더 */}
@@ -198,7 +198,7 @@ export default async function MagazineBoardPage() {
               <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-orange-500 text-white tracking-wide">AI MAGAZINE</span>
             </div>
             <h1 className="text-3xl md:text-4xl font-black text-white mb-2">AI 매거진</h1>
-            <p className="text-[#a4a09c] text-sm max-w-xl leading-relaxed">
+            <p className="text-[var(--text-muted)] text-sm max-w-xl leading-relaxed">
               ChatGPT, Claude, Gemini 등 최신 AI 뉴스와 생산성 도구, 실전 활용 사례를 AI 에디터가 엄선해 깊이 있게 다룹니다. 매일 3회 업데이트.
             </p>
           </div>
@@ -230,8 +230,8 @@ export default async function MagazineBoardPage() {
           {posts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-32 text-center">
               <div className="text-5xl mb-4 opacity-30">🤖</div>
-              <p className="text-[#75716e] text-sm">아직 발행된 AI 매거진이 없습니다.</p>
-              <p className="text-[#4a4845] text-xs mt-1">관리자 페이지에서 파이프라인을 실행해주세요.</p>
+              <p className="text-[var(--text-subtle)] text-sm">아직 발행된 AI 매거진이 없습니다.</p>
+              <p className="text-[var(--text-subtle)] text-xs mt-1">관리자 페이지에서 파이프라인을 실행해주세요.</p>
             </div>
           ) : (
             <>
@@ -245,7 +245,7 @@ export default async function MagazineBoardPage() {
               {/* 나머지 그리드 */}
               {rest.length > 0 && (
                 <section>
-                  <h2 className="text-xs font-black text-[#75716e] uppercase tracking-widest mb-4">최신 기사</h2>
+                  <h2 className="text-xs font-black text-[var(--text-subtle)] uppercase tracking-widest mb-4">최신 기사</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {rest.map(post => (
                       <PostCard key={post.id} post={post} />

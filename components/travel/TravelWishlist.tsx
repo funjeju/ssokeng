@@ -230,12 +230,12 @@ export default function TravelWishlist({ userId }: { userId: string }) {
         </div>
 
         {creatingRegion && (
-          <div className="mb-3 bg-white/5 border border-cyan-500/30 rounded-2xl p-3 space-y-2">
+          <div className="mb-3 bg-[var(--overlay-subtle)] border border-cyan-500/30 rounded-2xl p-3 space-y-2">
             <div className="flex gap-1 flex-wrap">
               {EMOJI_OPTIONS.map(e => (
                 <button key={e} onClick={() => setNewRegionEmoji(e)}
                   className={`w-8 h-8 rounded-lg text-base flex items-center justify-center transition-all ${
-                    newRegionEmoji === e ? 'bg-cyan-500/30 border border-cyan-500/50' : 'bg-white/5 hover:bg-white/10'
+                    newRegionEmoji === e ? 'bg-cyan-500/30 border border-cyan-500/50' : 'bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)]'
                   }`}>{e}</button>
               ))}
             </div>
@@ -244,7 +244,7 @@ export default function TravelWishlist({ userId }: { userId: string }) {
               onChange={e => setNewRegionName(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') handleCreateRegion(); if (e.key === 'Escape') setCreatingRegion(false) }}
               placeholder="지역 이름..."
-              className="w-full bg-[#23211f] border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-500/40"
+              className="w-full bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-500/40"
             />
             <div className="flex gap-1">
               <button onClick={handleCreateRegion} disabled={!newRegionName.trim()}
@@ -252,7 +252,7 @@ export default function TravelWishlist({ userId }: { userId: string }) {
                 만들기
               </button>
               <button onClick={() => setCreatingRegion(false)}
-                className="px-3 py-1.5 bg-white/5 text-zinc-400 text-xs rounded-xl hover:bg-white/10">
+                className="px-3 py-1.5 bg-[var(--overlay-subtle)] text-zinc-400 text-xs rounded-xl hover:bg-[var(--overlay-default)]">
                 취소
               </button>
             </div>
@@ -263,12 +263,12 @@ export default function TravelWishlist({ userId }: { userId: string }) {
           {regions.map(r => (
             <div key={r.id} className="group/reg relative shrink-0">
               {renamingId === r.id ? (
-                <div className="space-y-1.5 p-2 bg-white/5 rounded-2xl border border-cyan-500/30">
+                <div className="space-y-1.5 p-2 bg-[var(--overlay-subtle)] rounded-2xl border border-cyan-500/30">
                   <div className="flex gap-1 flex-wrap">
                     {EMOJI_OPTIONS.map(e => (
                       <button key={e} onClick={() => setRenameEmoji(e)}
                         className={`w-7 h-7 rounded-lg text-sm flex items-center justify-center transition-all ${
-                          renameEmoji === e ? 'bg-cyan-500/30 border border-cyan-500/50' : 'bg-white/5 hover:bg-white/10'
+                          renameEmoji === e ? 'bg-cyan-500/30 border border-cyan-500/50' : 'bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)]'
                         }`}>{e}</button>
                     ))}
                   </div>
@@ -276,11 +276,11 @@ export default function TravelWishlist({ userId }: { userId: string }) {
                     autoFocus value={renameValue}
                     onChange={e => setRenameValue(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter') handleRenameConfirm(r.id); if (e.key === 'Escape') setRenamingId(null) }}
-                    className="w-full bg-[#23211f] border border-white/10 rounded-xl px-2 py-1.5 text-xs text-white focus:outline-none"
+                    className="w-full bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl px-2 py-1.5 text-xs text-white focus:outline-none"
                   />
                   <div className="flex gap-1">
                     <button onClick={() => handleRenameConfirm(r.id)} className="flex-1 py-1 bg-cyan-500 text-white text-[10px] font-bold rounded-lg">저장</button>
-                    <button onClick={() => setRenamingId(null)} className="px-2 py-1 bg-white/5 text-zinc-400 text-[10px] rounded-lg">취소</button>
+                    <button onClick={() => setRenamingId(null)} className="px-2 py-1 bg-[var(--overlay-subtle)] text-zinc-400 text-[10px] rounded-lg">취소</button>
                   </div>
                 </div>
               ) : (
@@ -289,7 +289,7 @@ export default function TravelWishlist({ userId }: { userId: string }) {
                   className={`w-full text-left px-3 py-2.5 rounded-2xl whitespace-nowrap transition-all flex items-center gap-2 pr-8 ${
                     selectedId === r.id
                       ? 'bg-cyan-500/20 border border-cyan-500/40 text-white'
-                      : 'bg-[#32302e] text-zinc-400 hover:bg-[#3d3a38] border border-transparent'
+                      : 'bg-[var(--bg-elevated)] text-zinc-400 hover:bg-[var(--bg-elevated-2)] border border-transparent'
                   }`}
                 >
                   <span className="text-base">{r.emoji}</span>
@@ -355,7 +355,7 @@ export default function TravelWishlist({ userId }: { userId: string }) {
 
             {/* 스팟 추가 폼 */}
             {addingSpot && (
-              <div className="mb-4 bg-[#23211f] border border-cyan-500/30 rounded-2xl p-4 space-y-3">
+              <div className="mb-4 bg-[var(--bg-surface)] border border-cyan-500/30 rounded-2xl p-4 space-y-3">
                 {/* 모드 탭 */}
                 <div className="flex gap-1 bg-black/20 rounded-xl p-1">
                   <button
@@ -382,7 +382,7 @@ export default function TravelWishlist({ userId }: { userId: string }) {
                         onChange={e => setSearchQuery(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter') handlePlaceSearch() }}
                         placeholder="장소 이름으로 검색 (예: 경복궁, 성산일출봉)"
-                        className="flex-1 bg-[#1c1a18] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-500/40"
+                        className="flex-1 bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-500/40"
                       />
                       <button
                         onClick={handlePlaceSearch}
@@ -400,7 +400,7 @@ export default function TravelWishlist({ userId }: { userId: string }) {
                           <button
                             key={place.id}
                             onClick={() => handleSelectPlace(place)}
-                            className="w-full text-left flex items-start gap-3 p-3 bg-[#1c1a18] hover:bg-cyan-500/10 border border-white/5 hover:border-cyan-500/30 rounded-xl transition-all"
+                            className="w-full text-left flex items-start gap-3 p-3 bg-[var(--bg-base)] hover:bg-cyan-500/10 border border-[var(--border-subtle)] hover:border-cyan-500/30 rounded-xl transition-all"
                           >
                             {/* 지도 미리보기 썸네일 */}
                             <img
@@ -453,7 +453,7 @@ export default function TravelWishlist({ userId }: { userId: string }) {
                       onChange={e => setSpotDesc(e.target.value)}
                       placeholder="메모 (선택)"
                       rows={2}
-                      className="w-full bg-[#1c1a18] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-500/40 resize-none"
+                      className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-500/40 resize-none"
                     />
                   </>
                 )}
@@ -465,20 +465,20 @@ export default function TravelWishlist({ userId }: { userId: string }) {
                       autoFocus value={spotName}
                       onChange={e => setSpotName(e.target.value)}
                       placeholder="장소명 *"
-                      className="w-full bg-[#1c1a18] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-500/40"
+                      className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-500/40"
                     />
                     <input
                       value={spotAddress}
                       onChange={e => setSpotAddress(e.target.value)}
                       placeholder="주소 (선택)"
-                      className="w-full bg-[#1c1a18] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-500/40"
+                      className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-500/40"
                     />
                     <textarea
                       value={spotDesc}
                       onChange={e => setSpotDesc(e.target.value)}
                       placeholder="메모 (선택)"
                       rows={2}
-                      className="w-full bg-[#1c1a18] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-500/40 resize-none"
+                      className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-500/40 resize-none"
                     />
                   </>
                 )}
@@ -495,7 +495,7 @@ export default function TravelWishlist({ userId }: { userId: string }) {
                     </button>
                     <button
                       onClick={resetAddForm}
-                      className="px-4 py-2.5 bg-white/5 text-zinc-400 text-sm rounded-xl hover:bg-white/10 transition-colors"
+                      className="px-4 py-2.5 bg-[var(--overlay-subtle)] text-zinc-400 text-sm rounded-xl hover:bg-[var(--overlay-default)] transition-colors"
                     >
                       취소
                     </button>
@@ -519,8 +519,8 @@ export default function TravelWishlist({ userId }: { userId: string }) {
                 {spots.map(s => (
                   <div
                     key={s.id}
-                    className={`flex items-start gap-3 bg-[#2a2826] border rounded-2xl p-4 transition-all ${
-                      s.visited ? 'border-white/5 opacity-60' : 'border-white/8 hover:border-white/15'
+                    className={`flex items-start gap-3 bg-[var(--bg-surface-2)] border rounded-2xl p-4 transition-all ${
+                      s.visited ? 'border-[var(--border-subtle)] opacity-60' : 'border-[var(--border-default)] hover:border-[var(--border-strong)]'
                     }`}
                   >
                     {/* 방문 체크 */}
@@ -570,7 +570,7 @@ export default function TravelWishlist({ userId }: { userId: string }) {
                           {/* 삭제 */}
                           <button
                             onClick={() => handleDeleteSpot(s)}
-                            className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-colors text-xs"
+                            className="w-7 h-7 rounded-lg bg-[var(--overlay-subtle)] flex items-center justify-center text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-colors text-xs"
                             title="삭제"
                           >
                             ✕
@@ -604,7 +604,7 @@ export default function TravelWishlist({ userId }: { userId: string }) {
             {/* 방문 완료 통계 */}
             {spots.length > 0 && (
               <div className="mt-4 flex items-center gap-3">
-                <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div className="flex-1 h-1.5 bg-[var(--overlay-default)] rounded-full overflow-hidden">
                   <div
                     className="h-full bg-cyan-500 rounded-full transition-all"
                     style={{ width: `${(spots.filter(s => s.visited).length / spots.length) * 100}%` }}

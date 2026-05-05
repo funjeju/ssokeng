@@ -69,31 +69,31 @@ function PostCard({ post, meta }: { post: CuratedPost; meta: typeof TOPIC_META[s
   return (
     <Link
       href={`/magazine/${post.slug}`}
-      className="group flex flex-col rounded-2xl overflow-hidden bg-[#2a2826] border border-white/6 hover:border-orange-500/30 transition-all hover:shadow-lg hover:shadow-orange-500/5"
+      className="group flex flex-col rounded-2xl overflow-hidden bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] hover:border-orange-500/30 transition-all hover:shadow-lg hover:shadow-orange-500/5"
     >
-      <div className="relative aspect-video bg-[#1c1a18] overflow-hidden">
+      <div className="relative aspect-video bg-[var(--bg-base)] overflow-hidden">
         {hasThumb ? (
           <img src={post.heroThumbnail} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-3xl opacity-20">🤖</div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#2a2826]/80 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-surface-2)]/80 via-transparent to-transparent" />
       </div>
       <div className="flex flex-col flex-1 p-4 gap-2">
         <h2 className="text-sm font-black text-white leading-snug line-clamp-2 group-hover:text-orange-300 transition-colors">
           {post.title}
         </h2>
         {post.subtitle && (
-          <p className="text-xs text-[#75716e] line-clamp-2 leading-relaxed">{post.subtitle}</p>
+          <p className="text-xs text-[var(--text-subtle)] line-clamp-2 leading-relaxed">{post.subtitle}</p>
         )}
         {post.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-auto pt-2">
             {post.tags.slice(0, 3).map(tag => (
-              <span key={tag} className="px-1.5 py-0.5 rounded text-[9px] bg-[#32302e] text-[#75716e]">#{tag}</span>
+              <span key={tag} className="px-1.5 py-0.5 rounded text-[9px] bg-[var(--bg-elevated)] text-[var(--text-subtle)]">#{tag}</span>
             ))}
           </div>
         )}
-        <div className="flex items-center gap-2 text-[10px] text-[#75716e] pt-1 border-t border-white/6">
+        <div className="flex items-center gap-2 text-[10px] text-[var(--text-subtle)] pt-1 border-t border-[var(--border-subtle)]">
           <span>{formatDate(post.publishedAt)}</span>
           <span>·</span>
           <span>{post.readTime}분</span>
@@ -152,12 +152,12 @@ export default async function TopicPage(
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
       ))}
 
-      <div className="min-h-screen bg-[#252423]">
+      <div className="min-h-screen bg-[var(--bg-page)]">
         <Header />
         <main className="max-w-5xl mx-auto px-4 pb-24">
 
           {/* 브레드크럼 */}
-          <nav aria-label="breadcrumb" className="flex items-center gap-2 text-xs text-[#75716e] pt-4 mb-6">
+          <nav aria-label="breadcrumb" className="flex items-center gap-2 text-xs text-[var(--text-subtle)] pt-4 mb-6">
             <Link href="/" className="hover:text-orange-400 transition-colors">홈</Link>
             <span>/</span>
             <Link href="/magazine" className="hover:text-orange-400 transition-colors">AI 매거진</Link>
@@ -174,13 +174,13 @@ export default async function TopicPage(
                 <h1 className="text-2xl md:text-3xl font-black text-white">{meta.label}</h1>
               </div>
             </div>
-            <p className="text-[#a4a09c] text-sm leading-relaxed max-w-xl">{meta.description}</p>
+            <p className="text-[var(--text-muted)] text-sm leading-relaxed max-w-xl">{meta.description}</p>
             <p className={`text-[11px] font-bold mt-3 ${meta.textColor}`}>{posts.length}편의 기사</p>
           </div>
 
           {/* 다른 카테고리 이동 */}
           <nav className="flex items-center gap-2 mb-8 overflow-x-auto pb-1">
-            <Link href="/magazine" className="shrink-0 px-3 py-1.5 rounded-xl bg-[#32302e] text-[#a4a09c] text-xs font-bold border border-white/8 hover:border-white/20 transition-colors">
+            <Link href="/magazine" className="shrink-0 px-3 py-1.5 rounded-xl bg-[var(--bg-elevated)] text-[var(--text-muted)] text-xs font-bold border border-[var(--border-default)] hover:border-[var(--border-strong)] transition-colors">
               ← 전체 보기
             </Link>
             {Object.entries(TOPIC_META).filter(([k]) => k !== cluster).map(([k, m]) => (
@@ -197,8 +197,8 @@ export default async function TopicPage(
           {posts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-32 text-center">
               <div className="text-5xl mb-4 opacity-30">{meta.emoji}</div>
-              <p className="text-[#75716e] text-sm">{meta.label} 기사가 아직 없습니다.</p>
-              <p className="text-[#4a4845] text-xs mt-1">파이프라인이 실행되면 자동으로 채워집니다.</p>
+              <p className="text-[var(--text-subtle)] text-sm">{meta.label} 기사가 아직 없습니다.</p>
+              <p className="text-[var(--text-subtle)] text-xs mt-1">파이프라인이 실행되면 자동으로 채워집니다.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

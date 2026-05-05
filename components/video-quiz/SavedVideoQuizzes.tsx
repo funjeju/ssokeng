@@ -52,7 +52,7 @@ export default function SavedVideoQuizzes({ userId }: { userId: string }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16 text-[#75716e] text-sm">
+      <div className="flex items-center justify-center py-16 text-[var(--text-subtle)] text-sm">
         불러오는 중...
       </div>
     )
@@ -63,7 +63,7 @@ export default function SavedVideoQuizzes({ userId }: { userId: string }) {
       <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
         <span className="text-4xl">🧩</span>
         <p className="text-white font-semibold">저장된 퀴즈가 없습니다</p>
-        <p className="text-[#75716e] text-sm max-w-xs">
+        <p className="text-[var(--text-subtle)] text-sm max-w-xs">
           영상 시청 중 원하는 시점에 퀴즈를 추가해보세요.<br/>
           영상이 그 지점에 도달하면 퀴즈가 자동으로 나타납니다.
         </p>
@@ -78,20 +78,20 @@ export default function SavedVideoQuizzes({ userId }: { userId: string }) {
       {Object.entries(grouped).map(([sessionId, sessionQuizzes]) => {
         const first = sessionQuizzes[0]
         return (
-          <div key={sessionId} className="bg-[#1e1c1a] border border-white/8 rounded-2xl overflow-hidden">
+          <div key={sessionId} className="bg-[var(--bg-base)] border border-[var(--border-default)] rounded-2xl overflow-hidden">
             {/* 영상 헤더 */}
             <Link
               href={`/result/${sessionId}`}
-              className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-white/5"
+              className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--overlay-subtle)] transition-colors border-b border-[var(--border-subtle)]"
             >
               {first.thumbnail && (
                 <img src={first.thumbnail} alt="" className="w-16 h-9 rounded-lg object-cover shrink-0" />
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-white text-sm font-semibold truncate">{first.videoTitle}</p>
-                <p className="text-[#75716e] text-xs truncate">{first.channel}</p>
+                <p className="text-[var(--text-subtle)] text-xs truncate">{first.channel}</p>
               </div>
-              <span className="text-[#75716e] text-xs shrink-0 bg-[#32302e] px-2 py-0.5 rounded-full">
+              <span className="text-[var(--text-subtle)] text-xs shrink-0 bg-[var(--bg-elevated)] px-2 py-0.5 rounded-full">
                 {sessionQuizzes.length}개
               </span>
             </Link>
@@ -104,28 +104,28 @@ export default function SavedVideoQuizzes({ userId }: { userId: string }) {
                     <span className="text-orange-400 text-xs font-mono font-bold">
                       {quiz.timestampLabel}
                     </span>
-                    <span className="text-[10px] text-[#75716e] bg-[#32302e] px-1.5 py-0.5 rounded-full">
+                    <span className="text-[10px] text-[var(--text-subtle)] bg-[var(--bg-elevated)] px-1.5 py-0.5 rounded-full">
                       {QUIZ_TYPE_LABEL[quiz.quizType]}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[#e2e2e2] text-sm leading-relaxed line-clamp-2">{quiz.question}</p>
+                    <p className="text-[var(--text-primary)] text-sm leading-relaxed line-clamp-2">{quiz.question}</p>
                     {quiz.quizType === 'ox' && quiz.oxAnswer && (
-                      <p className="text-[#75716e] text-xs mt-1">정답: <span className="text-orange-400 font-bold">{quiz.oxAnswer}</span></p>
+                      <p className="text-[var(--text-subtle)] text-xs mt-1">정답: <span className="text-orange-400 font-bold">{quiz.oxAnswer}</span></p>
                     )}
                     {quiz.quizType === 'multiple_choice' && quiz.options && quiz.correctOptionIndex !== undefined && (
-                      <p className="text-[#75716e] text-xs mt-1">
+                      <p className="text-[var(--text-subtle)] text-xs mt-1">
                         정답: <span className="text-orange-400">{['①', '②', '③', '④'][quiz.correctOptionIndex]} {quiz.options[quiz.correctOptionIndex]}</span>
                       </p>
                     )}
                     {quiz.imageUrl && (
-                      <span className="inline-block text-[10px] text-[#75716e] mt-1">📷 이미지 첨부됨</span>
+                      <span className="inline-block text-[10px] text-[var(--text-subtle)] mt-1">📷 이미지 첨부됨</span>
                     )}
                   </div>
                   <button
                     onClick={() => handleDelete(quiz.id)}
                     disabled={deletingId === quiz.id}
-                    className="shrink-0 text-[#75716e] hover:text-red-400 transition-colors text-sm disabled:opacity-40 pt-0.5"
+                    className="shrink-0 text-[var(--text-subtle)] hover:text-red-400 transition-colors text-sm disabled:opacity-40 pt-0.5"
                     title="삭제"
                   >
                     {deletingId === quiz.id ? '...' : '🗑'}

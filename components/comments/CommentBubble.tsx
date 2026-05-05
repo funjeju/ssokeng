@@ -21,7 +21,7 @@ export default function CommentBubble({ sessionId, segmentId, segmentLabel, init
         className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium transition-all border ${
           count > 0
             ? 'bg-orange-500/10 border-orange-500/25 text-orange-300 hover:bg-orange-500/20'
-            : 'bg-white/5 border-transparent text-[#75716e] hover:bg-orange-500/10 hover:text-orange-300 hover:border-orange-500/20'
+            : 'bg-[var(--overlay-subtle)] border-transparent text-[var(--text-subtle)] hover:bg-orange-500/10 hover:text-orange-300 hover:border-orange-500/20'
         }`}
         title={`"${segmentLabel}" 에 댓글 달기`}
       >

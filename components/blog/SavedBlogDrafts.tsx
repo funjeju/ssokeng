@@ -83,8 +83,8 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
 
   return (
     <div className="fixed inset-0 z-[150] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-[#1c1a18] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
-        <div className="shrink-0 flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/5">
+      <div className="bg-[var(--bg-base)] border border-[var(--border-default)] rounded-3xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="shrink-0 flex items-center justify-between px-6 pt-6 pb-4 border-b border-[var(--border-subtle)]">
           <div>
             <h2 className="text-white font-bold text-base line-clamp-1">{draft.seo_title}</h2>
             <p className="text-zinc-500 text-xs mt-0.5">{draft.channel} · 읽는 시간 약 {draft.reading_time}분</p>
@@ -94,7 +94,7 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
 
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
           {/* 탭 */}
-          <div className="flex gap-1.5 p-1 bg-white/5 rounded-xl">
+          <div className="flex gap-1.5 p-1 bg-[var(--overlay-subtle)] rounded-xl">
             {([
               { id: 'preview', label: '👁 미리보기' },
               { id: 'html',    label: '🌐 HTML 복사' },
@@ -113,7 +113,7 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
           </div>
 
           {/* SEO 메타 */}
-          <div className="bg-white/3 border border-white/8 rounded-2xl p-4 space-y-2 text-xs">
+          <div className="bg-white/3 border border-[var(--border-default)] rounded-2xl p-4 space-y-2 text-xs">
             <div className="flex items-start gap-2">
               <span className="shrink-0 text-orange-400 font-bold w-20">SEO 제목</span>
               <span className="text-zinc-200">{draft.seo_title}</span>
@@ -148,21 +148,21 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
             </div>
           )}
           {tab === 'html' && (
-            <pre className="bg-zinc-900 border border-white/10 rounded-2xl p-4 text-[10px] text-zinc-400 overflow-x-auto leading-relaxed max-h-64 whitespace-pre-wrap">
+            <pre className="bg-zinc-900 border border-[var(--border-default)] rounded-2xl p-4 text-[10px] text-zinc-400 overflow-x-auto leading-relaxed max-h-64 whitespace-pre-wrap">
               {buildHtml(draft)}
             </pre>
           )}
           {tab === 'text' && (
-            <pre className="bg-zinc-900 border border-white/10 rounded-2xl p-4 text-[10px] text-zinc-400 overflow-x-auto leading-relaxed max-h-64 whitespace-pre-wrap">
+            <pre className="bg-zinc-900 border border-[var(--border-default)] rounded-2xl p-4 text-[10px] text-zinc-400 overflow-x-auto leading-relaxed max-h-64 whitespace-pre-wrap">
               {buildPlainText(draft)}
             </pre>
           )}
         </div>
 
-        <div className="shrink-0 flex gap-2 px-6 py-4 border-t border-white/5">
+        <div className="shrink-0 flex gap-2 px-6 py-4 border-t border-[var(--border-subtle)]">
           <Link
             href={`/result/${draft.sessionId}`}
-            className="px-4 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 text-xs flex items-center transition-colors"
+            className="px-4 h-10 rounded-xl bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 text-xs flex items-center transition-colors"
           >
             원본 영상 →
           </Link>
@@ -170,7 +170,7 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
           <button
             onClick={() => copy('text')}
             className={`px-4 h-10 rounded-xl text-xs font-bold transition-colors ${
-              copied === 'text' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-white/5 hover:bg-white/10 text-zinc-300'
+              copied === 'text' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-300'
             }`}
           >
             {copied === 'text' ? '✓ 복사됨' : '📋 텍스트 복사'}
@@ -225,7 +225,7 @@ export default function SavedBlogDrafts({ userId }: { userId: string }) {
 
   if (drafts.length === 0) {
     return (
-      <div className="text-center py-16 text-[#75716e]">
+      <div className="text-center py-16 text-[var(--text-subtle)]">
         <p className="text-4xl mb-3">✍️</p>
         <p className="font-medium text-white mb-1">저장된 블로그 초안이 없습니다</p>
         <p className="text-sm">요약 결과 페이지에서 블로그 초안을 생성하고 저장해보세요.</p>
@@ -239,10 +239,10 @@ export default function SavedBlogDrafts({ userId }: { userId: string }) {
         {drafts.map(draft => (
           <div
             key={draft.id}
-            className="group bg-[#32302e] border border-white/5 hover:border-white/15 rounded-2xl overflow-hidden transition-all cursor-pointer"
+            className="group bg-[var(--bg-elevated)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] rounded-2xl overflow-hidden transition-all cursor-pointer"
             onClick={() => setViewDraft(draft)}
           >
-            <div className="relative overflow-hidden bg-[#23211f]">
+            <div className="relative overflow-hidden bg-[var(--bg-surface)]">
               <img
                 src={draft.thumbnail}
                 alt={draft.seo_title}
@@ -282,7 +282,7 @@ export default function SavedBlogDrafts({ userId }: { userId: string }) {
               </div>
               <div className="flex flex-wrap gap-1 mt-2">
                 {draft.tags.slice(0, 3).map(t => (
-                  <span key={t} className="px-1.5 py-0.5 bg-[#23211f] border border-white/5 rounded text-[10px] text-zinc-500">
+                  <span key={t} className="px-1.5 py-0.5 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded text-[10px] text-zinc-500">
                     #{t}
                   </span>
                 ))}

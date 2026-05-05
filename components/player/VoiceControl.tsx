@@ -296,16 +296,16 @@ export default function VoiceControl({ playerRef, steps }: Props) {
     <div className="fixed bottom-6 left-6 z-50 flex flex-col items-start gap-2">
       {/* 피드백 버블 */}
       {(transcript || feedback) && (
-        <div className="bg-[#1c1a18] border border-white/15 rounded-2xl px-3.5 py-2.5 shadow-2xl max-w-[240px] space-y-0.5 animate-in fade-in slide-in-from-bottom-2 duration-150">
-          {transcript && <p className="text-[#75716e] text-[11px] leading-snug">"{transcript}"</p>}
+        <div className="bg-[var(--bg-base)] border border-[var(--border-strong)] rounded-2xl px-3.5 py-2.5 shadow-2xl max-w-[240px] space-y-0.5 animate-in fade-in slide-in-from-bottom-2 duration-150">
+          {transcript && <p className="text-[var(--text-subtle)] text-[11px] leading-snug">"{transcript}"</p>}
           {feedback    && <p className="text-white text-xs font-medium leading-snug">{feedback}</p>}
         </div>
       )}
 
       {/* 영상 끊김 안내 */}
       {active && !feedback && !transcript && (
-        <div className="bg-[#1c1a18] border border-orange-500/10 rounded-2xl px-3 py-2 max-w-[200px]">
-          <p className="text-[#75716e] text-[10px] leading-snug">영상이 끊기면 YouTube 플레이어 음소거 후 사용하세요</p>
+        <div className="bg-[var(--bg-base)] border border-orange-500/10 rounded-2xl px-3 py-2 max-w-[200px]">
+          <p className="text-[var(--text-subtle)] text-[10px] leading-snug">영상이 끊기면 YouTube 플레이어 음소거 후 사용하세요</p>
         </div>
       )}
 
@@ -313,14 +313,14 @@ export default function VoiceControl({ playerRef, steps }: Props) {
         onClick={handleMicClick}
         className={`w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-200 ${
           permission === 'denied'
-            ? 'bg-[#32302e] border border-red-500/30 opacity-60'
+            ? 'bg-[var(--bg-elevated)] border border-red-500/30 opacity-60'
             : listening
             ? 'bg-red-500 scale-110 shadow-red-500/30'
             : active
             ? 'bg-orange-500/20 border border-orange-500/40 animate-pulse'
             : permission === 'requesting'
             ? 'bg-orange-500/20 border border-orange-500/40 animate-pulse'
-            : 'bg-[#32302e] hover:bg-[#3d3a38] border border-white/10 hover:border-orange-500/40'
+            : 'bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] border border-[var(--border-default)] hover:border-orange-500/40'
         }`}
         title={
           permission === 'denied'     ? '마이크 권한이 차단됨' :
@@ -343,14 +343,14 @@ export default function VoiceControl({ playerRef, steps }: Props) {
             </svg>
           </span>
         ) : (
-          <svg className={`w-6 h-6 ${active ? 'text-orange-300' : 'text-[#a4a09c]'}`} fill="currentColor" viewBox="0 0 24 24">
+          <svg className={`w-6 h-6 ${active ? 'text-orange-300' : 'text-[var(--text-muted)]'}`} fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
             <path d="M19 10v2a7 7 0 0 1-14 0v-2H3v2a9 9 0 0 0 8 8.94V23h2v-2.06A9 9 0 0 0 21 12v-2h-2z"/>
           </svg>
         )}
       </button>
 
-      <p className="text-[#75716e] text-[10px] pl-1">
+      <p className="text-[var(--text-subtle)] text-[10px] pl-1">
         {permission === 'denied'     ? '🔒 권한 차단됨' :
          listening                   ? '🔴 듣는 중...' :
          active                      ? '🟠 대기 중' :

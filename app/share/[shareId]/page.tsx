@@ -50,7 +50,7 @@ export default function SharePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#252423] font-sans">
+    <div className="min-h-screen bg-[var(--bg-page)] font-sans">
       <Header title="공유 폴더" />
       <div className="max-w-2xl mx-auto px-4 py-10">
 
@@ -71,7 +71,7 @@ export default function SharePage() {
         {shared && !error && (
           <div className="space-y-6">
             {/* 폴더 헤더 */}
-            <div className="bg-[#32302e] rounded-[24px] border border-white/10 p-6">
+            <div className="bg-[var(--bg-elevated)] rounded-[24px] border border-[var(--border-default)] p-6">
               <div className="flex items-start gap-4">
                 <div className="w-14 h-14 rounded-2xl bg-orange-500/20 flex items-center justify-center text-2xl shrink-0">
                   📁
@@ -80,13 +80,13 @@ export default function SharePage() {
                   <h1 className="text-xl font-bold text-white truncate">{shared.folderName}</h1>
                   <div className="flex items-center gap-2 mt-1.5">
                     {shared.ownerPhotoURL ? (
-                      <img src={shared.ownerPhotoURL} alt="" className="w-5 h-5 rounded-full border border-white/10" />
+                      <img src={shared.ownerPhotoURL} alt="" className="w-5 h-5 rounded-full border border-[var(--border-default)]" />
                     ) : (
-                      <div className="w-5 h-5 rounded-full bg-[#3d3a38] flex items-center justify-center text-[9px]">👤</div>
+                      <div className="w-5 h-5 rounded-full bg-[var(--bg-elevated-2)] flex items-center justify-center text-[9px]">👤</div>
                     )}
-                    <span className="text-[#a4a09c] text-sm">{shared.ownerName}님이 공유한 폴더</span>
+                    <span className="text-[var(--text-muted)] text-sm">{shared.ownerName}님이 공유한 폴더</span>
                   </div>
-                  <p className="text-[#75716e] text-xs mt-1">영상 {shared.items.length}개</p>
+                  <p className="text-[var(--text-subtle)] text-xs mt-1">영상 {shared.items.length}개</p>
                 </div>
               </div>
 
@@ -113,7 +113,7 @@ export default function SharePage() {
                   >
                     {copying ? (
                       <>
-                        <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                        <div className="w-4 h-4 rounded-full border-2 border-[var(--border-emphasis)] border-t-white animate-spin" />
                         복사 중...
                       </>
                     ) : (
@@ -122,7 +122,7 @@ export default function SharePage() {
                   </button>
                 )}
                 {!user && (
-                  <p className="text-[#75716e] text-xs text-center mt-2">
+                  <p className="text-[var(--text-subtle)] text-xs text-center mt-2">
                     비로그인 상태로 추가하면 로그인 후 기기가 달라질 때 보이지 않을 수 있어요
                   </p>
                 )}
@@ -131,26 +131,26 @@ export default function SharePage() {
 
             {/* 영상 목록 */}
             <div className="space-y-2">
-              <p className="text-[#75716e] text-xs px-1">포함된 영상</p>
+              <p className="text-[var(--text-subtle)] text-xs px-1">포함된 영상</p>
               {shared.items.map((item, i) => (
                 <div
                   key={item.sessionId}
-                  className="flex items-center gap-3 bg-[#32302e] rounded-2xl border border-white/5 p-3 hover:border-white/15 transition-colors"
+                  className="flex items-center gap-3 bg-[var(--bg-elevated)] rounded-2xl border border-[var(--border-subtle)] p-3 hover:border-[var(--border-strong)] transition-colors"
                 >
-                  <span className="text-[#75716e] text-xs w-5 text-right shrink-0">{i + 1}</span>
+                  <span className="text-[var(--text-subtle)] text-xs w-5 text-right shrink-0">{i + 1}</span>
                   {item.thumbnail ? (
-                    <img src={item.thumbnail} alt="" className="w-16 h-10 object-cover rounded-lg shrink-0 bg-[#23211f]" />
+                    <img src={item.thumbnail} alt="" className="w-16 h-10 object-cover rounded-lg shrink-0 bg-[var(--bg-surface)]" />
                   ) : (
-                    <div className="w-16 h-10 rounded-lg bg-[#23211f] shrink-0 flex items-center justify-center text-lg">📄</div>
+                    <div className="w-16 h-10 rounded-lg bg-[var(--bg-surface)] shrink-0 flex items-center justify-center text-lg">📄</div>
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="text-white text-xs font-medium line-clamp-1">{item.title}</p>
-                    <p className="text-[#75716e] text-[10px] mt-0.5 flex items-center gap-1">
+                    <p className="text-[var(--text-subtle)] text-[10px] mt-0.5 flex items-center gap-1">
                       <span>{CATEGORY_LABEL[item.category] ?? item.category}</span>
                       {item.channel && <><span>·</span><span className="truncate">{item.channel}</span></>}
                     </p>
                     {item.contextSummary && (
-                      <p className="text-[#75716e] text-[9px] mt-1 line-clamp-2 leading-relaxed">{item.contextSummary}</p>
+                      <p className="text-[var(--text-subtle)] text-[9px] mt-1 line-clamp-2 leading-relaxed">{item.contextSummary}</p>
                     )}
                   </div>
                 </div>

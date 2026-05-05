@@ -17,7 +17,7 @@ export default function ClassroomSetupPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#1a1918] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-orange-500" />
       </div>
     )
@@ -25,7 +25,7 @@ export default function ClassroomSetupPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#1a1918] flex flex-col items-center justify-center p-6 text-center">
+      <div className="min-h-screen bg-[var(--bg-base)] flex flex-col items-center justify-center p-6 text-center">
         <p className="text-white mb-4">로그인이 필요합니다.</p>
         <Link href="/" className="text-orange-400 underline">홈으로</Link>
       </div>
@@ -63,10 +63,10 @@ export default function ClassroomSetupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1a1918] text-white">
+    <div className="min-h-screen bg-[var(--bg-base)] text-white">
       <Header title="🏫 클래스 만들기" />
       <main className="max-w-lg mx-auto px-4 py-12">
-        <div className="bg-[#23211f] rounded-[28px] border border-white/10 p-8">
+        <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] p-8">
           <h1 className="text-2xl font-black mb-2">새 클래스 개설</h1>
           <p className="text-gray-400 text-sm mb-8">학교·학년·반 정보를 입력하면 학생들과 공유할 고유 코드가 발급됩니다.</p>
 
@@ -78,7 +78,7 @@ export default function ClassroomSetupPage() {
                 value={schoolName}
                 onChange={e => setSchoolName(e.target.value)}
                 placeholder="예) 제주초등학교"
-                className="w-full bg-[#1a1918] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"
+                className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -87,7 +87,7 @@ export default function ClassroomSetupPage() {
                 <select
                   value={grade}
                   onChange={e => setGrade(e.target.value)}
-                  className="w-full bg-[#1a1918] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"
+                  className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"
                 >
                   <option value="">선택</option>
                   {[1,2,3,4,5,6].map(g => <option key={g} value={g}>{g}학년</option>)}
@@ -98,7 +98,7 @@ export default function ClassroomSetupPage() {
                 <select
                   value={classNum}
                   onChange={e => setClassNum(e.target.value)}
-                  className="w-full bg-[#1a1918] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"
+                  className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"
                 >
                   <option value="">선택</option>
                   {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n}반</option>)}

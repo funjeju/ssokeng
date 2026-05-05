@@ -16,11 +16,11 @@ function DetailModal({ item, onClose }: { item: SavedItinerary; onClose: () => v
       onClick={onClose}
     >
       <div
-        className="bg-[#1c1a18] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl"
+        className="bg-[var(--bg-base)] border border-[var(--border-default)] rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
         {/* 헤더 */}
-        <div className="shrink-0 flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/5">
+        <div className="shrink-0 flex items-center justify-between px-6 pt-6 pb-4 border-b border-[var(--border-subtle)]">
           <div>
             <h2 className="text-white font-bold text-base">
               {item.regionEmoji} {item.regionName} 여행 일정
@@ -69,7 +69,7 @@ function DetailModal({ item, onClose }: { item: SavedItinerary; onClose: () => v
                     className={`flex gap-3 rounded-2xl p-3 ${
                       slot.isRecommended
                         ? 'bg-cyan-500/5 border border-cyan-500/15'
-                        : 'bg-white/4 border border-white/5'
+                        : 'bg-[var(--overlay-subtle)] border border-[var(--border-subtle)]'
                     }`}
                   >
                     <div className="shrink-0 w-16 text-right">
@@ -92,7 +92,7 @@ function DetailModal({ item, onClose }: { item: SavedItinerary; onClose: () => v
           ))}
 
           {item.result.transport_tips && (
-            <div className="bg-white/4 border border-white/8 rounded-2xl px-4 py-3">
+            <div className="bg-[var(--overlay-subtle)] border border-[var(--border-default)] rounded-2xl px-4 py-3">
               <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider mb-1">🚗 이동 팁</p>
               <p className="text-zinc-300 text-sm leading-relaxed">{item.result.transport_tips}</p>
             </div>
@@ -106,7 +106,7 @@ function DetailModal({ item, onClose }: { item: SavedItinerary; onClose: () => v
           )}
         </div>
 
-        <div className="shrink-0 px-6 py-4 border-t border-white/5">
+        <div className="shrink-0 px-6 py-4 border-t border-[var(--border-subtle)]">
           <button
             onClick={onClose}
             className="px-6 h-10 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold transition-colors"
@@ -168,12 +168,12 @@ export default function SavedItineraries({ userId }: { userId: string }) {
           <button
             key={item.id}
             onClick={() => setSelected(item)}
-            className="group text-left bg-[#2a2826] border border-white/8 hover:border-orange-500/30 rounded-2xl p-4 transition-all hover:-translate-y-0.5 relative"
+            className="group text-left bg-[var(--bg-surface-2)] border border-[var(--border-default)] hover:border-orange-500/30 rounded-2xl p-4 transition-all hover:-translate-y-0.5 relative"
           >
             {/* 삭제 버튼 */}
             <button
               onClick={e => handleDelete(e, item.id)}
-              className="absolute top-3 right-3 w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100 text-xs"
+              className="absolute top-3 right-3 w-7 h-7 rounded-lg bg-[var(--overlay-subtle)] flex items-center justify-center text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100 text-xs"
             >
               ✕
             </button>

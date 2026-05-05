@@ -42,7 +42,7 @@ export default function ReviewBanner({ studentId }: Props) {
 
   return (
     <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 w-[calc(100vw-2rem)] max-w-md animate-in slide-in-from-bottom-4 duration-300">
-      <div className="bg-[#1c1a18] border border-orange-500/30 rounded-2xl shadow-2xl px-4 py-3">
+      <div className="bg-[var(--bg-base)] border border-orange-500/30 rounded-2xl shadow-2xl px-4 py-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <span className="text-xl shrink-0">🔔</span>
@@ -61,11 +61,11 @@ export default function ReviewBanner({ studentId }: Props) {
           {videos.slice(0, 3).map(v => (
             <Link
               key={v.sessionId}
-              href={`/result/${v.sessionId}`}
+              href={`/result/${v.sessionId}?reviewMode=1`}
               className="flex items-center justify-between px-3 py-2 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 transition-colors"
             >
               <span className="text-xs text-white truncate flex-1">{v.videoTitle || '영상 보기'}</span>
-              <span className="shrink-0 text-[10px] text-orange-400 font-bold ml-2">{v.count}문제 →</span>
+              <span className="shrink-0 text-[10px] text-orange-400 font-bold ml-2">{v.count}문제 복습 →</span>
             </Link>
           ))}
           {videos.length > 3 && (

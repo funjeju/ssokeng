@@ -323,13 +323,13 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
 
   // ── 렌더: 로딩 / 오류 ────────────────────────────────────────────────────────
   if (loading) return (
-    <div className="min-h-screen bg-[#1c1a18] flex items-center justify-center">
+    <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
       <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-orange-500" />
     </div>
   )
 
   if (error && !room) return (
-    <div className="min-h-screen bg-[#1c1a18] flex items-center justify-center text-white">
+    <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center text-white">
       <div className="text-center space-y-4">
         <p className="text-3xl">😢</p>
         <p>{error}</p>
@@ -340,23 +340,23 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
 
   // ── 렌더: 비밀번호 입력 ──────────────────────────────────────────────────────
   if (room && !joined) return (
-    <div className="min-h-screen bg-[#1c1a18] flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-[#252423] rounded-3xl border border-white/10 p-7 space-y-5">
+    <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center p-4">
+      <div className="w-full max-w-sm bg-[var(--bg-page)] rounded-3xl border border-[var(--border-default)] p-7 space-y-5">
         <div className="text-center space-y-1">
           <p className="text-2xl">🎬</p>
           <h2 className="text-white font-bold text-lg">{room.title}</h2>
-          <p className="text-[#75716e] text-sm">{room.hostName}님의 시청파티</p>
+          <p className="text-[var(--text-subtle)] text-sm">{room.hostName}님의 시청파티</p>
         </div>
         {room.password && (
           <div className="space-y-2">
-            <label className="text-[#a4a09c] text-xs font-semibold">비밀번호</label>
+            <label className="text-[var(--text-muted)] text-xs font-semibold">비밀번호</label>
             <input
               type="password"
               value={pwInput}
               onChange={e => setPwInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleJoin()}
               placeholder="비밀번호를 입력하세요"
-              className="w-full h-10 px-3 bg-[#32302e] border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-orange-500/50"
+              className="w-full h-10 px-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl text-white text-sm focus:outline-none focus:border-orange-500/50"
             />
           </div>
         )}
@@ -378,13 +378,13 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
 
   // ── 렌더: 메인 룸 ────────────────────────────────────────────────────────────
   return (
-    <div className={`${onClose ? 'fixed inset-0 z-[200]' : 'min-h-screen'} bg-[#1c1a18] text-white flex flex-col`}>
+    <div className={`${onClose ? 'fixed inset-0 z-[200]' : 'min-h-screen'} bg-[var(--bg-base)] text-white flex flex-col`}>
       {/* 상단 헤더 */}
-      <div className="shrink-0 h-12 flex items-center gap-3 px-4 bg-[#1c1a18] border-b border-white/10 z-30">
+      <div className="shrink-0 h-12 flex items-center gap-3 px-4 bg-[var(--bg-base)] border-b border-[var(--border-default)] z-30">
         <span className="text-orange-500 font-black text-sm">NC</span>
         <span className="text-white/60 text-sm">|</span>
         <h1 className="text-white text-sm font-semibold truncate flex-1">{room.title}</h1>
-        <span className="text-[#75716e] text-xs shrink-0">{participants.length}명 시청 중</span>
+        <span className="text-[var(--text-subtle)] text-xs shrink-0">{participants.length}명 시청 중</span>
 
         {/* 초대 링크 */}
         <button
@@ -393,7 +393,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
             navigator.clipboard.writeText(inviteUrl)
             alert('초대 링크 복사됨!')
           }}
-          className="shrink-0 px-3 h-8 rounded-lg bg-[#32302e] hover:bg-[#3d3a38] text-xs text-[#a4a09c] hover:text-white transition-colors flex items-center gap-1.5"
+          className="shrink-0 px-3 h-8 rounded-lg bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-xs text-[var(--text-muted)] hover:text-white transition-colors flex items-center gap-1.5"
         >
           🔗 초대
         </button>
@@ -441,37 +441,37 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
 
           {/* 호스트 컨트롤바 */}
           {isHost && (
-            <div className="shrink-0 flex items-center gap-2 px-4 py-3 bg-[#252423] border-t border-white/5 flex-wrap">
+            <div className="shrink-0 flex items-center gap-2 px-4 py-3 bg-[var(--bg-page)] border-t border-[var(--border-subtle)] flex-wrap">
               <button
                 onClick={() => { playerRef.current?.playVideo(); pushSync(true) }}
                 className="px-3 h-8 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition-colors"
               >▶ 재생</button>
               <button
                 onClick={() => { playerRef.current?.pauseVideo(); pushSync(false) }}
-                className="px-3 h-8 rounded-lg bg-[#32302e] hover:bg-[#3d3a38] text-white text-xs transition-colors"
+                className="px-3 h-8 rounded-lg bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-white text-xs transition-colors"
               >⏸ 일시정지</button>
               {[0.5, 0.75, 1, 1.25, 1.5].map(r => (
                 <button key={r}
                   onClick={() => { playerRef.current?.setPlaybackRate(r); pushSync(room.playerState.playing) }}
-                  className="px-2 h-8 rounded-lg bg-[#32302e] hover:bg-[#3d3a38] text-[#a4a09c] hover:text-white text-xs transition-colors"
+                  className="px-2 h-8 rounded-lg bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-[var(--text-muted)] hover:text-white text-xs transition-colors"
                 >{r}x</button>
               ))}
               <span className="flex-1" />
-              <span className="text-[#75716e] text-[10px]">🎙 방장 제어 중</span>
+              <span className="text-[var(--text-subtle)] text-[10px]">🎙 방장 제어 중</span>
             </div>
           )}
 
           {/* 하단 액션 버튼 (모든 참여자) */}
-          <div className="shrink-0 flex items-center gap-2 px-4 py-3 bg-[#1c1a18] border-t border-white/5 flex-wrap">
+          <div className="shrink-0 flex items-center gap-2 px-4 py-3 bg-[var(--bg-base)] border-t border-[var(--border-subtle)] flex-wrap">
 
             {/* 이모지 반응 */}
             <div className="relative">
               <button
                 onClick={() => setShowEmojiPicker(v => !v)}
-                className="px-3 h-9 rounded-xl bg-[#32302e] hover:bg-[#3d3a38] text-sm transition-colors"
+                className="px-3 h-9 rounded-xl bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-sm transition-colors"
               >😀 반응</button>
               {showEmojiPicker && (
-                <div className="absolute bottom-12 left-0 flex gap-1.5 bg-[#23211f] border border-white/10 rounded-2xl p-2 shadow-2xl z-20">
+                <div className="absolute bottom-12 left-0 flex gap-1.5 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl p-2 shadow-2xl z-20">
                   {EMOJIS.map(e => (
                     <button key={e} onClick={() => handleEmoji(e)}
                       className="text-2xl hover:scale-125 transition-transform"
@@ -484,7 +484,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
             {/* 메모하기 */}
             <button
               onClick={openNoteModal}
-              className="px-3 h-9 rounded-xl bg-[#32302e] hover:bg-[#3d3a38] text-xs text-[#a4a09c] hover:text-white transition-colors flex items-center gap-1.5"
+              className="px-3 h-9 rounded-xl bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-xs text-[var(--text-muted)] hover:text-white transition-colors flex items-center gap-1.5"
             >
               📝 메모
             </button>
@@ -493,7 +493,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
-              className="px-3 h-9 rounded-xl bg-[#32302e] hover:bg-[#3d3a38] text-xs text-[#a4a09c] hover:text-white transition-colors flex items-center gap-1.5 disabled:opacity-50"
+              className="px-3 h-9 rounded-xl bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-xs text-[var(--text-muted)] hover:text-white transition-colors flex items-center gap-1.5 disabled:opacity-50"
             >
               {uploading ? '업로드 중...' : '📎 파일'}
             </button>
@@ -503,7 +503,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
             {isHost && (
               <button
                 onClick={() => setShowPollCreate(true)}
-                className="px-3 h-9 rounded-xl bg-[#32302e] hover:bg-[#3d3a38] text-xs text-[#a4a09c] hover:text-white transition-colors flex items-center gap-1.5"
+                className="px-3 h-9 rounded-xl bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-xs text-[var(--text-muted)] hover:text-white transition-colors flex items-center gap-1.5"
               >
                 📊 투표
               </button>
@@ -517,7 +517,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
                 className={`px-3 h-9 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 ${
                   voiceActive
                     ? 'bg-red-500/20 text-red-300 border border-red-500/30 animate-pulse'
-                    : 'bg-[#32302e] hover:bg-[#3d3a38] text-[#a4a09c] hover:text-white'
+                    : 'bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-[var(--text-muted)] hover:text-white'
                 } disabled:opacity-50`}
               >
                 🎙 {voiceLoading ? '연결 중...' : voiceActive ? '음성 OFF' : '음성 ON'}
@@ -538,7 +538,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
               className={`px-3 h-9 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 ${
                 myHandRaised
                   ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
-                  : 'bg-[#32302e] hover:bg-[#3d3a38] text-[#a4a09c] hover:text-white'
+                  : 'bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-[var(--text-muted)] hover:text-white'
               }`}
             >
               ✋ {myHandRaised ? '손 내리기' : '손들기'}
@@ -546,19 +546,19 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
           </div>
 
           {/* ── 모바일 채팅 (md 이상 사이드바로 대체) ── */}
-          <div className="md:hidden flex flex-col border-t border-white/10">
-            <div className="shrink-0 flex items-center gap-2 px-4 py-2 bg-[#252423] border-b border-white/10">
-              <span className="text-xs font-semibold text-[#a4a09c]">💬 채팅</span>
-              <span className="text-[10px] text-[#75716e]">{messages.filter(m => m.type === 'chat' || m.type === 'emoji' || m.type === 'note').length}개</span>
+          <div className="md:hidden flex flex-col border-t border-[var(--border-default)]">
+            <div className="shrink-0 flex items-center gap-2 px-4 py-2 bg-[var(--bg-page)] border-b border-[var(--border-default)]">
+              <span className="text-xs font-semibold text-[var(--text-muted)]">💬 채팅</span>
+              <span className="text-[10px] text-[var(--text-subtle)]">{messages.filter(m => m.type === 'chat' || m.type === 'emoji' || m.type === 'note').length}개</span>
             </div>
-            <div className="h-52 overflow-y-auto p-3 space-y-2 bg-[#252423]">
+            <div className="h-52 overflow-y-auto p-3 space-y-2 bg-[var(--bg-page)]">
               {messages.map(msg => {
                 if (msg.type === 'system') return (
-                  <p key={msg.id} className="text-center text-[#75716e] text-[10px] py-1">{msg.content}</p>
+                  <p key={msg.id} className="text-center text-[var(--text-subtle)] text-[10px] py-1">{msg.content}</p>
                 )
                 if (msg.type === 'emoji') return (
                   <div key={msg.id} className="flex items-center gap-1.5">
-                    <span className="text-[#75716e] text-[10px]">{msg.displayName}</span>
+                    <span className="text-[var(--text-subtle)] text-[10px]">{msg.displayName}</span>
                     <span className="text-xl">{msg.content}</span>
                   </div>
                 )
@@ -570,9 +570,9 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
                 )
                 if (msg.type === 'file') return (
                   <div key={msg.id} className="space-y-0.5">
-                    <p className="text-[#75716e] text-[9px]">{msg.displayName}</p>
+                    <p className="text-[var(--text-subtle)] text-[9px]">{msg.displayName}</p>
                     <a href={msg.fileUrl} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-3 py-2 bg-[#32302e] border border-white/10 rounded-xl transition-colors">
+                      className="flex items-center gap-2 px-3 py-2 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl transition-colors">
                       <span className="text-xl shrink-0">
                         {msg.fileType?.startsWith('image/') ? '🖼️' :
                          msg.fileType?.startsWith('video/') ? '🎬' :
@@ -586,12 +586,12 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
                 return (
                   <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} gap-2`}>
                     {!isMe && (
-                      <div className="w-6 h-6 rounded-full bg-[#3d3a38] shrink-0 mt-0.5 text-[10px] flex items-center justify-center">👤</div>
+                      <div className="w-6 h-6 rounded-full bg-[var(--bg-elevated-2)] shrink-0 mt-0.5 text-[10px] flex items-center justify-center">👤</div>
                     )}
                     <div className="max-w-[80%]">
-                      {!isMe && <p className="text-[#75716e] text-[9px] mb-0.5">{msg.displayName}</p>}
+                      {!isMe && <p className="text-[var(--text-subtle)] text-[9px] mb-0.5">{msg.displayName}</p>}
                       <div className={`px-2.5 py-1.5 rounded-2xl text-xs leading-relaxed ${
-                        isMe ? 'bg-orange-500 text-white rounded-br-sm' : 'bg-[#32302e] text-[#e8e4e0] rounded-bl-sm'
+                        isMe ? 'bg-orange-500 text-white rounded-br-sm' : 'bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-bl-sm'
                       }`}>
                         {msg.content}
                       </div>
@@ -601,14 +601,14 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
               })}
               <div ref={mobileChatBottomRef} />
             </div>
-            <div className="shrink-0 p-2 border-t border-white/10 bg-[#252423]">
+            <div className="shrink-0 p-2 border-t border-[var(--border-default)] bg-[var(--bg-page)]">
               <div className="flex gap-2">
                 <input
                   value={chatInput}
                   onChange={e => setChatInput(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendChat() } }}
                   placeholder="메시지 입력..."
-                  className="flex-1 h-9 px-3 bg-[#32302e] border border-white/10 rounded-xl text-xs text-white placeholder:text-[#75716e] focus:outline-none focus:border-orange-500/50"
+                  className="flex-1 h-9 px-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl text-xs text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50"
                 />
                 <button
                   onClick={handleSendChat}
@@ -625,10 +625,10 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
         </div>
 
         {/* ── 오른쪽: 사이드바 ── */}
-        <div className="w-72 shrink-0 flex flex-col border-l border-white/10 bg-[#252423] hidden md:flex">
+        <div className="w-72 shrink-0 flex flex-col border-l border-[var(--border-default)] bg-[var(--bg-page)] hidden md:flex">
 
           {/* 탭 */}
-          <div className="shrink-0 flex border-b border-white/10">
+          <div className="shrink-0 flex border-b border-[var(--border-default)]">
             {([
               { id: 'chat', label: '💬 채팅' },
               { id: 'participants', label: `👥 ${participants.length}` },
@@ -638,7 +638,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
                 key={tab.id}
                 onClick={() => setSidebarTab(tab.id)}
                 className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${
-                  sidebarTab === tab.id ? 'text-white border-b-2 border-orange-500' : 'text-[#75716e] hover:text-white'
+                  sidebarTab === tab.id ? 'text-white border-b-2 border-orange-500' : 'text-[var(--text-subtle)] hover:text-white'
                 }`}
               >
                 {tab.label}
@@ -652,11 +652,11 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
               <div className="flex-1 overflow-y-auto p-3 space-y-2">
                 {messages.map(msg => {
                   if (msg.type === 'system') return (
-                    <p key={msg.id} className="text-center text-[#75716e] text-[10px] py-1">{msg.content}</p>
+                    <p key={msg.id} className="text-center text-[var(--text-subtle)] text-[10px] py-1">{msg.content}</p>
                   )
                   if (msg.type === 'emoji') return (
                     <div key={msg.id} className="flex items-center gap-1.5">
-                      <span className="text-[#75716e] text-[10px]">{msg.displayName}</span>
+                      <span className="text-[var(--text-subtle)] text-[10px]">{msg.displayName}</span>
                       <span className="text-xl">{msg.content}</span>
                     </div>
                   )
@@ -668,10 +668,10 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
                   )
                   if (msg.type === 'file') return (
                     <div key={msg.id} className="space-y-0.5">
-                      <p className="text-[#75716e] text-[9px]">{msg.displayName}</p>
+                      <p className="text-[var(--text-subtle)] text-[9px]">{msg.displayName}</p>
                       <a
                         href={msg.fileUrl} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-3 py-2 bg-[#32302e] border border-white/10 hover:border-orange-500/40 rounded-xl transition-colors group"
+                        className="flex items-center gap-2 px-3 py-2 bg-[var(--bg-elevated)] border border-[var(--border-default)] hover:border-orange-500/40 rounded-xl transition-colors group"
                       >
                         <span className="text-xl shrink-0">
                           {msg.fileType?.startsWith('image/') ? '🖼️' :
@@ -680,7 +680,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
                         </span>
                         <div className="min-w-0">
                           <p className="text-white text-xs truncate group-hover:text-orange-400">{msg.content}</p>
-                          <p className="text-[#75716e] text-[9px]">
+                          <p className="text-[var(--text-subtle)] text-[9px]">
                             {msg.fileSize ? `${(msg.fileSize / 1024).toFixed(0)}KB` : ''}
                           </p>
                         </div>
@@ -693,12 +693,12 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
                       {!isMe && (
                         msg.photoURL
                           ? <img src={msg.photoURL} className="w-6 h-6 rounded-full shrink-0 mt-0.5" alt="" />
-                          : <div className="w-6 h-6 rounded-full bg-[#3d3a38] shrink-0 mt-0.5 text-[10px] flex items-center justify-center">👤</div>
+                          : <div className="w-6 h-6 rounded-full bg-[var(--bg-elevated-2)] shrink-0 mt-0.5 text-[10px] flex items-center justify-center">👤</div>
                       )}
                       <div className="max-w-[80%]">
-                        {!isMe && <p className="text-[#75716e] text-[9px] mb-0.5">{msg.displayName}</p>}
+                        {!isMe && <p className="text-[var(--text-subtle)] text-[9px] mb-0.5">{msg.displayName}</p>}
                         <div className={`px-2.5 py-1.5 rounded-2xl text-xs leading-relaxed ${
-                          isMe ? 'bg-orange-500 text-white rounded-br-sm' : 'bg-[#32302e] text-[#e8e4e0] rounded-bl-sm'
+                          isMe ? 'bg-orange-500 text-white rounded-br-sm' : 'bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-bl-sm'
                         }`}>
                           {msg.content}
                         </div>
@@ -708,14 +708,14 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
                 })}
                 <div ref={chatBottomRef} />
               </div>
-              <div className="shrink-0 p-2 border-t border-white/10">
+              <div className="shrink-0 p-2 border-t border-[var(--border-default)]">
                 <div className="flex gap-2">
                   <input
                     value={chatInput}
                     onChange={e => setChatInput(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendChat() } }}
                     placeholder="메시지 입력..."
-                    className="flex-1 h-9 px-3 bg-[#32302e] border border-white/10 rounded-xl text-xs text-white placeholder:text-[#75716e] focus:outline-none focus:border-orange-500/50"
+                    className="flex-1 h-9 px-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl text-xs text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50"
                   />
                   <button
                     onClick={handleSendChat}
@@ -735,7 +735,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
           {sidebarTab === 'polls' && (
             <div className="flex-1 overflow-y-auto p-3 space-y-3">
               {polls.length === 0 && (
-                <p className="text-[#75716e] text-xs text-center pt-4">
+                <p className="text-[var(--text-subtle)] text-xs text-center pt-4">
                   {isHost ? '📊 아래 버튼으로 투표를 만들어보세요' : '아직 투표가 없습니다'}
                 </p>
               )}
@@ -743,12 +743,12 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
                 const total = poll.results.reduce((a, b) => a + b, 0)
                 const myVote = poll.votes[uid]
                 return (
-                  <div key={poll.id} className={`rounded-2xl border p-3 space-y-2 ${poll.closed ? 'border-white/5 bg-[#1c1a18]' : 'border-orange-500/20 bg-orange-500/5'}`}>
+                  <div key={poll.id} className={`rounded-2xl border p-3 space-y-2 ${poll.closed ? 'border-[var(--border-subtle)] bg-[var(--bg-base)]' : 'border-orange-500/20 bg-orange-500/5'}`}>
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-white text-xs font-semibold leading-snug">{poll.question}</p>
                       {isHost && !poll.closed && (
                         <button onClick={() => closePoll(roomId, poll.id)}
-                          className="shrink-0 text-[10px] text-[#75716e] hover:text-red-400 transition-colors">
+                          className="shrink-0 text-[10px] text-[var(--text-subtle)] hover:text-red-400 transition-colors">
                           종료
                         </button>
                       )}
@@ -769,13 +769,13 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
                               style={{ width: `${pct}%` }} />
                             <div className="relative flex items-center justify-between px-2.5 py-1.5">
                               <span className="text-xs text-white">{opt} {isMyVote && '✓'}</span>
-                              <span className="text-[10px] text-[#a4a09c]">{pct}% ({poll.results[i]})</span>
+                              <span className="text-[10px] text-[var(--text-muted)]">{pct}% ({poll.results[i]})</span>
                             </div>
                           </button>
                         )
                       })}
                     </div>
-                    <p className="text-[#75716e] text-[9px]">
+                    <p className="text-[var(--text-subtle)] text-[9px]">
                       {poll.closed ? '✅ 종료됨' : `총 ${total}표`}
                     </p>
                   </div>
@@ -790,10 +790,10 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
               {participants
                 .sort((a, b) => (b.uid === room.hostUid ? 1 : 0) - (a.uid === room.hostUid ? 1 : 0))
                 .map(p => (
-                  <div key={p.uid} className="flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-[#32302e] transition-colors">
+                  <div key={p.uid} className="flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-[var(--bg-elevated)] transition-colors">
                     {p.photoURL
                       ? <img src={p.photoURL} className="w-8 h-8 rounded-full" alt="" />
-                      : <div className="w-8 h-8 rounded-full bg-[#3d3a38] flex items-center justify-center text-sm">👤</div>
+                      : <div className="w-8 h-8 rounded-full bg-[var(--bg-elevated-2)] flex items-center justify-center text-sm">👤</div>
                     }
                     <div className="flex-1 min-w-0">
                       <p className="text-white text-xs font-medium truncate">{p.displayName}</p>
@@ -810,30 +810,30 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
       {/* 투표 생성 모달 (방장) */}
       {showPollCreate && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#252423] border border-white/10 rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl">
+          <div className="bg-[var(--bg-page)] border border-[var(--border-default)] rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between">
               <h3 className="text-white font-bold">📊 투표 만들기</h3>
-              <button onClick={() => setShowPollCreate(false)} className="text-[#75716e] hover:text-white">✕</button>
+              <button onClick={() => setShowPollCreate(false)} className="text-[var(--text-subtle)] hover:text-white">✕</button>
             </div>
             <input
               value={pollQuestion}
               onChange={e => setPollQuestion(e.target.value)}
               placeholder="투표 질문을 입력하세요"
-              className="w-full h-10 px-3 bg-[#32302e] border border-white/10 rounded-xl text-sm text-white placeholder:text-[#75716e] focus:outline-none focus:border-orange-500/50"
+              className="w-full h-10 px-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50"
             />
             <div className="space-y-2">
-              <p className="text-[#75716e] text-xs">선택지 (최소 2개)</p>
+              <p className="text-[var(--text-subtle)] text-xs">선택지 (최소 2개)</p>
               {pollOptions.map((opt, i) => (
                 <div key={i} className="flex gap-2">
                   <input
                     value={opt}
                     onChange={e => setPollOptions(prev => prev.map((o, j) => j === i ? e.target.value : o))}
                     placeholder={`선택지 ${i + 1}`}
-                    className="flex-1 h-9 px-3 bg-[#32302e] border border-white/10 rounded-xl text-sm text-white placeholder:text-[#75716e] focus:outline-none focus:border-orange-500/50"
+                    className="flex-1 h-9 px-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50"
                   />
                   {pollOptions.length > 2 && (
                     <button onClick={() => setPollOptions(prev => prev.filter((_, j) => j !== i))}
-                      className="text-[#75716e] hover:text-red-400 px-2 transition-colors">✕</button>
+                      className="text-[var(--text-subtle)] hover:text-red-400 px-2 transition-colors">✕</button>
                   )}
                 </div>
               ))}
@@ -846,7 +846,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
             </div>
             <div className="flex gap-2">
               <button onClick={() => setShowPollCreate(false)}
-                className="flex-1 h-11 rounded-xl bg-[#32302e] text-[#a4a09c] text-sm hover:text-white transition-colors">
+                className="flex-1 h-11 rounded-xl bg-[var(--bg-elevated)] text-[var(--text-muted)] text-sm hover:text-white transition-colors">
                 취소
               </button>
               <button onClick={handleCreatePoll}
@@ -862,25 +862,25 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
       {/* 메모 모달 */}
       {noteModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#252423] border border-white/10 rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl">
+          <div className="bg-[var(--bg-page)] border border-[var(--border-default)] rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between">
               <h3 className="text-white font-bold">📝 타임스탬프 메모</h3>
-              <button onClick={() => setNoteModal(false)} className="text-[#75716e] hover:text-white">✕</button>
+              <button onClick={() => setNoteModal(false)} className="text-[var(--text-subtle)] hover:text-white">✕</button>
             </div>
             <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl px-3 py-2">
               <p className="text-orange-400 text-xs font-semibold">⏱ {noteTs} 시점</p>
-              <p className="text-[#75716e] text-[10px] mt-0.5">내 마이페이지에도 저장됩니다</p>
+              <p className="text-[var(--text-subtle)] text-[10px] mt-0.5">내 마이페이지에도 저장됩니다</p>
             </div>
             <textarea
               value={noteText}
               onChange={e => setNoteText(e.target.value)}
               placeholder="이 구간에 대한 메모를 입력하세요..."
               rows={4}
-              className="w-full bg-[#32302e] border border-white/10 rounded-xl p-3 text-sm text-white placeholder:text-[#75716e] focus:outline-none focus:border-orange-500/50 resize-none"
+              className="w-full bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl p-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 resize-none"
             />
             <div className="flex gap-2">
               <button onClick={() => setNoteModal(false)}
-                className="flex-1 h-11 rounded-xl bg-[#32302e] text-[#a4a09c] text-sm hover:text-white transition-colors">
+                className="flex-1 h-11 rounded-xl bg-[var(--bg-elevated)] text-[var(--text-muted)] text-sm hover:text-white transition-colors">
                 취소
               </button>
               <button onClick={handleSaveNote} disabled={!noteText.trim()}

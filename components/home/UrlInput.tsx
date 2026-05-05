@@ -361,11 +361,11 @@ export default function UrlInput() {
 
   return (
     <>
-      <div className="flex flex-col items-start gap-6 w-full max-w-2xl bg-[#32302e]/80 backdrop-blur-3xl px-4 py-6 md:p-10 rounded-[32px] border border-white/5 shadow-2xl">
+      <div className="flex flex-col items-start gap-6 w-full max-w-2xl bg-[var(--bg-elevated)]/80 backdrop-blur-3xl px-4 py-6 md:p-10 rounded-[32px] border border-[var(--border-subtle)] shadow-2xl">
 
         {/* URL 입력 */}
         <div className="flex flex-col gap-4 w-full">
-          <label className="text-[#e8e6e3] text-[15px] font-semibold tracking-wide flex items-center gap-2">
+          <label className="text-[var(--text-primary)] text-[15px] font-semibold tracking-wide flex items-center gap-2">
             영상 주소 입력 <span className="text-orange-400">⚡</span>
           </label>
           <div className="relative group flex flex-col md:flex-row gap-3">
@@ -375,12 +375,12 @@ export default function UrlInput() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-                className="flex-1 h-[56px] text-base pl-5 pr-4 bg-[#1c1a18] border border-white/10 text-white placeholder:text-[#a4a09c] rounded-[20px] focus-visible:ring-1 focus-visible:ring-orange-500/60 shadow-inner transition-all duration-300 hover:border-white/20"
+                className="flex-1 h-[56px] text-base pl-5 pr-4 bg-[var(--bg-base)] border border-[var(--border-default)] text-white placeholder:text-[var(--text-muted)] rounded-[20px] focus-visible:ring-1 focus-visible:ring-orange-500/60 shadow-inner transition-all duration-300 hover:border-[var(--border-strong)]"
               />
               {/* 통합 파일 업로드 버튼 */}
               <div className="relative group/upload">
                 <label
-                  className="shrink-0 h-[56px] w-[56px] flex items-center justify-center rounded-[20px] bg-[#23211f] hover:bg-[#2e2c2a] border border-white/5 hover:border-white/20 cursor-pointer transition-all text-[#75716e] hover:text-white"
+                  className="shrink-0 h-[56px] w-[56px] flex items-center justify-center rounded-[20px] bg-[var(--bg-surface)] hover:bg-[var(--bg-page)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] cursor-pointer transition-all text-[var(--text-subtle)] hover:text-white"
                   title="파일 업로드 (PDF · 음성)"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -394,11 +394,11 @@ export default function UrlInput() {
                   />
                 </label>
                 {/* 호버 툴팁 */}
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/upload:flex flex-col gap-1 bg-[#1c1a18] border border-white/10 rounded-2xl px-3 py-2.5 shadow-xl w-44 text-left z-20 pointer-events-none">
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/upload:flex flex-col gap-1 bg-[var(--bg-base)] border border-[var(--border-default)] rounded-2xl px-3 py-2.5 shadow-xl w-44 text-left z-20 pointer-events-none">
                   <p className="text-white text-[11px] font-semibold mb-0.5">파일 업로드</p>
-                  <p className="text-[#a4a09c] text-[10px]">📄 PDF 문서</p>
-                  <p className="text-[#a4a09c] text-[10px]">🎙 MP3 · WAV · M4A · 등</p>
-                  <p className="text-[#75716e] text-[9px] mt-0.5">최대 30MB</p>
+                  <p className="text-[var(--text-muted)] text-[10px]">📄 PDF 문서</p>
+                  <p className="text-[var(--text-muted)] text-[10px]">🎙 MP3 · WAV · M4A · 등</p>
+                  <p className="text-[var(--text-subtle)] text-[9px] mt-0.5">최대 30MB</p>
                 </div>
               </div>
 
@@ -408,7 +408,7 @@ export default function UrlInput() {
                 className={`shrink-0 h-[56px] w-[56px] flex items-center justify-center rounded-[20px] border transition-all ${
                   recording
                     ? 'bg-red-500/20 border-red-500/40 text-red-400 animate-pulse'
-                    : 'bg-[#23211f] hover:bg-[#2e2c2a] border-white/5 hover:border-white/20 text-[#75716e] hover:text-white'
+                    : 'bg-[var(--bg-surface)] hover:bg-[var(--bg-page)] border-[var(--border-subtle)] hover:border-[var(--border-strong)] text-[var(--text-subtle)] hover:text-white'
                 }`}
                 title={recording ? '녹음 중지 후 분석' : '바로 녹음하기'}
               >
@@ -433,7 +433,7 @@ export default function UrlInput() {
               disabled={!url.trim() || checkingDuration}
               className="h-[56px] md:w-[140px] text-base font-bold tracking-wide rounded-[20px] transition-all duration-150
                          bg-white text-black hover:bg-[#e2e2e2] hover:scale-[1.02] active:scale-[0.94] active:bg-[#d0d0d0]
-                         disabled:bg-white/10 disabled:text-white/30 disabled:cursor-not-allowed disabled:transform-none select-none"
+                         disabled:bg-[var(--overlay-default)] disabled:text-white/30 disabled:cursor-not-allowed disabled:transform-none select-none"
             >
               {checkingDuration ? '확인 중...' : 'Start Now'}
             </Button>
@@ -448,14 +448,14 @@ export default function UrlInput() {
         {/* 카테고리 선택 */}
         <div className="flex flex-col gap-3 w-full">
           <div className="flex items-center justify-between w-full">
-            <p className="text-[#75716e] text-sm font-medium">분석 모드 선택</p>
+            <p className="text-[var(--text-subtle)] text-sm font-medium">분석 모드 선택</p>
             {(() => {
               const auto = CATEGORIES[0]
               const isSelected = selectedCategory === auto.id
               return (
                 <Badge variant="outline" onClick={() => setSelectedCategory(auto.id)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-[14px] text-xs font-medium cursor-pointer transition-all duration-300 group ${
-                    isSelected ? 'border-transparent bg-white text-black' : 'border-transparent bg-[#23211f] text-[#a4a09c] hover:bg-[#3d3a38] hover:text-white'
+                    isSelected ? 'border-transparent bg-white text-black' : 'border-transparent bg-[var(--bg-surface)] text-[var(--text-muted)] hover:bg-[var(--bg-elevated-2)] hover:text-white'
                   }`}
                 >
                   <span className={`text-sm transition-transform ${isSelected ? 'scale-110' : 'group-hover:scale-110'}`}>{auto.icon}</span>
@@ -470,7 +470,7 @@ export default function UrlInput() {
               return (
                 <Badge key={cat.id} variant="outline" onClick={() => setSelectedCategory(cat.id)}
                   className={`flex items-center justify-center gap-1.5 px-2 py-2 md:px-5 md:py-2.5 rounded-[14px] text-xs md:text-sm font-medium cursor-pointer transition-all duration-300 group ${
-                    isSelected ? 'border-transparent bg-white text-black' : 'border-transparent bg-[#23211f] text-[#a4a09c] hover:bg-[#3d3a38] hover:text-white'
+                    isSelected ? 'border-transparent bg-white text-black' : 'border-transparent bg-[var(--bg-surface)] text-[var(--text-muted)] hover:bg-[var(--bg-elevated-2)] hover:text-white'
                   }`}
                 >
                   <span className={`text-sm transition-transform ${isSelected ? 'scale-110' : 'group-hover:scale-110'}`}>{cat.icon}</span>
@@ -487,7 +487,7 @@ export default function UrlInput() {
       {/* 모달들 */}
       {modal && (
         <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#23211f] border border-white/10 rounded-3xl w-full max-w-sm p-7 flex flex-col gap-5 shadow-2xl">
+          <div className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-3xl w-full max-w-sm p-7 flex flex-col gap-5 shadow-2xl">
 
             {/* 비회원 무료 이용 안내 */}
             {modal === 'guest_info' && (
@@ -495,11 +495,11 @@ export default function UrlInput() {
                 <div className="text-center">
                   <div className="text-4xl mb-3">🎬</div>
                   <h2 className="text-lg font-bold text-white mb-2">비회원 무료 체험</h2>
-                  <p className="text-[#a4a09c] text-sm leading-relaxed">
+                  <p className="text-[var(--text-muted)] text-sm leading-relaxed">
                     비회원은 <span className="text-white font-semibold">10분 미만</span> 영상 <span className="text-white font-semibold">1개</span>를 무료로 요약할 수 있습니다.
                   </p>
                 </div>
-                <div className="bg-[#32302e] rounded-2xl p-4 text-xs text-[#75716e] space-y-1.5">
+                <div className="bg-[var(--bg-elevated)] rounded-2xl p-4 text-xs text-[var(--text-subtle)] space-y-1.5">
                   <p>✅ 10분 미만 영상 1개 무료</p>
                   <p>✅ 모든 카테고리 분석 가능</p>
                   <p>🔒 추가 요약은 회원가입 필요</p>
@@ -518,7 +518,7 @@ export default function UrlInput() {
                   >
                     Google로 회원가입 (무제한)
                   </button>
-                  <button onClick={() => setModal(null)} className="text-[#75716e] text-sm hover:text-white transition-colors py-1">
+                  <button onClick={() => setModal(null)} className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1">
                     닫기
                   </button>
                 </div>
@@ -531,7 +531,7 @@ export default function UrlInput() {
                 <div className="text-center">
                   <div className="text-4xl mb-3">⏱️</div>
                   <h2 className="text-lg font-bold text-white mb-2">10분 이상 영상</h2>
-                  <p className="text-[#a4a09c] text-sm leading-relaxed">
+                  <p className="text-[var(--text-muted)] text-sm leading-relaxed">
                     비회원은 <span className="text-white font-semibold">10분 미만</span> 영상만 요약할 수 있습니다.<br />
                     회원가입하면 길이 제한 없이 이용 가능합니다.
                   </p>
@@ -543,7 +543,7 @@ export default function UrlInput() {
                   >
                     Google로 회원가입하기
                   </button>
-                  <button onClick={() => setModal(null)} className="text-[#75716e] text-sm hover:text-white transition-colors py-1">
+                  <button onClick={() => setModal(null)} className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1">
                     닫기
                   </button>
                 </div>
@@ -558,7 +558,7 @@ export default function UrlInput() {
                     {langChoiceData.detectedLang === 'en' ? '🇺🇸' : '🌐'}
                   </div>
                   <h2 className="text-lg font-bold text-white mb-2">원본 언어 감지됨</h2>
-                  <p className="text-[#a4a09c] text-sm leading-relaxed">
+                  <p className="text-[var(--text-muted)] text-sm leading-relaxed">
                     이 영상의 자막은&nbsp;
                     <span className="text-white font-semibold">
                       {langChoiceData.detectedLang === 'en' ? '영어(English)' : '외국어'}
@@ -575,13 +575,13 @@ export default function UrlInput() {
                   </button>
                   <button
                     onClick={() => runSummarizeWithLang('original')}
-                    className="w-full h-12 bg-[#32302e] border border-white/10 text-white font-bold rounded-2xl text-sm hover:bg-[#3d3a38] transition-colors flex items-center justify-center gap-2"
+                    className="w-full h-12 bg-[var(--bg-elevated)] border border-[var(--border-default)] text-white font-bold rounded-2xl text-sm hover:bg-[var(--bg-elevated-2)] transition-colors flex items-center justify-center gap-2"
                   >
                     {langChoiceData.detectedLang === 'en' ? '🇺🇸' : '🌐'}&nbsp;원문 언어로 바로 요약
                   </button>
                   <button
                     onClick={() => { setModal(null); setLangChoiceData(null) }}
-                    className="text-[#75716e] text-sm hover:text-white transition-colors py-1"
+                    className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1"
                   >
                     취소
                   </button>
@@ -595,12 +595,12 @@ export default function UrlInput() {
                 <div className="text-center">
                   <div className="text-4xl mb-3">🔒</div>
                   <h2 className="text-lg font-bold text-white mb-2">오늘 무료 체험 완료</h2>
-                  <p className="text-[#a4a09c] text-sm leading-relaxed">
+                  <p className="text-[var(--text-muted)] text-sm leading-relaxed">
                     비회원은 하루 2회까지 무료로 이용할 수 있습니다.<br />
                     회원가입하면 <span className="text-white font-semibold">무제한</span>으로 이용할 수 있습니다.
                   </p>
                 </div>
-                <div className="bg-[#32302e] rounded-2xl p-4 text-xs text-[#75716e] space-y-1.5">
+                <div className="bg-[var(--bg-elevated)] rounded-2xl p-4 text-xs text-[var(--text-subtle)] space-y-1.5">
                   <p>🎬 영상 길이 제한 없음</p>
                   <p>📚 라이브러리 무제한 저장</p>
                   <p>🌍 광장에 요약 공유</p>
@@ -613,7 +613,7 @@ export default function UrlInput() {
                   >
                     Google로 무료 회원가입
                   </button>
-                  <button onClick={() => setModal(null)} className="text-[#75716e] text-sm hover:text-white transition-colors py-1">
+                  <button onClick={() => setModal(null)} className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1">
                     닫기
                   </button>
                 </div>

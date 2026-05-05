@@ -219,7 +219,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
             transform: 'translate(-50%, -100%)',
             zIndex: 9999,
           }}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1c1a18] border border-orange-500/50 rounded-full shadow-2xl whitespace-nowrap"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--bg-base)] border border-orange-500/50 rounded-full shadow-2xl whitespace-nowrap"
         >
           <span className="text-xs">🎓</span>
           <button
@@ -239,7 +239,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
         onClick={() => setOpen(v => !v)}
         className={`fixed bottom-6 right-6 z-50 shadow-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${
           open
-            ? 'w-14 h-14 rounded-full bg-[#3d3a38] text-white text-xl'
+            ? 'w-14 h-14 rounded-full bg-[var(--bg-elevated-2)] text-white text-xl'
             : 'h-12 rounded-full bg-violet-600 hover:bg-violet-700 text-white px-4 gap-2'
         }`}
         title="AI 도슨트 — 이 내용의 전문 해설 AI"
@@ -258,10 +258,10 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
       {open && (
         <div
           ref={panelRef}
-          className="fixed bottom-24 right-6 z-50 w-[calc(100vw-3rem)] max-w-[400px] h-[540px] bg-[#1c1a18] rounded-2xl flex flex-col shadow-2xl border border-violet-500/20 overflow-hidden"
+          className="fixed bottom-24 right-6 z-50 w-[calc(100vw-3rem)] max-w-[400px] h-[540px] bg-[var(--bg-base)] rounded-2xl flex flex-col shadow-2xl border border-violet-500/20 overflow-hidden"
         >
           {/* 헤더 */}
-          <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-[#23211f] shrink-0">
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border-default)] bg-[var(--bg-surface)] shrink-0">
             <div className="w-9 h-9 rounded-full bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-base shrink-0">
               🎓
             </div>
@@ -272,7 +272,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
             {messages.length > 0 && (
               <button
                 onClick={() => { setMessages([]); cacheIdRef.current = undefined }}
-                className="text-[#75716e] hover:text-white text-xs px-2 py-1 rounded-lg hover:bg-white/5 transition-colors shrink-0"
+                className="text-[var(--text-subtle)] hover:text-white text-xs px-2 py-1 rounded-lg hover:bg-[var(--overlay-subtle)] transition-colors shrink-0"
               >
                 초기화
               </button>
@@ -286,7 +286,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
                 {/* 도슨트 소개 + 사용 팁 */}
                 <div className="bg-violet-600/10 border border-violet-500/20 rounded-xl px-3 py-3 space-y-1.5">
                   <p className="text-violet-300 text-xs font-semibold">이 콘텐츠의 전담 해설 AI예요.</p>
-                  <p className="text-[#a4a09c] text-xs leading-relaxed">
+                  <p className="text-[var(--text-muted)] text-xs leading-relaxed">
                     내용이 궁금하거나 이해가 안 되는 부분을 물어보세요.<br/>
                     <span className="text-violet-400 font-medium">💡 팁: </span>
                     <span className="hidden md:inline">궁금한 부분을 <strong className="text-white">드래그</strong>하면 바로 질문할 수 있어요.</span>
@@ -295,13 +295,13 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
                 </div>
 
                 {/* 빠른 질문 */}
-                <p className="text-[#75716e] text-xs px-1">이런 것도 물어볼 수 있어요</p>
+                <p className="text-[var(--text-subtle)] text-xs px-1">이런 것도 물어볼 수 있어요</p>
                 <div className="space-y-1.5">
                   {suggestions.map(q => (
                     <button
                       key={q}
                       onClick={() => sendMessage(q)}
-                      className="w-full text-left text-xs px-3 py-2.5 rounded-xl bg-[#32302e] text-[#a4a09c] hover:text-white hover:bg-[#3d3a38] transition-colors border border-white/5"
+                      className="w-full text-left text-xs px-3 py-2.5 rounded-xl bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-elevated-2)] transition-colors border border-[var(--border-subtle)]"
                     >
                       {q}
                     </button>
@@ -319,7 +319,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
                   <div className={`px-3 py-2 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
                     msg.role === 'user'
                       ? 'bg-violet-600 text-white rounded-br-sm'
-                      : 'bg-[#32302e] text-[#e8e4e0] rounded-bl-sm'
+                      : 'bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-bl-sm'
                   }`}>
                     {msg.content}
                   </div>
@@ -329,7 +329,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
 
             {loading && (
               <div className="flex justify-start">
-                <div className="px-3 py-2 rounded-2xl rounded-bl-sm bg-[#32302e]">
+                <div className="px-3 py-2 rounded-2xl rounded-bl-sm bg-[var(--bg-elevated)]">
                   <span className="inline-flex gap-1 items-center">
                     <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:0ms]" />
                     <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-bounce [animation-delay:150ms]" />
@@ -343,7 +343,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
           </div>
 
           {/* 입력창 */}
-          <div className="px-3 py-3 border-t border-white/10 bg-[#23211f] shrink-0">
+          <div className="px-3 py-3 border-t border-[var(--border-default)] bg-[var(--bg-surface)] shrink-0">
             <div className="flex gap-2 items-end">
               <textarea
                 ref={inputRef}
@@ -353,7 +353,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
                 placeholder="궁금한 점을 물어보세요..."
                 disabled={loading}
                 rows={1}
-                className="flex-1 min-h-[36px] max-h-[96px] px-3 py-2 bg-[#32302e] border border-white/10 rounded-xl text-sm text-white placeholder:text-[#75716e] focus:outline-none focus:border-violet-500/50 transition-colors disabled:opacity-60 resize-none"
+                className="flex-1 min-h-[36px] max-h-[96px] px-3 py-2 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-violet-500/50 transition-colors disabled:opacity-60 resize-none"
                 style={{ overflowY: 'auto' }}
               />
               <button
@@ -366,7 +366,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
                 </svg>
               </button>
             </div>
-            <p className="text-[10px] text-[#4a4845] mt-1.5 text-center">Shift+Enter 줄바꿈 · Enter 전송</p>
+            <p className="text-[10px] text-[var(--text-subtle)] mt-1.5 text-center">Shift+Enter 줄바꿈 · Enter 전송</p>
           </div>
         </div>
       )}

@@ -32,29 +32,29 @@ function VocabTab({ words }: { words: VocabItem[] }) {
 
   return (
     <div className="space-y-3">
-      <p className="text-[#75716e] text-xs">카드를 탭하면 예문을 볼 수 있어요</p>
+      <p className="text-[var(--text-subtle)] text-xs">카드를 탭하면 예문을 볼 수 있어요</p>
       {words.map((w, i) => (
         <div
           key={i}
           onClick={() => toggle(i)}
-          className="cursor-pointer rounded-2xl border border-white/10 bg-[#2a2826] hover:border-white/20 transition-all overflow-hidden"
+          className="cursor-pointer rounded-2xl border border-[var(--border-default)] bg-[var(--bg-surface-2)] hover:border-[var(--border-strong)] transition-all overflow-hidden"
         >
           <div className="flex items-start gap-4 p-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-white font-bold text-base">{w.word}</span>
                 {w.pronunciation && (
-                  <span className="text-[#75716e] text-xs font-mono">{w.pronunciation}</span>
+                  <span className="text-[var(--text-subtle)] text-xs font-mono">{w.pronunciation}</span>
                 )}
               </div>
               <p className="text-orange-300 text-sm mt-0.5">{w.meaning}</p>
             </div>
-            <span className="text-[#75716e] text-xs mt-1 shrink-0">{flipped.has(i) ? '▲' : '▼'}</span>
+            <span className="text-[var(--text-subtle)] text-xs mt-1 shrink-0">{flipped.has(i) ? '▲' : '▼'}</span>
           </div>
           {flipped.has(i) && (
-            <div className="px-4 pb-4 border-t border-white/5 pt-3 space-y-1">
-              <p className="text-[#e8e4e0] text-sm italic">"{w.example}"</p>
-              <p className="text-[#75716e] text-xs">→ {w.exampleKo}</p>
+            <div className="px-4 pb-4 border-t border-[var(--border-subtle)] pt-3 space-y-1">
+              <p className="text-[var(--text-primary)] text-sm italic">"{w.example}"</p>
+              <p className="text-[var(--text-subtle)] text-xs">→ {w.exampleKo}</p>
             </div>
           )}
         </div>
@@ -94,7 +94,7 @@ function ExerciseTab({ worksheet }: { worksheet: WorksheetData }) {
         <div key={ex.type} className="space-y-4">
           <div>
             <h3 className="text-white font-bold text-sm">{ex.title}</h3>
-            <p className="text-[#75716e] text-xs mt-0.5">{ex.instructions}</p>
+            <p className="text-[var(--text-subtle)] text-xs mt-0.5">{ex.instructions}</p>
           </div>
 
           {/* Matching */}
@@ -104,16 +104,16 @@ function ExerciseTab({ worksheet }: { worksheet: WorksheetData }) {
             return (
               <div key={q.id} className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="text-[#75716e] text-xs w-4 shrink-0">{q.id}.</span>
+                  <span className="text-[var(--text-subtle)] text-xs w-4 shrink-0">{q.id}.</span>
                   <span className="text-white text-sm font-medium w-28 shrink-0">{q.question}</span>
                   <select
                     value={answers[key] ?? ''}
                     onChange={e => setAnswer(key, e.target.value)}
                     disabled={checked}
-                    className={`flex-1 h-8 px-2 rounded-lg text-sm bg-[#32302e] border text-white focus:outline-none ${
+                    className={`flex-1 h-8 px-2 rounded-lg text-sm bg-[var(--bg-elevated)] border text-white focus:outline-none ${
                       result === true  ? 'border-green-500 text-green-400' :
                       result === false ? 'border-red-500 text-red-400' :
-                      'border-white/10 focus:border-orange-500/50'
+                      'border-[var(--border-default)] focus:border-orange-500/50'
                     }`}
                   >
                     <option value="">선택하세요</option>
@@ -129,10 +129,10 @@ function ExerciseTab({ worksheet }: { worksheet: WorksheetData }) {
           {/* Fill in blank */}
           {ex.type === 'fill_blank' && (
             <>
-              <div className="flex flex-wrap gap-2 p-3 bg-[#2a2826] rounded-xl border border-white/5">
-                <span className="text-[#75716e] text-xs w-full mb-1">단어 박스</span>
+              <div className="flex flex-wrap gap-2 p-3 bg-[var(--bg-surface-2)] rounded-xl border border-[var(--border-subtle)]">
+                <span className="text-[var(--text-subtle)] text-xs w-full mb-1">단어 박스</span>
                 {ex.questions.flatMap(q => q.options ?? []).filter((v, i, a) => a.indexOf(v) === i).map(opt => (
-                  <span key={opt} className="px-2.5 py-1 bg-[#3d3a38] rounded-lg text-xs text-white font-mono">{opt}</span>
+                  <span key={opt} className="px-2.5 py-1 bg-[var(--bg-elevated-2)] rounded-lg text-xs text-white font-mono">{opt}</span>
                 ))}
               </div>
               {ex.questions.map(q => {
@@ -140,23 +140,23 @@ function ExerciseTab({ worksheet }: { worksheet: WorksheetData }) {
                 const result = isCorrect(ex.type, q)
                 return (
                   <div key={q.id} className="flex items-start gap-2">
-                    <span className="text-[#75716e] text-xs w-4 shrink-0 mt-2">{q.id}.</span>
+                    <span className="text-[var(--text-subtle)] text-xs w-4 shrink-0 mt-2">{q.id}.</span>
                     <div className="flex-1 space-y-1">
-                      <p className="text-[#e8e4e0] text-sm">{q.question}</p>
+                      <p className="text-[var(--text-primary)] text-sm">{q.question}</p>
                       <input
                         type="text"
                         value={answers[key] ?? ''}
                         onChange={e => setAnswer(key, e.target.value)}
                         disabled={checked}
                         placeholder="답 입력..."
-                        className={`w-full h-8 px-3 rounded-lg text-sm bg-[#32302e] border text-white focus:outline-none placeholder:text-[#75716e] ${
+                        className={`w-full h-8 px-3 rounded-lg text-sm bg-[var(--bg-elevated)] border text-white focus:outline-none placeholder:text-[var(--text-subtle)] ${
                           result === true  ? 'border-green-500' :
                           result === false ? 'border-red-500' :
-                          'border-white/10 focus:border-orange-500/50'
+                          'border-[var(--border-default)] focus:border-orange-500/50'
                         }`}
                       />
                       {result === false && <p className="text-red-400 text-xs">정답: {q.answer}</p>}
-                      {q.hint && !checked && <p className="text-[#75716e] text-[10px]">힌트: {q.hint}</p>}
+                      {q.hint && !checked && <p className="text-[var(--text-subtle)] text-[10px]">힌트: {q.hint}</p>}
                     </div>
                   </div>
                 )
@@ -171,8 +171,8 @@ function ExerciseTab({ worksheet }: { worksheet: WorksheetData }) {
             return (
               <div key={q.id} className="space-y-2">
                 <div className="flex items-start gap-2">
-                  <span className="text-[#75716e] text-xs w-4 shrink-0 mt-1">{q.id}.</span>
-                  <p className="text-[#e8e4e0] text-sm flex-1 italic">"{q.question}"</p>
+                  <span className="text-[var(--text-subtle)] text-xs w-4 shrink-0 mt-1">{q.id}.</span>
+                  <p className="text-[var(--text-primary)] text-sm flex-1 italic">"{q.question}"</p>
                 </div>
                 <textarea
                   value={answers[key] ?? ''}
@@ -180,10 +180,10 @@ function ExerciseTab({ worksheet }: { worksheet: WorksheetData }) {
                   disabled={checked}
                   placeholder="한국어로 해석하세요..."
                   rows={2}
-                  className={`w-full px-3 py-2 rounded-xl text-sm bg-[#32302e] border text-white focus:outline-none placeholder:text-[#75716e] resize-none ${
+                  className={`w-full px-3 py-2 rounded-xl text-sm bg-[var(--bg-elevated)] border text-white focus:outline-none placeholder:text-[var(--text-subtle)] resize-none ${
                     result === true  ? 'border-green-500' :
                     result === false ? 'border-red-400/60' :
-                    'border-white/10 focus:border-orange-500/50'
+                    'border-[var(--border-default)] focus:border-orange-500/50'
                   }`}
                 />
                 {(result === false || showAnswers) && (
@@ -206,22 +206,22 @@ function ExerciseTab({ worksheet }: { worksheet: WorksheetData }) {
           </button>
         ) : (
           <>
-            <div className="flex-1 h-11 rounded-xl bg-[#32302e] border border-white/10 flex items-center justify-center gap-2">
+            <div className="flex-1 h-11 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)] flex items-center justify-center gap-2">
               <span className="text-white font-bold text-base">{correctCount}</span>
-              <span className="text-[#75716e] text-sm">/ {totalQ} 정답</span>
+              <span className="text-[var(--text-subtle)] text-sm">/ {totalQ} 정답</span>
               <span className="text-lg ml-1">
                 {correctCount === totalQ ? '🎉' : correctCount >= totalQ * 0.7 ? '👍' : '💪'}
               </span>
             </div>
             <button
               onClick={() => { setChecked(false); setAnswers({}); setShowAnswers(false) }}
-              className="h-11 px-4 rounded-xl bg-[#32302e] border border-white/10 text-[#a4a09c] hover:text-white text-sm transition-colors"
+              className="h-11 px-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-white text-sm transition-colors"
             >
               다시 풀기
             </button>
             <button
               onClick={() => setShowAnswers(v => !v)}
-              className="h-11 px-4 rounded-xl bg-[#32302e] border border-white/10 text-[#a4a09c] hover:text-white text-sm transition-colors"
+              className="h-11 px-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-white text-sm transition-colors"
             >
               {showAnswers ? '답 숨기기' : '전체 답 보기'}
             </button>
@@ -282,10 +282,10 @@ export default function WorksheetPanel({ worksheet, onClose, userId, sessionId, 
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-6">
-      <div className="w-full md:max-w-2xl h-[92dvh] md:h-[85vh] bg-[#1c1a18] md:rounded-2xl flex flex-col border border-white/10 shadow-2xl overflow-hidden">
+      <div className="w-full md:max-w-2xl h-[92dvh] md:h-[85vh] bg-[var(--bg-base)] md:rounded-2xl flex flex-col border border-[var(--border-default)] shadow-2xl overflow-hidden">
 
         {/* 헤더 */}
-        <div className="flex items-start gap-3 px-5 py-4 border-b border-white/10 bg-[#23211f] shrink-0">
+        <div className="flex items-start gap-3 px-5 py-4 border-b border-[var(--border-default)] bg-[var(--bg-surface)] shrink-0">
           <span className="text-2xl mt-0.5">📝</span>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
@@ -294,7 +294,7 @@ export default function WorksheetPanel({ worksheet, onClose, userId, sessionId, 
                 {worksheet.levelLabel}
               </span>
             </div>
-            <p className="text-[#75716e] text-xs mt-0.5">단어 {worksheet.vocabulary.length}개 · 문제 {worksheet.exercises.reduce((s, e) => s + e.questions.length, 0)}개</p>
+            <p className="text-[var(--text-subtle)] text-xs mt-0.5">단어 {worksheet.vocabulary.length}개 · 문제 {worksheet.exercises.reduce((s, e) => s + e.questions.length, 0)}개</p>
           </div>
           {userId && (
             <button
@@ -309,13 +309,13 @@ export default function WorksheetPanel({ worksheet, onClose, userId, sessionId, 
               {saved ? '✓ 저장됨' : saving ? '저장 중...' : '저장'}
             </button>
           )}
-          <button onClick={onClose} className="w-7 h-7 rounded-full bg-[#32302e] text-[#75716e] hover:text-white flex items-center justify-center text-sm transition-colors shrink-0">
+          <button onClick={onClose} className="w-7 h-7 rounded-full bg-[var(--bg-elevated)] text-[var(--text-subtle)] hover:text-white flex items-center justify-center text-sm transition-colors shrink-0">
             ✕
           </button>
         </div>
 
         {/* 탭 바 */}
-        <div className="flex border-b border-white/10 shrink-0">
+        <div className="flex border-b border-[var(--border-default)] shrink-0">
           {tabs.map(t => (
             <button
               key={t.id}
@@ -323,7 +323,7 @@ export default function WorksheetPanel({ worksheet, onClose, userId, sessionId, 
               className={`flex-1 py-3 text-xs font-semibold transition-colors ${
                 tab === t.id
                   ? 'text-orange-400 border-b-2 border-orange-400'
-                  : 'text-[#75716e] hover:text-white'
+                  : 'text-[var(--text-subtle)] hover:text-white'
               }`}
             >
               {t.label}
@@ -348,7 +348,7 @@ export default function WorksheetPanel({ worksheet, onClose, userId, sessionId, 
                   <><span>🖨️</span> PDF 다운로드</>
                 )}
               </button>
-              <p className="text-[#75716e] text-xs text-center">A4 사이즈로 출력하면 깔끔하게 인쇄돼요</p>
+              <p className="text-[var(--text-subtle)] text-xs text-center">A4 사이즈로 출력하면 깔끔하게 인쇄돼요</p>
 
               {/* PDF 미리보기 & 캡처 대상 */}
               <div ref={printRef} style={{ background: '#fff', padding: 32, fontFamily: 'sans-serif', color: '#111', width: 680 }}>

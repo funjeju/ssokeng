@@ -41,10 +41,10 @@ function DetailModal({ script, onClose }: { script: SavedShortsScript; onClose: 
   return (
     <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-[#1c1a18] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl"
+        className="bg-[var(--bg-base)] border border-[var(--border-default)] rounded-3xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
-        <div className="shrink-0 flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/5">
+        <div className="shrink-0 flex items-center justify-between px-6 pt-6 pb-4 border-b border-[var(--border-subtle)]">
           <div className="min-w-0 flex-1">
             <h2 className="text-white font-bold text-base truncate">{script.videoTitle}</h2>
             <p className="text-zinc-500 text-xs mt-0.5">{script.channel} · {script.segments.length}개 클립</p>
@@ -54,7 +54,7 @@ function DetailModal({ script, onClose }: { script: SavedShortsScript; onClose: 
 
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
           {script.edit_tips && (
-            <div className="bg-white/4 border border-white/8 rounded-2xl px-4 py-3">
+            <div className="bg-[var(--overlay-subtle)] border border-[var(--border-default)] rounded-2xl px-4 py-3">
               <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider mb-1">편집 총평</p>
               <p className="text-zinc-300 text-sm leading-relaxed">{script.edit_tips}</p>
             </div>
@@ -63,8 +63,8 @@ function DetailModal({ script, onClose }: { script: SavedShortsScript; onClose: 
           {script.segments.map((seg, idx) => {
             const meta = TYPE_META[seg.type] ?? TYPE_META.highlight
             return (
-              <div key={seg.id} className="bg-[#23211f] border border-white/8 rounded-2xl overflow-hidden">
-                <div className="flex items-center gap-3 px-4 py-3 border-b border-white/5">
+              <div key={seg.id} className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl overflow-hidden">
+                <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border-subtle)]">
                   <span className="w-7 h-7 rounded-full bg-gradient-to-br from-pink-500 to-orange-500 text-white text-xs font-black flex items-center justify-center shrink-0">
                     {idx + 1}
                   </span>
@@ -80,7 +80,7 @@ function DetailModal({ script, onClose }: { script: SavedShortsScript; onClose: 
                 <div className="flex items-center gap-3 px-4 py-3 bg-black/20">
                   <div className="flex items-center gap-2 flex-1">
                     <span className="text-zinc-400 text-xs font-mono bg-black/40 px-2 py-1 rounded-lg">{seg.start_time}</span>
-                    <div className="flex-1 h-1 bg-white/10 rounded-full">
+                    <div className="flex-1 h-1 bg-[var(--overlay-default)] rounded-full">
                       <div className="h-full bg-gradient-to-r from-pink-500 to-orange-500 rounded-full" style={{ width: '100%' }} />
                     </div>
                     <span className="text-zinc-400 text-xs font-mono bg-black/40 px-2 py-1 rounded-lg">{seg.end_time}</span>
@@ -110,7 +110,7 @@ function DetailModal({ script, onClose }: { script: SavedShortsScript; onClose: 
                       className={`text-[10px] px-2.5 py-1 rounded-lg font-bold transition-colors ${
                         copiedId === seg.id
                           ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                          : 'bg-white/5 text-zinc-400 hover:text-white border border-white/10'
+                          : 'bg-[var(--overlay-subtle)] text-zinc-400 hover:text-white border border-[var(--border-default)]'
                       }`}
                     >
                       {copiedId === seg.id ? '✓ 복사됨' : '복사'}
@@ -125,7 +125,7 @@ function DetailModal({ script, onClose }: { script: SavedShortsScript; onClose: 
           })}
         </div>
 
-        <div className="shrink-0 flex gap-2 px-6 py-4 border-t border-white/5">
+        <div className="shrink-0 flex gap-2 px-6 py-4 border-t border-[var(--border-subtle)]">
           <div className="flex-1" />
           <button
             onClick={copyAll}
@@ -188,7 +188,7 @@ export default function SavedShortsScripts({ userId }: { userId: string }) {
         {scripts.map(s => (
           <div
             key={s.id}
-            className="bg-[#23211f] border border-white/8 rounded-2xl overflow-hidden hover:border-white/20 transition-all group cursor-pointer"
+            className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl overflow-hidden hover:border-[var(--border-strong)] transition-all group cursor-pointer"
             onClick={() => setSelected(s)}
           >
             {/* 썸네일 */}

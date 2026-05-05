@@ -60,14 +60,14 @@ export default function ContextualAdBanner({ category, position = 'mid', classNa
   if (!CLIENT || !slotId) return null
 
   return (
-    <div className={`rounded-2xl overflow-hidden border border-white/5 bg-[#1c1a18] ${className}`}>
+    <div className={`rounded-2xl overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-base)] ${className}`}>
       {/* 카테고리 라벨 — AdSense가 이 텍스트를 읽어 관련 광고를 선택한다 */}
-      <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-white/5">
+      <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-[var(--border-subtle)]">
         <span className="text-sm leading-none" aria-hidden="true">{meta.emoji}</span>
-        <span className="text-[10px] text-[#3d3a38] select-none">
+        <span className="text-[10px] text-[var(--text-subtle)] select-none">
           {meta.label} · {meta.contextText}
         </span>
-        <span className="ml-auto text-[9px] font-bold text-[#3a3836] tracking-widest">AD</span>
+        <span className="ml-auto text-[9px] font-bold text-[var(--text-subtle)] tracking-widest">AD</span>
       </div>
 
       {/* 광고 슬롯 */}

@@ -65,12 +65,22 @@ function timestampToSeconds(ts: string): number {
   return min * 60 + sec
 }
 
+interface _ReviewItem {
+  id: string
+  questionIdx: number
+  question: string
+  repetition: number
+  sessionId: string
+  videoTitle: string
+}
+
 export default function ResultClient({ sessionId }: { sessionId: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const fromSquare = searchParams.get('from') === 'square'
   const isClassView = searchParams.get('classView') === '1'
   const isTempReanalyze = searchParams.get('temp') === '1'
+  const isReviewMode = searchParams.get('reviewMode') === '1'
   const { user, userProfile, openAuthModal } = useAuth()
   const [data, setData] = useState<SummarizeResponse | null>(null)
   const [loadError, setLoadError] = useState(false)
@@ -113,6 +123,12 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
   const [quizLoading, setQuizLoading] = useState(false)
   const [quizAttemptCount, setQuizAttemptCount] = useState(0) // 완료한 횟수
   const currentAttemptRef = useRef(1) // 현재 진행 중 도전 번호
+
+  // 복습 모드 (에빙하우스 Spaced Repetition)
+  const [reviewItems, setReviewItems] = useState<_ReviewItem[]>([])
+  const [reviewItemsForQuiz, setReviewItemsForQuiz] = useState<_ReviewItem[]>([])
+  const [reviewRounds, setReviewRounds] = useState<number[]>([])
+  const reviewQuizLoadedRef = useRef(false)
 
   // 워크시트
   const [worksheet, setWorksheet] = useState<WorksheetData | null>(null)
@@ -380,6 +396,57 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
       .then(setSavedItem)
       .catch(() => {})
   }, [data, user])
+
+  // 복습 모드: 이 세션의 pending 복습 항목 로드
+  useEffect(() => {
+    if (!isReviewMode || !user?.uid || !sessionId) return
+    fetch(`/api/review-schedule?uid=${user.uid}&sessionId=${sessionId}`)
+      .then(r => r.json())
+      .then(d => setReviewItems(d.items || []))
+      .catch(() => {})
+  }, [isReviewMode, user?.uid, sessionId])
+
+  // 복습 모드: reviewItems 로드 완료 시 퀴즈 자동 생성 & 필터링
+  useEffect(() => {
+    if (!isReviewMode || !data || reviewItems.length === 0 || reviewQuizLoadedRef.current) return
+    reviewQuizLoadedRef.current = true
+    const generate = async () => {
+      setQuizLoading(true)
+      try {
+        const res = await fetch('/api/quiz', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            category: data.category,
+            summary: data.summary,
+            title: data.title,
+            videoId: data.videoId || null,
+            sessionId: data.videoId ? null : (data.sessionId || sessionId),
+            force: false,
+          }),
+        })
+        if (!res.ok) return
+        const fullQuiz: QuizData = await res.json()
+        const filteredItems: _ReviewItem[] = []
+        const filteredQuestions: QuizData['questions'] = []
+        const rounds: number[] = []
+        for (const item of reviewItems) {
+          const q = fullQuiz.questions[item.questionIdx]
+          if (q) { filteredItems.push(item); filteredQuestions.push(q); rounds.push(item.repetition) }
+        }
+        if (filteredItems.length > 0) {
+          setReviewItemsForQuiz(filteredItems)
+          setReviewRounds(rounds)
+          setQuiz({ ...fullQuiz, title: `🔄 복습 · ${filteredItems.length}문제`, questions: filteredQuestions })
+        } else {
+          setQuiz(fullQuiz)
+        }
+      } catch { /* 조용히 실패 */ } finally {
+        setQuizLoading(false)
+      }
+    }
+    generate()
+  }, [isReviewMode, data, reviewItems])
 
   // 미저장 이탈 방지 경고 (브라우저 새로고침/닫기)
   useEffect(() => {
@@ -656,31 +723,40 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
     logStudentActivity('play', { ...log, stoppedAt: new Date().toISOString() })
   }, [logStudentActivity])
 
-  // 퀴즈 정답 로그 + 오답 시 복습 스케줄 등록
+  // 퀴즈 정답 로그 + 복습 스케줄 처리
   const handleQuizAnswer = useCallback((log: { questionIdx: number; question: string; selected: string; correct: boolean; metaLevel?: string }) => {
     logStudentActivity('quiz', { ...log, attempt: currentAttemptRef.current })
-    // 오답이면 에빙하우스 복습 스케줄에 추가
-    if (!log.correct && user && userProfile?.classCode) {
-      const sessionId = data?.sessionId
-      const videoId = data?.videoId || ''
-      const videoTitle = data?.title ?? ''
-      if (sessionId) {
+
+    if (isReviewMode) {
+      // 복습 모드: PATCH로 repetition 갱신 (정답이면 앞으로, 오답이면 뒤로)
+      const reviewItem = reviewItemsForQuiz[log.questionIdx]
+      if (reviewItem) {
+        fetch('/api/review-schedule', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ docId: reviewItem.id, correct: log.correct }),
+        }).catch(() => {})
+      }
+    } else if (!log.correct && user && userProfile?.classCode) {
+      // 최초 퀴즈 오답: POST로 복습 스케줄 신규 등록
+      const sid = data?.sessionId
+      if (sid) {
         fetch('/api/review-schedule', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             studentId: user.uid,
             classCode: userProfile.classCode,
-            sessionId,
-            videoId,
-            videoTitle,
+            sessionId: sid,
+            videoId: data?.videoId || '',
+            videoTitle: data?.title ?? '',
             questionIdx: log.questionIdx,
             question: log.question,
           }),
         }).catch(() => {})
       }
     }
-  }, [logStudentActivity, user, userProfile, data])
+  }, [logStudentActivity, isReviewMode, reviewItemsForQuiz, user, userProfile, data])
 
   // 퀴즈 메타인지 로그 (학습/영어 카테고리만)
   const handleQuizMeta = useCallback((log: { questionIdx: number; question: string; metaLevel: string }) => {
@@ -861,7 +937,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           </button>
           <button
             onClick={() => router.push('/mypage')}
-            className="px-5 py-2.5 bg-[#32302e] border border-white/10 text-white rounded-xl text-sm hover:bg-[#3d3a38] transition-colors"
+            className="px-5 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-default)] text-white rounded-xl text-sm hover:bg-[var(--bg-elevated-2)] transition-colors"
           >
             마이페이지
           </button>
@@ -882,7 +958,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
         {/* 플레이어 (YouTube가 아닌 경우 썸네일 or 소스 표시) */}
         {data.videoId ? (
           <div className="sticky top-[68px] md:top-[76px] z-40 bg-zinc-950 pb-2 shadow-[0_15px_20px_-10px_rgba(9,9,11,1)]">
-            <div className="rounded-xl overflow-hidden shadow-2xl border border-white/10 ring-1 ring-black/50">
+            <div className="rounded-xl overflow-hidden shadow-2xl border border-[var(--border-default)] ring-1 ring-black/50">
               <YoutubePlayer
                 videoId={data.videoId}
                 onPlayerReady={handlePlayerReady}
@@ -898,7 +974,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
               {userProfile?.role === 'teacher' && (
                 <button
                   onClick={openQuizCreator}
-                  className="flex items-center gap-1 px-3 h-7 rounded-lg text-xs transition-colors border bg-white/5 hover:bg-orange-500/15 border-white/5 hover:border-orange-500/30 text-zinc-400 hover:text-orange-400"
+                  className="flex items-center gap-1 px-3 h-7 rounded-lg text-xs transition-colors border bg-[var(--overlay-subtle)] hover:bg-orange-500/15 border-[var(--border-subtle)] hover:border-orange-500/30 text-zinc-400 hover:text-orange-400"
                   title="현재 시점에 퀴즈 추가"
                 >
                   🧩 <span>퀴즈 추가</span>
@@ -916,7 +992,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                   className={`flex items-center gap-1 px-3 h-7 rounded-lg text-xs transition-colors border ${
                     showBookmarkPanelTop
                       ? 'bg-yellow-500/20 border-yellow-500/40 text-yellow-400'
-                      : 'bg-white/5 hover:bg-yellow-500/15 border-white/5 hover:border-yellow-500/30 text-zinc-400 hover:text-yellow-400'
+                      : 'bg-[var(--overlay-subtle)] hover:bg-yellow-500/15 border-[var(--border-subtle)] hover:border-yellow-500/30 text-zinc-400 hover:text-yellow-400'
                   }`}
                   title="현재 시점 북마크"
                 >
@@ -926,7 +1002,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
               <div className="relative">
                 <button
                   onClick={() => setShowSpeedMenu(v => !v)}
-                  className="flex items-center gap-1 px-3 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-zinc-400 hover:text-white transition-colors border border-white/5"
+                  className="flex items-center gap-1 px-3 h-7 rounded-lg bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-xs text-zinc-400 hover:text-white transition-colors border border-[var(--border-subtle)]"
                 >
                   🐇 <span className="font-mono">{playbackRate}x</span>
                   <span className="text-[9px] opacity-50 ml-0.5">▾</span>
@@ -934,7 +1010,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                 {showSpeedMenu && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setShowSpeedMenu(false)} />
-                    <div className="absolute bottom-9 right-0 flex gap-1 bg-zinc-900 border border-white/10 rounded-xl p-1.5 shadow-2xl z-20">
+                    <div className="absolute bottom-9 right-0 flex gap-1 bg-zinc-900 border border-[var(--border-default)] rounded-xl p-1.5 shadow-2xl z-20">
                       {[0.5, 0.75, 1, 1.25, 1.5, 2].map(r => (
                         <button
                           key={r}
@@ -946,7 +1022,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                           className={`px-2.5 py-1 rounded-lg text-xs transition-colors font-mono ${
                             r === playbackRate
                               ? 'bg-orange-500 text-white font-bold'
-                              : 'text-zinc-400 hover:bg-white/10 hover:text-white'
+                              : 'text-zinc-400 hover:bg-[var(--overlay-default)] hover:text-white'
                           }`}
                         >
                           {r}x
@@ -959,12 +1035,12 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
             </div>
           </div>
         ) : (data as any).sourceType === 'voice' ? (
-          <div className="rounded-xl bg-[#2a2826] border border-white/10 p-5 flex items-center gap-4">
+          <div className="rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-default)] p-5 flex items-center gap-4">
             {data.thumbnail && (
               <img src={data.thumbnail} alt="" className="w-20 h-[45px] rounded-lg object-cover shrink-0" />
             )}
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-[#75716e] mb-0.5">🎙 음성 녹음</p>
+              <p className="text-xs text-[var(--text-subtle)] mb-0.5">🎙 음성 녹음</p>
               <p className="text-white text-sm font-semibold truncate">{data.title}</p>
             </div>
           </div>
@@ -973,7 +1049,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           const pdfSrc = (data as any).pdfUrl || `/api/pdf/${(data as any).sessionId || sessionId}`
           return (
             <div className="sticky top-[68px] md:top-[76px] z-40 bg-zinc-950 pb-2 shadow-[0_15px_20px_-10px_rgba(9,9,11,1)]">
-              <div className="rounded-xl overflow-hidden border border-white/10 ring-1 ring-black/50" style={{ height: '70vh' }}>
+              <div className="rounded-xl overflow-hidden border border-[var(--border-default)] ring-1 ring-black/50" style={{ height: '70vh' }}>
                 <iframe
                   src={`${pdfSrc}#page=${pdfViewerPage}`}
                   className="w-full h-full"
@@ -989,12 +1065,12 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
             </div>
           )
         })() : (data as any).sourceUrl ? (
-          <div className="rounded-xl bg-[#2a2826] border border-white/10 p-5 flex items-center gap-4">
+          <div className="rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-default)] p-5 flex items-center gap-4">
             {data.thumbnail && (
               <img src={data.thumbnail} alt="" className="w-20 h-[45px] rounded-lg object-cover shrink-0" />
             )}
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-[#75716e] mb-0.5">🌐 웹페이지</p>
+              <p className="text-xs text-[var(--text-subtle)] mb-0.5">🌐 웹페이지</p>
               <p className="text-white text-sm font-semibold truncate">{data.title}</p>
               <a href={(data as any).sourceUrl} target="_blank" rel="noopener noreferrer"
                 className="text-xs text-orange-400 hover:underline truncate block mt-0.5">
@@ -1044,7 +1120,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
             {/* 댓글 바로가기 — 카테고리 우측 상단 */}
             <button
               onClick={handleCommentIconClick}
-              className="shrink-0 flex items-center gap-1.5 px-2.5 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors text-xs relative"
+              className="shrink-0 flex items-center gap-1.5 px-2.5 h-7 rounded-lg bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 hover:text-white transition-colors text-xs relative"
               title="댓글 보기"
             >
               <span>💬</span>
@@ -1082,7 +1158,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
         )}
 
         {/* 탭 */}
-        <div className="flex bg-[#32302e] rounded-xl p-1 border border-white/5 w-full mt-2">
+        <div className="flex bg-[var(--bg-elevated)] rounded-xl p-1 border border-[var(--border-subtle)] w-full mt-2">
           {(['summary', 'transcript', ...(isLongVideo ? ['segments'] : []), 'reanalyze'] as const).map(tab => {
             const labels: Record<string, string> = {
               summary: '기본 요약',
@@ -1098,10 +1174,10 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                   activeTab === tab
                     ? tab === 'segments'
                       ? 'bg-indigo-600 text-white shadow'
-                      : 'bg-[#23211f] text-white shadow'
+                      : 'bg-[var(--bg-surface)] text-white shadow'
                     : tab === 'segments'
                       ? 'text-indigo-400 hover:text-indigo-300'
-                      : 'text-[#75716e] hover:text-white'
+                      : 'text-[var(--text-subtle)] hover:text-white'
                 }`}
               >
                 {labels[tab]}
@@ -1169,7 +1245,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                       onClick={() => { if (confirm('기존 퀴즈를 새로 생성하시겠습니까?')) handleGenerateQuiz(true) }}
                       disabled={quizLoading}
                       title="퀴즈 재생성 (선생님 전용)"
-                      className="px-3 py-3.5 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 text-[#75716e] hover:text-white text-xs font-bold transition-all disabled:opacity-50"
+                      className="px-3 py-3.5 rounded-2xl border border-[var(--border-default)] bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-[var(--text-subtle)] hover:text-white text-xs font-bold transition-all disabled:opacity-50"
                     >
                       🔄
                     </button>
@@ -1192,7 +1268,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                         className={`flex-1 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
                           worksheetLevel === lv.id
                             ? 'bg-orange-500/20 border-orange-500/50 text-orange-400'
-                            : 'bg-[#32302e] border-white/10 text-[#75716e] hover:text-white'
+                            : 'bg-[var(--bg-elevated)] border-[var(--border-default)] text-[var(--text-subtle)] hover:text-white'
                         }`}
                       >
                         {lv.label}
@@ -1235,7 +1311,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                   <span className="text-4xl">🗂</span>
                   <div>
                     <p className="text-white font-semibold mb-1">구간별 심층 분석</p>
-                    <p className="text-[#a4a09c] text-sm leading-relaxed">
+                    <p className="text-[var(--text-muted)] text-sm leading-relaxed">
                       30분 이상 영상입니다.<br />
                       10분 단위로 나눠 각 구간을 분석하고 퀴즈를 풀 수 있어요.
                     </p>
@@ -1280,7 +1356,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                   ) : '🛍️ 언급된 상품 & 장소 추출'}
                 </button>
               ) : (
-                <div className="bg-[#2a2826] rounded-2xl border border-white/8 p-4 space-y-4">
+                <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] p-4 space-y-4">
                   <div className="flex items-center justify-between">
                     <p className="text-amber-400 font-bold text-sm">🛍️ 언급된 상품 & 장소</p>
                     <button
@@ -1300,10 +1376,10 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                             href={`https://www.coupang.com/np/search?q=${encodeURIComponent(p.name)}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-3 bg-[#32302e] rounded-xl p-3 hover:bg-[#3a3836] transition-colors group"
+                            className="flex items-center gap-3 bg-[var(--bg-elevated)] rounded-xl p-3 hover:bg-[var(--bg-elevated-2)] transition-colors group"
                           >
                             {/* 쿠팡 썸네일 플레이스홀더 */}
-                            <div className="w-14 h-14 rounded-lg bg-[#fff] flex items-center justify-center shrink-0 overflow-hidden border border-white/10">
+                            <div className="w-14 h-14 rounded-lg bg-[#fff] flex items-center justify-center shrink-0 overflow-hidden border border-[var(--border-default)]">
                               <img
                                 src={`https://img1.coupangcdn.com/image/coupang/common/logo_coupang_w350.png`}
                                 alt="coupang"
@@ -1339,7 +1415,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                       <p className="text-zinc-400 text-xs font-semibold mb-2">📍 장소</p>
                       <div className="space-y-2">
                         {extractedItems?.places.map((pl: any, i: number) => (
-                          <div key={i} className="flex items-start gap-3 bg-[#32302e] rounded-xl p-3">
+                          <div key={i} className="flex items-start gap-3 bg-[var(--bg-elevated)] rounded-xl p-3">
                             <div className="flex-1 min-w-0">
                               <p className="text-white text-sm font-semibold">{pl.name}</p>
                               {pl.region && <span className="text-[10px] text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded mt-0.5 inline-block">{pl.region}</span>}
@@ -1373,12 +1449,12 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           )}
 
           {activeTab === 'transcript' && (
-            <div className="bg-[#2a2826] rounded-2xl p-6 border border-white/5 shadow-lg h-[500px] overflow-y-auto">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+            <div className="bg-[var(--bg-surface-2)] rounded-2xl p-6 border border-[var(--border-subtle)] shadow-lg h-[500px] overflow-y-auto">
+              <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-4 mb-4">
                 <h2 className="text-xl font-bold">전체 자막</h2>
                 <div className="flex items-center gap-2">
                   {data.transcriptOriginal && (
-                    <div className="flex gap-1 bg-white/5 rounded-lg p-1">
+                    <div className="flex gap-1 bg-[var(--overlay-subtle)] rounded-lg p-1">
                       <button
                         onClick={() => setTranscriptDisplayLang('ko')}
                         className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${transcriptDisplayLang === 'ko' ? 'bg-orange-500 text-white' : 'text-zinc-400 hover:text-white'}`}
@@ -1403,7 +1479,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                       setTranscriptCopied(true)
                       setTimeout(() => setTranscriptCopied(false), 2000)
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/8 hover:bg-white/12 text-zinc-400 hover:text-white transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 hover:text-white transition-all"
                   >
                     {transcriptCopied ? '✓ 복사됨' : '📋 복사'}
                   </button>
@@ -1451,7 +1527,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                     >
                       {chunk.ts}
                     </button>
-                    <p className="text-[#d4d4d8] text-sm leading-relaxed group-hover:text-white transition-colors">
+                    <p className="text-[var(--text-primary)] text-sm leading-relaxed group-hover:text-white transition-colors">
                       {chunk.text}
                     </p>
                   </div>
@@ -1461,10 +1537,10 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           )}
 
           {activeTab === 'reanalyze' && (
-            <div className="bg-[#2a2826] rounded-2xl p-6 border border-white/5 space-y-4 shadow-lg">
+            <div className="bg-[var(--bg-surface-2)] rounded-2xl p-6 border border-[var(--border-subtle)] space-y-4 shadow-lg">
               <div>
                 <h2 className="text-base font-bold text-white mb-1">다른 방식으로 다시 분석</h2>
-                <p className="text-xs text-[#75716e]">같은 영상을 다른 카테고리 형식으로 새로 요약합니다.</p>
+                <p className="text-xs text-[var(--text-subtle)]">같은 영상을 다른 카테고리 형식으로 새로 요약합니다.</p>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {RE_ANALYZE_CATEGORIES.map(cat => {
@@ -1477,10 +1553,10 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                       disabled={isCurrent || reanalyzing}
                       className={`flex flex-col items-center gap-1.5 py-4 rounded-2xl text-xs font-semibold transition-all border ${
                         isCurrent
-                          ? 'bg-white/5 border-white/20 text-white/40 cursor-default'
+                          ? 'bg-[var(--overlay-subtle)] border-[var(--border-strong)] text-white/40 cursor-default'
                           : isLoading
                             ? 'bg-orange-500/20 border-orange-500/40 text-orange-300'
-                            : 'bg-[#32302e] border-white/5 text-[#a4a09c] hover:bg-[#3d3a38] hover:text-white hover:border-white/20'
+                            : 'bg-[var(--bg-elevated)] border-[var(--border-subtle)] text-[var(--text-muted)] hover:bg-[var(--bg-elevated-2)] hover:text-white hover:border-[var(--border-strong)]'
                       } disabled:opacity-60`}
                     >
                       <span className="text-2xl">{isLoading ? '⏳' : cat.icon}</span>
@@ -1509,8 +1585,8 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                 disabled={togglingVisibility}
                 className={`flex-1 h-12 rounded-xl font-bold text-xs transition-all disabled:opacity-50 border px-3 ${
                   savedItem.isPublic
-                    ? 'bg-[#32302e] border-white/10 text-[#a4a09c] hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400'
-                    : 'bg-[#32302e] border-white/10 text-[#a4a09c] hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-400'
+                    ? 'bg-[var(--bg-elevated)] border-[var(--border-default)] text-[var(--text-muted)] hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400'
+                    : 'bg-[var(--bg-elevated)] border-[var(--border-default)] text-[var(--text-muted)] hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-400'
                 }`}
               >
                 {togglingVisibility ? '변경 중...' : savedItem.isPublic ? '🌍 공개 중' : '🔒 비공개'}
@@ -1530,7 +1606,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           {data.videoId && (
             <button
               onClick={() => user ? setShowRoomModal(true) : openAuthModal('login')}
-              className="h-12 w-12 border border-white/10 bg-[#32302e] text-white hover:bg-orange-500/15 hover:border-orange-500/30 hover:text-orange-400 transition-all rounded-xl flex items-center justify-center"
+              className="h-12 w-12 border border-[var(--border-default)] bg-[var(--bg-elevated)] text-white hover:bg-orange-500/15 hover:border-orange-500/30 hover:text-orange-400 transition-all rounded-xl flex items-center justify-center"
               title={user ? '시청파티 만들기' : '로그인 후 이용 가능'}
             >
               <span className="text-lg leading-none">🎬</span>
@@ -1540,7 +1616,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           {/* 블로그 초안 버튼 */}
           <button
             onClick={() => setShowBlogModal(true)}
-            className="h-12 w-12 border border-white/10 bg-[#32302e] text-white hover:bg-orange-500/15 hover:border-orange-500/30 hover:text-orange-400 transition-all rounded-xl flex items-center justify-center"
+            className="h-12 w-12 border border-[var(--border-default)] bg-[var(--bg-elevated)] text-white hover:bg-orange-500/15 hover:border-orange-500/30 hover:text-orange-400 transition-all rounded-xl flex items-center justify-center"
             title="블로그 초안 생성"
           >
             <span className="text-lg leading-none">✍️</span>
@@ -1550,7 +1626,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           {data.videoId && (
             <button
               onClick={() => setShowShortsModal(true)}
-              className="h-12 w-12 border border-white/10 bg-[#32302e] text-white hover:bg-pink-500/15 hover:border-pink-500/30 hover:text-pink-400 transition-all rounded-xl flex items-center justify-center"
+              className="h-12 w-12 border border-[var(--border-default)] bg-[var(--bg-elevated)] text-white hover:bg-pink-500/15 hover:border-pink-500/30 hover:text-pink-400 transition-all rounded-xl flex items-center justify-center"
               title="숏폼 스크립트 생성"
             >
               <span className="text-lg leading-none">✂️</span>
@@ -1565,7 +1641,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                 className={`h-12 w-12 border transition-all rounded-xl flex items-center justify-center relative ${
                   showBookmarkModal
                     ? 'bg-yellow-500/20 border-yellow-500/40 text-yellow-400'
-                    : 'border-white/10 bg-[#32302e] text-white hover:bg-yellow-500/15 hover:border-yellow-500/30 hover:text-yellow-400'
+                    : 'border-[var(--border-default)] bg-[var(--bg-elevated)] text-white hover:bg-yellow-500/15 hover:border-yellow-500/30 hover:text-yellow-400'
                 }`}
                 title="북마크"
               >
@@ -1583,7 +1659,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           <button
             onClick={handleDownloadPdf}
             disabled={downloading}
-            className="h-12 w-12 border border-white/10 bg-[#32302e] text-white hover:bg-[#3d3a38] hover:border-white/20 transition-all rounded-xl disabled:opacity-50 flex items-center justify-center"
+            className="h-12 w-12 border border-[var(--border-default)] bg-[var(--bg-elevated)] text-white hover:bg-[var(--bg-elevated-2)] hover:border-[var(--border-strong)] transition-all rounded-xl disabled:opacity-50 flex items-center justify-center"
             title="PDF 다운로드"
           >
             {downloading ? (
@@ -1605,7 +1681,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
             className={`h-12 w-12 border rounded-xl disabled:opacity-50 flex items-center justify-center transition-all ${
               shareCopied
                 ? 'border-green-500/40 bg-green-500/10 text-green-400'
-                : 'border-white/10 bg-[#32302e] text-white hover:bg-[#3d3a38] hover:border-white/20'
+                : 'border-[var(--border-default)] bg-[var(--bg-elevated)] text-white hover:bg-[var(--bg-elevated-2)] hover:border-[var(--border-strong)]'
             }`}
             title={shareCopied ? '링크 복사됨!' : '링크 공유 / 복사'}
           >
@@ -1628,7 +1704,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
 
         {/* 유튜브 댓글 방향성 요약 */}
         {data.videoId && (ytCommentSummaryLoading || ytCommentSummary) && (
-          <div className="rounded-2xl bg-[#1e1c1a] border border-white/8 p-4">
+          <div className="rounded-2xl bg-[var(--bg-base)] border border-[var(--border-default)] p-4">
             <div className="flex items-center gap-2 mb-2.5">
               <span className="text-base">💬</span>
               <span className="text-sm font-semibold text-zinc-200">유튜브 시청자 반응</span>
@@ -1711,6 +1787,8 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           onAnswer={handleQuizAnswer}
           showMeta={data.category === 'learning' || data.category === 'english'}
           onMeta={data.category === 'learning' || data.category === 'english' ? handleQuizMeta : undefined}
+          reviewMode={isReviewMode}
+          reviewRounds={isReviewMode && reviewRounds.length > 0 ? reviewRounds : undefined}
         />
       )}
       {worksheet && (
@@ -1803,10 +1881,10 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
       {showBookmarkModal && data && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowBookmarkModal(false)} />
-          <div className="relative w-full max-w-sm bg-[#1c1a18] rounded-3xl border border-yellow-500/20 shadow-2xl overflow-hidden">
+          <div className="relative w-full max-w-sm bg-[var(--bg-base)] rounded-3xl border border-yellow-500/20 shadow-2xl overflow-hidden">
 
             {/* 헤더 */}
-            <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-white/8">
+            <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[var(--border-default)]">
               <div className="flex items-center gap-2">
                 <span className="text-lg">🔖</span>
                 <p className="text-white font-bold text-sm">북마크</p>
@@ -1820,7 +1898,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
             </div>
 
             {/* 새 북마크 추가 */}
-            <div className="px-5 py-4 border-b border-white/8">
+            <div className="px-5 py-4 border-b border-[var(--border-default)]">
               <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">현재 위치에 추가</p>
               <div className="flex items-center gap-2 mb-3">
                 <span className="font-mono text-sm text-yellow-400 bg-yellow-500/10 px-2.5 py-1 rounded-lg border border-yellow-500/20 font-bold">
@@ -1833,7 +1911,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                 onChange={e => setBookmarkMemo(e.target.value)}
                 placeholder="메모 추가 (선택)"
                 rows={2}
-                className="w-full bg-[#2a2826] border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-yellow-500/40 resize-none mb-3"
+                className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-yellow-500/40 resize-none mb-3"
                 autoFocus
               />
               <button
@@ -1857,7 +1935,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                   {videoBookmarks.map(bm => (
                     <div
                       key={bm.id}
-                      className="group flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-colors cursor-pointer"
+                      className="group flex items-start gap-3 p-2.5 rounded-xl hover:bg-[var(--overlay-subtle)] transition-colors cursor-pointer"
                       onClick={() => {
                         playerRef.current?.seekTo(bm.timestampSec, true)
                         setShowBookmarkModal(false)
@@ -1951,13 +2029,13 @@ function VideoTimeline({ summary, category, totalSec, onSeekAndScroll }: {
   }
 
   return (
-    <div className="bg-[#2a2826] rounded-2xl border border-white/8 px-4 py-3 space-y-2">
+    <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] px-4 py-3 space-y-2">
       <p className="text-xs text-zinc-500 font-semibold">
         📊 전체 <span className="text-zinc-300 font-bold">{fmtSec(totalSec)}</span> 분석 완료 — 핵심 {valid.length}개 지점
       </p>
       <div className="relative h-6">
         {/* 베이스 바 */}
-        <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1.5 rounded-full bg-white/8" />
+        <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1.5 rounded-full bg-[var(--overlay-subtle)]" />
         {/* 채워진 부분 (가장 마지막 키포인트까지) */}
         <div
           className="absolute top-1/2 -translate-y-1/2 left-0 h-1.5 rounded-full bg-gradient-to-r from-orange-500/60 to-orange-400/30"
@@ -1977,11 +2055,11 @@ function VideoTimeline({ summary, category, totalSec, onSeekAndScroll }: {
                 className="w-2.5 h-2.5 rounded-full bg-orange-500 border-2 border-zinc-900 -translate-x-1/2 cursor-pointer hover:scale-125 hover:bg-orange-400 transition-transform block"
               />
               <div className="absolute bottom-5 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col items-center pointer-events-none z-10">
-                <div className="bg-zinc-900 border border-white/15 rounded-lg px-2.5 py-1.5 shadow-xl min-w-max max-w-[180px]">
+                <div className="bg-zinc-900 border border-[var(--border-strong)] rounded-lg px-2.5 py-1.5 shadow-xl min-w-max max-w-[180px]">
                   <p className="text-orange-400 font-mono text-[10px] font-bold">{p.ts} ▶</p>
                   <p className="text-zinc-200 text-[10px] leading-snug line-clamp-2">{p.label}</p>
                 </div>
-                <div className="w-1.5 h-1.5 bg-zinc-900 border-b border-r border-white/15 rotate-45 -mt-[3px]" />
+                <div className="w-1.5 h-1.5 bg-zinc-900 border-b border-r border-[var(--border-strong)] rotate-45 -mt-[3px]" />
               </div>
             </div>
           )
@@ -2010,7 +2088,7 @@ function MetaCheckButtons({
   ]
 
   return (
-    <div className="mt-4 pt-4 border-t border-white/5">
+    <div className="mt-4 pt-4 border-t border-[var(--border-subtle)]">
       <p className="text-xs text-gray-500 mb-3 text-center">이 영상을 얼마나 이해했나요?</p>
       <div className="flex gap-2">
         {buttons.map(btn => (

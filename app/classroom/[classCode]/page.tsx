@@ -470,14 +470,14 @@ export default function ClassDashboard() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-[#1a1918] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500" />
       </div>
     )
   }
 
   if (!classroom) return (
-    <div className="min-h-screen bg-[#1a1918] flex flex-col items-center justify-center gap-3 text-center px-4">
+    <div className="min-h-screen bg-[var(--bg-base)] flex flex-col items-center justify-center gap-3 text-center px-4">
       <p className="text-4xl">🏫</p>
       <p className="text-white font-bold">클래스를 불러올 수 없습니다.</p>
       <p className="text-gray-500 text-sm">클래스 코드 <span className="font-mono text-orange-400">{classCode}</span>가 존재하지 않거나 접근 권한이 없습니다.</p>
@@ -509,18 +509,18 @@ export default function ClassDashboard() {
   })()
 
   return (
-    <div className="min-h-screen bg-[#1a1918] text-white">
+    <div className="min-h-screen bg-[var(--bg-base)] text-white">
       <Header title="🏫 클래스 대시보드" />
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* 클래스 헤더 */}
-        <div className="bg-gradient-to-br from-[#2a2826] to-[#1e1d1b] rounded-[28px] border border-white/5 p-6 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="bg-gradient-to-br from-[var(--bg-surface-2)] to-[var(--bg-base)] rounded-[28px] border border-[var(--border-subtle)] p-6 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-black">{classroom.schoolName} {classroom.grade}학년 {classroom.classNum}반</h1>
             <p className="text-gray-400 text-sm mt-1">{students.length}명 등록</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="bg-[#1a1918] rounded-2xl px-5 py-3 border border-white/10">
+            <div className="bg-[var(--bg-base)] rounded-2xl px-5 py-3 border border-[var(--border-default)]">
               <p className="text-[10px] text-gray-500 mb-0.5">클래스 코드</p>
               <p className="text-xl font-black font-mono tracking-widest text-orange-400">{classCode}</p>
             </div>
@@ -550,7 +550,7 @@ export default function ClassDashboard() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-5 py-2 rounded-xl text-sm font-bold transition-colors ${activeTab === tab ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+              className={`px-5 py-2 rounded-xl text-sm font-bold transition-colors ${activeTab === tab ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
             >
               {tab === 'students' ? '👥 학생 현황'
                 : tab === 'folders' ? '📁 수업자료 관리'
@@ -562,7 +562,7 @@ export default function ClassDashboard() {
 
         {/* 학생 현황 탭 */}
         {activeTab === 'students' && (
-          <div className="bg-[#23211f] rounded-[28px] border border-white/10 p-6">
+          <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] p-6">
             {students.length === 0 ? (
               <div className="py-16 text-center">
                 <p className="text-4xl mb-3">👥</p>
@@ -572,7 +572,7 @@ export default function ClassDashboard() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="text-gray-500 border-b border-white/5">
+                  <thead className="text-gray-500 border-b border-[var(--border-subtle)]">
                     <tr>
                       <th className="pb-3 font-medium">이름</th>
                       <th className="pb-3 font-medium text-center">접속</th>
@@ -603,7 +603,7 @@ export default function ClassDashboard() {
                         <td className="py-3 text-right">
                           <button
                             onClick={() => openStudentDetail(s)}
-                            className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-gray-400"
+                            className="px-3 py-1 rounded-lg bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] transition-colors text-gray-400"
                           >
                             상세보기
                           </button>
@@ -632,7 +632,7 @@ export default function ClassDashboard() {
 
             return (
               <div key={folder.id}>
-                <div className={`rounded-2xl border transition-colors ${isDistributed ? 'bg-emerald-500/5 border-emerald-500/30' : 'bg-[#1a1918] border-white/5'}`}>
+                <div className={`rounded-2xl border transition-colors ${isDistributed ? 'bg-emerald-500/5 border-emerald-500/30' : 'bg-[var(--bg-base)] border-[var(--border-subtle)]'}`}>
                   <div className="flex items-center justify-between px-4 py-3 gap-2">
                     <button className="flex items-center gap-2 flex-1 text-left min-w-0" onClick={() => handleExpandFolder(folder.id)}>
                       <span className="text-base shrink-0">{isExpanded ? '📂' : '📁'}</span>
@@ -682,7 +682,7 @@ export default function ClassDashboard() {
 
                   {/* 영상 목록 */}
                   {isExpanded && (
-                    <div className="border-t border-white/5 px-4 pb-3 pt-2 space-y-2">
+                    <div className="border-t border-[var(--border-subtle)] px-4 pb-3 pt-2 space-y-2">
                       {loadingVideos === folder.id ? (
                         <p className="text-xs text-gray-500 py-2">불러오는 중...</p>
                       ) : videos.length === 0 ? (
@@ -690,7 +690,7 @@ export default function ClassDashboard() {
                       ) : videos.map((item: any) => {
                         const hasQuiz = item.videoId && videoQuizSets[item.videoId]
                         return (
-                          <div key={item.id} className="flex items-center gap-3 rounded-xl bg-[#23211f] px-3 py-2.5">
+                          <div key={item.id} className="flex items-center gap-3 rounded-xl bg-[var(--bg-surface)] px-3 py-2.5">
                             {item.thumbnail && <img src={item.thumbnail} alt="" className="w-14 h-8 rounded object-cover shrink-0" />}
                             <p className="flex-1 text-xs text-gray-200 truncate">{item.title}</p>
                             {hasQuiz && (
@@ -715,7 +715,7 @@ export default function ClassDashboard() {
 
                 {/* 하위폴더 */}
                 {children.length > 0 && (
-                  <div className="ml-5 mt-1.5 mb-2 border-l-2 border-white/10 pl-3 space-y-1.5">
+                  <div className="ml-5 mt-1.5 mb-2 border-l-2 border-[var(--border-default)] pl-3 space-y-1.5">
                     {children.map(child => renderFolder(child, depth + 1))}
                   </div>
                 )}
@@ -724,7 +724,7 @@ export default function ClassDashboard() {
           }
 
           return (
-            <div className="bg-[#23211f] rounded-[28px] border border-white/10 p-6">
+            <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] p-6">
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm text-gray-400">
                   <span className="text-emerald-400 font-bold">배포</span>를 누르면 학생 화면에 폴더와 영상이 실시간으로 보입니다.
@@ -761,7 +761,7 @@ export default function ClassDashboard() {
 
         {/* 히트맵 탭 */}
         {activeTab === 'heatmap' && (
-          <div className="bg-[#23211f] rounded-[28px] border border-white/10 p-6">
+          <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] p-6">
             <div className="mb-5">
               <h2 className="font-black text-base">🔥 퀴즈 오답 히트맵</h2>
               <p className="text-xs text-gray-400 mt-1">
@@ -784,7 +784,7 @@ export default function ClassDashboard() {
 
         {/* 설정 탭 */}
         {activeTab === 'setup' && (
-          <div className="bg-[#23211f] rounded-[28px] border border-white/10 p-6 space-y-4">
+          <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] p-6 space-y-4">
             <InfoRow label="학교명" value={classroom.schoolName} />
             <InfoRow label="학년/반" value={`${classroom.grade}학년 ${classroom.classNum}반`} />
             <InfoRow label="클래스 코드" value={classCode} highlight />
@@ -809,7 +809,7 @@ export default function ClassDashboard() {
       {/* 영상 추가 피커 모달 */}
       {videoPickerFolder && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setVideoPickerFolder(null)}>
-          <div className="bg-[#23211f] rounded-[28px] border border-white/10 w-full max-w-lg p-6 space-y-4 max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] w-full max-w-lg p-6 space-y-4 max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between shrink-0">
               <div>
                 <h3 className="text-base font-black">🎬 영상 추가</h3>
@@ -822,7 +822,7 @@ export default function ClassDashboard() {
               placeholder="영상 제목 검색..."
               value={librarySearch}
               onChange={e => setLibrarySearch(e.target.value)}
-              className="shrink-0 w-full px-4 py-2.5 rounded-xl bg-[#1a1918] border border-white/10 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50"
+              className="shrink-0 w-full px-4 py-2.5 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50"
             />
             <div className="overflow-y-auto flex-1 space-y-2">
               {loadingLibrary ? (
@@ -835,7 +835,7 @@ export default function ClassDashboard() {
                 return filtered.length === 0 ? (
                   <p className="text-gray-600 text-sm text-center py-8">추가할 수 있는 영상이 없습니다.</p>
                 ) : filtered.map((v: any) => (
-                  <div key={v.id} className="flex items-center gap-3 bg-[#2a2826] rounded-xl px-3 py-2.5">
+                  <div key={v.id} className="flex items-center gap-3 bg-[var(--bg-surface-2)] rounded-xl px-3 py-2.5">
                     {v.thumbnail && <img src={v.thumbnail} alt="" className="w-14 h-8 rounded object-cover shrink-0" />}
                     <p className="flex-1 text-xs text-gray-200 truncate">{v.title}</p>
                     <button
@@ -856,7 +856,7 @@ export default function ClassDashboard() {
       {/* 퀴즈 내용 보기 모달 */}
       {quizViewModal && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setQuizViewModal(null)}>
-          <div className="bg-[#23211f] rounded-[28px] border border-white/10 w-full max-w-md p-6 space-y-4 max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] w-full max-w-md p-6 space-y-4 max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
             <div className="flex items-start justify-between shrink-0">
               <div>
                 <h3 className="text-base font-black">📝 등록된 퀴즈</h3>
@@ -866,7 +866,7 @@ export default function ClassDashboard() {
             </div>
             <div className="overflow-y-auto space-y-3 flex-1">
               {(quizViewModal.quiz.questions || []).map((q: any, i: number) => (
-                <div key={i} className="bg-[#2a2826] rounded-2xl p-4 space-y-2">
+                <div key={i} className="bg-[var(--bg-surface-2)] rounded-2xl p-4 space-y-2">
                   <p className="text-xs font-bold text-white">Q{i + 1}. {q.question}</p>
                   {q.type === 'multiple_choice' && q.options ? (
                     <div className="space-y-1">
@@ -890,7 +890,7 @@ export default function ClassDashboard() {
       {/* 클립 배포 모달 */}
       {clipModal && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setClipModal(null)}>
-          <div className="bg-[#23211f] rounded-[28px] border border-white/10 w-full max-w-sm p-6 space-y-5" onClick={e => e.stopPropagation()}>
+          <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] w-full max-w-sm p-6 space-y-5" onClick={e => e.stopPropagation()}>
             <div>
               <h3 className="text-base font-black">🎬 구간 배포 설정</h3>
               <p className="text-xs text-gray-400 mt-1 truncate">"{clipModal.item.title}"</p>
@@ -907,7 +907,7 @@ export default function ClassDashboard() {
                   placeholder="예: 2:30"
                   value={clipStartStr}
                   onChange={e => setClipStartStr(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-[#1a1918] border border-white/10 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-emerald-500/50"
+                  className="w-full px-3 py-2 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-emerald-500/50"
                 />
               </div>
               <div>
@@ -917,7 +917,7 @@ export default function ClassDashboard() {
                   placeholder="예: 5:45"
                   value={clipEndStr}
                   onChange={e => setClipEndStr(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-[#1a1918] border border-white/10 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-emerald-500/50"
+                  className="w-full px-3 py-2 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-emerald-500/50"
                 />
               </div>
             </div>
@@ -927,7 +927,7 @@ export default function ClassDashboard() {
               </p>
             )}
             <div className="flex gap-2 pt-1">
-              <button onClick={() => setClipModal(null)} className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 text-gray-400 text-sm font-bold hover:bg-white/10">
+              <button onClick={() => setClipModal(null)} className="flex-1 px-4 py-2.5 rounded-xl bg-[var(--overlay-subtle)] text-gray-400 text-sm font-bold hover:bg-[var(--overlay-default)]">
                 취소
               </button>
               <button
@@ -961,9 +961,9 @@ export default function ClassDashboard() {
 
         return (
           <div className="fixed inset-0 bg-black/80 z-50 flex items-start justify-center p-4 overflow-y-auto" onClick={() => setReportFolder(null)}>
-            <div className="bg-[#1a1918] rounded-[28px] border border-white/10 w-full max-w-4xl my-8" onClick={e => e.stopPropagation()}>
+            <div className="bg-[var(--bg-base)] rounded-[28px] border border-[var(--border-default)] w-full max-w-4xl my-8" onClick={e => e.stopPropagation()}>
               {/* 모달 헤더 */}
-              <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/5">
+              <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-[var(--border-subtle)]">
                 <div>
                   <h2 className="text-lg font-black">📋 수업 보고서</h2>
                   <p className="text-xs text-gray-400 mt-0.5">{reportFolder.name} · {classroom?.schoolName} {classroom?.grade}학년 {classroom?.classNum}반</p>
@@ -1087,14 +1087,14 @@ export default function ClassDashboard() {
               </div>
 
               {/* 코멘트 입력 (PDF 외부) */}
-              <div className="px-6 pb-6 pt-4 border-t border-white/5 space-y-3">
+              <div className="px-6 pb-6 pt-4 border-t border-[var(--border-subtle)] space-y-3">
                 <p className="text-xs text-gray-400">📝 선생님 코멘트를 입력하면 보고서에 포함됩니다.</p>
                 <textarea
                   value={reportNote}
                   onChange={e => setReportNote(e.target.value)}
                   placeholder="수업 관찰, 학생 피드백 요약, 다음 수업 계획 등을 자유롭게 작성하세요."
                   rows={4}
-                  className="w-full px-4 py-3 rounded-2xl bg-[#23211f] border border-white/10 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-purple-500/50 resize-none"
+                  className="w-full px-4 py-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-default)] text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-purple-500/50 resize-none"
                 />
                 <div className="flex justify-end">
                   <button
@@ -1115,11 +1115,11 @@ export default function ClassDashboard() {
       {selectedStudent && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setSelectedStudent(null)}>
           <div
-            className="bg-[#23211f] rounded-[28px] border border-white/10 w-full max-w-2xl max-h-[90vh] flex flex-col"
+            className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] w-full max-w-2xl max-h-[90vh] flex flex-col"
             onClick={e => e.stopPropagation()}
           >
             {/* 모달 헤더 */}
-            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/5 shrink-0">
+            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-[var(--border-subtle)] shrink-0">
               <div>
                 <h2 className="text-lg font-black">{selectedStudent.studentName}</h2>
                 <p className="text-xs text-gray-500 mt-0.5">학생 활동 상세 기록</p>
@@ -1139,25 +1139,25 @@ export default function ClassDashboard() {
             <div className="flex gap-2 px-6 pb-3 shrink-0 flex-wrap">
               <button
                 onClick={() => setStudentDetailTab('videos')}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${studentDetailTab === 'videos' ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${studentDetailTab === 'videos' ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
               >
                 🎬 영상별 기록
               </button>
               <button
                 onClick={() => setStudentDetailTab('bookmarks')}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${studentDetailTab === 'bookmarks' ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${studentDetailTab === 'bookmarks' ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
               >
                 🔖 북마크 {studentBookmarks.length > 0 && <span className="ml-1 bg-white/20 px-1.5 py-0.5 rounded-full text-[10px]">{studentBookmarks.length}</span>}
               </button>
               <button
                 onClick={() => setStudentDetailTab('review')}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${studentDetailTab === 'review' ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${studentDetailTab === 'review' ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
               >
                 🔁 복습 현황
               </button>
               <button
                 onClick={() => setStudentDetailTab('access')}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${studentDetailTab === 'access' ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${studentDetailTab === 'access' ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
               >
                 🔐 접속 기록
               </button>
@@ -1175,7 +1175,7 @@ export default function ClassDashboard() {
                 ) : (
                   <div className="space-y-3">
                     {videoRecords.map(vr => (
-                      <div key={vr.videoId} className="bg-[#1a1918] rounded-2xl p-4 border border-white/5">
+                      <div key={vr.videoId} className="bg-[var(--bg-base)] rounded-2xl p-4 border border-[var(--border-subtle)]">
                         {/* 영상 제목 + 완료 뱃지 */}
                         <div className="flex items-start justify-between gap-2 mb-3">
                           <p className="text-sm font-bold text-white leading-snug flex-1">{vr.videoTitle}</p>
@@ -1190,7 +1190,7 @@ export default function ClassDashboard() {
                             <span>시청률</span>
                             <span className="text-white font-bold">{vr.percentWatched}% · {fmtDuration(vr.watchDurationSec)}</span>
                           </div>
-                          <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-1.5 bg-[var(--overlay-subtle)] rounded-full overflow-hidden">
                             <div
                               className="h-full bg-orange-500 rounded-full"
                               style={{ width: `${Math.min(vr.percentWatched, 100)}%` }}
@@ -1279,7 +1279,7 @@ export default function ClassDashboard() {
                 ) : (
                   <div className="space-y-2">
                     {studentBookmarks.map(bm => (
-                      <div key={bm.id} className="bg-[#1a1918] rounded-2xl p-4 border border-white/5">
+                      <div key={bm.id} className="bg-[var(--bg-base)] rounded-2xl p-4 border border-[var(--border-subtle)]">
                         <div className="flex items-start gap-3">
                           {bm.thumbnail && (
                             <img src={bm.thumbnail} alt="" className="w-16 h-10 rounded-lg object-cover shrink-0" />
@@ -1308,7 +1308,7 @@ export default function ClassDashboard() {
                     {studentReviews.map((item, i) => {
                       const isOverdue = item.nextReviewDate <= new Date().toISOString().slice(0, 10)
                       return (
-                        <div key={i} className={`flex items-start gap-3 rounded-xl px-4 py-3 text-xs ${isOverdue ? 'bg-red-500/10 border border-red-500/20' : 'bg-[#1a1918]'}`}>
+                        <div key={i} className={`flex items-start gap-3 rounded-xl px-4 py-3 text-xs ${isOverdue ? 'bg-red-500/10 border border-red-500/20' : 'bg-[var(--bg-base)]'}`}>
                           <span className="text-lg">{isOverdue ? '🔴' : '🔵'}</span>
                           <div className="flex-1 min-w-0">
                             <p className="text-gray-300 font-medium truncate">{item.videoTitle || '영상'}</p>
@@ -1348,7 +1348,7 @@ export default function ClassDashboard() {
                         return formatRelativeDate(ts?.toDate?.() || ts)
                       }
                       return (
-                        <div key={i} className="bg-[#1a1918] rounded-xl px-4 py-3 text-xs border border-white/5">
+                        <div key={i} className="bg-[var(--bg-base)] rounded-xl px-4 py-3 text-xs border border-[var(--border-subtle)]">
                           <div className="flex items-center justify-between mb-1.5">
                             <span className="text-gray-400 font-medium">{fmtDate(loginTs || logoutTs)}</span>
                             {device && <span className="text-[10px] text-gray-600">{device}</span>}
@@ -1378,7 +1378,7 @@ export default function ClassDashboard() {
 
 function StatCard({ label, value, unit, color }: { label: string; value: number; unit: string; color: string }) {
   return (
-    <div className="bg-[#23211f] rounded-[20px] border border-white/5 p-4">
+    <div className="bg-[var(--bg-surface)] rounded-[20px] border border-[var(--border-subtle)] p-4">
       <p className="text-gray-500 text-[10px] mb-1">{label}</p>
       <p className={`text-2xl font-black ${color}`}>{value} <span className="text-[10px] font-normal text-gray-600">{unit}</span></p>
     </div>
@@ -1387,7 +1387,7 @@ function StatCard({ label, value, unit, color }: { label: string; value: number;
 
 function MiniStat({ label, value, unit, color }: { label: string; value: number; unit: string; color: string }) {
   return (
-    <div className="bg-[#1a1918] rounded-2xl p-3 text-center">
+    <div className="bg-[var(--bg-base)] rounded-2xl p-3 text-center">
       <p className="text-gray-500 text-[9px] mb-1">{label}</p>
       <p className={`text-xl font-black ${color}`}>{value}<span className="text-[9px] font-normal text-gray-600 ml-0.5">{unit}</span></p>
     </div>
@@ -1396,7 +1396,7 @@ function MiniStat({ label, value, unit, color }: { label: string; value: number;
 
 function InfoRow({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-white/5">
+    <div className="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]">
       <span className="text-gray-400 text-sm">{label}</span>
       <span className={`text-sm font-bold ${highlight ? 'font-mono text-orange-400 text-lg tracking-widest' : 'text-white'}`}>{value}</span>
     </div>

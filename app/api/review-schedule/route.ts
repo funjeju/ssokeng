@@ -142,21 +142,24 @@ export async function GET(req: NextRequest) {
     if (!studentId) return NextResponse.json({ items: [] })
 
     const today = new Date().toISOString().slice(0, 10)
+    const sessionId = searchParams.get('sessionId') // optional: 특정 세션만
+
+    const baseFilters: any[] = [
+      { fieldFilter: { field: { fieldPath: 'studentId' }, op: 'EQUAL',              value: { stringValue: studentId } } },
+      { fieldFilter: { field: { fieldPath: 'status' },    op: 'EQUAL',              value: { stringValue: 'pending' } } },
+    ]
+    // sessionId 지정 시 해당 영상의 복습 항목만, 없으면 오늘 기한 도래 항목 전체
+    if (sessionId) {
+      baseFilters.push({ fieldFilter: { field: { fieldPath: 'sessionId' }, op: 'EQUAL', value: { stringValue: sessionId } } })
+    } else {
+      baseFilters.push({ fieldFilter: { field: { fieldPath: 'nextReviewDate' }, op: 'LESS_THAN_OR_EQUAL', value: { stringValue: today } } })
+    }
 
     const searchUrl = `${BASE}:runQuery?key=${API_KEY}`
     const searchBody = {
       structuredQuery: {
         from: [{ collectionId: 'review_schedule' }],
-        where: {
-          compositeFilter: {
-            op: 'AND',
-            filters: [
-              { fieldFilter: { field: { fieldPath: 'studentId' }, op: 'EQUAL',              value: { stringValue: studentId } } },
-              { fieldFilter: { field: { fieldPath: 'status' },    op: 'EQUAL',              value: { stringValue: 'pending' } } },
-              { fieldFilter: { field: { fieldPath: 'nextReviewDate' }, op: 'LESS_THAN_OR_EQUAL', value: { stringValue: today } } },
-            ],
-          },
-        },
+        where: { compositeFilter: { op: 'AND', filters: baseFilters } },
         limit: 50,
       },
     }

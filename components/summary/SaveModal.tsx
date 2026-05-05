@@ -253,7 +253,7 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
 
   return (
     <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#23211f] border border-white/10 rounded-3xl w-full max-w-md p-6 flex flex-col gap-6 shadow-2xl">
+      <div className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-3xl w-full max-w-md p-6 flex flex-col gap-6 shadow-2xl">
         <h2 className="text-xl font-bold text-white text-center">라이브러리에 저장</h2>
 
         {/* 중복 영상 안내 */}
@@ -272,7 +272,7 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
             <div className="text-5xl">📚</div>
             <div className="text-center space-y-1.5">
               <p className="text-white font-semibold">로그인 후 저장할 수 있어요</p>
-              <p className="text-[#a4a09c] text-sm leading-relaxed">라이브러리에 저장하면 언제든지<br />다시 꺼내볼 수 있습니다.</p>
+              <p className="text-[var(--text-muted)] text-sm leading-relaxed">라이브러리에 저장하면 언제든지<br />다시 꺼내볼 수 있습니다.</p>
             </div>
             <button
               onClick={() => { onClose(); openAuthModal('login') }}
@@ -289,16 +289,16 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
         {/* 로그인된 경우: 기존 저장 UI */}
         {user && (<>
 
-        <div className="flex bg-[#32302e] rounded-xl p-1 relative border border-white/5">
+        <div className="flex bg-[var(--bg-elevated)] rounded-xl p-1 relative border border-[var(--border-subtle)]">
           <button
             onClick={() => setIsPublic(false)}
-            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${!isPublic ? 'bg-[#23211f] text-white shadow' : 'text-[#75716e] hover:text-white'}`}
+            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${!isPublic ? 'bg-[var(--bg-surface)] text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'}`}
           >
             🔒 비공개 (나만 보기)
           </button>
           <button
             onClick={() => setIsPublic(true)}
-            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${isPublic ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow' : 'text-[#75716e] hover:text-white'}`}
+            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${isPublic ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'}`}
           >
             🌍 공개 (광장에 공유)
           </button>
@@ -314,19 +314,19 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
           </Button>
           
           <div className="relative">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/10"></span></div>
-            <div className="relative flex justify-center text-xs uppercase"><span className="bg-[#23211f] px-2 text-[#75716e]">또는 수동 선택</span></div>
+            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-[var(--border-default)]"></span></div>
+            <div className="relative flex justify-center text-xs uppercase"><span className="bg-[var(--bg-surface)] px-2 text-[var(--text-subtle)]">또는 수동 선택</span></div>
           </div>
 
           <div className="max-h-48 overflow-y-auto space-y-2">
             {loading ? (
-              <p className="text-center text-sm text-[#75716e]">폴더 불러오는 중...</p>
+              <p className="text-center text-sm text-[var(--text-subtle)]">폴더 불러오는 중...</p>
             ) : folders.length > 0 ? (
               folders.map(f => (
                 <Button 
                   key={f.id} 
                   variant="outline" 
-                  className="w-full h-12 justify-start px-4 border-white/5 bg-[#32302e] hover:bg-[#3d3a38] hover:text-white text-[#a4a09c]"
+                  className="w-full h-12 justify-start px-4 border-[var(--border-subtle)] bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] hover:text-white text-[var(--text-muted)]"
                   onClick={() => handleSaveToFolder(f.id)}
                   disabled={saving}
                 >
@@ -334,7 +334,7 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
                 </Button>
               ))
             ) : (
-              <p className="text-center text-sm text-[#75716e]">생성된 폴더가 없습니다.</p>
+              <p className="text-center text-sm text-[var(--text-subtle)]">생성된 폴더가 없습니다.</p>
             )}
           </div>
 
@@ -343,7 +343,7 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
               placeholder="새 폴더 이름" 
-              className="bg-[#32302e] border-none text-white h-12"
+              className="bg-[var(--bg-elevated)] border-none text-white h-12"
             />
             <Button 
               className="h-12 bg-zinc-700 text-white hover:bg-zinc-600"

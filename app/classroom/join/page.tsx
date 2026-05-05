@@ -57,7 +57,7 @@ function ClassroomJoinForm() {
 
   if (step === 'loading') {
     return (
-      <div className="min-h-screen bg-[#1a1918] flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen bg-[var(--bg-base)] flex flex-col items-center justify-center gap-4">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500" />
         <p className="text-gray-400 text-sm">계정을 만들고 있어요...</p>
       </div>
@@ -66,7 +66,7 @@ function ClassroomJoinForm() {
 
   if (step === 'done') {
     return (
-      <div className="min-h-screen bg-[#1a1918] flex flex-col items-center justify-center gap-4 text-center px-4">
+      <div className="min-h-screen bg-[var(--bg-base)] flex flex-col items-center justify-center gap-4 text-center px-4">
         <div className="text-5xl mb-2">🎉</div>
         <h2 className="text-xl font-black text-white">가입 완료!</h2>
         <p className="text-gray-400 text-sm">
@@ -78,10 +78,10 @@ function ClassroomJoinForm() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1a1918] text-white">
+    <div className="min-h-screen bg-[var(--bg-base)] text-white">
       <Header title="📖 클래스 참여하기" />
       <main className="max-w-lg mx-auto px-4 py-12">
-        <div className="bg-[#23211f] rounded-[28px] border border-white/10 p-8">
+        <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] p-8">
           <h1 className="text-2xl font-black mb-2">수업 참여</h1>
           <p className="text-gray-400 text-sm mb-8">선생님께 받은 클래스 코드와 이름을 입력하세요.</p>
 
@@ -94,7 +94,7 @@ function ClassroomJoinForm() {
                 onChange={e => setClassCode(e.target.value.toUpperCase())}
                 placeholder="예) AB1C23"
                 maxLength={6}
-                className="w-full bg-[#1a1918] border border-white/10 rounded-xl px-4 py-3 text-sm font-mono tracking-widest focus:outline-none focus:border-orange-500 transition-colors uppercase"
+                className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm font-mono tracking-widest focus:outline-none focus:border-orange-500 transition-colors uppercase"
               />
             </div>
             <div>
@@ -104,7 +104,7 @@ function ClassroomJoinForm() {
                 value={studentName}
                 onChange={e => setStudentName(e.target.value)}
                 placeholder="본인 이름을 입력하세요"
-                className="w-full bg-[#1a1918] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"
+                className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"
               />
             </div>
             <div>
@@ -114,7 +114,7 @@ function ClassroomJoinForm() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="6자 이상"
-                className="w-full bg-[#1a1918] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"
+                className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"
               />
             </div>
 
@@ -128,7 +128,7 @@ function ClassroomJoinForm() {
             </button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-white/5 text-center">
+          <div className="mt-6 pt-6 border-t border-[var(--border-subtle)] text-center">
             <p className="text-xs text-gray-500">
               이미 가입했나요?{' '}
               <Link href="/classroom/login" className="text-orange-400 hover:underline">로그인</Link>
@@ -143,7 +143,7 @@ function ClassroomJoinForm() {
 export default function ClassroomJoinPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#1a1918] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-orange-500" />
       </div>
     }>

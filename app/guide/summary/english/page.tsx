@@ -11,13 +11,13 @@ export default function EnglishGuidePage() {
   return (
     <article className="flex flex-col gap-10 max-w-2xl">
       <div>
-        <div className="flex items-center gap-2 text-[#75716e] text-xs mb-4">
+        <div className="flex items-center gap-2 text-[var(--text-subtle)] text-xs mb-4">
           <Link href="/guide" className="hover:text-white transition-colors">사용설명서</Link>
           <span>›</span><span>영상 요약</span><span>›</span>
           <span className="text-white">영어 학습</span>
         </div>
         <h1 className="text-2xl font-black text-white mb-3">🔤 영어 유튜브 영상을 AI 학습 자료로 자동 변환</h1>
-        <p className="text-[#a4a09c] text-sm leading-relaxed">
+        <p className="text-[var(--text-muted)] text-sm leading-relaxed">
           영어 유튜브를 그냥 보고 끝내기엔 너무 아깝습니다. 쏙튜브는 TED 강연, BBC 뉴스, CNN 보도, 영어권 유튜버 영상을 <strong className="text-white">핵심 어휘 · 주요 표현 · 한국어 요약 · 문화 맥락</strong>으로 자동 정리합니다. 영어 자막이 있는 모든 유튜브 영상이 5분 안에 개인화된 영어 학습 자료가 됩니다. 영어 공부하는 분, 영어권 정보를 빠르게 소화해야 하는 직장인, 학생 모두에게 유용합니다.
         </p>
       </div>
@@ -33,7 +33,7 @@ export default function EnglishGuidePage() {
             ['🌍', '다큐멘터리·교양'],
             ['🎬', '영어권 유튜버 일상·브이로그'],
           ].map(([icon, label]) => (
-            <div key={label as string} className="bg-[#32302e] rounded-xl px-3 py-2.5 text-[#a4a09c] text-xs flex items-center gap-2">
+            <div key={label as string} className="bg-[var(--bg-elevated)] rounded-xl px-3 py-2.5 text-[var(--text-muted)] text-xs flex items-center gap-2">
               <span>{icon}</span>{label}
             </div>
           ))}
@@ -49,18 +49,18 @@ export default function EnglishGuidePage() {
             { step: '3', title: '언어 선택 — 한국어 번역 또는 원문 영어', desc: '비한국어 자막 감지 시 한국어 번역 요약과 원문 영어 요약 중 선택할 수 있습니다. 상급자는 원문으로, 초중급자는 번역으로 선택하세요.' },
             { step: '4', title: '워크시트 저장 & 반복 학습', desc: '마이페이지 라이브러리에 저장해 언제든 복습하세요. 같은 영상을 두 번 요약하면 캐시로 즉시 불러와 API 비용 없이 재활용됩니다.' },
           ].map(item => (
-            <li key={item.step} className="flex gap-4 bg-[#32302e] rounded-2xl p-4">
+            <li key={item.step} className="flex gap-4 bg-[var(--bg-elevated)] rounded-2xl p-4">
               <span className="w-7 h-7 rounded-full bg-blue-500/20 text-blue-400 font-bold text-sm flex items-center justify-center shrink-0">{item.step}</span>
               <div>
                 <p className="text-white font-semibold text-sm">{item.title}</p>
-                <p className="text-[#75716e] text-xs mt-1 leading-relaxed">{item.desc}</p>
+                <p className="text-[var(--text-subtle)] text-xs mt-1 leading-relaxed">{item.desc}</p>
               </div>
             </li>
           ))}
         </ol>
       </section>
 
-      <section className="bg-[#32302e] rounded-2xl p-5 flex flex-col gap-3">
+      <section className="bg-[var(--bg-elevated)] rounded-2xl p-5 flex flex-col gap-3">
         <h2 className="text-base font-bold text-white">영어 요약에 포함되는 학습 항목</h2>
         <ul className="grid grid-cols-2 gap-2.5">
           {[
@@ -71,7 +71,7 @@ export default function EnglishGuidePage() {
             ['🌐', '문화 배경 & 맥락'],
             ['✏️', '토론 포인트 제시'],
           ].map(([icon, label]) => (
-            <li key={label as string} className="text-[#a4a09c] text-xs flex items-center gap-2">
+            <li key={label as string} className="text-[var(--text-muted)] text-xs flex items-center gap-2">
               <span>{icon}</span>{label}
             </li>
           ))}
@@ -86,11 +86,11 @@ export default function EnglishGuidePage() {
             { icon: '📰', title: '영어 뉴스 빠른 소화', desc: 'BBC·CNN 뉴스 영상을 한국어 요약 + 핵심 영어 표현으로 정리. 시사 영어 실력과 배경 지식을 동시에 키울 수 있습니다.' },
             { icon: '💼', title: '비즈니스 영어 준비', desc: '외국계 기업 면접·프레젠테이션 준비에 유용한 비즈니스 영어 유튜브를 요약해 표현집으로 활용하세요.' },
           ].map(item => (
-            <div key={item.title} className="flex gap-3 bg-[#32302e] rounded-2xl p-4">
+            <div key={item.title} className="flex gap-3 bg-[var(--bg-elevated)] rounded-2xl p-4">
               <span className="text-xl shrink-0">{item.icon}</span>
               <div>
                 <p className="text-white font-semibold text-sm">{item.title}</p>
-                <p className="text-[#75716e] text-xs mt-1 leading-relaxed">{item.desc}</p>
+                <p className="text-[var(--text-subtle)] text-xs mt-1 leading-relaxed">{item.desc}</p>
               </div>
             </div>
           ))}
@@ -104,19 +104,19 @@ export default function EnglishGuidePage() {
             { q: '영어 자동 생성 자막도 인식되나요?', a: 'YouTube 자동 생성 자막도 분석 가능합니다. 단, 자동 생성 자막의 정확도에 따라 요약 품질이 다를 수 있습니다.' },
             { q: '일본어, 스페인어 등 다른 언어 영상도 되나요?', a: '현재는 한국어·영어 위주로 최적화되어 있습니다. 다른 언어 영상은 자동 분류 모드로 시도해보세요.' },
           ].map(item => (
-            <div key={item.q} className="bg-[#32302e] rounded-xl p-4">
+            <div key={item.q} className="bg-[var(--bg-elevated)] rounded-xl p-4">
               <p className="text-white text-sm font-semibold mb-1">Q. {item.q}</p>
-              <p className="text-[#75716e] text-xs leading-relaxed">{item.a}</p>
+              <p className="text-[var(--text-subtle)] text-xs leading-relaxed">{item.a}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <div className="flex items-center gap-3 pt-2 border-t border-white/5">
+      <div className="flex items-center gap-3 pt-2 border-t border-[var(--border-subtle)]">
         <Link href="/" className="px-5 py-2.5 bg-blue-500 hover:bg-blue-400 text-white font-bold text-sm rounded-xl transition-colors">
           영어 영상 요약하기
         </Link>
-        <Link href="/guide/summary/news" className="text-[#75716e] text-sm hover:text-white transition-colors">
+        <Link href="/guide/summary/news" className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors">
           뉴스 요약 →
         </Link>
       </div>

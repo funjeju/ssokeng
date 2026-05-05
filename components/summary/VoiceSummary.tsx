@@ -64,12 +64,12 @@ export default function VoiceSummary({ data }: Props) {
 
       <CardContent className="flex flex-col gap-5">
         {/* 핵심 주제 */}
-        <div className={`rounded-xl bg-black/20 border border-white/5 px-4 py-3`}>
+        <div className={`rounded-xl bg-black/20 border border-[var(--border-subtle)] px-4 py-3`}>
           <p className={`text-xs font-semibold ${accentClass} mb-1`}>📌 핵심 주제</p>
           <p className="text-zinc-200 text-sm leading-relaxed">{data.main_topic}</p>
         </div>
 
-        <Separator className="bg-white/10" />
+        <Separator className="bg-[var(--overlay-default)]" />
 
         {/* 핵심 포인트 */}
         {data.key_points.length > 0 && (
@@ -78,7 +78,7 @@ export default function VoiceSummary({ data }: Props) {
             <div className="flex flex-col gap-3">
               {data.key_points.map((kp, i) => (
                 <div key={i} className="flex gap-3">
-                  <span className={`shrink-0 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold ${accentClass}`}>
+                  <span className={`shrink-0 w-6 h-6 rounded-full bg-[var(--overlay-default)] flex items-center justify-center text-xs font-bold ${accentClass}`}>
                     {i + 1}
                   </span>
                   <div>
@@ -94,7 +94,7 @@ export default function VoiceSummary({ data }: Props) {
         {/* 실행 항목 */}
         {data.action_items.length > 0 && (
           <>
-            <Separator className="bg-white/10" />
+            <Separator className="bg-[var(--overlay-default)]" />
             <div>
               <h3 className="text-emerald-400 font-semibold text-sm mb-3">✅ 실행 항목</h3>
               <div className="flex flex-col gap-2">
@@ -112,10 +112,10 @@ export default function VoiceSummary({ data }: Props) {
         {/* 태그 */}
         {data.square_meta?.tags?.length > 0 && (
           <>
-            <Separator className="bg-white/10" />
+            <Separator className="bg-[var(--overlay-default)]" />
             <div className="flex flex-wrap gap-1.5">
               {data.square_meta.tags.map((tag, i) => (
-                <span key={i} className="px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[11px] text-zinc-400">
+                <span key={i} className="px-2 py-1 rounded-md bg-[var(--overlay-subtle)] border border-[var(--border-default)] text-[11px] text-zinc-400">
                   #{tag}
                 </span>
               ))}
@@ -123,7 +123,7 @@ export default function VoiceSummary({ data }: Props) {
           </>
         )}
 
-        <Separator className="bg-white/10" />
+        <Separator className="bg-[var(--overlay-default)]" />
 
         {/* 전사 텍스트 (접이식) */}
         <div>
@@ -135,7 +135,7 @@ export default function VoiceSummary({ data }: Props) {
             📝 전체 전사 내용 {showTranscript ? '접기' : '펼치기'}
           </button>
           {showTranscript && (
-            <div className="mt-3 bg-black/20 rounded-xl border border-white/5 p-4">
+            <div className="mt-3 bg-black/20 rounded-xl border border-[var(--border-subtle)] p-4">
               <p className="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap">{data.transcript}</p>
             </div>
           )}

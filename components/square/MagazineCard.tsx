@@ -21,7 +21,7 @@ export default function MagazineCard({ post }: { post: CuratedPost }) {
   return (
     <Link
       href={`/magazine/${post.slug}`}
-      className="group block rounded-[18px] overflow-hidden border border-white/8 hover:border-orange-500/40 transition-all shadow-md bg-[#2a2826]"
+      className="group block rounded-[18px] overflow-hidden border border-[var(--border-default)] hover:border-orange-500/40 transition-all shadow-md bg-[var(--bg-surface-2)]"
     >
       {/* 히어로 이미지 또는 컬러 배너 */}
       <div className="relative overflow-hidden" style={{ aspectRatio: '16/9' }}>
@@ -40,7 +40,7 @@ export default function MagazineCard({ post }: { post: CuratedPost }) {
           </div>
         )}
         {/* 오버레이 그라디언트 */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#1a1918]/80 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-base)]/80 via-transparent to-transparent" />
 
         {/* 매거진 배지 */}
         <div className="absolute top-2 left-2 flex items-center gap-1">
@@ -50,7 +50,7 @@ export default function MagazineCard({ post }: { post: CuratedPost }) {
         </div>
 
         {/* 영상 수 배지 */}
-        <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur text-[9px] font-bold text-white border border-white/10">
+        <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur text-[9px] font-bold text-white border border-[var(--border-default)]">
           영상 {post.videoTitles.length}개
         </div>
       </div>
@@ -67,13 +67,13 @@ export default function MagazineCard({ post }: { post: CuratedPost }) {
 
         {/* 부제 */}
         {post.subtitle && (
-          <p className="text-[9px] text-[#75716e] leading-snug line-clamp-1 mb-2">
+          <p className="text-[9px] text-[var(--text-subtle)] leading-snug line-clamp-1 mb-2">
             {post.subtitle}
           </p>
         )}
 
         {/* 메타 */}
-        <div className="flex items-center justify-between text-[8px] text-[#75716e]">
+        <div className="flex items-center justify-between text-[8px] text-[var(--text-subtle)]">
           <span>SSOKTUBE 에디터</span>
           <div className="flex items-center gap-1.5">
             <span>{post.readTime}분 읽기</span>

@@ -195,13 +195,13 @@ export default function AdminDashboard() {
   }
 
   if (authLoading || loading) return (
-    <div className="min-h-screen bg-[#1a1918] flex items-center justify-center">
+    <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500" />
     </div>
   )
 
   if (!isAdmin) return (
-    <div className="min-h-screen bg-[#1a1918] flex flex-col items-center justify-center p-6 text-center">
+    <div className="min-h-screen bg-[var(--bg-base)] flex flex-col items-center justify-center p-6 text-center">
       <h1 className="text-4xl mb-4">🚫</h1>
       <h2 className="text-xl text-white font-bold mb-2">접근 권한이 없습니다</h2>
       <p className="text-gray-400 mb-6">관리자 계정으로 로그인해 주세요.</p>
@@ -221,7 +221,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1a1918] text-white font-sans">
+    <div className="min-h-screen bg-[var(--bg-base)] text-white font-sans">
       <Header title="🔧 관리자 대시보드" />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
@@ -233,7 +233,7 @@ export default function AdminDashboard() {
             { label: '유저 저장됨', value: stats?.totalSaved ?? 0, unit: '건', color: 'text-blue-400' },
             { label: '누적 가입 유저', value: stats?.totalUsers ?? 0, unit: '명', color: 'text-emerald-400' },
           ].map(c => (
-            <div key={c.label} className="bg-gradient-to-br from-[#2a2826] to-[#1e1d1b] p-5 rounded-[24px] border border-white/5 shadow-xl">
+            <div key={c.label} className="bg-gradient-to-br from-[var(--bg-surface-2)] to-[var(--bg-base)] p-5 rounded-[24px] border border-[var(--border-subtle)] shadow-xl">
               <p className="text-gray-400 text-[11px] mb-1">{c.label}</p>
               <h3 className={`text-2xl font-black ${c.color}`}>{c.value} <span className="text-[10px] font-normal text-gray-500">{c.unit}</span></h3>
             </div>
@@ -244,31 +244,31 @@ export default function AdminDashboard() {
         <div className="flex gap-2 mb-6 flex-wrap">
           <button
             onClick={() => setActiveTab('analytics')}
-            className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'analytics' ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+            className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'analytics' ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
           >
             📈 통계 분석
           </button>
           <button
             onClick={() => setActiveTab('videos')}
-            className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'videos' ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+            className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'videos' ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
           >
             🎬 영상 관리
           </button>
           <button
             onClick={() => setActiveTab('users')}
-            className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'users' ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+            className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'users' ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
           >
             👥 회원 관리
           </button>
           <button
             onClick={() => setActiveTab('curation')}
-            className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'curation' ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+            className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'curation' ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
           >
             ✍️ 매거진
           </button>
           <button
             onClick={() => setActiveTab('square')}
-            className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'square' ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+            className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-colors ${activeTab === 'square' ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
           >
             🔲 스퀘어
           </button>
@@ -286,7 +286,7 @@ export default function AdminDashboard() {
 
         {/* ── 영상 관리 탭 ── */}
         {activeTab === 'videos' && (
-          <div className="bg-[#23211f] rounded-[32px] border border-white/10 p-6 shadow-2xl">
+          <div className="bg-[var(--bg-surface)] rounded-[32px] border border-[var(--border-default)] p-6 shadow-2xl">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <h2 className="text-xl font-bold italic tracking-tighter">ALL VIDEO MANAGEMENT</h2>
               <div className="relative">
@@ -296,14 +296,14 @@ export default function AdminDashboard() {
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') { setPage(1); loadData(1) } }}
-                  className="bg-[#1a1918] border border-white/10 rounded-xl px-4 py-2.5 pl-10 text-xs focus:outline-none focus:border-orange-500 w-64 transition-all"
+                  className="bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 pl-10 text-xs focus:outline-none focus:border-orange-500 w-64 transition-all"
                 />
                 <span className="absolute left-3 top-3 opacity-30">🔍</span>
               </div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="text-gray-500 border-b border-white/5">
+                <thead className="text-gray-500 border-b border-[var(--border-subtle)]">
                   <tr>
                     <th className="pb-3 font-medium">콘텐츠 (캐시 포함)</th>
                     <th className="pb-3 font-medium">유저/시각</th>
@@ -316,7 +316,7 @@ export default function AdminDashboard() {
                     <tr key={s.id} className="group hover:bg-white/[0.01] transition-colors">
                       <td className="py-4 pr-4">
                         <div className="flex items-center gap-3">
-                          <img src={s.thumbnail} className="w-20 aspect-video rounded-lg object-cover bg-gray-800 border border-white/5" alt="" />
+                          <img src={s.thumbnail} className="w-20 aspect-video rounded-lg object-cover bg-gray-800 border border-[var(--border-subtle)]" alt="" />
                           <div className="min-w-0">
                             <p className="font-bold text-white line-clamp-1 group-hover:text-orange-400 transition-colors">{s.title}</p>
                             <p className="text-[9px] text-gray-500 mt-0.5 truncate">{s.category} · {s.id}</p>
@@ -334,7 +334,7 @@ export default function AdminDashboard() {
                       </td>
                       <td className="py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Link href={`/result/${s.originalId || s.id}`} className="p-2.5 hover:bg-white/10 rounded-xl transition-colors text-gray-400" title="상세 보기">👁️</Link>
+                          <Link href={`/result/${s.originalId || s.id}`} className="p-2.5 hover:bg-[var(--overlay-default)] rounded-xl transition-colors text-gray-400" title="상세 보기">👁️</Link>
                           <button
                             onClick={() => handleDelete(s.id, s.title)}
                             disabled={deletingId === s.id}
@@ -350,9 +350,9 @@ export default function AdminDashboard() {
             {summaries.length === 0 && <div className="py-20 text-center text-gray-500">데이터가 없습니다.</div>}
             {(page > 1 || hasMore) && (
               <div className="flex items-center justify-center gap-3 mt-6">
-                <button onClick={() => goToPage(page - 1)} disabled={page === 1 || loading} className="px-4 py-2 rounded-xl text-xs bg-white/5 hover:bg-white/10 disabled:opacity-30 transition-colors">← 이전</button>
+                <button onClick={() => goToPage(page - 1)} disabled={page === 1 || loading} className="px-4 py-2 rounded-xl text-xs bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] disabled:opacity-30 transition-colors">← 이전</button>
                 <span className="text-xs text-gray-500">{page} 페이지</span>
-                <button onClick={() => goToPage(page + 1)} disabled={!hasMore || loading} className="px-4 py-2 rounded-xl text-xs bg-white/5 hover:bg-white/10 disabled:opacity-30 transition-colors">다음 →</button>
+                <button onClick={() => goToPage(page + 1)} disabled={!hasMore || loading} className="px-4 py-2 rounded-xl text-xs bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] disabled:opacity-30 transition-colors">다음 →</button>
               </div>
             )}
           </div>
@@ -360,7 +360,7 @@ export default function AdminDashboard() {
 
         {/* ── 스퀘어 관리 탭 ── */}
         {activeTab === 'square' && (
-          <div className="bg-[#23211f] rounded-[32px] border border-white/10 p-6 shadow-2xl">
+          <div className="bg-[var(--bg-surface)] rounded-[32px] border border-[var(--border-default)] p-6 shadow-2xl">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <div>
                 <h2 className="text-xl font-bold italic tracking-tighter">SQUARE MANAGEMENT</h2>
@@ -382,9 +382,9 @@ export default function AdminDashboard() {
                   value={squareSearch}
                   onChange={e => setSquareSearch(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') loadSquare(1, squareSearch) }}
-                  className="bg-[#1a1918] border border-white/10 rounded-xl px-4 py-2 pl-8 text-xs focus:outline-none focus:border-orange-500 w-52"
+                  className="bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-2 pl-8 text-xs focus:outline-none focus:border-orange-500 w-52"
                 />
-                <button onClick={() => loadSquare(1, squareSearch)} className="px-4 py-2 rounded-xl text-xs bg-white/5 hover:bg-white/10 transition-colors">검색</button>
+                <button onClick={() => loadSquare(1, squareSearch)} className="px-4 py-2 rounded-xl text-xs bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] transition-colors">검색</button>
               </div>
             </div>
 
@@ -395,7 +395,7 @@ export default function AdminDashboard() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {squareItems.map(item => (
-                  <div key={item.id} className={`rounded-2xl border p-4 flex flex-col gap-3 ${item.adminHidden ? 'border-red-500/20 bg-red-500/5' : 'border-white/8 bg-[#2a2826]'}`}>
+                  <div key={item.id} className={`rounded-2xl border p-4 flex flex-col gap-3 ${item.adminHidden ? 'border-red-500/20 bg-red-500/5' : 'border-[var(--border-default)] bg-[var(--bg-surface-2)]'}`}>
                     <div className="flex gap-3">
                       <img src={item.thumbnail} alt={item.title} className="w-24 h-14 object-cover rounded-lg shrink-0 bg-gray-800" />
                       <div className="min-w-0 flex-1">
@@ -408,7 +408,7 @@ export default function AdminDashboard() {
                       <span className="text-[10px] text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full self-start">숨김 중</span>
                     )}
                     <div className="flex gap-2 mt-auto">
-                      <Link href={`/result/${item.sessionId}`} target="_blank" className="flex-1 py-1.5 rounded-xl text-center text-[11px] bg-white/5 hover:bg-white/10 text-gray-400 transition-colors">
+                      <Link href={`/result/${item.sessionId}`} target="_blank" className="flex-1 py-1.5 rounded-xl text-center text-[11px] bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-gray-400 transition-colors">
                         👁️ 보기
                       </Link>
                       {item.adminHidden ? (
@@ -443,9 +443,9 @@ export default function AdminDashboard() {
 
             {squareTotal > SQUARE_PAGE_SIZE && (
               <div className="flex items-center justify-center gap-3 mt-6">
-                <button onClick={() => loadSquare(squarePage - 1)} disabled={squarePage === 1 || squareLoading} className="px-4 py-2 rounded-xl text-xs bg-white/5 hover:bg-white/10 disabled:opacity-30 transition-colors">← 이전</button>
+                <button onClick={() => loadSquare(squarePage - 1)} disabled={squarePage === 1 || squareLoading} className="px-4 py-2 rounded-xl text-xs bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] disabled:opacity-30 transition-colors">← 이전</button>
                 <span className="text-xs text-gray-500">{squarePage} / {Math.ceil(squareTotal / SQUARE_PAGE_SIZE)} 페이지</span>
-                <button onClick={() => loadSquare(squarePage + 1)} disabled={squarePage >= Math.ceil(squareTotal / SQUARE_PAGE_SIZE) || squareLoading} className="px-4 py-2 rounded-xl text-xs bg-white/5 hover:bg-white/10 disabled:opacity-30 transition-colors">다음 →</button>
+                <button onClick={() => loadSquare(squarePage + 1)} disabled={squarePage >= Math.ceil(squareTotal / SQUARE_PAGE_SIZE) || squareLoading} className="px-4 py-2 rounded-xl text-xs bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] disabled:opacity-30 transition-colors">다음 →</button>
               </div>
             )}
           </div>
@@ -464,7 +464,7 @@ export default function AdminDashboard() {
                   { label: '학생', value: userStats.students, color: 'text-blue-400' },
                   { label: '유료 회원', value: userStats.paid, color: 'text-orange-400' },
                 ].map(c => (
-                  <div key={c.label} className="bg-[#23211f] rounded-2xl border border-white/5 p-4 text-center">
+                  <div key={c.label} className="bg-[var(--bg-surface)] rounded-2xl border border-[var(--border-subtle)] p-4 text-center">
                     <p className="text-gray-500 text-[10px] mb-1">{c.label}</p>
                     <p className={`text-xl font-black ${c.color}`}>{c.value}</p>
                   </div>
@@ -473,7 +473,7 @@ export default function AdminDashboard() {
             )}
 
             {/* 필터 + 검색 */}
-            <div className="bg-[#23211f] rounded-[32px] border border-white/10 p-6 shadow-2xl">
+            <div className="bg-[var(--bg-surface)] rounded-[32px] border border-[var(--border-default)] p-6 shadow-2xl">
               <div className="flex flex-wrap gap-3 mb-5">
                 <input
                   type="text"
@@ -481,12 +481,12 @@ export default function AdminDashboard() {
                   value={userSearch}
                   onChange={e => setUserSearch(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') loadUsers(1, userRole, userPlan, userSearch) }}
-                  className="flex-1 min-w-48 bg-[#1a1918] border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-orange-500 transition-colors"
+                  className="flex-1 min-w-48 bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-orange-500 transition-colors"
                 />
                 <select
                   value={userRole}
                   onChange={e => { setUserRole(e.target.value); loadUsers(1, e.target.value, userPlan, userSearch) }}
-                  className="bg-[#1a1918] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+                  className="bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
                 >
                   <option value="all">전체 역할</option>
                   <option value="none">일반 사용자</option>
@@ -496,7 +496,7 @@ export default function AdminDashboard() {
                 <select
                   value={userPlan}
                   onChange={e => { setUserPlan(e.target.value); loadUsers(1, userRole, e.target.value, userSearch) }}
-                  className="bg-[#1a1918] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
+                  className="bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-orange-500"
                 >
                   <option value="all">전체 플랜</option>
                   <option value="free">무료</option>
@@ -513,7 +513,7 @@ export default function AdminDashboard() {
               {/* 회원 테이블 */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="text-gray-500 border-b border-white/5">
+                  <thead className="text-gray-500 border-b border-[var(--border-subtle)]">
                     <tr>
                       <th className="pb-3 font-medium">회원</th>
                       <th className="pb-3 font-medium">역할</th>
@@ -536,8 +536,8 @@ export default function AdminDashboard() {
                         <td className="py-3 pr-4">
                           <div className="flex items-center gap-2">
                             {u.photoURL
-                              ? <img src={u.photoURL} className="w-7 h-7 rounded-full border border-white/10 shrink-0 object-cover" alt="" />
-                              : <div className="w-7 h-7 rounded-full bg-[#3d3a38] flex items-center justify-center text-sm shrink-0">{u.avatarEmoji || '👤'}</div>
+                              ? <img src={u.photoURL} className="w-7 h-7 rounded-full border border-[var(--border-default)] shrink-0 object-cover" alt="" />
+                              : <div className="w-7 h-7 rounded-full bg-[var(--bg-elevated-2)] flex items-center justify-center text-sm shrink-0">{u.avatarEmoji || '👤'}</div>
                             }
                             <div className="min-w-0">
                               <div className="flex items-center gap-1">
@@ -587,13 +587,13 @@ export default function AdminDashboard() {
                   <button
                     onClick={() => loadUsers(userPage - 1)}
                     disabled={userPage === 1 || userLoading}
-                    className="px-4 py-2 rounded-xl text-xs bg-white/5 hover:bg-white/10 disabled:opacity-30 transition-colors"
+                    className="px-4 py-2 rounded-xl text-xs bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] disabled:opacity-30 transition-colors"
                   >← 이전</button>
                   <span className="text-xs text-gray-500">{userPage} 페이지 / 총 {userTotal}명</span>
                   <button
                     onClick={() => loadUsers(userPage + 1)}
                     disabled={userPage * 20 >= userTotal || userLoading}
-                    className="px-4 py-2 rounded-xl text-xs bg-white/5 hover:bg-white/10 disabled:opacity-30 transition-colors"
+                    className="px-4 py-2 rounded-xl text-xs bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] disabled:opacity-30 transition-colors"
                   >다음 →</button>
                 </div>
               )}

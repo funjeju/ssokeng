@@ -174,7 +174,7 @@ export default function LoadingSteps({ currentStep, mode = 'youtube', onCancel }
       {onCancel && (
         <button
           onClick={onCancel}
-          className="w-full h-10 rounded-xl border border-white/10 bg-[#32302e] text-[#75716e] text-sm hover:bg-[#3d3a38] hover:text-white hover:border-white/20 transition-all"
+          className="w-full h-10 rounded-xl border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-subtle)] text-sm hover:bg-[var(--bg-elevated-2)] hover:text-white hover:border-[var(--border-strong)] transition-all"
         >
           취소
         </button>

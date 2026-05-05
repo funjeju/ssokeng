@@ -9,14 +9,17 @@ import { getAvatarBg } from '@/lib/avatar'
 import MessagesModal from '@/components/messages/MessagesModal'
 import ReviewBanner from '@/components/classroom/ReviewBanner'
 import ContactModal from '@/components/common/ContactModal'
+import { useTheme } from '@/components/common/ThemeProvider'
 
 export default function Header({ title = 'SSOKTUBE' }: { title?: string }) {
   const { user, userProfile, signOut, openAuthModal } = useAuth()
+  const { theme, toggle: toggleTheme } = useTheme()
   const [unread, setUnread] = useState(0)
   const [showMessages, setShowMessages] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showContact, setShowContact] = useState(false)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
+  const isLight = theme === 'light'
 
   useEffect(() => {
     if (!mobileMenuOpen) return
@@ -55,17 +58,22 @@ export default function Header({ title = 'SSOKTUBE' }: { title?: string }) {
     <>
     {/* 학생 복습 알림 배너 */}
     {isStudent && user && <ReviewBanner studentId={user.uid} />}
-    <div className="sticky top-0 z-50 bg-[#252423]/90 backdrop-blur-xl border-b border-white/5 py-2.5 px-4 md:px-8 mb-6">
+    <div className="sticky top-0 z-50 bg-[var(--bg-page)]/90 backdrop-blur-xl border-b border-[var(--border-subtle)] py-2.5 px-4 md:px-8 mb-6">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/" onClick={handleNav} className="hover:opacity-80 transition-opacity shrink-0">
-            <img src="/logo.png" alt="SSOKTUBE" className="h-7 w-auto" style={{ filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.5)) drop-shadow(0 0 2px rgba(255,255,255,0.3))' }} />
+            <img
+              src="/logo.png"
+              alt="SSOKTUBE"
+              className="h-7 w-auto"
+              style={isLight ? {} : { filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.5)) drop-shadow(0 0 2px rgba(255,255,255,0.3))' }}
+            />
           </Link>
           <nav className="hidden md:flex items-center gap-4 text-sm font-medium">
             {/* 학생 계정: 수업자료 바로가기 */}
             {isStudent ? (
               <>
-                <Link href="/mypage" onClick={handleNav} className="text-[#a4a09c] hover:text-white transition-colors">수업자료</Link>
+                <Link href="/mypage" onClick={handleNav} className="text-[var(--text-muted)] hover:text-white transition-colors">수업자료</Link>
                 <span className="text-[10px] px-2 py-0.5 bg-blue-500/15 text-blue-400 rounded-full font-bold border border-blue-500/20">
                   학생
                 </span>
@@ -73,22 +81,22 @@ export default function Header({ title = 'SSOKTUBE' }: { title?: string }) {
             ) : isTeacher && classCode ? (
               /* 교사 계정: 클래스 대시보드 링크 */
               <>
-                <Link href="/mypage" onClick={handleNav} className="text-[#a4a09c] hover:text-white transition-colors">My Page</Link>
+                <Link href="/mypage" onClick={handleNav} className="text-[var(--text-muted)] hover:text-white transition-colors">My Page</Link>
                 <Link href={`/classroom/${classCode}`} onClick={handleNav} className="text-emerald-400 hover:text-emerald-300 transition-colors font-bold">
                   🏫 내 클래스
                 </Link>
                 {isOnSquare
                   ? <Link href="/" onClick={handleNav} className="text-orange-400 hover:text-orange-300 active:opacity-60 active:scale-95 transition-all font-bold select-none">✦ 요약하기</Link>
-                  : <Link href="/square" onClick={handleNav} className="text-[#a4a09c] hover:text-white active:opacity-60 active:scale-95 transition-all select-none">SQUARE K</Link>
+                  : <Link href="/square" onClick={handleNav} className="text-[var(--text-muted)] hover:text-white active:opacity-60 active:scale-95 transition-all select-none">SQUARE K</Link>
                 }
               </>
             ) : (
               /* 일반 계정 */
               <>
-                <Link href="/mypage" onClick={handleNav} className="text-[#a4a09c] hover:text-white active:opacity-60 active:scale-95 transition-all select-none">My Page</Link>
+                <Link href="/mypage" onClick={handleNav} className="text-[var(--text-muted)] hover:text-white active:opacity-60 active:scale-95 transition-all select-none">My Page</Link>
                 {isOnSquare
                   ? <Link href="/" onClick={handleNav} className="text-orange-400 hover:text-orange-300 active:opacity-60 active:scale-95 transition-all font-bold select-none">✦ 요약하기</Link>
-                  : <Link href="/square" onClick={handleNav} className="text-[#a4a09c] hover:text-white active:opacity-60 active:scale-95 transition-all select-none">SQUARE K</Link>
+                  : <Link href="/square" onClick={handleNav} className="text-[var(--text-muted)] hover:text-white active:opacity-60 active:scale-95 transition-all select-none">SQUARE K</Link>
                 }
               </>
             )}
@@ -101,7 +109,7 @@ export default function Header({ title = 'SSOKTUBE' }: { title?: string }) {
             {/* 문의·제안 */}
             <button
               onClick={() => setShowContact(true)}
-              className="text-[#a4a09c] hover:text-white transition-colors text-xs"
+              className="text-[var(--text-muted)] hover:text-white transition-colors text-xs"
             >
               문의 · 제안
             </button>
@@ -109,6 +117,23 @@ export default function Header({ title = 'SSOKTUBE' }: { title?: string }) {
         </div>
 
         <div className="flex items-center gap-1.5">
+
+          {/* 다크/라이트 모드 토글 */}
+          <button
+            onClick={toggleTheme}
+            aria-label="테마 전환"
+            className={`w-14 h-7 rounded-full flex items-center px-1 transition-all duration-300 border ${
+              isLight
+                ? 'bg-orange-100 border-orange-200 justify-end'
+                : 'bg-[var(--bg-elevated)] border-[var(--border-default)] justify-start'
+            }`}
+          >
+            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-sm shadow-sm transition-all duration-300 ${
+              isLight ? 'bg-orange-400' : 'bg-[var(--bg-elevated-2)]'
+            }`}>
+              {isLight ? '☀️' : '🌙'}
+            </span>
+          </button>
 
           {/* 모바일: 현재 페이지에 따라 버튼 전환 */}
           {isOnSquare ? (
@@ -133,7 +158,7 @@ export default function Header({ title = 'SSOKTUBE' }: { title?: string }) {
           <div className="md:hidden relative" ref={mobileMenuRef}>
             <button
               onClick={() => setMobileMenuOpen(v => !v)}
-              className="w-8 h-8 flex items-center justify-center rounded-full text-[#a4a09c] hover:text-white hover:bg-white/8 transition-all"
+              className="w-8 h-8 flex items-center justify-center rounded-full text-[var(--text-muted)] hover:text-white hover:bg-[var(--overlay-subtle)] transition-all"
               aria-label="메뉴"
             >
               {mobileMenuOpen ? (
@@ -143,46 +168,46 @@ export default function Header({ title = 'SSOKTUBE' }: { title?: string }) {
               )}
             </button>
             {mobileMenuOpen && (
-              <div className="absolute right-0 top-10 w-44 bg-[#1c1a18] border border-white/10 rounded-2xl shadow-2xl py-2 z-50">
+              <div className="absolute right-0 top-10 w-44 bg-[var(--bg-base)] border border-[var(--border-default)] rounded-2xl shadow-2xl py-2 z-50">
                 {isStudent ? (
-                  <Link href="/mypage" onClick={() => { handleNav; setMobileMenuOpen(false) }} className="flex items-center gap-2 px-4 py-2.5 text-sm text-blue-400 hover:bg-white/5 transition-colors">
+                  <Link href="/mypage" onClick={() => { handleNav; setMobileMenuOpen(false) }} className="flex items-center gap-2 px-4 py-2.5 text-sm text-blue-400 hover:bg-[var(--overlay-subtle)] transition-colors">
                     <span>📚</span> 수업자료
                   </Link>
                 ) : (
                   <>
-                    <Link href="/mypage" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#a4a09c] hover:text-white hover:bg-white/5 transition-colors">
+                    <Link href="/mypage" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--text-muted)] hover:text-white hover:bg-[var(--overlay-subtle)] transition-colors">
                       <span>👤</span> My Page
                     </Link>
                     {isTeacher && classCode && (
-                      <Link href={`/classroom/${classCode}`} onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-emerald-400 hover:text-emerald-300 hover:bg-white/5 transition-colors font-bold">
+                      <Link href={`/classroom/${classCode}`} onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-emerald-400 hover:text-emerald-300 hover:bg-[var(--overlay-subtle)] transition-colors font-bold">
                         <span>🏫</span> 내 클래스
                       </Link>
                     )}
                     {isTeacher && !classCode && (
-                      <Link href="/classroom/setup" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-emerald-400 hover:bg-white/5 transition-colors">
+                      <Link href="/classroom/setup" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-emerald-400 hover:bg-[var(--overlay-subtle)] transition-colors">
                         <span>➕</span> 클래스 만들기
                       </Link>
                     )}
                   </>
                 )}
-                <div className="border-t border-white/5 mt-1 pt-1">
+                <div className="border-t border-[var(--border-subtle)] mt-1 pt-1">
                   <button
                     onClick={() => { setShowContact(true); setMobileMenuOpen(false) }}
-                    className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-[#a4a09c] hover:text-white hover:bg-white/5 transition-colors"
+                    className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--text-muted)] hover:text-white hover:bg-[var(--overlay-subtle)] transition-colors"
                   >
                     <span>📬</span> 문의 · 제안
                   </button>
-                  <div className="border-t border-white/5 my-1" />
+                  <div className="border-t border-[var(--border-subtle)] my-1" />
                   {user ? (
-                    <button onClick={() => { signOut(); setMobileMenuOpen(false) }} className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-orange-400 hover:bg-white/5 transition-colors">
+                    <button onClick={() => { signOut(); setMobileMenuOpen(false) }} className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-orange-400 hover:bg-[var(--overlay-subtle)] transition-colors">
                       <span>🚪</span> 로그아웃
                     </button>
                   ) : (
                     <>
-                      <button onClick={() => { openAuthModal('login'); setMobileMenuOpen(false) }} className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-[#a4a09c] hover:text-white hover:bg-white/5 transition-colors">
+                      <button onClick={() => { openAuthModal('login'); setMobileMenuOpen(false) }} className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-[var(--text-muted)] hover:text-white hover:bg-[var(--overlay-subtle)] transition-colors">
                         <span>🔑</span> 로그인
                       </button>
-                      <button onClick={() => { openAuthModal('signup'); setMobileMenuOpen(false) }} className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-orange-400 hover:bg-white/5 transition-colors">
+                      <button onClick={() => { openAuthModal('signup'); setMobileMenuOpen(false) }} className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-orange-400 hover:bg-[var(--overlay-subtle)] transition-colors">
                         <span>✨</span> 회원가입
                       </button>
                     </>
@@ -198,7 +223,7 @@ export default function Header({ title = 'SSOKTUBE' }: { title?: string }) {
               {!isStudent && (
                 <button
                   onClick={() => setShowMessages(v => !v)}
-                  className="relative text-[#a4a09c] hover:text-white transition-colors p-1"
+                  className="relative text-[var(--text-muted)] hover:text-white transition-colors p-1"
                 >
                   <span className="text-sm">✉️</span>
                   {unread > 0 && (
@@ -212,16 +237,16 @@ export default function Header({ title = 'SSOKTUBE' }: { title?: string }) {
               {isStudent ? (
                 <span className="text-xs text-white font-bold">{userProfile?.studentName || userProfile?.displayName}</span>
               ) : user.photoURL ? (
-                <img src={user.photoURL} alt="Profile" className="w-6 h-6 rounded-full border border-white/10" />
+                <img src={user.photoURL} alt="Profile" className="w-6 h-6 rounded-full border border-[var(--border-default)]" />
               ) : userProfile?.avatarEmoji ? (
                 <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-sm border border-white/10 shrink-0"
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-sm border border-[var(--border-default)] shrink-0"
                   style={{ backgroundColor: getAvatarBg(userProfile.avatarEmoji) }}
                 >
                   {userProfile.avatarEmoji}
                 </div>
               ) : (
-                <div className="w-6 h-6 rounded-full bg-[#3d3a38] flex items-center justify-center text-xs border border-white/10">👤</div>
+                <div className="w-6 h-6 rounded-full bg-[var(--bg-elevated-2)] flex items-center justify-center text-xs border border-[var(--border-default)]">👤</div>
               )}
               {/* Logout: 데스크탑만 */}
               <button onClick={signOut} className="hidden md:inline text-[11px] text-orange-400 hover:text-orange-300 whitespace-nowrap">
@@ -239,7 +264,7 @@ export default function Header({ title = 'SSOKTUBE' }: { title?: string }) {
               {/* 로그인/가입: 데스크탑만 (모바일은 햄버거에서) */}
               <button
                 onClick={() => openAuthModal('login')}
-                className="hidden md:inline-flex px-3 py-1.5 bg-white/10 text-white text-xs font-bold rounded-full hover:bg-white/20 transition-colors whitespace-nowrap border border-white/10"
+                className="hidden md:inline-flex px-3 py-1.5 bg-[var(--overlay-default)] text-white text-xs font-bold rounded-full hover:bg-white/20 transition-colors whitespace-nowrap border border-[var(--border-default)]"
               >
                 로그인
               </button>

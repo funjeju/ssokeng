@@ -34,7 +34,7 @@ export default function GuideNav() {
 
   return (
     <nav className="sticky top-6">
-      <p className="text-[10px] text-[#4a4745] uppercase tracking-widest mb-3 font-semibold">사용설명서</p>
+      <p className="text-[10px] text-[var(--text-subtle)] uppercase tracking-widest mb-3 font-semibold">사용설명서</p>
       <ul className="flex flex-col gap-0.5">
         {NAV.map((item) => {
           if (item.children) {
@@ -45,7 +45,7 @@ export default function GuideNav() {
                 <button
                   onClick={() => setOpenGroup(isOpen ? null : item.label)}
                   className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-colors text-left ${
-                    isActive ? 'text-white font-semibold' : 'text-[#75716e] hover:text-white'
+                    isActive ? 'text-white font-semibold' : 'text-[var(--text-subtle)] hover:text-white'
                   }`}
                 >
                   <span className="text-base">{item.icon}</span>
@@ -55,15 +55,15 @@ export default function GuideNav() {
                   </svg>
                 </button>
                 {isOpen && (
-                  <ul className="ml-5 mt-0.5 flex flex-col gap-0.5 border-l border-white/5 pl-3">
+                  <ul className="ml-5 mt-0.5 flex flex-col gap-0.5 border-l border-[var(--border-subtle)] pl-3">
                     {item.children.map(child => (
                       <li key={child.href}>
                         <Link
                           href={child.href}
                           className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs transition-colors ${
                             pathname === child.href
-                              ? 'text-white font-semibold bg-white/5'
-                              : 'text-[#75716e] hover:text-white'
+                              ? 'text-white font-semibold bg-[var(--overlay-subtle)]'
+                              : 'text-[var(--text-subtle)] hover:text-white'
                           }`}
                         >
                           <span>{child.icon}</span>
@@ -83,8 +83,8 @@ export default function GuideNav() {
                 href={item.href!}
                 className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-colors ${
                   pathname === item.href
-                    ? 'text-white font-semibold bg-white/5'
-                    : 'text-[#75716e] hover:text-white'
+                    ? 'text-white font-semibold bg-[var(--overlay-subtle)]'
+                    : 'text-[var(--text-subtle)] hover:text-white'
                 }`}
               >
                 <span className="text-base">{item.icon}</span>

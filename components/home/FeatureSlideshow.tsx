@@ -124,7 +124,7 @@ export default function FeatureSlideshow() {
       {/* 슬라이드 카드 */}
       <Link
         href={f.href}
-        className={`w-full max-w-2xl bg-gradient-to-br ${f.color} border border-white/8 rounded-2xl px-6 py-5 flex items-center gap-4 transition-all duration-300 hover:border-white/20 hover:scale-[1.01] group ${animating ? 'opacity-0 translate-y-1' : 'opacity-100 translate-y-0'}`}
+        className={`w-full max-w-2xl bg-gradient-to-br ${f.color} border border-[var(--border-default)] rounded-2xl px-6 py-5 flex items-center gap-4 transition-all duration-300 hover:border-[var(--border-strong)] hover:scale-[1.01] group ${animating ? 'opacity-0 translate-y-1' : 'opacity-100 translate-y-0'}`}
         style={{ transition: 'opacity 0.2s, transform 0.2s' }}
       >
         <span className="text-3xl shrink-0">{f.emoji}</span>
@@ -132,7 +132,7 @@ export default function FeatureSlideshow() {
           <p className={`font-bold text-sm md:text-base text-white leading-snug group-hover:${f.accent} transition-colors`}>
             {f.headline}
           </p>
-          <p className="text-[#75716e] text-xs mt-0.5 truncate">{f.subline}</p>
+          <p className="text-[var(--text-subtle)] text-xs mt-0.5 truncate">{f.subline}</p>
         </div>
         <svg className={`w-4 h-4 shrink-0 ${f.accent} opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -141,7 +141,7 @@ export default function FeatureSlideshow() {
 
       {/* 컨트롤 */}
       <div className="flex items-center gap-3">
-        <button onClick={prev} className="text-[#4a4745] hover:text-white transition-colors p-1">
+        <button onClick={prev} className="text-[var(--text-subtle)] hover:text-white transition-colors p-1">
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
@@ -155,12 +155,12 @@ export default function FeatureSlideshow() {
             />
           ))}
         </div>
-        <button onClick={next} className="text-[#4a4745] hover:text-white transition-colors p-1">
+        <button onClick={next} className="text-[var(--text-subtle)] hover:text-white transition-colors p-1">
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
           </svg>
         </button>
-        <Link href="/guide" className="text-[10px] text-[#4a4745] hover:text-white transition-colors ml-1">
+        <Link href="/guide" className="text-[10px] text-[var(--text-subtle)] hover:text-white transition-colors ml-1">
           전체 기능 →
         </Link>
       </div>

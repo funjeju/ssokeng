@@ -4,7 +4,7 @@ import FeatureSlideshow from '@/components/home/FeatureSlideshow'
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#252423] font-sans">
+    <div className="min-h-screen bg-[var(--bg-page)] font-sans">
       <Header />
       <main className="flex flex-col items-center justify-center px-4 py-3 relative overflow-hidden">
       {/* Soft warm background glows mimicking the reference */}

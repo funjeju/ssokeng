@@ -54,29 +54,29 @@ export default function FloatingChatWindow() {
 
   return (
     <div 
-      className={`fixed bottom-0 right-6 z-[100] w-80 bg-[#1c1a18] border border-white/10 rounded-t-2xl shadow-2xl transition-all duration-300 transform ${
+      className={`fixed bottom-0 right-6 z-[100] w-80 bg-[var(--bg-base)] border border-[var(--border-default)] rounded-t-2xl shadow-2xl transition-all duration-300 transform ${
         minimized ? 'h-14 translate-y-0' : 'h-[450px] translate-y-0'
       }`}
     >
       {/* 헤더 */}
       <div 
-        className="flex items-center justify-between px-4 h-14 border-b border-white/5 bg-[#2a2826] rounded-t-2xl cursor-pointer"
+        className="flex items-center justify-between px-4 h-14 border-b border-[var(--border-subtle)] bg-[var(--bg-surface-2)] rounded-t-2xl cursor-pointer"
         onClick={() => setMinimized(!minimized)}
       >
         <div className="flex items-center gap-2">
           {chat.otherUser.photoURL ? (
-            <img src={chat.otherUser.photoURL} alt="" className="w-8 h-8 rounded-full border border-white/10" />
+            <img src={chat.otherUser.photoURL} alt="" className="w-8 h-8 rounded-full border border-[var(--border-default)]" />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-[#32302e] flex items-center justify-center text-xs">👤</div>
+            <div className="w-8 h-8 rounded-full bg-[var(--bg-elevated)] flex items-center justify-center text-xs">👤</div>
           )}
           <span className="text-white text-sm font-bold truncate max-w-[120px]">{chat.otherUser.displayName}</span>
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
         </div>
         <div className="flex items-center gap-1">
-          <button className="p-1.5 text-[#75716e] hover:text-white" onClick={(e) => { e.stopPropagation(); setMinimized(!minimized) }}>
+          <button className="p-1.5 text-[var(--text-subtle)] hover:text-white" onClick={(e) => { e.stopPropagation(); setMinimized(!minimized) }}>
             {minimized ? '△' : '▽'}
           </button>
-          <button className="p-1.5 text-[#75716e] hover:text-white" onClick={(e) => { e.stopPropagation(); closeChat() }}>
+          <button className="p-1.5 text-[var(--text-subtle)] hover:text-white" onClick={(e) => { e.stopPropagation(); closeChat() }}>
             ✕
           </button>
         </div>
@@ -87,7 +87,7 @@ export default function FloatingChatWindow() {
           {/* 메시지 영역 */}
           <div className="flex-1 h-[calc(450px-112px)] overflow-y-auto p-4 space-y-3 scrollbar-message">
             {messages.length === 0 ? (
-              <p className="text-center text-[#75716e] text-[11px] py-10 opacity-50">첫 인사로 대화를 시작해보세요! 👋</p>
+              <p className="text-center text-[var(--text-subtle)] text-[11px] py-10 opacity-50">첫 인사로 대화를 시작해보세요! 👋</p>
             ) : (
               messages.map(msg => {
                 const isMine = msg.senderId === user?.uid
@@ -96,7 +96,7 @@ export default function FloatingChatWindow() {
                     <div className={`max-w-[85%] px-3 py-2 rounded-2xl text-[13px] leading-relaxed break-words shadow-sm ${
                       isMine 
                         ? 'bg-orange-500 text-white rounded-br-sm' 
-                        : 'bg-[#32302e] text-[#e2e2e2] rounded-bl-sm'
+                        : 'bg-[var(--bg-elevated)] text-[var(--text-primary)] rounded-bl-sm'
                     }`}>
                       {msg.text}
                     </div>
@@ -108,15 +108,15 @@ export default function FloatingChatWindow() {
           </div>
 
           {/* 입력창 */}
-          <div className="p-3 border-t border-white/5 bg-[#252423]">
-            <div className="flex gap-2 items-center bg-[#32302e] rounded-2xl px-3 py-1.5 border border-white/5 focus-within:border-orange-500/40 transition-all">
+          <div className="p-3 border-t border-[var(--border-subtle)] bg-[var(--bg-page)]">
+            <div className="flex gap-2 items-center bg-[var(--bg-elevated)] rounded-2xl px-3 py-1.5 border border-[var(--border-subtle)] focus-within:border-orange-500/40 transition-all">
               <input
                 type="text"
                 value={text}
                 onChange={e => setText(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
                 placeholder="메시지 입력..."
-                className="flex-1 bg-transparent border-none text-white text-sm outline-none placeholder:text-[#75716e]"
+                className="flex-1 bg-transparent border-none text-white text-sm outline-none placeholder:text-[var(--text-subtle)]"
               />
               <button 
                 onClick={handleSend}

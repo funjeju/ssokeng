@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function GuideLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#252423] font-sans">
+    <div className="min-h-screen bg-[var(--bg-page)] font-sans">
       <Header />
       <div className="max-w-6xl mx-auto px-4 py-8 flex gap-8">
         <aside className="hidden md:block w-56 shrink-0">

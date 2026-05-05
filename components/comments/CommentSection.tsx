@@ -163,13 +163,13 @@ export default function CommentSection({
   }
 
   return (
-    <div ref={sectionRef} className="bg-[#2a2826] rounded-2xl border border-white/5 p-5 flex flex-col gap-5">
+    <div ref={sectionRef} className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-subtle)] p-5 flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-bold text-white flex items-center gap-2">
           💬 댓글
-          <span className="text-sm text-[#75716e] font-normal">{topLevel.length}개</span>
+          <span className="text-sm text-[var(--text-subtle)] font-normal">{topLevel.length}개</span>
         </h3>
-        <span className="text-[10px] text-[#75716e] bg-[#32302e] px-2 py-1 rounded-full">📌 단락명 클릭 시 해당 위치로 이동</span>
+        <span className="text-[10px] text-[var(--text-subtle)] bg-[var(--bg-elevated)] px-2 py-1 rounded-full">📌 단락명 클릭 시 해당 위치로 이동</span>
       </div>
 
       {/* 입력폼 */}
@@ -189,7 +189,7 @@ export default function CommentSection({
               )}
               <button
                 onClick={() => { setReplyTo(null); onClearFocus() }}
-                className="text-[#75716e] text-xs hover:text-white transition-colors"
+                className="text-[var(--text-subtle)] text-xs hover:text-white transition-colors"
               >✕</button>
             </div>
           )}
@@ -201,7 +201,7 @@ export default function CommentSection({
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit() } }}
               placeholder={replyTo ? '답글을 입력하세요...' : focusSegmentLabel ? `"${focusSegmentLabel}"에 대한 댓글...` : '댓글을 입력하세요...'}
               rows={2}
-              className="flex-1 bg-[#23211f] border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder:text-[#75716e] resize-none focus:outline-none focus:border-orange-500/50 transition-colors"
+              className="flex-1 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-white placeholder:text-[var(--text-subtle)] resize-none focus:outline-none focus:border-orange-500/50 transition-colors"
             />
             <button
               onClick={handleSubmit}
@@ -213,7 +213,7 @@ export default function CommentSection({
           </div>
         </div>
       ) : (
-        <p className="text-[#75716e] text-sm">로그인하면 댓글을 남길 수 있습니다.</p>
+        <p className="text-[var(--text-subtle)] text-sm">로그인하면 댓글을 남길 수 있습니다.</p>
       )}
 
       {/* 댓글 목록 */}
@@ -222,7 +222,7 @@ export default function CommentSection({
           <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : topLevel.length === 0 ? (
-        <p className="text-[#75716e] text-sm text-center py-4">첫 번째 댓글을 남겨보세요!</p>
+        <p className="text-[var(--text-subtle)] text-sm text-center py-4">첫 번째 댓글을 남겨보세요!</p>
       ) : (
         <div className="flex flex-col divide-y divide-white/5">
           {topLevel.map(comment => (
@@ -280,7 +280,7 @@ function CommentItem({ comment, replies, currentUserId, aiLoadingId, onReply, on
             {comment.isAI && (
               <span className="text-[9px] bg-violet-600/30 text-violet-300 border border-violet-500/30 px-1.5 py-0.5 rounded-full">🤖 AI</span>
             )}
-            <span className="text-[10px] text-[#75716e]">{formatRelativeDate(comment.createdAt)}</span>
+            <span className="text-[10px] text-[var(--text-subtle)]">{formatRelativeDate(comment.createdAt)}</span>
             {comment.segmentId && comment.segmentLabel && (
               <button
                 onClick={() => onScrollToSegment(comment.segmentId!)}
@@ -290,13 +290,13 @@ function CommentItem({ comment, replies, currentUserId, aiLoadingId, onReply, on
               </button>
             )}
           </div>
-          <p className="text-[#e2e2e2] text-sm leading-relaxed break-words">{comment.text}</p>
+          <p className="text-[var(--text-primary)] text-sm leading-relaxed break-words">{comment.text}</p>
           {(comment as any)._truncated && (
             <p className="text-[10px] text-amber-500/70 mt-1">⚠️ 응답이 길어 일부가 잘렸습니다.</p>
           )}
           <div className="flex items-center gap-3 mt-1.5">
             {!comment.isAI && (
-              <button onClick={() => onReply(comment)} className="text-[10px] text-[#75716e] hover:text-white transition-colors">
+              <button onClick={() => onReply(comment)} className="text-[10px] text-[var(--text-subtle)] hover:text-white transition-colors">
                 ↩️ 답글
               </button>
             )}
@@ -308,7 +308,7 @@ function CommentItem({ comment, replies, currentUserId, aiLoadingId, onReply, on
               />
             )}
             {currentUserId === comment.userId && (
-              <button onClick={() => onDelete(comment.id)} className="text-[10px] text-[#75716e] hover:text-red-400 transition-colors">
+              <button onClick={() => onDelete(comment.id)} className="text-[10px] text-[var(--text-subtle)] hover:text-red-400 transition-colors">
                 삭제
               </button>
             )}
@@ -318,7 +318,7 @@ function CommentItem({ comment, replies, currentUserId, aiLoadingId, onReply, on
 
       {/* 대댓글 */}
       {replies.length > 0 && (
-        <div className="ml-9 flex flex-col gap-3 border-l-2 border-white/5 pl-3 mt-1">
+        <div className="ml-9 flex flex-col gap-3 border-l-2 border-[var(--border-subtle)] pl-3 mt-1">
           {replies.map(reply => (
             <div key={reply.id} className="flex gap-2">
               <Avatar src={reply.userPhotoURL} size={20} isAI={reply.isAI} />
@@ -328,9 +328,9 @@ function CommentItem({ comment, replies, currentUserId, aiLoadingId, onReply, on
                   {reply.isAI && (
                     <span className="text-[9px] bg-violet-600/30 text-violet-300 border border-violet-500/30 px-1.5 py-0.5 rounded-full">🤖 AI</span>
                   )}
-                  <span className="text-[9px] text-[#75716e]">{formatRelativeDate(reply.createdAt)}</span>
+                  <span className="text-[9px] text-[var(--text-subtle)]">{formatRelativeDate(reply.createdAt)}</span>
                 </div>
-                <p className="text-[#d4d4d8] text-xs leading-relaxed break-words">{reply.text}</p>
+                <p className="text-[var(--text-primary)] text-xs leading-relaxed break-words">{reply.text}</p>
                 {(reply as any)._truncated && (
                   <p className="text-[10px] text-amber-500/70 mt-0.5">⚠️ 응답이 길어 일부가 잘렸습니다.</p>
                 )}
@@ -340,7 +340,7 @@ function CommentItem({ comment, replies, currentUserId, aiLoadingId, onReply, on
                     currentUserId && (
                       <button
                         onClick={() => onReplyToThread(comment)}
-                        className="text-[10px] text-[#75716e] hover:text-white transition-colors"
+                        className="text-[10px] text-[var(--text-subtle)] hover:text-white transition-colors"
                       >
                         ↩️ 답글
                       </button>
@@ -357,7 +357,7 @@ function CommentItem({ comment, replies, currentUserId, aiLoadingId, onReply, on
                     />
                   )}
                   {currentUserId === reply.userId && (
-                    <button onClick={() => onDelete(reply.id)} className="text-[9px] text-[#75716e] hover:text-red-400 mt-0.5 transition-colors">
+                    <button onClick={() => onDelete(reply.id)} className="text-[9px] text-[var(--text-subtle)] hover:text-red-400 mt-0.5 transition-colors">
                       삭제
                     </button>
                   )}
@@ -406,9 +406,9 @@ function Avatar({ src, size, isAI }: { src: string; size: number; isAI?: boolean
       🤖
     </div>
   )
-  if (src) return <img src={src} alt="" style={style} className="rounded-full shrink-0 border border-white/10" />
+  if (src) return <img src={src} alt="" style={style} className="rounded-full shrink-0 border border-[var(--border-default)]" />
   return (
-    <div style={style} className="rounded-full bg-[#3d3a38] shrink-0 flex items-center justify-center text-[10px] text-white/40">
+    <div style={style} className="rounded-full bg-[var(--bg-elevated-2)] shrink-0 flex items-center justify-center text-[10px] text-white/40">
       👤
     </div>
   )

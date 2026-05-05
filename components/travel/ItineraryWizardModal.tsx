@@ -254,11 +254,11 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
   return (
     <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-[#1c1a18] border border-white/10 rounded-3xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl"
+        className="bg-[var(--bg-base)] border border-[var(--border-default)] rounded-3xl w-full max-w-lg max-h-[92vh] flex flex-col shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
         {/* 헤더 */}
-        <div className="shrink-0 px-6 pt-6 pb-4 border-b border-white/5">
+        <div className="shrink-0 px-6 pt-6 pb-4 border-b border-[var(--border-subtle)]">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-white font-bold text-base">✨ AI 여행 일정 생성</h2>
@@ -274,7 +274,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
                     s === step ? 'bg-orange-500 text-white' :
                     stepIdx > i ? 'bg-emerald-500/30 text-emerald-400' :
-                    'bg-white/10 text-zinc-500'
+                    'bg-[var(--overlay-default)] text-zinc-500'
                   }`}>
                     {stepIdx > i ? '✓' : i + 1}
                   </div>
@@ -282,7 +282,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
                     {STEP_LABELS[s]}
                   </span>
                   {i < indicatorSteps.length - 1 && (
-                    <div className="w-6 h-px bg-white/10 mx-0.5" />
+                    <div className="w-6 h-px bg-[var(--overlay-default)] mx-0.5" />
                   )}
                 </div>
               ))}
@@ -306,7 +306,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
                   onChange={e => setMemoText(e.target.value)}
                   placeholder={`예시:\n5월 3일~5일 제주도 여행\n- 성산일출봉 꼭 가기\n- 우도도 가고 싶음\n- 협재 해수욕장\n1박은 제주시 게스트하우스 예약함\n2박은 서귀포 쪽 숙소 알아봐야함\n카멜리아힐, 천지연폭포도 리스트에`}
                   rows={9}
-                  className="w-full bg-[#2a2826] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-orange-500/40 resize-none leading-relaxed"
+                  className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-2xl px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-orange-500/40 resize-none leading-relaxed"
                 />
               </div>
               {memoError && (
@@ -325,7 +325,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
 
               {/* 날짜 */}
               {parsedMemo.dates ? (
-                <div className="bg-[#23211f] border border-white/8 rounded-2xl px-4 py-3">
+                <div className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl px-4 py-3">
                   <p className="text-zinc-500 text-[10px] font-semibold mb-1.5">📅 감지된 날짜</p>
                   <p className="text-white text-sm font-bold">
                     {formatDate(parsedMemo.dates.startDate)} → {formatDate(parsedMemo.dates.endDate)}
@@ -336,14 +336,14 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
                   </p>
                 </div>
               ) : (
-                <div className="bg-[#23211f] border border-white/8 rounded-2xl px-4 py-3">
+                <div className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl px-4 py-3">
                   <p className="text-zinc-500 text-[10px] font-semibold mb-1">📅 날짜</p>
                   <p className="text-zinc-500 text-xs">날짜 정보 없음 — 다음 단계에서 직접 입력</p>
                 </div>
               )}
 
               {/* 스팟 */}
-              <div className="bg-[#23211f] border border-white/8 rounded-2xl px-4 py-3">
+              <div className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl px-4 py-3">
                 <p className="text-zinc-500 text-[10px] font-semibold mb-2">
                   📍 추출된 스팟 <span className="text-zinc-600 font-normal">({parsedMemo.spots.length}개)</span>
                 </p>
@@ -362,7 +362,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
 
               {/* 비행 시간 */}
               {parsedMemo.flightTimes && (
-                <div className="bg-[#23211f] border border-white/8 rounded-2xl px-4 py-3">
+                <div className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl px-4 py-3">
                   <p className="text-zinc-500 text-[10px] font-semibold mb-2">✈️ 비행 시간</p>
                   <div className="flex items-center gap-4 text-xs">
                     {parsedMemo.flightTimes.arrival && (
@@ -385,7 +385,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
 
               {/* 숙소 */}
               {parsedMemo.accommodations && parsedMemo.accommodations.length > 0 && (
-                <div className="bg-[#23211f] border border-white/8 rounded-2xl px-4 py-3">
+                <div className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl px-4 py-3">
                   <p className="text-zinc-500 text-[10px] font-semibold mb-2">🏨 감지된 숙소</p>
                   <div className="space-y-1">
                     {parsedMemo.accommodations.map((a, i) => (
@@ -416,7 +416,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
                         setStartDate(e.target.value)
                         if (endDate && e.target.value > endDate) setEndDate('')
                       }}
-                      className="w-full bg-[#2a2826] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500/40 [color-scheme:dark]"
+                      className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500/40 [color-scheme:dark]"
                     />
                   </div>
                   <div>
@@ -426,7 +426,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
                       value={endDate}
                       min={startDate || today}
                       onChange={e => setEndDate(e.target.value)}
-                      className="w-full bg-[#2a2826] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500/40 [color-scheme:dark]"
+                      className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-orange-500/40 [color-scheme:dark]"
                     />
                   </div>
                 </div>
@@ -449,7 +449,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
               {parsedMemo && parsedMemo.spots.length > 0 && (
                 <button
                   onClick={() => handleModeSelect('memo_based')}
-                  className="w-full text-left bg-[#23211f] border border-white/8 hover:border-emerald-500/40 hover:bg-emerald-500/5 rounded-2xl p-5 transition-all group"
+                  className="w-full text-left bg-[var(--bg-surface)] border border-[var(--border-default)] hover:border-emerald-500/40 hover:bg-emerald-500/5 rounded-2xl p-5 transition-all group"
                 >
                   <div className="flex items-start gap-3">
                     <span className="text-2xl mt-0.5">📝</span>
@@ -466,7 +466,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
 
               <button
                 onClick={() => handleModeSelect('spots_only')}
-                className="w-full text-left bg-[#23211f] border border-white/8 hover:border-cyan-500/40 hover:bg-cyan-500/5 rounded-2xl p-5 transition-all group"
+                className="w-full text-left bg-[var(--bg-surface)] border border-[var(--border-default)] hover:border-cyan-500/40 hover:bg-cyan-500/5 rounded-2xl p-5 transition-all group"
               >
                 <div className="flex items-start gap-3">
                   <span className="text-2xl mt-0.5">📍</span>
@@ -479,7 +479,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
 
               <button
                 onClick={() => handleModeSelect('with_recommendations')}
-                className="w-full text-left bg-[#23211f] border border-white/8 hover:border-orange-500/40 hover:bg-orange-500/5 rounded-2xl p-5 transition-all group"
+                className="w-full text-left bg-[var(--bg-surface)] border border-[var(--border-default)] hover:border-orange-500/40 hover:bg-orange-500/5 rounded-2xl p-5 transition-all group"
               >
                 <div className="flex items-start gap-3">
                   <span className="text-2xl mt-0.5">✨</span>
@@ -514,7 +514,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
                       className={`py-3 rounded-2xl border text-xs font-semibold transition-all flex flex-col items-center gap-1 ${
                         arrivalTime === a.id
                           ? 'bg-orange-500/20 border-orange-500/50 text-orange-300'
-                          : 'bg-[#23211f] border-white/8 text-zinc-400 hover:border-white/20 hover:text-white'
+                          : 'bg-[var(--bg-surface)] border-[var(--border-default)] text-zinc-400 hover:border-[var(--border-strong)] hover:text-white'
                       }`}
                     >
                       <span className="text-xl">{a.icon}</span>
@@ -533,7 +533,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
                 <p className="text-zinc-600 text-xs mb-3">숙소 위치에 따라 날짜별 동선이 달라집니다</p>
                 <div className="space-y-3">
                   {accommodations.map((accom, i) => (
-                    <div key={i} className="bg-[#23211f] border border-white/8 rounded-2xl p-3 space-y-2.5">
+                    <div key={i} className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl p-3 space-y-2.5">
                       <div className="flex items-center gap-2">
                         <span className="w-6 h-6 rounded-full bg-orange-500/20 text-orange-400 text-[10px] font-black flex items-center justify-center shrink-0">
                           {i + 1}
@@ -554,7 +554,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
                             className={`py-2 rounded-xl border text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
                               accom.status === opt.id
                                 ? 'bg-orange-500/20 border-orange-500/50 text-orange-300'
-                                : 'bg-[#2a2826] border-white/8 text-zinc-500 hover:border-white/20 hover:text-white'
+                                : 'bg-[var(--bg-surface-2)] border-[var(--border-default)] text-zinc-500 hover:border-[var(--border-strong)] hover:text-white'
                             }`}
                           >
                             <span>{opt.icon}</span>{opt.label}
@@ -566,7 +566,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
                           value={accom.details}
                           onChange={e => updateAccom(i, { details: e.target.value })}
                           placeholder="숙소명 또는 위치 (선택)"
-                          className="w-full bg-[#2a2826] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-orange-500/40"
+                          className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-orange-500/40"
                         />
                       )}
                       {accom.status === 'not_booked' && (
@@ -574,7 +574,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
                           value={accom.preferredArea}
                           onChange={e => updateAccom(i, { preferredArea: e.target.value })}
                           placeholder="선호 지역 (비우면 AI가 동선 기반 추천)"
-                          className="w-full bg-[#2a2826] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-orange-500/40"
+                          className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-orange-500/40"
                         />
                       )}
                     </div>
@@ -615,31 +615,31 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
         </div>
 
         {/* 푸터 */}
-        <div className="shrink-0 px-6 py-4 border-t border-white/5 flex gap-2">
+        <div className="shrink-0 px-6 py-4 border-t border-[var(--border-subtle)] flex gap-2">
 
           {/* 뒤로 가기 */}
           {step === 'preview' && (
-            <button onClick={() => setStep('memo')} className="px-4 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 text-xs transition-colors">
+            <button onClick={() => setStep('memo')} className="px-4 h-10 rounded-xl bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 text-xs transition-colors">
               ← 다시 입력
             </button>
           )}
           {step === 'dates' && (
-            <button onClick={() => setStep(parsedMemo ? 'preview' : 'memo')} className="px-4 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 text-xs transition-colors">
+            <button onClick={() => setStep(parsedMemo ? 'preview' : 'memo')} className="px-4 h-10 rounded-xl bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 text-xs transition-colors">
               ← 이전
             </button>
           )}
           {step === 'mode' && (
-            <button onClick={() => setStep('dates')} className="px-4 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 text-xs transition-colors">
+            <button onClick={() => setStep('dates')} className="px-4 h-10 rounded-xl bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 text-xs transition-colors">
               ← 이전
             </button>
           )}
           {step === 'details' && (
-            <button onClick={() => setStep('mode')} className="px-4 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 text-xs transition-colors">
+            <button onClick={() => setStep('mode')} className="px-4 h-10 rounded-xl bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 text-xs transition-colors">
               ← 이전
             </button>
           )}
           {step === 'result' && (
-            <button onClick={resetAll} className="px-4 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 text-xs transition-colors">
+            <button onClick={resetAll} className="px-4 h-10 rounded-xl bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 text-xs transition-colors">
               🔄 다시 생성
             </button>
           )}
@@ -651,7 +651,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setStep('dates')}
-                className="px-4 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 text-xs transition-colors"
+                className="px-4 h-10 rounded-xl bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 text-xs transition-colors"
               >
                 건너뛰기
               </button>
@@ -712,7 +712,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
                   className={`px-4 h-10 rounded-xl text-sm font-bold transition-all flex items-center gap-1.5 ${
                     saved
                       ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 cursor-default'
-                      : 'bg-white/8 hover:bg-white/15 text-zinc-300 border border-white/10 disabled:opacity-50'
+                      : 'bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-300 border border-[var(--border-default)] disabled:opacity-50'
                   }`}
                 >
                   {saving ? (

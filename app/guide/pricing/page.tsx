@@ -11,13 +11,13 @@ export default function PricingGuidePage() {
   return (
     <article className="flex flex-col gap-8 max-w-2xl">
       <div>
-        <div className="flex items-center gap-2 text-[#75716e] text-xs mb-4">
+        <div className="flex items-center gap-2 text-[var(--text-subtle)] text-xs mb-4">
           <Link href="/guide" className="hover:text-white transition-colors">사용설명서</Link>
           <span>›</span>
           <span className="text-white">요금제 안내</span>
         </div>
         <h1 className="text-2xl font-black text-white mb-3">💳 요금제 안내</h1>
-        <p className="text-[#a4a09c] text-sm leading-relaxed">
+        <p className="text-[var(--text-muted)] text-sm leading-relaxed">
           쏙튜브는 회원가입 없이도 체험할 수 있습니다. 더 많이 활용할수록 로그인 플랜이 유리합니다.
         </p>
       </div>
@@ -27,7 +27,7 @@ export default function PricingGuidePage() {
           {
             name: '비회원',
             price: '무료',
-            color: 'border-white/10',
+            color: 'border-[var(--border-default)]',
             features: ['10분 미만 영상 1회', '요약 결과 확인', '저장 불가'],
             cta: null,
           },
@@ -49,14 +49,14 @@ export default function PricingGuidePage() {
             ctaHref: 'mailto:naggu1999@gmail.com',
           },
         ].map(plan => (
-          <div key={plan.name} className={`bg-[#32302e] rounded-2xl p-5 border ${plan.color} flex flex-col gap-3`}>
+          <div key={plan.name} className={`bg-[var(--bg-elevated)] rounded-2xl p-5 border ${plan.color} flex flex-col gap-3`}>
             <div>
-              <p className="text-[#75716e] text-xs">{plan.name}</p>
+              <p className="text-[var(--text-subtle)] text-xs">{plan.name}</p>
               <p className="text-white font-black text-xl mt-0.5">{plan.price}</p>
             </div>
             <ul className="flex flex-col gap-1.5 flex-1">
               {plan.features.map(f => (
-                <li key={f} className="text-[#a4a09c] text-xs flex items-start gap-1.5">
+                <li key={f} className="text-[var(--text-muted)] text-xs flex items-start gap-1.5">
                   <span className="text-orange-400 shrink-0">✓</span>{f}
                 </li>
               ))}
@@ -73,8 +73,8 @@ export default function PricingGuidePage() {
         ))}
       </div>
 
-      <div className="pt-2 border-t border-white/5">
-        <Link href="/guide" className="text-[#75716e] text-sm hover:text-white transition-colors">
+      <div className="pt-2 border-t border-[var(--border-subtle)]">
+        <Link href="/guide" className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors">
           ← 사용설명서 홈으로
         </Link>
       </div>

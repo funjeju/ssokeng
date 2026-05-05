@@ -38,7 +38,7 @@ export default function TranslateButton({ text, className = '' }: Props) {
         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-all ${
           state === 'done'
             ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/25'
-            : 'bg-[#32302e] border-white/10 text-[#75716e] hover:text-white hover:border-white/20'
+            : 'bg-[var(--bg-elevated)] border-[var(--border-default)] text-[var(--text-subtle)] hover:text-white hover:border-[var(--border-strong)]'
         } disabled:opacity-50`}
         title={state === 'done' ? '번역 닫기' : '한국어로 번역'}
       >

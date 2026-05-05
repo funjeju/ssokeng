@@ -177,11 +177,11 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-[150] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
       <div
-        className="bg-[#1c1a18] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl"
+        className="bg-[var(--bg-base)] border border-[var(--border-default)] rounded-3xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
         {/* 헤더 */}
-        <div className="shrink-0 flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/5">
+        <div className="shrink-0 flex items-center justify-between px-6 pt-6 pb-4 border-b border-[var(--border-subtle)]">
           <div>
             <h2 className="text-white font-bold text-lg">✂️ 숏폼 스크립트</h2>
             <p className="text-zinc-500 text-xs mt-0.5">핵심 구간 추출 · 자막 대본 · 편집 타임코드</p>
@@ -228,7 +228,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
             <div className="space-y-4">
               {/* 편집 총평 */}
               {result.edit_tips && (
-                <div className="bg-white/4 border border-white/8 rounded-2xl px-4 py-3">
+                <div className="bg-[var(--overlay-subtle)] border border-[var(--border-default)] rounded-2xl px-4 py-3">
                   <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider mb-1">편집 총평</p>
                   <p className="text-zinc-300 text-sm leading-relaxed">{result.edit_tips}</p>
                 </div>
@@ -238,9 +238,9 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
               {result.segments.map((seg, idx) => {
                 const meta = TYPE_META[seg.type] ?? TYPE_META.highlight
                 return (
-                  <div key={seg.id} className="bg-[#23211f] border border-white/8 rounded-2xl overflow-hidden">
+                  <div key={seg.id} className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl overflow-hidden">
                     {/* 카드 헤더 */}
-                    <div className="flex items-center gap-3 px-4 py-3 border-b border-white/5">
+                    <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border-subtle)]">
                       <span className="w-7 h-7 rounded-full bg-gradient-to-br from-pink-500 to-orange-500 text-white text-xs font-black flex items-center justify-center shrink-0">
                         {idx + 1}
                       </span>
@@ -257,7 +257,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
                     <div className="flex items-center gap-3 px-4 py-3 bg-black/20">
                       <div className="flex items-center gap-2 flex-1">
                         <span className="text-zinc-400 text-xs font-mono bg-black/40 px-2 py-1 rounded-lg">{seg.start_time}</span>
-                        <div className="flex-1 h-1 bg-white/10 rounded-full">
+                        <div className="flex-1 h-1 bg-[var(--overlay-default)] rounded-full">
                           <div className="h-full bg-gradient-to-r from-pink-500 to-orange-500 rounded-full" style={{ width: '100%' }} />
                         </div>
                         <span className="text-zinc-400 text-xs font-mono bg-black/40 px-2 py-1 rounded-lg">{seg.end_time}</span>
@@ -288,7 +288,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
                           className={`text-[10px] px-2.5 py-1 rounded-lg font-bold transition-colors ${
                             copiedId === seg.id
                               ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                              : 'bg-white/5 text-zinc-400 hover:text-white border border-white/10'
+                              : 'bg-[var(--overlay-subtle)] text-zinc-400 hover:text-white border border-[var(--border-default)]'
                           }`}
                         >
                           {copiedId === seg.id ? '✓ 복사됨' : '복사'}
@@ -307,7 +307,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
 
         {/* 푸터 */}
         {result && (
-          <div className="shrink-0 flex flex-col gap-2 px-6 py-4 border-t border-white/5">
+          <div className="shrink-0 flex flex-col gap-2 px-6 py-4 border-t border-[var(--border-subtle)]">
             {/* SRT 다운로드 행 */}
             <div className="flex gap-2">
               <button
@@ -319,7 +319,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
                   const safe = (data.title ?? 'subtitle').replace(/[^\w가-힣]/g, '_').slice(0, 30)
                   downloadSrt(buildFullSrt(data.transcript), `${safe}_전체자막.srt`)
                 }}
-                className="flex-1 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 text-xs transition-colors border border-white/8 font-semibold"
+                className="flex-1 h-9 rounded-xl bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 text-xs transition-colors border border-[var(--border-default)] font-semibold"
               >
                 📥 전체 SRT
               </button>
@@ -337,7 +337,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
             <div className="flex gap-2">
               <button
                 onClick={generate}
-                className="px-4 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 text-xs transition-colors"
+                className="px-4 h-10 rounded-xl bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 text-xs transition-colors"
               >
                 🔄 다시 추출
               </button>
@@ -348,7 +348,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
                 className={`px-4 h-10 rounded-xl text-xs font-bold transition-colors disabled:opacity-60 ${
                   saved
                     ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                    : 'bg-white/8 border border-white/10 text-zinc-300 hover:bg-white/15'
+                    : 'bg-[var(--overlay-subtle)] border border-[var(--border-default)] text-zinc-300 hover:bg-[var(--overlay-default)]'
                 }`}
               >
                 {saving ? '저장 중...' : saved ? '✓ 저장됨' : '💾 저장'}

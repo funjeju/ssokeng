@@ -106,26 +106,26 @@ function SummaryCard({ item, likedIds, likingIds, user, messagingId, commentCoun
 }) {
   const router = useRouter()
   return (
-    <div className="relative group rounded-[18px] bg-[#32302e] border border-white/5 overflow-hidden hover:border-white/20 active:scale-[0.97] active:opacity-75 transition-all shadow-md cursor-pointer select-none"
+    <div className="relative group rounded-[18px] bg-[var(--bg-elevated)] border border-[var(--border-subtle)] overflow-hidden hover:border-[var(--border-strong)] active:scale-[0.97] active:opacity-75 transition-all shadow-md cursor-pointer select-none"
       onClick={() => {
         incrementViewCount(item.id)
         router.push(`/result/${item.sessionId}?from=square`)
       }}
     >
-      <div className="relative overflow-hidden bg-[#23211f]">
+      <div className="relative overflow-hidden bg-[var(--bg-surface)]">
         <img
           src={item.thumbnail}
           alt={item.title}
           className="w-full object-cover aspect-video group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-sm text-[9px] font-bold text-white border border-white/10">
+        <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-sm text-[9px] font-bold text-white border border-[var(--border-default)]">
           {CATEGORIES.find(c => c.id === item.category)?.label ?? '분석됨'}
         </div>
       </div>
 
       <div className="p-2.5 pb-9">
-        <h3 className="text-[#f4f4f5] text-[11px] font-bold leading-snug line-clamp-2 mb-2">
+        <h3 className="text-[var(--text-primary)] text-[11px] font-bold leading-snug line-clamp-2 mb-2">
           {item.title}
         </h3>
         <div className="flex items-center justify-between">
@@ -135,15 +135,15 @@ function SummaryCard({ item, likedIds, likingIds, user, messagingId, commentCoun
             className="flex items-center gap-1 min-w-0 group/profile relative z-10"
           >
             {item.userPhotoURL ? (
-              <img src={item.userPhotoURL} alt="" className="w-4 h-4 rounded-full shrink-0 border border-white/10" />
+              <img src={item.userPhotoURL} alt="" className="w-4 h-4 rounded-full shrink-0 border border-[var(--border-default)]" />
             ) : (
-              <div className="w-4 h-4 rounded-full bg-[#3d3a38] shrink-0 flex items-center justify-center text-[8px] text-white/40">👤</div>
+              <div className="w-4 h-4 rounded-full bg-[var(--bg-elevated-2)] shrink-0 flex items-center justify-center text-[8px] text-white/40">👤</div>
             )}
-            <span className="text-[9px] text-[#75716e] group-hover/profile:text-white truncate transition-colors">
+            <span className="text-[9px] text-[var(--text-subtle)] group-hover/profile:text-white truncate transition-colors">
               {item.userDisplayName || '익명'}
             </span>
           </Link>
-          <div className="flex items-center gap-1 text-[#75716e] shrink-0">
+          <div className="flex items-center gap-1 text-[var(--text-subtle)] shrink-0">
             {item.createdAt && <span className="text-[8px]">{formatRelativeDate(item.createdAt)}</span>}
             {(item.viewCount ?? 0) > 0 && <span className="text-[8px]">· 👁{item.viewCount}</span>}
           </div>
@@ -155,7 +155,7 @@ function SummaryCard({ item, likedIds, likingIds, user, messagingId, commentCoun
           {user && item.userId === user.uid ? (
             <button
               onClick={(e) => onDelete(e, item)}
-              className="flex items-center gap-0.5 text-[9px] text-[#75716e] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+              className="flex items-center gap-0.5 text-[9px] text-[var(--text-subtle)] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
               title="삭제"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -166,7 +166,7 @@ function SummaryCard({ item, likedIds, likingIds, user, messagingId, commentCoun
             <button
               onClick={(e) => onMessage(e, item)}
               disabled={messagingId === item.id}
-              className="flex items-center gap-0.5 text-[9px] text-[#75716e] hover:text-blue-400 transition-colors disabled:opacity-50"
+              className="flex items-center gap-0.5 text-[9px] text-[var(--text-subtle)] hover:text-blue-400 transition-colors disabled:opacity-50"
             >✉️</button>
           ) : null}
           {isAdmin && onAdminManage && (
@@ -191,7 +191,7 @@ function SummaryCard({ item, likedIds, likingIds, user, messagingId, commentCoun
           <Link
             href={`/result/${item.sessionId}?from=square#comments`}
             onClick={e => e.stopPropagation()}
-            className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] bg-black/40 text-white/40 border border-white/10 hover:text-blue-400 hover:border-blue-500/30 transition-all"
+            className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] bg-black/40 text-white/40 border border-[var(--border-default)] hover:text-blue-400 hover:border-blue-500/30 transition-all"
           >
             <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -207,7 +207,7 @@ function SummaryCard({ item, likedIds, likingIds, user, messagingId, commentCoun
             className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold transition-all ${
               likedIds.has(item.id)
                 ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30'
-                : 'bg-black/40 text-white/40 border border-white/10 hover:text-pink-400 hover:border-pink-500/30'
+                : 'bg-black/40 text-white/40 border border-[var(--border-default)] hover:text-pink-400 hover:border-pink-500/30'
             } disabled:opacity-50`}
           >
             <span className="text-[10px]">{likedIds.has(item.id) ? '❤️' : '🤍'}</span>
@@ -223,10 +223,10 @@ function SummaryCard({ item, likedIds, likingIds, user, messagingId, commentCoun
 function MagazineBoard({ posts }: { posts: CuratedPost[] }) {
   if (posts.length === 0) {
     return (
-      <div className="bg-[#32302e]/50 rounded-[32px] p-16 text-center border border-white/5">
+      <div className="bg-[var(--bg-elevated)]/50 rounded-[32px] p-16 text-center border border-[var(--border-subtle)]">
         <span className="text-4xl mb-4 block">✍️</span>
         <h2 className="text-xl text-white font-bold mb-2">아직 발행된 매거진이 없습니다</h2>
-        <p className="text-[#75716e] text-sm">AI가 영상들을 분석해 블로그 포스트를 자동으로 작성합니다.</p>
+        <p className="text-[var(--text-subtle)] text-sm">AI가 영상들을 분석해 블로그 포스트를 자동으로 작성합니다.</p>
       </div>
     )
   }
@@ -238,10 +238,10 @@ function MagazineBoard({ posts }: { posts: CuratedPost[] }) {
       {/* 피처드 — 첫 번째 글을 크게 */}
       <Link
         href={`/magazine/${featured.slug}`}
-        className="group block rounded-2xl overflow-hidden bg-[#32302e] border border-white/5 hover:border-white/20 transition-all shadow-md"
+        className="group block rounded-2xl overflow-hidden bg-[var(--bg-elevated)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-all shadow-md"
       >
         {featured.heroThumbnail && !featured.heroThumbnail.startsWith('data:') ? (
-          <div className="relative overflow-hidden h-52 sm:h-64 bg-[#23211f]">
+          <div className="relative overflow-hidden h-52 sm:h-64 bg-[var(--bg-surface)]">
             <img
               src={featured.heroThumbnail}
               alt={featured.title}
@@ -261,23 +261,23 @@ function MagazineBoard({ posts }: { posts: CuratedPost[] }) {
           <div className="p-5">
             <div className="flex items-center gap-2 mb-2">
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30">✍️ 매거진</span>
-              <span className="text-[10px] text-[#75716e]">{featured.readTime}분 읽기 · 영상 {featured.videoTitles?.length ?? 0}개</span>
+              <span className="text-[10px] text-[var(--text-subtle)]">{featured.readTime}분 읽기 · 영상 {featured.videoTitles?.length ?? 0}개</span>
             </div>
             <h2 className="text-white text-lg font-black leading-tight line-clamp-2 mb-1">{featured.title}</h2>
-            {featured.subtitle && <p className="text-[#a4a09c] text-sm line-clamp-2">{featured.subtitle}</p>}
+            {featured.subtitle && <p className="text-[var(--text-muted)] text-sm line-clamp-2">{featured.subtitle}</p>}
           </div>
         )}
         {(featured.seoDescription || featured.subtitle) && (
           <div className="px-4 py-3">
-            <p className="text-[#a4a09c] text-[13px] leading-relaxed line-clamp-2">
+            <p className="text-[var(--text-muted)] text-[13px] leading-relaxed line-clamp-2">
               {featured.seoDescription || featured.subtitle}
             </p>
             <div className="flex items-center gap-2 mt-2">
               {featured.tags?.slice(0, 4).map(tag => (
-                <span key={tag} className="text-[10px] text-[#75716e] bg-white/5 px-1.5 py-0.5 rounded">#{tag}</span>
+                <span key={tag} className="text-[10px] text-[var(--text-subtle)] bg-[var(--overlay-subtle)] px-1.5 py-0.5 rounded">#{tag}</span>
               ))}
               {featured.publishedAt && (
-                <span className="text-[10px] text-[#75716e] ml-auto">
+                <span className="text-[10px] text-[var(--text-subtle)] ml-auto">
                   {new Intl.DateTimeFormat('ko-KR', { month: 'short', day: 'numeric' }).format(new Date(featured.publishedAt))}
                 </span>
               )}
@@ -293,20 +293,20 @@ function MagazineBoard({ posts }: { posts: CuratedPost[] }) {
             <Link
               key={post.id}
               href={`/magazine/${post.slug}`}
-              className="group flex gap-3 rounded-xl bg-[#32302e] border border-white/5 hover:border-white/20 transition-all shadow-sm p-3"
+              className="group flex gap-3 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-all shadow-sm p-3"
             >
               {post.heroThumbnail && !post.heroThumbnail.startsWith('data:') && (
-                <div className="relative shrink-0 w-24 h-16 rounded-lg overflow-hidden bg-[#23211f]">
+                <div className="relative shrink-0 w-24 h-16 rounded-lg overflow-hidden bg-[var(--bg-surface)]">
                   <img src={post.heroThumbnail} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 </div>
               )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-1">
                   <span className="text-[9px] font-bold text-orange-400">✍️ 매거진</span>
-                  <span className="text-[9px] text-[#75716e]">{post.readTime}분 · {post.videoTitles?.length ?? 0}개 영상</span>
+                  <span className="text-[9px] text-[var(--text-subtle)]">{post.readTime}분 · {post.videoTitles?.length ?? 0}개 영상</span>
                 </div>
-                <h3 className="text-[#f4f4f5] text-[12px] font-bold leading-snug line-clamp-2 mb-1">{post.title}</h3>
-                <p className="text-[10px] text-[#75716e] line-clamp-1">{post.seoDescription || post.subtitle}</p>
+                <h3 className="text-[var(--text-primary)] text-[12px] font-bold leading-snug line-clamp-2 mb-1">{post.title}</h3>
+                <p className="text-[10px] text-[var(--text-subtle)] line-clamp-1">{post.seoDescription || post.subtitle}</p>
               </div>
             </Link>
           ))}
@@ -336,11 +336,11 @@ function SummaryListRow({ item, likedIds, likingIds, user, messagingId, commentC
 
   return (
     <div
-      className="flex gap-3 rounded-[14px] bg-[#32302e] border border-white/5 hover:border-white/20 active:scale-[0.98] active:opacity-75 transition-all shadow-sm cursor-pointer p-2.5 select-none"
+      className="flex gap-3 rounded-[14px] bg-[var(--bg-elevated)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] active:scale-[0.98] active:opacity-75 transition-all shadow-sm cursor-pointer p-2.5 select-none"
       onClick={() => { incrementViewCount(item.id); router.push(`/result/${item.sessionId}?from=square`) }}
     >
       {/* 썸네일 */}
-      <div className="relative shrink-0 w-28 sm:w-36 rounded-lg overflow-hidden bg-[#23211f] aspect-video self-start">
+      <div className="relative shrink-0 w-28 sm:w-36 rounded-lg overflow-hidden bg-[var(--bg-surface)] aspect-video self-start">
         <img src={item.thumbnail} alt={item.title} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
       </div>
@@ -353,15 +353,15 @@ function SummaryListRow({ item, likedIds, likingIds, user, messagingId, commentC
               className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
               style={catMeta ? { color: catMeta.color, background: `${catMeta.bg}cc` } : { color: '#a4a09c', background: '#3d3a38' }}
             >{catLabel}</span>
-            {item.createdAt && <span className="text-[9px] text-[#75716e]">{formatRelativeDate(item.createdAt)}</span>}
+            {item.createdAt && <span className="text-[9px] text-[var(--text-subtle)]">{formatRelativeDate(item.createdAt)}</span>}
           </div>
-          <h3 className="text-[#f4f4f5] text-[12px] sm:text-[13px] font-bold leading-snug line-clamp-2 mb-1">
+          <h3 className="text-[var(--text-primary)] text-[12px] sm:text-[13px] font-bold leading-snug line-clamp-2 mb-1">
             {item.title}
           </h3>
           {item.contextSummary ? (
-            <p className="text-[10px] sm:text-[11px] text-[#a4a09c] leading-relaxed line-clamp-2">{item.contextSummary}</p>
+            <p className="text-[10px] sm:text-[11px] text-[var(--text-muted)] leading-relaxed line-clamp-2">{item.contextSummary}</p>
           ) : (
-            <p className="text-[10px] text-[#75716e]">{item.channel}</p>
+            <p className="text-[10px] text-[var(--text-subtle)]">{item.channel}</p>
           )}
         </div>
 
@@ -373,23 +373,23 @@ function SummaryListRow({ item, likedIds, likingIds, user, messagingId, commentC
             className="flex items-center gap-1 min-w-0 group/profile"
           >
             {item.userPhotoURL ? (
-              <img src={item.userPhotoURL} alt="" className="w-4 h-4 rounded-full shrink-0 border border-white/10" />
+              <img src={item.userPhotoURL} alt="" className="w-4 h-4 rounded-full shrink-0 border border-[var(--border-default)]" />
             ) : (
-              <div className="w-4 h-4 rounded-full bg-[#3d3a38] shrink-0 flex items-center justify-center text-[8px] text-white/40">👤</div>
+              <div className="w-4 h-4 rounded-full bg-[var(--bg-elevated-2)] shrink-0 flex items-center justify-center text-[8px] text-white/40">👤</div>
             )}
-            <span className="text-[9px] text-[#75716e] group-hover/profile:text-white truncate transition-colors">
+            <span className="text-[9px] text-[var(--text-subtle)] group-hover/profile:text-white truncate transition-colors">
               {item.userDisplayName || '익명'}
             </span>
           </Link>
 
           <div className="flex items-center gap-1.5">
             {(item.viewCount ?? 0) > 0 && (
-              <span className="text-[9px] text-[#75716e]">👁 {item.viewCount}</span>
+              <span className="text-[9px] text-[var(--text-subtle)]">👁 {item.viewCount}</span>
             )}
             <Link
               href={`/result/${item.sessionId}?from=square#comments`}
               onClick={e => e.stopPropagation()}
-              className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] bg-black/40 text-white/40 border border-white/10 hover:text-blue-400 hover:border-blue-500/30 transition-all"
+              className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] bg-black/40 text-white/40 border border-[var(--border-default)] hover:text-blue-400 hover:border-blue-500/30 transition-all"
             >
               <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -402,7 +402,7 @@ function SummaryListRow({ item, likedIds, likingIds, user, messagingId, commentC
               className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold transition-all ${
                 likedIds.has(item.id)
                   ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30'
-                  : 'bg-black/40 text-white/40 border border-white/10 hover:text-pink-400 hover:border-pink-500/30'
+                  : 'bg-black/40 text-white/40 border border-[var(--border-default)] hover:text-pink-400 hover:border-pink-500/30'
               } disabled:opacity-50`}
             >
               <span className="text-[10px]">{likedIds.has(item.id) ? '❤️' : '🤍'}</span>
@@ -411,7 +411,7 @@ function SummaryListRow({ item, likedIds, likingIds, user, messagingId, commentC
             {user && item.userId === user.uid ? (
               <button
                 onClick={(e) => onDelete(e, item)}
-                className="text-[9px] text-[#75716e] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                className="text-[9px] text-[var(--text-subtle)] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
                 title="삭제"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -422,7 +422,7 @@ function SummaryListRow({ item, likedIds, likingIds, user, messagingId, commentC
               <button
                 onClick={(e) => onMessage(e, item)}
                 disabled={messagingId === item.id}
-                className="text-[9px] text-[#75716e] hover:text-blue-400 transition-colors disabled:opacity-50"
+                className="text-[9px] text-[var(--text-subtle)] hover:text-blue-400 transition-colors disabled:opacity-50"
               >✉️</button>
             ) : null}
             {isAdmin && onAdminManage && (
@@ -478,7 +478,7 @@ function RecommendationCard({ slot }: { slot: RecSlot }) {
             className="rounded-lg overflow-hidden group"
             title={item.title}
           >
-            <div className="relative overflow-hidden bg-[#32302e]">
+            <div className="relative overflow-hidden bg-[var(--bg-elevated)]">
               <img
                 src={item.thumbnail}
                 alt={item.title}
@@ -512,7 +512,7 @@ function AdCard({ slot }: { slot: AdSlotItem }) {
   return (
     <div
       key={slot.slotId}
-      className="rounded-[18px] border border-dashed border-white/10 bg-[#32302e]/40 flex flex-col items-center justify-center gap-2 aspect-[4/3] text-[#75716e]"
+      className="rounded-[18px] border border-dashed border-[var(--border-default)] bg-[var(--bg-elevated)]/40 flex flex-col items-center justify-center gap-2 aspect-[4/3] text-[var(--text-subtle)]"
     >
       <span className="text-2xl opacity-30">📢</span>
       <span className="text-[9px] opacity-30 tracking-widest uppercase">AD</span>
@@ -789,26 +789,26 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
   }, [gridItems, colCount])
 
   return (
-    <div className="min-h-screen bg-[#252423] font-sans">
+    <div className="min-h-screen bg-[var(--bg-page)] font-sans">
       <Header title="🎬 Next Curator" />
 
       <div className="max-w-7xl mx-auto px-3 pb-12">
 
         {/* 탭 바 */}
-        <div className="flex items-center gap-1 mb-5 border-b border-white/8">
+        <div className="flex items-center gap-1 mb-5 border-b border-[var(--border-default)]">
           <button
             onClick={() => setActiveTab('feed')}
             className={`px-4 py-2.5 text-sm font-bold transition-all border-b-2 -mb-px ${
               activeTab === 'feed'
                 ? 'border-orange-500 text-white'
-                : 'border-transparent text-[#75716e] hover:text-white'
+                : 'border-transparent text-[var(--text-subtle)] hover:text-white'
             }`}
           >
             피드
           </button>
           <Link
             href="/magazine"
-            className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-bold transition-all border-b-2 -mb-px border-transparent text-[#75716e] hover:text-white hover:border-orange-500/50"
+            className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-bold transition-all border-b-2 -mb-px border-transparent text-[var(--text-subtle)] hover:text-white hover:border-orange-500/50"
           >
             ✍️ 매거진
             {initialMagazinePosts.length > 0 && (
@@ -830,17 +830,17 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
               onChange={e => setSearchQuery(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') handleSearch() }}
               placeholder="검색어 입력 후 버튼을 누르세요 (예: 당근 요리, 영어 발음 팁)"
-              className={`w-full h-10 pl-9 pr-8 bg-[#32302e] border rounded-xl text-sm text-white placeholder:text-[#75716e] focus:outline-none transition-colors ${
-                committedQuery ? 'border-orange-500/50' : 'border-white/10 focus:border-orange-500/40'
+              className={`w-full h-10 pl-9 pr-8 bg-[var(--bg-elevated)] border rounded-xl text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none transition-colors ${
+                committedQuery ? 'border-orange-500/50' : 'border-[var(--border-default)] focus:border-orange-500/40'
               }`}
             />
-            <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#75716e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-subtle)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             {(searchQuery || committedQuery) && (
               <button
                 onClick={handleClear}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#75716e] hover:text-white text-xs"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-subtle)] hover:text-white text-xs"
               >✕</button>
             )}
           </div>
@@ -862,7 +862,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
                 className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95 active:opacity-70 select-none ${
                   activeCategory === cat.id
                     ? 'bg-orange-500 text-white'
-                    : 'bg-[#32302e] text-[#a4a09c] hover:text-white'
+                    : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-white'
                 }`}
               >
                 {cat.label}
@@ -880,7 +880,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
                   className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
                     sortType === type
                       ? 'bg-white text-black'
-                      : 'bg-[#32302e] text-[#a4a09c] hover:text-white'
+                      : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-white'
                   }`}
                 >
                   {labels[type]}
@@ -888,15 +888,15 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
               )
             })}
             <div className="flex items-center gap-2 ml-auto">
-              <span className="text-[#75716e] text-xs">
+              <span className="text-[var(--text-subtle)] text-xs">
                 {committedQuery ? `"${committedQuery}" 결과 ${filtered.length}개` : `${filtered.length}개`}
               </span>
               {/* 뷰 모드 토글 */}
-              <div className="flex items-center gap-0.5 bg-[#32302e] rounded-lg p-0.5">
+              <div className="flex items-center gap-0.5 bg-[var(--bg-elevated)] rounded-lg p-0.5">
                 <button
                   onClick={() => toggleViewMode('grid')}
                   title="그리드 보기"
-                  className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white/10 text-white' : 'text-[#75716e] hover:text-white'}`}
+                  className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-[var(--overlay-default)] text-white' : 'text-[var(--text-subtle)] hover:text-white'}`}
                 >
                   <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 16 16">
                     <rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/>
@@ -906,7 +906,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
                 <button
                   onClick={() => toggleViewMode('list')}
                   title="목록 보기"
-                  className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white/10 text-white' : 'text-[#75716e] hover:text-white'}`}
+                  className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-[var(--overlay-default)] text-white' : 'text-[var(--text-subtle)] hover:text-white'}`}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16">
                     <line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/>
@@ -923,7 +923,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
             <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-pink-500" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-[#32302e]/50 rounded-[32px] p-16 text-center border border-white/5">
+          <div className="bg-[var(--bg-elevated)]/50 rounded-[32px] p-16 text-center border border-[var(--border-subtle)]">
             <span className="text-4xl mb-4 block">🌍</span>
             <h2 className="text-xl text-white font-bold mb-2">
               {activeCategory === 'all' ? '아직 공개된 요약이 없습니다' : '해당 카테고리의 요약이 없습니다'}
@@ -985,7 +985,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
         {!loading && displayCount < filtered.length && (
           <div ref={sentinelRef} className="flex items-center justify-center py-6 gap-2">
             <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-orange-500/60" />
-            <span className="text-[#75716e] text-xs">{filtered.length - displayCount}개 더</span>
+            <span className="text-[var(--text-subtle)] text-xs">{filtered.length - displayCount}개 더</span>
           </div>
         )}
         </>

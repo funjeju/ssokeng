@@ -34,10 +34,10 @@ export default function StorySummary({ data, onSeek, sessionId, commentCounts = 
     } catch { /* ignore */ }
   }
   return (
-    <div className="space-y-6 bg-[#32302e]/80 backdrop-blur-3xl p-6 md:p-8 rounded-[32px] border border-white/5 shadow-2xl mt-4">
+    <div className="space-y-6 bg-[var(--bg-elevated)]/80 backdrop-blur-3xl p-6 md:p-8 rounded-[32px] border border-[var(--border-subtle)] shadow-2xl mt-4">
 
       {/* 제목 & 장르 */}
-      <div className="pb-4 border-b border-white/10">
+      <div className="pb-4 border-b border-[var(--border-default)]">
         <h2 className="text-2xl font-bold text-white mb-2">{data.title}</h2>
         <span className="inline-block px-3 py-1 bg-pink-500/10 text-pink-400 text-sm font-medium rounded-full border border-pink-500/20">
           {data.genre}
@@ -52,9 +52,9 @@ export default function StorySummary({ data, onSeek, sessionId, commentCounts = 
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {data.characters.map((char, i) => (
-              <div key={i} className="p-4 rounded-2xl bg-[#23211f] border border-white/5 flex flex-col gap-1">
+              <div key={i} className="p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex flex-col gap-1">
                 <span className="font-medium text-pink-300">{char.name}</span>
-                <span className="text-sm text-[#a4a09c]">{char.desc}</span>
+                <span className="text-sm text-[var(--text-muted)]">{char.desc}</span>
               </div>
             ))}
           </div>
@@ -73,8 +73,8 @@ export default function StorySummary({ data, onSeek, sessionId, commentCounts = 
               const segLabel = `타임라인 ${i + 1}번째`
               return (
                 <div key={i} id={`seg-${segId}`} className="relative flex items-start gap-3 group transition-all">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full border-4 border-[#32302e] bg-[#23211f] text-pink-500 shadow shrink-0 mt-1 group-hover:bg-pink-500/20 transition-colors z-10" />
-                  <div className="flex-1 p-4 rounded-2xl bg-[#23211f] border border-white/5 flex flex-col gap-2 hover:bg-[#3d3a38] transition-colors">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full border-4 border-[var(--bg-elevated)] bg-[var(--bg-surface)] text-pink-500 shadow shrink-0 mt-1 group-hover:bg-pink-500/20 transition-colors z-10" />
+                  <div className="flex-1 p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex flex-col gap-2 hover:bg-[var(--bg-elevated-2)] transition-colors">
                     <div className="flex items-center gap-2 flex-wrap">
                       {sessionId && (
                         <CommentBubble
@@ -85,7 +85,7 @@ export default function StorySummary({ data, onSeek, sessionId, commentCounts = 
                         />
                       )}
                     </div>
-                    <p className="text-[#e2e2e2] leading-relaxed text-[15px]">{item.event}{' '}<TimestampBadge timestamp={item.timestamp} onSeek={onSeek} /></p>
+                    <p className="text-[var(--text-primary)] leading-relaxed text-[15px]">{item.event}{' '}<TimestampBadge timestamp={item.timestamp} onSeek={onSeek} /></p>
                     <div className="flex items-center gap-2 flex-wrap mt-1">
                       {showTranslate && <TranslateButton text={item.event} />}
                       <button
@@ -93,7 +93,7 @@ export default function StorySummary({ data, onSeek, sessionId, commentCounts = 
                         className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-all ${
                           copiedIdx === i
                             ? 'bg-pink-500/15 border-pink-500/30 text-pink-400'
-                            : 'bg-[#32302e] border-white/10 text-[#75716e] hover:text-pink-300 hover:border-pink-500/30'
+                            : 'bg-[var(--bg-elevated)] border-[var(--border-default)] text-[var(--text-subtle)] hover:text-pink-300 hover:border-pink-500/30'
                         }`}
                         title="이 장면의 웹툰 이미지 생성 프롬프트를 클립보드에 복사"
                       >
@@ -110,12 +110,12 @@ export default function StorySummary({ data, onSeek, sessionId, commentCounts = 
 
       {/* 결말 */}
       {data.conclusion && (
-        <div className="space-y-3 pt-6 border-t border-white/10">
+        <div className="space-y-3 pt-6 border-t border-[var(--border-default)]">
           <h3 className="text-lg font-semibold text-white flex items-center gap-2">
             <span>🎬</span> 핵심 요약 / 결말
           </h3>
-          <div id="seg-conclusion" className="p-5 rounded-2xl bg-[#23211f] border border-white/5 flex items-start gap-3">
-            <p className="text-[#a4a09c] text-[15px] leading-relaxed whitespace-pre-wrap flex-1">
+          <div id="seg-conclusion" className="p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-start gap-3">
+            <p className="text-[var(--text-muted)] text-[15px] leading-relaxed whitespace-pre-wrap flex-1">
               {data.conclusion}
             </p>
             {sessionId && (

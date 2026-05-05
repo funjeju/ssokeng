@@ -133,13 +133,13 @@ function ProfileSetupModalInner() {
     <>
     <Suspense fallback={null}><InviteParamReader onTeacherInvite={handleTeacherInvite} /></Suspense>
     <div className="fixed inset-0 z-[300] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#23211f] border border-white/10 rounded-[28px] w-full max-w-md shadow-2xl overflow-hidden relative">
+      <div className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-[28px] w-full max-w-md shadow-2xl overflow-hidden relative">
 
         {/* 닫기 버튼 — done 단계 제외 */}
         {step !== 'done' && (
           <button
             onClick={() => setDismissed(true)}
-            className="absolute top-4 right-4 z-10 text-[#75716e] hover:text-white transition-colors p-1"
+            className="absolute top-4 right-4 z-10 text-[var(--text-subtle)] hover:text-white transition-colors p-1"
             aria-label="닫기"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -150,7 +150,7 @@ function ProfileSetupModalInner() {
 
         {/* 진행 바 — 일반 사용자만 */}
         {step !== 'done' && step !== 'role' && step !== 'teacher_setup' && (
-          <div className="h-1 bg-[#32302e]">
+          <div className="h-1 bg-[var(--bg-elevated)]">
             <div
               className="h-full bg-gradient-to-r from-orange-500 to-pink-500 transition-all duration-500"
               style={{ width: `${(userStepIndex / totalUserSteps) * 100}%` }}
@@ -167,7 +167,7 @@ function ProfileSetupModalInner() {
                 <p className="text-white text-xl font-bold mb-1">
                   안녕하세요, {user.displayName?.split(' ')[0]}님! 👋
                 </p>
-                <p className="text-[#a4a09c] text-sm">어떻게 이용하실 건가요?</p>
+                <p className="text-[var(--text-muted)] text-sm">어떻게 이용하실 건가요?</p>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mb-6">
@@ -176,13 +176,13 @@ function ProfileSetupModalInner() {
                   className={`flex flex-col items-center gap-3 py-6 rounded-2xl border transition-all ${
                     role === 'user'
                       ? 'border-orange-500 bg-orange-500/15 text-white'
-                      : 'border-white/10 bg-[#32302e] text-[#a4a09c] hover:border-white/20 hover:text-white'
+                      : 'border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-white'
                   }`}
                 >
                   <span className="text-4xl">📚</span>
                   <div className="text-center">
                     <p className="text-sm font-bold">일반 사용자</p>
-                    <p className="text-[10px] text-[#75716e] mt-0.5">영상 학습 · 큐레이션</p>
+                    <p className="text-[10px] text-[var(--text-subtle)] mt-0.5">영상 학습 · 큐레이션</p>
                   </div>
                 </button>
 
@@ -191,13 +191,13 @@ function ProfileSetupModalInner() {
                   className={`flex flex-col items-center gap-3 py-6 rounded-2xl border transition-all ${
                     role === 'teacher'
                       ? 'border-emerald-500 bg-emerald-500/15 text-white'
-                      : 'border-white/10 bg-[#32302e] text-[#a4a09c] hover:border-white/20 hover:text-white'
+                      : 'border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-white'
                   }`}
                 >
                   <span className="text-4xl">🏫</span>
                   <div className="text-center">
                     <p className="text-sm font-bold">선생님</p>
-                    <p className="text-[10px] text-[#75716e] mt-0.5">클래스 관리 · 학생 지도</p>
+                    <p className="text-[10px] text-[var(--text-subtle)] mt-0.5">클래스 관리 · 학생 지도</p>
                   </div>
                 </button>
               </div>
@@ -221,33 +221,33 @@ function ProfileSetupModalInner() {
               <div className="mb-6">
                 <button
                   onClick={() => setStep('role')}
-                  className="text-[#75716e] text-sm hover:text-white transition-colors mb-4 flex items-center gap-1"
+                  className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors mb-4 flex items-center gap-1"
                 >
                   ← 이전
                 </button>
                 <h2 className="text-xl font-bold text-white mb-1">🏫 클래스 개설</h2>
-                <p className="text-[#a4a09c] text-sm">학생들과 공유할 고유 코드가 발급됩니다.</p>
+                <p className="text-[var(--text-muted)] text-sm">학생들과 공유할 고유 코드가 발급됩니다.</p>
               </div>
 
               <form onSubmit={handleTeacherSetup} className="flex flex-col gap-4">
                 <div>
-                  <label className="block text-xs text-[#75716e] mb-1.5">학교명</label>
+                  <label className="block text-xs text-[var(--text-subtle)] mb-1.5">학교명</label>
                   <input
                     type="text"
                     value={schoolName}
                     onChange={e => setSchoolName(e.target.value)}
                     placeholder="예) 제주초등학교"
-                    className="w-full bg-[#2a2826] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-[#75716e] focus:outline-none focus:border-emerald-500/50 transition-colors"
+                    className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-emerald-500/50 transition-colors"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-[#75716e] mb-1.5">학년</label>
+                    <label className="block text-xs text-[var(--text-subtle)] mb-1.5">학년</label>
                     <select
                       value={grade}
                       onChange={e => setGrade(e.target.value)}
-                      className="w-full bg-[#2a2826] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-colors"
+                      className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-colors"
                     >
                       <option value="">선택</option>
                       {[1,2,3,4,5,6].map(n => (
@@ -256,11 +256,11 @@ function ProfileSetupModalInner() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-[#75716e] mb-1.5">반</label>
+                    <label className="block text-xs text-[var(--text-subtle)] mb-1.5">반</label>
                     <select
                       value={classNum}
                       onChange={e => setClassNum(e.target.value)}
-                      className="w-full bg-[#2a2826] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-colors"
+                      className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-colors"
                     >
                       <option value="">선택</option>
                       {Array.from({length: 15}, (_, i) => i+1).map(n => (
@@ -297,9 +297,9 @@ function ProfileSetupModalInner() {
           {step === 'age' && (
             <>
               <div className="mb-6">
-                <p className="text-[#75716e] text-xs font-medium mb-1">STEP 1 / {totalUserSteps}</p>
+                <p className="text-[var(--text-subtle)] text-xs font-medium mb-1">STEP 1 / {totalUserSteps}</p>
                 <h2 className="text-xl font-bold text-white mb-1">연령대를 알려주세요</h2>
-                <p className="text-[#a4a09c] text-sm">맞춤 콘텐츠 추천에 활용됩니다.</p>
+                <p className="text-[var(--text-muted)] text-sm">맞춤 콘텐츠 추천에 활용됩니다.</p>
               </div>
 
               <div className="grid grid-cols-3 gap-2 mb-6">
@@ -310,7 +310,7 @@ function ProfileSetupModalInner() {
                     className={`flex flex-col items-center gap-1.5 py-3 rounded-2xl border transition-all ${
                       ageGroup === ag.value
                         ? 'border-orange-500 bg-orange-500/15 text-white'
-                        : 'border-white/10 bg-[#32302e] text-[#a4a09c] hover:border-white/20 hover:text-white'
+                        : 'border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-white'
                     }`}
                   >
                     <span className="text-xl">{ag.emoji}</span>
@@ -327,7 +327,7 @@ function ProfileSetupModalInner() {
                 >
                   다음
                 </button>
-                <button onClick={() => setStep('role')} className="text-[#75716e] text-sm hover:text-white transition-colors py-1">
+                <button onClick={() => setStep('role')} className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1">
                   이전으로
                 </button>
               </div>
@@ -338,9 +338,9 @@ function ProfileSetupModalInner() {
           {step === 'gender' && (
             <>
               <div className="mb-6">
-                <p className="text-[#75716e] text-xs font-medium mb-1">STEP 2 / {totalUserSteps}</p>
+                <p className="text-[var(--text-subtle)] text-xs font-medium mb-1">STEP 2 / {totalUserSteps}</p>
                 <h2 className="text-xl font-bold text-white mb-1">성별을 선택해주세요</h2>
-                <p className="text-[#a4a09c] text-sm">광고 및 콘텐츠 추천에 활용됩니다.</p>
+                <p className="text-[var(--text-muted)] text-sm">광고 및 콘텐츠 추천에 활용됩니다.</p>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mb-6">
@@ -351,7 +351,7 @@ function ProfileSetupModalInner() {
                     className={`flex items-center gap-3 px-4 py-4 rounded-2xl border transition-all ${
                       gender === g.value
                         ? 'border-orange-500 bg-orange-500/15 text-white'
-                        : 'border-white/10 bg-[#32302e] text-[#a4a09c] hover:border-white/20 hover:text-white'
+                        : 'border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-white'
                     }`}
                   >
                     <span className="text-2xl">{g.emoji}</span>
@@ -368,7 +368,7 @@ function ProfileSetupModalInner() {
                 >
                   다음
                 </button>
-                <button onClick={() => setStep('age')} className="text-[#75716e] text-sm hover:text-white transition-colors py-1">
+                <button onClick={() => setStep('age')} className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1">
                   이전으로
                 </button>
               </div>
@@ -379,9 +379,9 @@ function ProfileSetupModalInner() {
           {step === 'interests' && (
             <>
               <div className="mb-6">
-                <p className="text-[#75716e] text-xs font-medium mb-1">STEP 3 / {totalUserSteps}</p>
+                <p className="text-[var(--text-subtle)] text-xs font-medium mb-1">STEP 3 / {totalUserSteps}</p>
                 <h2 className="text-xl font-bold text-white mb-1">관심 있는 분야를 골라주세요</h2>
-                <p className="text-[#a4a09c] text-sm">여러 개 선택 가능 · 언제든 변경할 수 있어요</p>
+                <p className="text-[var(--text-muted)] text-sm">여러 개 선택 가능 · 언제든 변경할 수 있어요</p>
               </div>
 
               <div className="grid grid-cols-2 gap-2 mb-3">
@@ -394,13 +394,13 @@ function ProfileSetupModalInner() {
                       className={`flex items-center gap-2.5 px-3 py-3 rounded-xl border transition-all text-left ${
                         selected
                           ? 'border-orange-500 bg-orange-500/15 text-white'
-                          : 'border-white/10 bg-[#32302e] text-[#a4a09c] hover:border-white/20 hover:text-white'
+                          : 'border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-white'
                       }`}
                     >
                       <span className="text-lg">{cat.label.split(' ')[0]}</span>
                       <div>
                         <p className="text-xs font-semibold leading-tight">{cat.label.split(' ').slice(1).join(' ')}</p>
-                        <p className="text-[10px] text-[#75716e] leading-tight">{cat.desc}</p>
+                        <p className="text-[10px] text-[var(--text-subtle)] leading-tight">{cat.desc}</p>
                       </div>
                       {selected && <span className="ml-auto text-orange-400 text-xs">✓</span>}
                     </button>
@@ -412,7 +412,7 @@ function ProfileSetupModalInner() {
                 <span className="text-2xl">🎁</span>
                 <div>
                   <p className="text-white text-xs font-bold">완성하면 {PROFILE_COMPLETE_TOKENS} 토큰 지급!</p>
-                  <p className="text-[#a4a09c] text-[10px]">향후 프리미엄 기능에 사용 가능</p>
+                  <p className="text-[var(--text-muted)] text-[10px]">향후 프리미엄 기능에 사용 가능</p>
                 </div>
               </div>
 
@@ -432,7 +432,7 @@ function ProfileSetupModalInner() {
                     </>
                   ) : '프로필 완성하기'}
                 </button>
-                <button onClick={() => setStep('gender')} className="text-[#75716e] text-sm hover:text-white transition-colors py-1">
+                <button onClick={() => setStep('gender')} className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1">
                   이전으로
                 </button>
               </div>
@@ -447,13 +447,13 @@ function ProfileSetupModalInner() {
                 <>
                   <div className="text-6xl mb-4">🏫</div>
                   <h2 className="text-2xl font-bold text-white mb-2">클래스 개설 완료!</h2>
-                  <p className="text-[#a4a09c] text-sm mb-6">
+                  <p className="text-[var(--text-muted)] text-sm mb-6">
                     학생들에게 아래 코드를 알려주세요.
                   </p>
-                  <div className="bg-[#32302e] rounded-2xl p-5 mb-6">
-                    <p className="text-[#75716e] text-xs mb-2">우리 반 코드</p>
+                  <div className="bg-[var(--bg-elevated)] rounded-2xl p-5 mb-6">
+                    <p className="text-[var(--text-subtle)] text-xs mb-2">우리 반 코드</p>
                     <p className="text-4xl font-black text-emerald-400 tracking-widest">{classCode}</p>
-                    <p className="text-[#75716e] text-xs mt-2">
+                    <p className="text-[var(--text-subtle)] text-xs mt-2">
                       {schoolName} {grade}학년 {classNum}반
                     </p>
                   </div>
@@ -469,27 +469,27 @@ function ProfileSetupModalInner() {
                 <>
                   <div className="text-6xl mb-4 animate-bounce">🎉</div>
                   <h2 className="text-2xl font-bold text-white mb-2">프로필 완성!</h2>
-                  <p className="text-[#a4a09c] text-sm mb-6 leading-relaxed">
+                  <p className="text-[var(--text-muted)] text-sm mb-6 leading-relaxed">
                     SSOKTUBE를 더 스마트하게 쓸 수 있게 됐어요.
                   </p>
 
                   <div className="bg-gradient-to-br from-orange-500/20 to-pink-500/20 border border-orange-500/30 rounded-2xl p-5 mb-6">
-                    <p className="text-[#a4a09c] text-xs mb-1">지급된 보상</p>
+                    <p className="text-[var(--text-muted)] text-xs mb-1">지급된 보상</p>
                     <div className="flex items-center justify-center gap-2">
                       <span className="text-3xl">🪙</span>
                       <span className="text-4xl font-black text-white">+{tokensEarned}</span>
-                      <span className="text-xl text-[#a4a09c] font-bold">토큰</span>
+                      <span className="text-xl text-[var(--text-muted)] font-bold">토큰</span>
                     </div>
-                    <p className="text-[#75716e] text-xs mt-2">
+                    <p className="text-[var(--text-subtle)] text-xs mt-2">
                       현재 잔액: {(userProfile?.tokens ?? 0) + tokensEarned}개
                     </p>
                   </div>
 
-                  <div className="bg-[#32302e] rounded-2xl p-4 mb-6 text-left space-y-2">
+                  <div className="bg-[var(--bg-elevated)] rounded-2xl p-4 mb-6 text-left space-y-2">
                     <p className="text-white text-xs font-bold mb-2">🚀 토큰으로 이용할 수 있는 기능 (출시 예정)</p>
-                    <p className="text-[#75716e] text-xs flex items-center gap-2"><span className="text-orange-400">⚡</span> 30분 이상 영상 요약</p>
-                    <p className="text-[#75716e] text-xs flex items-center gap-2"><span className="text-orange-400">⚡</span> AI 챗봇 무제한 대화</p>
-                    <p className="text-[#75716e] text-xs flex items-center gap-2"><span className="text-orange-400">⚡</span> 요약 카드 PDF 내보내기</p>
+                    <p className="text-[var(--text-subtle)] text-xs flex items-center gap-2"><span className="text-orange-400">⚡</span> 30분 이상 영상 요약</p>
+                    <p className="text-[var(--text-subtle)] text-xs flex items-center gap-2"><span className="text-orange-400">⚡</span> AI 챗봇 무제한 대화</p>
+                    <p className="text-[var(--text-subtle)] text-xs flex items-center gap-2"><span className="text-orange-400">⚡</span> 요약 카드 PDF 내보내기</p>
                   </div>
 
                   <button

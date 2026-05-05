@@ -29,7 +29,7 @@ function QuizCard({ quiz, onSeek }: { quiz: QuizQuestion[]; onSeek?: (ts: string
   return (
     <div className="mt-3 flex flex-col gap-3">
       {quiz.map((q, qi) => (
-        <div key={qi} className="bg-[#23211f] rounded-2xl p-4 border border-white/5">
+        <div key={qi} className="bg-[var(--bg-surface)] rounded-2xl p-4 border border-[var(--border-subtle)]">
           <p className="text-white text-sm font-medium mb-3">Q{qi + 1}. {q.question}</p>
           <div className="flex flex-col gap-1.5">
             {q.options.map((opt, oi) => {
@@ -42,12 +42,12 @@ function QuizCard({ quiz, onSeek }: { quiz: QuizQuestion[]; onSeek?: (ts: string
                   onClick={() => !revealed && setAnswers(prev => ({ ...prev, [qi]: oi }))}
                   className={`text-left px-3 py-2 rounded-xl text-sm transition-all border ${
                     !revealed
-                      ? 'border-white/10 text-[#a4a09c] hover:border-orange-500/30 hover:text-white'
+                      ? 'border-[var(--border-default)] text-[var(--text-muted)] hover:border-orange-500/30 hover:text-white'
                       : correct
                       ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
                       : selected
                       ? 'border-red-500/40 bg-red-500/10 text-red-300'
-                      : 'border-white/5 text-[#75716e] opacity-60'
+                      : 'border-[var(--border-subtle)] text-[var(--text-subtle)] opacity-60'
                   }`}
                 >
                   <span className="font-mono mr-2">{String.fromCharCode(65 + oi)}.</span>
@@ -86,7 +86,7 @@ export default function SegmentedSummaryPanel({ segments, onSeek, onRequestQuiz 
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2 mb-1">
         <span className="text-white font-semibold text-base">🗂 구간별 분석</span>
-        <span className="text-xs text-[#75716e] bg-[#32302e] px-2 py-0.5 rounded-full border border-white/10">{segments.length}개 구간</span>
+        <span className="text-xs text-[var(--text-subtle)] bg-[var(--bg-elevated)] px-2 py-0.5 rounded-full border border-[var(--border-default)]">{segments.length}개 구간</span>
       </div>
 
       {segments.map((seg, i) => {
@@ -98,7 +98,7 @@ export default function SegmentedSummaryPanel({ segments, onSeek, onRequestQuiz 
           <div
             key={i}
             className={`rounded-2xl border transition-all ${
-              isOpen ? 'border-orange-500/20 bg-[#2a2826]' : 'border-white/5 bg-[#32302e]/60'
+              isOpen ? 'border-orange-500/20 bg-[var(--bg-surface-2)]' : 'border-[var(--border-subtle)] bg-[var(--bg-elevated)]/60'
             }`}
           >
             {/* 헤더 */}
@@ -111,14 +111,14 @@ export default function SegmentedSummaryPanel({ segments, onSeek, onRequestQuiz 
               </span>
               <div className="flex-1 min-w-0">
                 <p className="text-white text-sm font-medium truncate">{seg.headline}</p>
-                <p className="text-[#75716e] text-xs mt-0.5">
+                <p className="text-[var(--text-subtle)] text-xs mt-0.5">
                   {seg.startTimestamp} ~ {seg.endTimestamp}
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 {hasQuiz && <span className="text-[10px] text-violet-400 bg-violet-500/10 border border-violet-500/20 px-1.5 py-0.5 rounded-full">퀴즈</span>}
                 <svg
-                  className={`w-4 h-4 text-[#75716e] transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                  className={`w-4 h-4 text-[var(--text-subtle)] transition-transform ${isOpen ? 'rotate-180' : ''}`}
                   fill="none" stroke="currentColor" viewBox="0 0 24 24"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -142,7 +142,7 @@ export default function SegmentedSummaryPanel({ segments, onSeek, onRequestQuiz 
                   {seg.keyPoints.map((pt, pi) => (
                     <li key={pi} className="flex items-start gap-2">
                       <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-orange-400/60 mt-1.5" />
-                      <p className="text-[#e2e2e2] text-sm leading-relaxed">{pt}</p>
+                      <p className="text-[var(--text-primary)] text-sm leading-relaxed">{pt}</p>
                     </li>
                   ))}
                 </ul>

@@ -317,11 +317,11 @@ export default function BlogDraftModal({ data, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-[150] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
       <div
-        className="bg-[#1c1a18] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl"
+        className="bg-[var(--bg-base)] border border-[var(--border-default)] rounded-3xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
         {/* 헤더 */}
-        <div className="shrink-0 flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/5">
+        <div className="shrink-0 flex items-center justify-between px-6 pt-6 pb-4 border-b border-[var(--border-subtle)]">
           <div>
             <h2 className="text-white font-bold text-lg">📝 블로그 초안 생성</h2>
             <p className="text-xs text-zinc-500 mt-0.5">SEO 최적화 · HTML 퍼가기 · 텍스트 복사</p>
@@ -360,7 +360,7 @@ export default function BlogDraftModal({ data, onClose }: Props) {
           {draft && (
             <div className="space-y-4">
               {/* 탭 */}
-              <div className="flex gap-1.5 p-1 bg-white/5 rounded-xl">
+              <div className="flex gap-1.5 p-1 bg-[var(--overlay-subtle)] rounded-xl">
                 {([
                   { id: 'preview', label: '👁 미리보기' },
                   { id: 'html',    label: '🌐 HTML 복사' },
@@ -379,7 +379,7 @@ export default function BlogDraftModal({ data, onClose }: Props) {
               </div>
 
               {/* SEO 메타 요약 (항상 표시) */}
-              <div className="bg-white/3 border border-white/8 rounded-2xl p-4 space-y-2 text-xs">
+              <div className="bg-white/3 border border-[var(--border-default)] rounded-2xl p-4 space-y-2 text-xs">
                 <div className="flex items-start gap-2">
                   <span className="shrink-0 text-orange-400 font-bold w-20">SEO 제목</span>
                   <span className="text-zinc-200">{draft.seo_title}</span>
@@ -510,7 +510,7 @@ export default function BlogDraftModal({ data, onClose }: Props) {
               {tab === 'html' && (
                 <div className="space-y-2">
                   <p className="text-xs text-zinc-500">티스토리·워드프레스 HTML 편집기에 그대로 붙여넣기 하세요.</p>
-                  <pre className="bg-zinc-900 border border-white/10 rounded-2xl p-4 text-[10px] text-zinc-400 overflow-x-auto leading-relaxed max-h-64 whitespace-pre-wrap">
+                  <pre className="bg-zinc-900 border border-[var(--border-default)] rounded-2xl p-4 text-[10px] text-zinc-400 overflow-x-auto leading-relaxed max-h-64 whitespace-pre-wrap">
                     {buildHtml(draft)}
                   </pre>
                 </div>
@@ -520,7 +520,7 @@ export default function BlogDraftModal({ data, onClose }: Props) {
               {tab === 'text' && (
                 <div className="space-y-2">
                   <p className="text-xs text-zinc-500">네이버 블로그·브런치·노션 등 일반 에디터에 붙여넣기 하세요.</p>
-                  <pre className="bg-zinc-900 border border-white/10 rounded-2xl p-4 text-[10px] text-zinc-400 overflow-x-auto leading-relaxed max-h-64 whitespace-pre-wrap">
+                  <pre className="bg-zinc-900 border border-[var(--border-default)] rounded-2xl p-4 text-[10px] text-zinc-400 overflow-x-auto leading-relaxed max-h-64 whitespace-pre-wrap">
                     {buildPlainText(draft)}
                   </pre>
                 </div>
@@ -531,10 +531,10 @@ export default function BlogDraftModal({ data, onClose }: Props) {
 
         {/* 푸터 버튼 */}
         {draft && (
-          <div className="shrink-0 flex gap-2 px-6 py-4 border-t border-white/5">
+          <div className="shrink-0 flex gap-2 px-6 py-4 border-t border-[var(--border-subtle)]">
             <button
               onClick={generate}
-              className="px-4 h-10 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white text-xs transition-colors"
+              className="px-4 h-10 rounded-xl bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 hover:text-white text-xs transition-colors"
             >
               🔄 다시 생성
             </button>
@@ -544,7 +544,7 @@ export default function BlogDraftModal({ data, onClose }: Props) {
               className={`px-4 h-10 rounded-xl text-xs font-bold transition-colors ${
                 saved
                   ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                  : 'bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white'
+                  : 'bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 hover:text-white'
               } disabled:opacity-60`}
             >
               {saved ? '✓ 저장됨' : saving ? '저장 중...' : '💾 저장'}
@@ -555,7 +555,7 @@ export default function BlogDraftModal({ data, onClose }: Props) {
               className={`px-4 h-10 rounded-xl text-xs font-bold transition-colors ${
                 copied === 'text'
                   ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                  : 'bg-white/5 hover:bg-white/10 text-zinc-300'
+                  : 'bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-300'
               }`}
             >
               {copied === 'text' ? '✓ 복사됨' : '📋 텍스트 복사'}
