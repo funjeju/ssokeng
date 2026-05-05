@@ -135,13 +135,13 @@ export default function LoadingSteps({ currentStep, mode = 'youtube', onCancel }
                 ) : '⬜'}
               </span>
               <span className={
-                isDone   ? 'text-zinc-500 line-through' :
-                isActive ? 'text-zinc-100 font-medium' :
-                           'text-zinc-600'
+                isDone   ? 'text-[var(--text-subtle)] line-through' :
+                isActive ? 'text-[var(--text-primary)] font-medium' :
+                           'text-[var(--text-muted)]'
               }>
                 {step.label}
                 {isActive && stepElapsed > 0 && (
-                  <span className="ml-2 text-zinc-500 text-xs font-normal">
+                  <span className="ml-2 text-[var(--text-subtle)] text-xs font-normal">
                     ({formatElapsed(stepElapsed)})
                   </span>
                 )}
@@ -153,8 +153,8 @@ export default function LoadingSteps({ currentStep, mode = 'youtube', onCancel }
 
       {/* 오래 걸릴 때 안내 메시지 */}
       {isLongWait && (
-        <div className="rounded-xl bg-zinc-800/60 border border-zinc-700/50 px-4 py-3 text-center">
-          <p className="text-zinc-400 text-xs leading-relaxed transition-all duration-500">
+        <div className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)] px-4 py-3 text-center">
+          <p className="text-[var(--text-muted)] text-xs leading-relaxed transition-all duration-500">
             💡 {PATIENCE_MESSAGES[patienceIdx]}
           </p>
         </div>
@@ -165,7 +165,7 @@ export default function LoadingSteps({ currentStep, mode = 'youtube', onCancel }
         <div className={isLongWait ? 'animate-pulse' : ''}>
           <Progress value={displayProgress} className="h-2" />
         </div>
-        <div className="flex items-center justify-between text-xs text-zinc-500 tabular-nums">
+        <div className="flex items-center justify-between text-xs text-[var(--text-muted)] tabular-nums">
           <span>총 {formatElapsed(elapsed)} 경과</span>
           <span>{Math.round(displayProgress)}%</span>
         </div>

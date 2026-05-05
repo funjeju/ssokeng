@@ -811,7 +811,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
             className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-bold transition-all border-b-2 -mb-px border-transparent text-[var(--text-subtle)] hover:text-white hover:border-orange-500/50"
           >
             ✍️ 매거진
-            {initialMagazinePosts.length > 0 && (
+            {magazinePosts.length > 0 && (
               <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30">
                 {magazinePosts.length}
               </span>

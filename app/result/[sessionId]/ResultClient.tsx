@@ -1737,10 +1737,10 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           <div className="rounded-2xl bg-[var(--bg-base)] border border-[var(--border-default)] p-4">
             <div className="flex items-center gap-2 mb-2.5">
               <span className="text-base">💬</span>
-              <span className="text-sm font-semibold text-zinc-200">유튜브 시청자 반응</span>
+              <span className="text-sm font-semibold text-[var(--text-primary)]">유튜브 시청자 반응</span>
             </div>
             {ytCommentSummaryLoading ? (
-              <div className="flex items-center gap-2 text-zinc-500 text-sm">
+              <div className="flex items-center gap-2 text-[var(--text-muted)] text-sm">
                 <svg className="animate-spin w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
@@ -1748,7 +1748,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                 댓글 분석 중...
               </div>
             ) : ytCommentSummary ? (
-              <p className="text-zinc-300 text-sm leading-relaxed">{ytCommentSummary}</p>
+              <p className="text-[var(--text-secondary)] text-sm leading-relaxed">{ytCommentSummary}</p>
             ) : null}
           </div>
         )}
