@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
 import { AuthProvider } from '@/providers/AuthProvider'
@@ -9,8 +8,6 @@ import FloatingChatWindow from '@/components/chat/FloatingChatWindow'
 import ThemeProvider from '@/components/common/ThemeProvider'
 
 const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://ssoktube.com'),
@@ -57,6 +54,8 @@ export default function RootLayout({
   return (
     <html lang="ko" className="dark">
       <head>
+        {/* Pretendard 폰트 */}
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
         {/* Google AdSense */}
         <script
           async
@@ -99,7 +98,7 @@ export default function RootLayout({
           `}}
         />
       </head>
-      <body className={inter.className}>
+      <body>
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe

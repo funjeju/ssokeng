@@ -25,7 +25,7 @@ import AdBanner from '@/components/ads/AdBanner'
 import ContextualAdBanner from '@/components/ads/ContextualAdBanner'
 import SegmentedSummaryPanel from '@/components/summary/SegmentedSummaryPanel'
 import { useAuth } from '@/providers/AuthProvider'
-import { getSavedSummaryBySessionId, updateSummaryVisibility } from '@/lib/db'
+import { getSavedSummaryBySessionId, updateSummaryVisibility, getSavedWorksheetByVideo, type SavedWorksheet } from '@/lib/db'
 import { getLocalUserId } from '@/lib/user'
 import { getCommentsBySession } from '@/lib/comments'
 import type { SavedSummary } from '@/lib/db'
@@ -134,6 +134,8 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
   const [worksheet, setWorksheet] = useState<WorksheetData | null>(null)
   const [worksheetLoading, setWorksheetLoading] = useState(false)
   const [worksheetLevel, setWorksheetLevel] = useState<'elementary' | 'middle' | 'advanced'>('elementary')
+  const [cachedWorksheet, setCachedWorksheet] = useState<SavedWorksheet | null>(null)
+  const [worksheetCacheChecked, setWorksheetCacheChecked] = useState(false)
 
   // 배속
   const [playbackRate, setPlaybackRate] = useState(1)
@@ -396,6 +398,15 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
       .then(setSavedItem)
       .catch(() => {})
   }, [data, user])
+
+  // 영어 카테고리: 이 영상의 저장된 워크시트 캐시 조회
+  useEffect(() => {
+    if (!user?.uid || !data?.videoId || data.category !== 'english' || worksheetCacheChecked) return
+    setWorksheetCacheChecked(true)
+    getSavedWorksheetByVideo(user.uid, data.videoId)
+      .then(saved => { if (saved) setCachedWorksheet(saved) })
+      .catch(() => {})
+  }, [user?.uid, data?.videoId, data?.category, worksheetCacheChecked])
 
   // 복습 모드: 이 세션의 pending 복습 항목 로드
   useEffect(() => {
@@ -1256,42 +1267,61 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
               {/* 워크시트 버튼 — 영어 카테고리만 */}
               {data.category === 'english' && (
                 <div className="space-y-2">
-                  <div className="flex gap-1.5">
-                    {([
-                      { id: 'elementary', label: '초등' },
-                      { id: 'middle',     label: '중등' },
-                      { id: 'advanced',   label: '고급' },
-                    ] as const).map(lv => (
+                  {cachedWorksheet ? (
+                    /* 이미 저장된 워크시트 있음 → 바로 열기 */
+                    <button
+                      onClick={() => setWorksheet(cachedWorksheet.worksheet)}
+                      className="w-full py-3.5 rounded-2xl border border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 hover:text-blue-300 font-semibold text-sm transition-all flex items-center justify-center gap-2"
+                    >
+                      <span>📋</span>
+                      <span>워크시트 불러오기</span>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full border font-bold ml-1 ${
+                        cachedWorksheet.level === 'elementary' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                        cachedWorksheet.level === 'middle'     ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' :
+                                                                  'bg-purple-500/20 text-purple-400 border-purple-500/30'
+                      }`}>{cachedWorksheet.levelLabel}</span>
+                    </button>
+                  ) : (
+                    /* 없음 → 레벨 선택 후 생성 */
+                    <>
+                      <div className="flex gap-1.5">
+                        {([
+                          { id: 'elementary', label: '초등' },
+                          { id: 'middle',     label: '중등' },
+                          { id: 'advanced',   label: '고급' },
+                        ] as const).map(lv => (
+                          <button
+                            key={lv.id}
+                            onClick={() => setWorksheetLevel(lv.id)}
+                            className={`flex-1 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
+                              worksheetLevel === lv.id
+                                ? 'bg-orange-500/20 border-orange-500/50 text-orange-400'
+                                : 'bg-[var(--bg-elevated)] border-[var(--border-default)] text-[var(--text-subtle)] hover:text-white'
+                            }`}
+                          >
+                            {lv.label}
+                          </button>
+                        ))}
+                      </div>
                       <button
-                        key={lv.id}
-                        onClick={() => setWorksheetLevel(lv.id)}
-                        className={`flex-1 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
-                          worksheetLevel === lv.id
-                            ? 'bg-orange-500/20 border-orange-500/50 text-orange-400'
-                            : 'bg-[var(--bg-elevated)] border-[var(--border-default)] text-[var(--text-subtle)] hover:text-white'
-                        }`}
+                        onClick={handleGenerateWorksheet}
+                        disabled={worksheetLoading}
+                        className="w-full py-3.5 rounded-2xl border border-dashed border-orange-500/40 bg-orange-500/5 hover:bg-orange-500/10 text-orange-400 hover:text-orange-300 font-semibold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                       >
-                        {lv.label}
+                        {worksheetLoading ? (
+                          <>
+                            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                            </svg>
+                            워크시트 생성 중...
+                          </>
+                        ) : (
+                          <>📝 워크시트 만들기</>
+                        )}
                       </button>
-                    ))}
-                  </div>
-                  <button
-                    onClick={handleGenerateWorksheet}
-                    disabled={worksheetLoading}
-                    className="w-full py-3.5 rounded-2xl border border-dashed border-orange-500/40 bg-orange-500/5 hover:bg-orange-500/10 text-orange-400 hover:text-orange-300 font-semibold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {worksheetLoading ? (
-                      <>
-                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                        </svg>
-                        워크시트 생성 중...
-                      </>
-                    ) : (
-                      <>📝 워크시트 만들기</>
-                    )}
-                  </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -1801,6 +1831,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           videoTitle={data?.title}
           channel={data?.channel}
           thumbnail={data?.thumbnail}
+          onSaved={(saved) => setCachedWorksheet(saved)}
         />
       )}
 

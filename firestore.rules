@@ -185,6 +185,13 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
 
+    // saved_worksheets: 본인 워크시트 CRUD
+    match /saved_worksheets/{worksheetId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
     // video_quizzes: 로그인 유저 전체 읽기 (학생이 선생님 퀴즈를 봐야 하므로), 생성/삭제는 본인만
     match /video_quizzes/{quizId} {
       allow read: if request.auth != null;

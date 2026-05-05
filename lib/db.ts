@@ -234,6 +234,19 @@ export async function getSavedWorksheets(userId: string): Promise<SavedWorksheet
   return snap.docs.map(d => ({ id: d.id, ...d.data() } as SavedWorksheet))
 }
 
+export async function getSavedWorksheetByVideo(userId: string, videoId: string): Promise<SavedWorksheet | null> {
+  if (!userId || !videoId) return null
+  const q = query(
+    collection(db, 'saved_worksheets'),
+    where('userId', '==', userId),
+    where('videoId', '==', videoId),
+  )
+  const snap = await getDocs(q)
+  if (snap.empty) return null
+  const d = snap.docs[0]
+  return { id: d.id, ...d.data() } as SavedWorksheet
+}
+
 export async function deleteSavedWorksheet(id: string): Promise<void> {
   await deleteDoc(doc(db, 'saved_worksheets', id))
 }

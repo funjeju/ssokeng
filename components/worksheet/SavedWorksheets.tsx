@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { getSavedWorksheets, deleteSavedWorksheet, SavedWorksheet } from '@/lib/db'
 import WorksheetPanel from './WorksheetPanel'
 
@@ -84,6 +85,14 @@ export default function SavedWorksheets({ userId }: { userId: string }) {
               >
                 📖 열기
               </button>
+              {item.sessionId && (
+                <Link
+                  href={`/result/${item.sessionId}`}
+                  className="flex-1 py-2.5 text-xs font-semibold text-[var(--text-muted)] hover:text-blue-400 hover:bg-[var(--overlay-subtle)] transition-colors border-l border-[var(--border-subtle)] text-center"
+                >
+                  🎬 영상 보기
+                </Link>
+              )}
               <button
                 onClick={() => handleDelete(item.id)}
                 disabled={deleting === item.id}

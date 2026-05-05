@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { WorksheetData, VocabItem, WorksheetQuestion } from '@/types/summary'
-import { saveWorksheet } from '@/lib/db'
+import { saveWorksheet, type SavedWorksheet } from '@/lib/db'
 
 interface Props {
   worksheet: WorksheetData
@@ -13,6 +13,7 @@ interface Props {
   videoTitle?: string
   channel?: string
   thumbnail?: string
+  onSaved?: (saved: SavedWorksheet) => void
 }
 
 const LEVEL_COLOR: Record<string, string> = {
@@ -233,7 +234,7 @@ function ExerciseTab({ worksheet }: { worksheet: WorksheetData }) {
 }
 
 // ── 메인 패널 ─────────────────────────────────
-export default function WorksheetPanel({ worksheet, onClose, userId, sessionId, videoId, videoTitle, channel, thumbnail }: Props) {
+export default function WorksheetPanel({ worksheet, onClose, userId, sessionId, videoId, videoTitle, channel, thumbnail, onSaved }: Props) {
   const [tab, setTab] = useState<'vocab' | 'exercise' | 'print'>('vocab')
   const printRef = useRef<HTMLDivElement>(null)
   const [printing, setPrinting] = useState(false)
@@ -244,7 +245,7 @@ export default function WorksheetPanel({ worksheet, onClose, userId, sessionId, 
     if (!userId || saving || saved) return
     setSaving(true)
     try {
-      await saveWorksheet({
+      const payload = {
         userId,
         sessionId: sessionId ?? '',
         videoId: videoId ?? '',
@@ -254,8 +255,10 @@ export default function WorksheetPanel({ worksheet, onClose, userId, sessionId, 
         level: worksheet.level,
         levelLabel: worksheet.levelLabel,
         worksheet,
-      })
+      }
+      const id = await saveWorksheet(payload)
       setSaved(true)
+      onSaved?.({ id, ...payload, createdAt: null })
     } catch (e) {
       console.error('[WorksheetPanel] save error:', e)
     } finally {
