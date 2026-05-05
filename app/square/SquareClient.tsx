@@ -3,7 +3,8 @@
 import { useEffect, useState, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import Header from '@/components/common/Header'
-import { getPublicSummaries, toggleLike, getUserLikedIds, incrementViewCount, getOrCreateConversation, updateSummaryVisibility, SavedSummary } from '@/lib/db'
+import { getPublicSummariesPaged, toggleLike, getUserLikedIds, incrementViewCount, getOrCreateConversation, updateSummaryVisibility, SavedSummary } from '@/lib/db'
+import type { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore'
 import { getCommentCountsBySessionIds } from '@/lib/comments'
 import { useAuth } from '@/providers/AuthProvider'
 import { formatRelativeDate } from '@/lib/formatDate'
@@ -531,6 +532,10 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
   const [allSummaries, setAllSummaries] = useState<SavedSummary[]>(initialSummaries)
   const [magazinePosts, setMagazinePosts] = useState<CuratedPost[]>(initialMagazinePosts)
   const [loading, setLoading] = useState(initialSummaries.length === 0)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const lastDocRef = useRef<QueryDocumentSnapshot<DocumentData> | null>(null)
+  const seenVideoIdsRef = useRef<Set<string>>(new Set())
   const [activeCategory, setActiveCategory] = useState('all')
   const [sortType, setSortType] = useState<SortType>('latest')
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set())
@@ -544,7 +549,6 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
     return 'grid'
   })
   const [activeTab, setActiveTab] = useState<'feed' | 'magazine'>('feed')
-  const [displayCount, setDisplayCount] = useState(24)
   const sentinelRef = useRef<HTMLDivElement>(null)
   const colCount = useColumnCount()
 
@@ -554,25 +558,25 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
   }
 
   useEffect(() => {
-    // 서버 초기 데이터가 있으면 댓글 수만 보완, 없으면 전체 로드
-    if (initialSummaries.length > 0) {
-      const sessionIds = [...new Set(initialSummaries.map(s => s.sessionId))]
-      getCommentCountsBySessionIds(sessionIds).then(setCommentCounts).catch(() => {})
-      // 좋아요 등 실시간 데이터는 백그라운드 갱신
-      getPublicSummaries().then(data => {
-        setSummaries(data)
-        setAllSummaries(data)
-      }).catch(() => {})
-      return
-    }
     Promise.all([
-      getPublicSummaries(),
+      getPublicSummariesPaged(),
       getPublishedPosts(10),
-    ]).then(([data, posts]) => {
-      setSummaries(data)
-      setAllSummaries(data)
+    ]).then(([{ summaries: data, lastDoc, hasMore: more }, posts]) => {
+      // 초기 dedup
+      const seen = new Set<string>()
+      const deduped = data.filter(s => {
+        const key = s.videoId || s.sessionId
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+      seenVideoIdsRef.current = seen
+      lastDocRef.current = lastDoc
+      setHasMore(more)
+      setSummaries(deduped)
+      setAllSummaries(deduped)
       setMagazinePosts(posts)
-      const sessionIds = [...new Set(data.map(s => s.sessionId))]
+      const sessionIds = [...new Set(deduped.map(s => s.sessionId))]
       getCommentCountsBySessionIds(sessionIds).then(setCommentCounts).catch(() => {})
     }).catch(e => console.error('Failed to load square data:', e))
       .finally(() => setLoading(false))
@@ -582,6 +586,34 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
     if (!user) { setLikedIds(new Set()); return }
     getUserLikedIds(user.uid).then(setLikedIds).catch(() => {})
   }, [user])
+
+  const loadMore = async () => {
+    if (loadingMore || !hasMore || !lastDocRef.current) return
+    setLoadingMore(true)
+    try {
+      const { summaries: newData, lastDoc, hasMore: more } = await getPublicSummariesPaged(lastDocRef.current)
+      const deduped = newData.filter(s => {
+        const key = s.videoId || s.sessionId
+        if (seenVideoIdsRef.current.has(key)) return false
+        seenVideoIdsRef.current.add(key)
+        return true
+      })
+      lastDocRef.current = lastDoc
+      setHasMore(more)
+      if (deduped.length > 0) {
+        setSummaries(prev => [...prev, ...deduped])
+        setAllSummaries(prev => [...prev, ...deduped])
+        const sessionIds = deduped.map(s => s.sessionId)
+        getCommentCountsBySessionIds(sessionIds).then(newCounts => {
+          setCommentCounts(prev => ({ ...prev, ...newCounts }))
+        }).catch(() => {})
+      }
+    } catch (e) {
+      console.error('Failed to load more:', e)
+    } finally {
+      setLoadingMore(false)
+    }
+  }
 
   const handleMessage = async (e: React.MouseEvent, item: SavedSummary) => {
     e.preventDefault(); e.stopPropagation()
@@ -700,20 +732,17 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
       return getMs(b.createdAt) - getMs(a.createdAt)
     })
 
-  const visibleFiltered = useMemo(() => filtered.slice(0, displayCount), [filtered, displayCount])
-
-  // 필터/정렬/검색 바뀌면 처음부터 다시
-  useEffect(() => { setDisplayCount(24) }, [activeCategory, sortType, committedQuery])
+  const visibleFiltered = filtered
 
   useEffect(() => {
     const sentinel = sentinelRef.current
     if (!sentinel) return
     const observer = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting) setDisplayCount(prev => prev + 24)
-    }, { rootMargin: '300px' })
+      if (entries[0].isIntersecting) loadMore()
+    }, { rootMargin: '400px' })
     observer.observe(sentinel)
     return () => observer.disconnect()
-  }, [displayCount])
+  }, [loadingMore, hasMore])
 
   const topCategories = useMemo(
     () => getUserTopCategories(likedIds, allSummaries),
@@ -982,10 +1011,14 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
         )}
 
         {/* 인피니트 스크롤 센티넬 */}
-        {!loading && displayCount < filtered.length && (
+        {!loading && (loadingMore || hasMore) && (
           <div ref={sentinelRef} className="flex items-center justify-center py-6 gap-2">
-            <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-orange-500/60" />
-            <span className="text-[var(--text-subtle)] text-xs">{filtered.length - displayCount}개 더</span>
+            {loadingMore && (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-orange-500/60" />
+                <span className="text-[var(--text-subtle)] text-xs">불러오는 중...</span>
+              </>
+            )}
           </div>
         )}
         </>

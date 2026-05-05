@@ -1,5 +1,5 @@
 import { db } from './firebase'
-import { collection, doc, setDoc, getDocs, getDoc, query, where, addDoc, deleteDoc, updateDoc, increment, serverTimestamp, writeBatch } from 'firebase/firestore'
+import { collection, doc, setDoc, getDocs, getDoc, query, where, addDoc, deleteDoc, updateDoc, increment, serverTimestamp, writeBatch, orderBy, startAfter, limit, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore'
 import { SummaryData } from '@/types/summary'
 import { getLocalUserId } from './user';
 
@@ -527,6 +527,27 @@ export async function getPublicSummaries(): Promise<SavedSummary[]> {
     seen.add(key)
     return true
   })
+}
+
+const PAGE_SIZE = 48
+
+export async function getPublicSummariesPaged(
+  startAfterDoc?: QueryDocumentSnapshot<DocumentData>
+): Promise<{ summaries: SavedSummary[]; lastDoc: QueryDocumentSnapshot<DocumentData> | null; hasMore: boolean }> {
+  const savedRef = collection(db, 'saved_summaries')
+  const constraints = [
+    where('isPublic', '==', true),
+    orderBy('createdAt', 'desc'),
+    limit(PAGE_SIZE + 1),
+    ...(startAfterDoc ? [startAfter(startAfterDoc)] : []),
+  ]
+  const q = query(savedRef, ...constraints)
+  const snapshot = await getDocs(q)
+  const hasMore = snapshot.docs.length > PAGE_SIZE
+  const docs = snapshot.docs.slice(0, PAGE_SIZE)
+  const summaries = docs.map(d => ({ id: d.id, ...d.data() }) as SavedSummary)
+  const lastDoc = docs.length > 0 ? docs[docs.length - 1] : null
+  return { summaries, lastDoc, hasMore }
 }
 
 // 친구가 저장한 전체 요약 (공개 + 비공개)
