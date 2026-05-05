@@ -45,6 +45,17 @@ export async function getVideoQuizzesBySession(userId: string, sessionId: string
   return list.sort((a, b) => a.timestampSec - b.timestampSec)
 }
 
+// 학생 등 다른 uid 유저가 sessionId로 선생님 퀴즈를 조회할 때 사용
+export async function getVideoQuizzesBySessionPublic(sessionId: string): Promise<VideoQuiz[]> {
+  const q = query(
+    collection(db, 'video_quizzes'),
+    where('sessionId', '==', sessionId),
+  )
+  const snap = await getDocs(q)
+  const list = snap.docs.map(d => ({ id: d.id, ...d.data() } as VideoQuiz))
+  return list.sort((a, b) => a.timestampSec - b.timestampSec)
+}
+
 export async function getAllVideoQuizzes(userId: string): Promise<VideoQuiz[]> {
   const q = query(
     collection(db, 'video_quizzes'),

@@ -31,7 +31,7 @@ import { getCommentsBySession } from '@/lib/comments'
 import type { SavedSummary } from '@/lib/db'
 import type { Comment } from '@/lib/comments'
 import { addBookmark, getBookmarks, deleteBookmark, secsToLabel, VideoBookmark } from '@/lib/videoBookmark'
-import { getVideoQuizzesBySession, VideoQuiz } from '@/lib/videoQuiz'
+import { getVideoQuizzesBySession, getVideoQuizzesBySessionPublic, VideoQuiz } from '@/lib/videoQuiz'
 import VideoQuizCreatorModal from '@/components/video-quiz/VideoQuizCreatorModal'
 import VideoQuizPopup from '@/components/video-quiz/VideoQuizPopup'
 
@@ -362,11 +362,15 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
     }).catch(() => {})
   }, [user?.uid, sessionId, bookmarkSaved])
 
-  // 이 영상의 타임스탬프 퀴즈 로드
+  // 이 영상의 타임스탬프 퀴즈 로드 (선생님은 본인 퀴즈, 학생/일반 유저는 sessionId 기준 전체 조회)
   useEffect(() => {
-    if (!user?.uid || !sessionId) return
-    getVideoQuizzesBySession(user.uid, sessionId).then(setVideoQuizzes).catch(() => {})
-  }, [user?.uid, sessionId])
+    if (!sessionId) return
+    if (userProfile?.role === 'teacher' && user?.uid) {
+      getVideoQuizzesBySession(user.uid, sessionId).then(setVideoQuizzes).catch(() => {})
+    } else if (user?.uid) {
+      getVideoQuizzesBySessionPublic(sessionId).then(setVideoQuizzes).catch(() => {})
+    }
+  }, [user?.uid, sessionId, userProfile?.role])
 
   // 저장 여부 확인
   useEffect(() => {
@@ -884,16 +888,8 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                 onPlayerReady={handlePlayerReady}
                 onWatchLog={handleWatchLog}
                 onPlayStart={handlePlayStart}
-                quizTimestamps={
-                  (userProfile?.role === 'teacher' || userProfile?.role === 'student')
-                    ? videoQuizzes.map(q => q.timestampSec)
-                    : []
-                }
-                onQuizTrigger={
-                  (userProfile?.role === 'teacher' || userProfile?.role === 'student')
-                    ? handleQuizTrigger
-                    : undefined
-                }
+                quizTimestamps={videoQuizzes.map(q => q.timestampSec)}
+                onQuizTrigger={videoQuizzes.length > 0 ? handleQuizTrigger : undefined}
               />
             </div>
             {/* 배속 + 북마크 + 퀴즈 컨트롤 */}

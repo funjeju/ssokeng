@@ -19,7 +19,9 @@
       "Bash(git commit -m 'fix: Storage 규칙에 quiz_images 경로 추가 \\(403 Forbidden 수정\\) *)",
       "Bash(npx firebase *)",
       "Bash(gcloud auth *)",
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
+      "Bash(git pull *)"
     ]
   }
 }

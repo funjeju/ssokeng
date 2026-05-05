@@ -5,6 +5,51 @@
 
 ---
 
+## 2026-04-28
+
+### [기능] 크롬 익스텐션 신규
+- **내용**: YouTube 영상 페이지에 "쏙튜브 요약저장" 버튼 주입. 클릭 시 /api/summarize 호출 후 /api/extension/save로 자동 저장
+- **구현**: `chrome-extension/` 폴더 신설 (manifest.json v3, background.js, content-youtube.js, content-ssoktube.js, injected.js, popup.html/js)
+- **인증**: injected.js가 Firebase IndexedDB에서 토큰 직접 읽어 chrome.storage 저장. 토큰 만료 시 refreshToken으로 자동 갱신
+- **API**: `/api/extension/save` 신설 — CORS 허용, Bearer 토큰 검증, summaries→saved_summaries 저장 (savedFromExtension:true)
+- **TODO**: 아이콘 제작 후 Chrome Web Store 배포 필요 (TODO.md 참고)
+
+### [기능] 클래스룸 폴더 배포/회수 시스템
+- **내용**: 교사가 폴더를 클래스에 배포(distribute) / 회수(recall). 하위폴더 트리 전체 BFS 일괄 처리
+- **구현**: `/api/classroom/distribute`, `/api/classroom/recall` 신설 — `distributedClassCodes` 배열 필드를 arrayUnion/arrayRemove로 관리
+- **학생 조회**: `/api/classroom/distributed-folders` (내 클래스에 배포된 폴더 목록), `/api/classroom/distributed-videos` (폴더 내 영상)
+- **학생 가입 개선**: `enroll` API에서 Admin SDK로 custom claim(classCode, role:student) 설정 + 교사 masterFolder 복제 서버사이드 처리 (보안 규칙 우회)
+
+### [기능] 워크시트 저장/관리
+- **내용**: 영어 워크시트 생성 후 Firestore `saved_worksheets`에 저장, 마이페이지 "워크시트" 탭에서 열람/삭제
+- **구현**: `components/worksheet/SavedWorksheets.tsx` 신설. `lib/db.ts`에 `saveWorksheet`, `getSavedWorksheets`, `deleteSavedWorksheet` 추가
+- **WorksheetPanel**: userId, sessionId, videoId, videoTitle, channel, thumbnail props 추가로 저장 기능 연결
+
+### [개선] 결과 페이지 다수 개선
+- **isClassView 모드**: `?classView=1` 파라미터 시 저장버튼 숨김, 이탈방지 경고 비활성화, 수업 시청 로그 자동 기록
+- **자막 탭**: 한글/영어 원문 토글 (`transcriptOriginal` 필드 활용), 클립보드 복사 버튼 추가
+- **퀴즈 재도전**: 완료 횟수 localStorage 저장, "재도전 (N회 완료)" 버튼 표시. 선생님은 🔄 버튼으로 퀴즈 강제 재생성 가능
+- **퀴즈 캐시**: `quiz_sets` Firestore 컬렉션에 videoId/sessionId 키로 저장 — 같은 영상 재방문 시 즉시 로드
+
+### [개선] PDF 분석 개선
+- **Firebase Storage 저장**: 업로드된 PDF 원본을 `pdfs/{sessionId}.pdf` 경로에 저장
+- **프록시 API**: `/api/pdf/[sessionId]` 신설 — Admin SDK로 Storage에서 PDF 제공 (직접 URL 노출 없이)
+- **페이지 번호 마킹**: Gemini 추출 시 `[PAGE N]` 형식으로 페이지 구분 → PDF 구간 이동 가능
+- **용량 제한**: 20MB → 30MB로 완화
+
+### [개선] 헤더 로고 이미지 적용
+- **내용**: 텍스트 "SSOKTUBE" → logo.png 이미지 로고로 교체
+- **추가**: 모든 네비 링크에 `active:scale-95`, `select-none` 적용으로 모바일 터치 UX 개선
+
+### [개선] summarize API — 선택적 인증 + 원문 자막 보존
+- **선택적 인증**: Authorization 헤더 있으면 userId/userDisplayName을 summaries에 기록 (없어도 동작)
+- **transcriptOriginal**: 영어 자막 번역 전 원문 별도 저장 → 결과 페이지 자막 탭 한/영 토글에 활용
+
+### [개선] 블로그 초안 — 목차 추가
+- **내용**: 미리보기 탭 상단에 소제목 목차 박스 추가, 각 소제목에 `id` 부여해 스크롤 이동 연결
+
+---
+
 ## 2026-04-20 (세션 2)
 
 ### [개선] AI 댓글 truncation 감지 + 경고 표시

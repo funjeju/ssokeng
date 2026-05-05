@@ -25,12 +25,13 @@
 
 ## 🔵 크롬 확장프로그램 웹스토어 배포
 
-- [ ] **아이콘 제작** — 128x128, 48x48, 16x16 PNG (현재 없음)
+- [ ] **아이콘 제작** — 128x128, 48x48, 16x16 PNG (현재 없음 — manifest.json에 icons 미설정)
 - [ ] **스토어 스크린샷** — 최소 1장 (1280x800 or 640x400)
 - [ ] **스토어 설명 문구** 작성
 - [ ] **$5 개발자 등록** — [Chrome Web Store 개발자 콘솔](https://chrome.google.com/webstore/devconsole) 결제
 - [ ] **chrome-extension/ 폴더 zip 압축 후 업로드**
 - [ ] **심사 통과 후 링크 ssoktube.com에 추가**
+- [ ] **popup.html 버전 표기** — v1.0.0 → v1.0.3으로 맞추기 (manifest는 1.0.3, popup은 1.0.0 불일치)
 
 ---
 
