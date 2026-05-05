@@ -1230,27 +1230,28 @@ export default function MyPage() {
               )}
             </div>
           </div>
-          {/* 아랫줄: 클래스/전환 링크 + 초대 + 탈퇴 */}
-          <div className="flex items-center justify-between mt-2 px-1">
-            <div className="flex items-center gap-3">
-              {userProfile && !userProfile.role && (
-                <button
-                  onClick={() => { setShowTeacherModal(true); setTeacherDoneCode(''); setTeacherError('') }}
-                  className={PILL_EMERALD}
-                >
-                  🏫 선생님으로 전환
-                </button>
-              )}
-              {userProfile?.role === 'teacher' && userProfile.classCode && (
-                <Link href={`/classroom/${userProfile.classCode}`} className={PILL_EMERALD}>
-                  🏫 내 클래스 대시보드 →
-                </Link>
-              )}
-              <InviteButton isTeacher={userProfile?.role === 'teacher'} />
-            </div>
+          {/* 아랫줄: 클래스/전환 링크 + 초대 */}
+          <div className="flex items-center gap-2 flex-wrap mt-2 px-1">
+            {userProfile && !userProfile.role && (
+              <button
+                onClick={() => { setShowTeacherModal(true); setTeacherDoneCode(''); setTeacherError('') }}
+                className={PILL_EMERALD}
+              >
+                🏫 선생님으로 전환
+              </button>
+            )}
+            {userProfile?.role === 'teacher' && userProfile.classCode && (
+              <Link href={`/classroom/${userProfile.classCode}`} className={PILL_EMERALD}>
+                🏫 내 클래스 대시보드 →
+              </Link>
+            )}
+            <InviteButton isTeacher={userProfile?.role === 'teacher'} />
+          </div>
+          {/* 탈퇴 — 별도 줄, 우측 정렬 */}
+          <div className="flex justify-end mt-1 px-1">
             <button
               onClick={() => { setShowWithdrawModal(true); setWithdrawConfirm(''); setWithdrawError('') }}
-              className="text-[var(--text-subtle)] hover:text-red-500/70 text-[10px] transition-colors"
+              className="text-[var(--text-subtle)] hover:text-red-400 text-[10px] transition-colors px-1"
               title="회원탈퇴"
             >
               탈퇴
