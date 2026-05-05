@@ -533,7 +533,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
   const [magazinePosts, setMagazinePosts] = useState<CuratedPost[]>(initialMagazinePosts)
   const [loading, setLoading] = useState(initialSummaries.length === 0)
   const [loadingMore, setLoadingMore] = useState(false)
-  const [hasMore, setHasMore] = useState(true)
+  const [hasMore, setHasMore] = useState(false)
   const lastDocRef = useRef<QueryDocumentSnapshot<DocumentData> | null>(null)
   const seenVideoIdsRef = useRef<Set<string>>(new Set())
   const [activeCategory, setActiveCategory] = useState('all')
@@ -735,6 +735,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
   const visibleFiltered = filtered
 
   useEffect(() => {
+    if (loading) return
     const sentinel = sentinelRef.current
     if (!sentinel) return
     const observer = new IntersectionObserver(entries => {
@@ -742,7 +743,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
     }, { rootMargin: '400px' })
     observer.observe(sentinel)
     return () => observer.disconnect()
-  }, [loadingMore, hasMore])
+  }, [loading, loadingMore, hasMore])
 
   const topCategories = useMemo(
     () => getUserTopCategories(likedIds, allSummaries),

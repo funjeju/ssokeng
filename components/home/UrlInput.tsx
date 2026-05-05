@@ -433,7 +433,7 @@ export default function UrlInput() {
               disabled={!url.trim() || checkingDuration}
               className="h-[56px] md:w-[140px] text-base font-bold tracking-wide rounded-[20px] transition-all duration-150
                          bg-orange-500 text-white hover:bg-orange-600 hover:scale-[1.02] active:scale-[0.94] active:bg-orange-700
-                         disabled:bg-[var(--bg-elevated)] disabled:text-[var(--text-subtle)] disabled:cursor-not-allowed disabled:transform-none select-none"
+                         disabled:bg-[var(--bg-elevated)] disabled:text-[var(--text-muted)] disabled:border disabled:border-[var(--border-strong)] disabled:cursor-not-allowed disabled:transform-none select-none"
             >
               {checkingDuration ? '확인 중...' : 'Start Now'}
             </Button>
