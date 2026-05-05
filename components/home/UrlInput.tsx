@@ -432,8 +432,8 @@ export default function UrlInput() {
               onClick={handleSubmit}
               disabled={!url.trim() || checkingDuration}
               className="h-[56px] md:w-[140px] text-base font-bold tracking-wide rounded-[20px] transition-all duration-150
-                         bg-white text-black hover:bg-[#e2e2e2] hover:scale-[1.02] active:scale-[0.94] active:bg-[#d0d0d0]
-                         disabled:bg-[var(--overlay-default)] disabled:text-white/30 disabled:cursor-not-allowed disabled:transform-none select-none"
+                         bg-orange-500 text-white hover:bg-orange-600 hover:scale-[1.02] active:scale-[0.94] active:bg-orange-700
+                         disabled:bg-[var(--bg-elevated)] disabled:text-[var(--text-subtle)] disabled:cursor-not-allowed disabled:transform-none select-none"
             >
               {checkingDuration ? '확인 중...' : 'Start Now'}
             </Button>

@@ -21,24 +21,23 @@ export default function Home() {
             <img
               src="/logo.png"
               alt="SSOKTUBE"
-              className="h-16 w-auto shrink-0"
-              style={{ filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.5)) drop-shadow(0 0 6px rgba(255,255,255,0.25))' }}
+              className="h-16 w-auto shrink-0 logo-hero"
             />
             <div className="flex flex-col gap-1 text-left">
-              <p className="text-xl font-bold text-white/90 tracking-wide">
-                유튜브를 <span className="text-orange-400">SSOK</span>쏙 내 지식을 <span className="text-emerald-400">SSUK</span>쑥
+              <p className="text-xl font-bold text-[var(--text-primary)] tracking-wide">
+                유튜브를 <span className="text-orange-400">SSOK</span>쏙, 내 지식을 <span className="text-emerald-400">SSUK</span>쑥
               </p>
-              <p className="text-sm font-medium text-white/40 tracking-wide">
+              <p className="text-sm font-medium text-[var(--text-muted)] tracking-wide">
                 가장 스마트한 유튜브 저장소
               </p>
             </div>
           </div>
           {/* 모바일: 슬로건만 */}
           <div className="md:hidden flex flex-col items-center gap-1">
-            <p className="text-base font-bold text-white/90 tracking-wide">
-              유튜브를 <span className="text-orange-400">SSOK</span>쏙 내 지식을 <span className="text-emerald-400">SSUK</span>쑥
+            <p className="text-base font-bold text-[var(--text-primary)] tracking-wide">
+              유튜브를 <span className="text-orange-400">SSOK</span>쏙, 내 지식을 <span className="text-emerald-400">SSUK</span>쑥
             </p>
-            <p className="text-xs font-medium text-white/35 tracking-wide">
+            <p className="text-xs font-medium text-[var(--text-muted)] tracking-wide">
               가장 스마트한 유튜브 저장소
             </p>
           </div>
