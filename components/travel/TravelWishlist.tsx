@@ -59,6 +59,9 @@ export default function TravelWishlist({ userId }: { userId: string }) {
   // 일정 생성 위자드
   const [showWizard, setShowWizard] = useState(false)
 
+  // 지도 모달
+  const [mapModalSpot, setMapModalSpot] = useState<TravelSpot | null>(null)
+
   useEffect(() => {
     if (!userId || userId.startsWith('user_')) { setLoadingRegions(false); return }
     getRegions(userId)
@@ -547,16 +550,14 @@ export default function TravelWishlist({ userId }: { userId: string }) {
                           {s.name}
                         </p>
                         <div className="flex items-center gap-1 shrink-0">
-                          {/* 카카오맵 */}
-                          <a
-                            href={s.placeUrl || kakaoMapUrl(s.address || s.name)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-7 h-7 rounded-lg bg-yellow-500/20 flex items-center justify-center text-yellow-400 hover:bg-yellow-500/30 transition-colors text-xs"
-                            title="카카오맵에서 보기"
+                          {/* 지도 모달 */}
+                          <button
+                            onClick={() => setMapModalSpot(s)}
+                            className="w-7 h-7 rounded-lg bg-yellow-500/20 flex items-center justify-center text-yellow-400 hover:bg-yellow-500/30 transition-colors text-xs font-bold"
+                            title="지도에서 보기"
                           >
                             지도
-                          </a>
+                          </button>
                           {/* 영상 출처 */}
                           {s.sourceSessionId && (
                             <a
@@ -626,6 +627,68 @@ export default function TravelWishlist({ userId }: { userId: string }) {
           spots={spots}
           onClose={() => setShowWizard(false)}
         />
+      )}
+
+      {/* 지도 모달 */}
+      {mapModalSpot && (
+        <div
+          className="fixed inset-0 z-[300] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setMapModalSpot(null)}
+        >
+          <div
+            className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* 지도 이미지 */}
+            {mapModalSpot.lat && mapModalSpot.lng ? (
+              <div className="relative w-full h-52 bg-[var(--bg-elevated)] overflow-hidden">
+                <img
+                  src={`/api/place-map?lat=${mapModalSpot.lat}&lng=${mapModalSpot.lng}`}
+                  alt={mapModalSpot.name}
+                  className="w-full h-full object-cover"
+                />
+                {/* 중심 핀 */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="text-3xl drop-shadow-lg">📍</div>
+                </div>
+              </div>
+            ) : (
+              <div className="w-full h-32 bg-[var(--bg-elevated)] flex items-center justify-center">
+                <span className="text-4xl opacity-30">🗺️</span>
+              </div>
+            )}
+
+            {/* 정보 */}
+            <div className="p-5 flex flex-col gap-4">
+              <div>
+                <p className="font-bold text-[var(--text-primary)] text-base">{mapModalSpot.name}</p>
+                {mapModalSpot.address && (
+                  <p className="text-[var(--text-muted)] text-sm mt-1">{mapModalSpot.address}</p>
+                )}
+                {mapModalSpot.description && (
+                  <p className="text-[var(--text-subtle)] text-xs mt-2 leading-relaxed">{mapModalSpot.description}</p>
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                <a
+                  href={mapModalSpot.placeUrl || kakaoMapUrl(mapModalSpot.address || mapModalSpot.name)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 h-10 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-black text-sm font-bold flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  🗺️ 카카오맵에서 열기
+                </a>
+                <button
+                  onClick={() => setMapModalSpot(null)}
+                  className="px-4 h-10 rounded-xl bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-[var(--text-muted)] text-sm font-medium transition-colors border border-[var(--border-default)]"
+                >
+                  닫기
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

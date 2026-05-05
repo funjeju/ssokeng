@@ -712,7 +712,7 @@ export default function ItineraryWizardModal({ region, spots, onClose }: Props) 
                   className={`px-4 h-10 rounded-xl text-sm font-bold transition-all flex items-center gap-1.5 ${
                     saved
                       ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 cursor-default'
-                      : 'bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-300 border border-[var(--border-default)] disabled:opacity-50'
+                      : 'bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-[var(--text-primary)] border border-[var(--border-strong)] disabled:opacity-50'
                   }`}
                 >
                   {saving ? (
