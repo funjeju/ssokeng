@@ -1,6 +1,6 @@
 import { db, storage } from './firebase'
 import {
-  collection, doc, addDoc, getDocs, deleteDoc,
+  collection, doc, addDoc, getDocs, deleteDoc, updateDoc,
   query, where, serverTimestamp,
 } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
@@ -81,6 +81,17 @@ export async function addVideoQuiz(
 
 export async function deleteVideoQuiz(id: string): Promise<void> {
   await deleteDoc(doc(db, 'video_quizzes', id))
+}
+
+export async function updateVideoQuiz(
+  id: string,
+  data: Partial<Omit<VideoQuiz, 'id' | 'userId' | 'createdAt'>>,
+): Promise<void> {
+  const payload: Record<string, any> = {}
+  for (const [k, v] of Object.entries(data)) {
+    if (v !== undefined) payload[k] = v
+  }
+  await updateDoc(doc(db, 'video_quizzes', id), payload)
 }
 
 export async function uploadQuizImage(userId: string, file: File): Promise<string> {

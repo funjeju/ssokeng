@@ -32,7 +32,7 @@ import type { SavedSummary } from '@/lib/db'
 import type { Comment } from '@/lib/comments'
 import { addBookmark, getBookmarks, deleteBookmark, secsToLabel, VideoBookmark } from '@/lib/videoBookmark'
 import { getVideoQuizzesBySession, getVideoQuizzesBySessionPublic, VideoQuiz } from '@/lib/videoQuiz'
-import VideoQuizCreatorModal from '@/components/video-quiz/VideoQuizCreatorModal'
+import VideoQuizManagerModal from '@/components/video-quiz/VideoQuizManagerModal'
 import VideoQuizPopup from '@/components/video-quiz/VideoQuizPopup'
 
 const CATEGORY_INFO: Record<string, { label: string; icon: string; color: string }> = {
@@ -1670,19 +1670,19 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
         </div>
       </div>
 
-      {/* 타임스탬프 퀴즈 생성 모달 */}
+      {/* 타임스탬프 퀴즈 관리 모달 (목록 + 추가/수정/삭제) */}
       {showQuizCreator && user && data.videoId && (
-        <VideoQuizCreatorModal
+        <VideoQuizManagerModal
           userId={user.uid}
           sessionId={sessionId}
           videoId={data.videoId}
           videoTitle={data.title}
           thumbnail={data.thumbnail ?? ''}
           channel={data.channel ?? ''}
-          timestampSec={quizCreatorSec}
+          quizzes={videoQuizzes}
+          currentTimeSec={quizCreatorSec}
           onClose={() => setShowQuizCreator(false)}
-          onSaved={() => {
-            // 퀴즈 목록 재로드
+          onChanged={() => {
             getVideoQuizzesBySession(user.uid, sessionId).then(setVideoQuizzes).catch(() => {})
           }}
         />
