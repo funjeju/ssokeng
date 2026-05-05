@@ -435,7 +435,7 @@ function TravelTab({ userId }: { userId: string }) {
           <button
             onClick={() => setSubTab('wishlist')}
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-              subTab === 'wishlist' ? 'bg-[var(--bg-elevated-2)] text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'
+              subTab === 'wishlist' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
             }`}
           >
             📍 여행 찜
@@ -443,7 +443,7 @@ function TravelTab({ userId }: { userId: string }) {
           <button
             onClick={() => setSubTab('itineraries')}
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-              subTab === 'itineraries' ? 'bg-[var(--bg-elevated-2)] text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'
+              subTab === 'itineraries' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
             }`}
           >
             🗓️ 저장된 일정
@@ -574,6 +574,9 @@ function FriendsTab({ myUid }: { myUid: string }) {
   )
 }
 
+const PILL_EMERALD = 'inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 hover:bg-emerald-500/20 text-xs font-medium transition-colors'
+const PILL_ORANGE  = 'inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-orange-500/10  border border-orange-500/25  text-orange-600  hover:bg-orange-500/20  text-xs font-medium transition-colors'
+
 function InviteButton({ isTeacher }: { isTeacher?: boolean }) {
   const [copied, setCopied] = useState<'teacher' | 'normal' | null>(null)
   const copy = (url: string, type: 'teacher' | 'normal') => {
@@ -584,29 +587,19 @@ function InviteButton({ isTeacher }: { isTeacher?: boolean }) {
   }
   if (isTeacher) {
     return (
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => copy('https://ssoktube.com?invite=teacher', 'teacher')}
-          className="text-[11px] text-emerald-400 hover:text-emerald-300 transition-colors"
-        >
-          {copied === 'teacher' ? '✅ 복사됨!' : '🏫 선생님으로 초대'}
+      <div className="flex items-center gap-1.5">
+        <button onClick={() => copy('https://ssoktube.com?invite=teacher', 'teacher')} className={PILL_EMERALD}>
+          {copied === 'teacher' ? '✅ 복사됨!' : '🏫 선생님 초대'}
         </button>
-        <span className="text-[var(--text-subtle)] text-[10px]">·</span>
-        <button
-          onClick={() => copy('https://ssoktube.com', 'normal')}
-          className="text-[11px] text-orange-400 hover:text-orange-300 transition-colors"
-        >
+        <button onClick={() => copy('https://ssoktube.com', 'normal')} className={PILL_ORANGE}>
           {copied === 'normal' ? '✅ 복사됨!' : '🔗 일반 초대'}
         </button>
       </div>
     )
   }
   return (
-    <button
-      onClick={() => copy('https://ssoktube.com', 'normal')}
-      className="text-[11px] text-orange-400 hover:text-orange-300 transition-colors"
-    >
-      {copied === 'normal' ? '✅ 복사됨!' : '🔗 친구 초대하기'}
+    <button onClick={() => copy('https://ssoktube.com', 'normal')} className={PILL_ORANGE}>
+      {copied === 'normal' ? '✅ 복사됨!' : '🔗 친구 초대'}
     </button>
   )
 }
@@ -1226,8 +1219,8 @@ export default function MyPage() {
             <div className="flex items-center gap-2 shrink-0 ml-auto">
               <div className="flex items-center gap-1.5 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl px-3 py-2">
                 <span className="text-base">🪙</span>
-                <span className="text-white font-bold text-sm">{userProfile?.tokens ?? 0}</span>
-                <span className="text-[var(--text-subtle)] text-xs hidden sm:inline">토큰</span>
+                <span className="text-[var(--text-primary)] font-bold text-sm">{userProfile?.tokens ?? 0}</span>
+                <span className="text-[var(--text-muted)] text-xs hidden sm:inline">토큰</span>
               </div>
               {needsProfile && (
                 <div className="flex items-center gap-1 bg-orange-500/10 border border-orange-500/30 rounded-xl px-2 py-2">
@@ -1243,13 +1236,13 @@ export default function MyPage() {
               {userProfile && !userProfile.role && (
                 <button
                   onClick={() => { setShowTeacherModal(true); setTeacherDoneCode(''); setTeacherError('') }}
-                  className="text-[11px] text-emerald-400 hover:text-emerald-300 transition-colors"
+                  className={PILL_EMERALD}
                 >
                   🏫 선생님으로 전환
                 </button>
               )}
               {userProfile?.role === 'teacher' && userProfile.classCode && (
-                <Link href={`/classroom/${userProfile.classCode}`} className="text-[11px] text-emerald-400 hover:text-emerald-300 transition-colors">
+                <Link href={`/classroom/${userProfile.classCode}`} className={PILL_EMERALD}>
                   🏫 내 클래스 대시보드 →
                 </Link>
               )}
@@ -1274,7 +1267,7 @@ export default function MyPage() {
             <button
               onClick={() => setActiveTab('library')}
               className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
-                activeTab === 'library' ? 'bg-[var(--bg-elevated-2)] text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'
+                activeTab === 'library' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
               📚 <span className="hidden xs:inline">내 </span>라이브러리
@@ -1282,7 +1275,7 @@ export default function MyPage() {
             <button
               onClick={() => setActiveTab('friends')}
               className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
-                activeTab === 'friends' ? 'bg-[var(--bg-elevated-2)] text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'
+                activeTab === 'friends' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
               👥 친구
@@ -1295,7 +1288,7 @@ export default function MyPage() {
             <button
               onClick={() => setActiveTab('travel')}
               className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
-                activeTab === 'travel' ? 'bg-[var(--bg-elevated-2)] text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'
+                activeTab === 'travel' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
               🧳 여행
@@ -1303,7 +1296,7 @@ export default function MyPage() {
             <button
               onClick={() => setActiveTab('blog')}
               className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
-                activeTab === 'blog' ? 'bg-[var(--bg-elevated-2)] text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'
+                activeTab === 'blog' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
               ✍️ 블로그
@@ -1311,21 +1304,21 @@ export default function MyPage() {
             <button
               onClick={() => setActiveTab('shorts')}
               className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
-                activeTab === 'shorts' ? 'bg-[var(--bg-elevated-2)] text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'
+                activeTab === 'shorts' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
               ✂️ 숏폼
             </button>
             <Link
               href="/report"
-              className="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap text-[var(--text-subtle)] hover:text-white"
+              className="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap text-[var(--text-subtle)] hover:text-[var(--text-primary)]"
             >
               📊 멀티 리포트
             </Link>
             <button
               onClick={() => setActiveTab('bookmarks')}
               className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
-                activeTab === 'bookmarks' ? 'bg-[var(--bg-elevated-2)] text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'
+                activeTab === 'bookmarks' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
               🔖 북마크
@@ -1333,7 +1326,7 @@ export default function MyPage() {
             <button
               onClick={() => setActiveTab('quizzes')}
               className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
-                activeTab === 'quizzes' ? 'bg-[var(--bg-elevated-2)] text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'
+                activeTab === 'quizzes' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
               🧩 퀴즈
@@ -1341,7 +1334,7 @@ export default function MyPage() {
             <button
               onClick={() => setActiveTab('worksheets')}
               className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
-                activeTab === 'worksheets' ? 'bg-[var(--bg-elevated-2)] text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'
+                activeTab === 'worksheets' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
               📝 워크시트
@@ -1349,7 +1342,7 @@ export default function MyPage() {
             <button
               onClick={() => setActiveTab('youtube')}
               className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
-                activeTab === 'youtube' ? 'bg-[var(--bg-elevated-2)] text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'
+                activeTab === 'youtube' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
               <svg className="w-3.5 h-3.5 text-red-500 shrink-0" viewBox="0 0 24 24" fill="currentColor">
