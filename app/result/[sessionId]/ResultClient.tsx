@@ -1501,26 +1501,30 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
 
         {/* 하단 버튼 영역 — 저장하기(flex-1) + 댓글/PDF/공유(아이콘) */}
         <div className="flex gap-2 mt-4">
-          {!isClassView && (savedItem ? (
-            <button
-              onClick={handleToggleVisibility}
-              disabled={togglingVisibility}
-              className={`flex-1 h-12 rounded-xl font-bold text-xs transition-all disabled:opacity-50 border px-3 ${
-                savedItem.isPublic
-                  ? 'bg-[#32302e] border-white/10 text-[#a4a09c] hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400'
-                  : 'bg-[#32302e] border-white/10 text-[#a4a09c] hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-400'
-              }`}
-            >
-              {togglingVisibility ? '변경 중...' : savedItem.isPublic ? '🌍 공개 중' : '🔒 비공개'}
-            </button>
+          {savedItem ? (
+            // 이미 저장된 경우: classView면 버튼 숨김, 아니면 공개/비공개 토글
+            !isClassView && (
+              <button
+                onClick={handleToggleVisibility}
+                disabled={togglingVisibility}
+                className={`flex-1 h-12 rounded-xl font-bold text-xs transition-all disabled:opacity-50 border px-3 ${
+                  savedItem.isPublic
+                    ? 'bg-[#32302e] border-white/10 text-[#a4a09c] hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400'
+                    : 'bg-[#32302e] border-white/10 text-[#a4a09c] hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-400'
+                }`}
+              >
+                {togglingVisibility ? '변경 중...' : savedItem.isPublic ? '🌍 공개 중' : '🔒 비공개'}
+              </button>
+            )
           ) : (
+            // 미저장: classView면 "나도 저장"(경고 없음), 일반이면 "저장하기"
             <Button
               className="flex-1 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-bold h-12 text-sm border-none"
               onClick={() => setShowSaveModal(true)}
             >
-              {fromSquare ? '📥 나도 저장' : '📚 저장하기'}
+              {fromSquare || isClassView ? '📥 나도 저장' : '📚 저장하기'}
             </Button>
-          ))}
+          )}
 
           {/* 시청파티 버튼 — YouTube 영상만, 로그인 필요 */}
           {data.videoId && (

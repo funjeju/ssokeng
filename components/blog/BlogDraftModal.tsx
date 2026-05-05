@@ -59,6 +59,16 @@ function buildHtml(draft: BlogDraft): string {
   const appUrl = `https://ssoktube.com/result/${draft.sessionId}`
   const today = new Date().toISOString().split('T')[0]
 
+  const tocItems = draft.sections.filter(s => s.heading)
+  const tocHtml = tocItems.length > 0
+    ? `<nav style="margin:0 0 32px;padding:16px 20px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;">
+  <p style="margin:0 0 10px;font-size:0.75em;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.08em;">📋 목차</p>
+  <ol style="margin:0;padding:0 0 0 18px;">
+${tocItems.map((s, i) => `    <li style="margin:0 0 6px;font-size:0.9em;color:#374151;">${i + 1}. ${s.heading}</li>`).join('\n')}
+  </ol>
+</nav>`
+    : ''
+
   const sectionsHtml = draft.sections.map(s => {
     const tsLink = s.timestamp
       ? `\n<p style="margin:6px 0 16px;font-size:0.85em;color:#9ca3af;">▶ ${s.timestamp} 구간</p>`
@@ -134,6 +144,7 @@ ${schemas}
 <article>
 
 <h1 style="font-size:1.6em;font-weight:800;margin:0 0 12px;line-height:1.4;">${draft.seo_title}</h1>
+<p style="font-size:1em;color:#374151;line-height:1.8;margin:0 0 16px;">${draft.meta_description}</p>
 <p style="font-size:0.85em;color:#6b7280;margin:0 0 20px;">📹 원본 영상: <a href="${ytBase}" target="_blank" rel="noopener">${draft.channel} — ${draft.title}</a> &nbsp;|&nbsp; 읽는 시간: 약 ${draft.reading_time}분 &nbsp;|&nbsp; ${today} 기준</p>
 
 <figure style="margin:0 0 28px;">
@@ -141,6 +152,8 @@ ${schemas}
     <img src="${draft.thumbnail}" alt="${draft.seo_title}" style="width:100%;max-width:640px;border-radius:10px;display:block;" />
   </a>
 </figure>
+
+${tocHtml}
 
 ${sectionsHtml}
 
@@ -185,20 +198,27 @@ ${draft.comments ? `<div style="margin:40px 0 0;">
 
 function buildPlainText(draft: BlogDraft): string {
   const ytBase = `https://youtu.be/${draft.videoId}`
+  const tocSections = draft.sections.filter(s => s.heading)
   const lines: string[] = [
     draft.seo_title,
     '',
+    draft.meta_description,
+    '',
     `📹 원본: ${draft.channel} — ${draft.title}`,
     `🔗 ${ytBase}`,
-    '',
-    `■ 메타 설명`,
-    draft.meta_description,
     '',
     `■ 태그`,
     draft.tags.join(', '),
     '',
     '─'.repeat(40),
     '',
+    ...(tocSections.length > 0 ? [
+      '📋 목차',
+      ...tocSections.map((s, i) => `  ${i + 1}. ${s.heading}`),
+      '',
+      '─'.repeat(40),
+      '',
+    ] : []),
   ]
   for (const s of draft.sections) {
     if (s.heading) lines.push(`▌ ${s.heading}`, '')
