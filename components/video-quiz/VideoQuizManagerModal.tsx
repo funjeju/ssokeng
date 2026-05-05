@@ -93,8 +93,8 @@ function QuizForm({
       quizType,
       question: question.trim(),
       imageFile,
-      // imageFile 있으면 새로 업로드, imagePreview 있으면 기존 URL 유지, 없으면 null(삭제)
-      imageUrl: imageFile ? undefined : imagePreview || null,
+      // imageFile 있으면 새로 업로드, imagePreview 있으면 기존 URL 유지, 없으면 undefined
+      imageUrl: imageFile ? undefined : imagePreview ?? undefined,
       ...(quizType === 'ox' ? { oxAnswer: oxAnswer!, oxExplanation: oxExplanation.trim() || undefined } : {}),
       ...(quizType === 'multiple_choice' ? { options: options.map(o => o.trim()), correctOptionIndex: correctOptionIndex! } : {}),
       ...(quizType === 'short_answer' ? { sampleAnswer: sampleAnswer.trim() || undefined } : {}),
