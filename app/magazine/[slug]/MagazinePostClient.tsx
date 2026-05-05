@@ -30,6 +30,19 @@ function extractTextContent(node: React.ReactNode): string {
 function parseToc(body: string): { title: string; anchor: string }[] {
   return [...body.matchAll(/^##\s+(.+)$/gm)]
     .map(m => ({ title: m[1].trim(), anchor: toAnchor(m[1]) }))
+    .filter(item => item.title !== '목차')
+}
+
+function stripTocSection(body: string): string {
+  const lines = body.split('\n')
+  let inToc = false
+  return lines
+    .filter(line => {
+      if (/^##\s+목차/.test(line)) { inToc = true; return false }
+      if (inToc && /^##\s/.test(line)) { inToc = false }
+      return !inToc
+    })
+    .join('\n')
 }
 
 function TableOfContents({ body }: { body: string }) {
@@ -392,7 +405,7 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
               },
             }}
           >
-            {post.body}
+            {stripTocSection(post.body)}
           </ReactMarkdown>
         </div>
 

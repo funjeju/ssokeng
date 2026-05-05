@@ -9,6 +9,16 @@ function buildHtml(draft: SavedBlogDraft): string {
   const ytBase = `https://youtu.be/${draft.videoId}`
   const appUrl = `https://ssoktube.com/result/${draft.sessionId}`
 
+  const tocItems = draft.sections.filter(s => s.heading)
+  const tocHtml = tocItems.length > 0
+    ? `<nav style="margin:0 0 32px;padding:16px 20px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;">
+  <p style="margin:0 0 10px;font-size:0.75em;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.08em;">📋 목차</p>
+  <ol style="margin:0;padding:0 0 0 18px;">
+${tocItems.map((s, i) => `    <li style="margin:0 0 6px;font-size:0.9em;color:#374151;">${i + 1}. ${s.heading}</li>`).join('\n')}
+  </ol>
+</nav>`
+    : ''
+
   const sectionsHtml = draft.sections.map(s => {
     const tsLink = s.seconds
       ? `\n<p style="margin:6px 0 16px;"><a href="${ytBase}?t=${s.seconds}" target="_blank" rel="noopener" style="font-size:0.85em;color:#f97316;">▶ 영상 ${s.timestamp} 구간 바로보기</a></p>`
@@ -19,6 +29,39 @@ function buildHtml(draft: SavedBlogDraft): string {
     const tag = `h${s.level}`
     return `<${tag} style="margin:32px 0 12px;font-weight:700;">${s.heading}</${tag}>\n<p style="margin:0 0 12px;line-height:1.8;">${s.text}</p>${tsLink}`
   }).join('\n')
+
+  const faq = draft.faq ?? []
+  const faqHtml = faq.length > 0
+    ? `<h2 style="margin:32px 0 12px;font-weight:700;">자주 묻는 질문</h2>
+${faq.map(f => `<details style="margin:0 0 10px;border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px;">
+  <summary style="font-weight:600;cursor:pointer;color:#111827;">${f.question}</summary>
+  <p style="margin:10px 0 0;line-height:1.75;color:#374151;">${f.answer}</p>
+</details>`).join('\n')}`
+    : ''
+
+  const commentsHtml = draft.comments
+    ? `<div style="margin:40px 0 0;">
+  <h2 style="margin:0 0 16px;font-weight:700;font-size:1.1em;">💬 시청자 반응</h2>
+  <div style="margin:0 0 24px;padding:16px;background:#fafafa;border-radius:10px;border:1px solid #e5e7eb;">
+    <p style="margin:0 0 10px;font-size:0.8em;font-weight:700;color:#f97316;">🔥 인기 댓글 경향</p>
+    <p style="margin:0 0 14px;line-height:1.75;color:#374151;font-size:0.9em;">${draft.comments.popular_summary}</p>
+    ${draft.comments.popular_highlights.map(h =>
+      `<blockquote style="margin:8px 0;padding:10px 14px;background:#fff;border-left:3px solid #f97316;border-radius:0 6px 6px 0;font-size:0.85em;color:#4b5563;">
+      "${h.text}"
+      <span style="display:block;margin-top:4px;font-size:0.75em;color:#9ca3af;">👍 ${h.likes.toLocaleString()}</span>
+    </blockquote>`).join('\n')}
+  </div>
+  <div style="padding:16px;background:#fafafa;border-radius:10px;border:1px solid #e5e7eb;">
+    <p style="margin:0 0 10px;font-size:0.8em;font-weight:700;color:#6366f1;">🕐 최신 댓글 경향</p>
+    <p style="margin:0 0 14px;line-height:1.75;color:#374151;font-size:0.9em;">${draft.comments.recent_summary}</p>
+    ${draft.comments.recent_highlights.map(h =>
+      `<blockquote style="margin:8px 0;padding:10px 14px;background:#fff;border-left:3px solid #6366f1;border-radius:0 6px 6px 0;font-size:0.85em;color:#4b5563;">
+      "${h.text}"
+      <span style="display:block;margin-top:4px;font-size:0.75em;color:#9ca3af;">👍 ${h.likes.toLocaleString()}</span>
+    </blockquote>`).join('\n')}
+  </div>
+</div>`
+    : ''
 
   const tagsHtml = draft.tags.map(t =>
     `<span style="display:inline-block;margin:3px;padding:3px 10px;background:#f3f4f6;border-radius:999px;font-size:0.8em;color:#374151;">${t}</span>`
@@ -36,7 +79,13 @@ function buildHtml(draft: SavedBlogDraft): string {
   </a>
 </figure>
 
+${tocHtml}
+
 ${sectionsHtml}
+
+${faqHtml}
+
+${commentsHtml}
 
 <div style="margin:32px 0 16px;padding:16px;background:#fff7ed;border-left:4px solid #f97316;border-radius:4px;">
   <p style="margin:0;font-size:0.9em;color:#92400e;">이 글은 <a href="${appUrl}" target="_blank" rel="noopener" style="color:#f97316;font-weight:600;">SSOKTUBE AI</a>로 분석된 콘텐츠입니다.</p>
@@ -48,6 +97,7 @@ ${sectionsHtml}
 
 function buildPlainText(draft: SavedBlogDraft): string {
   const ytBase = `https://youtu.be/${draft.videoId}`
+  const tocSections = draft.sections.filter(s => s.heading)
   const lines: string[] = [
     draft.seo_title, '',
     `📹 원본: ${draft.channel} — ${draft.title}`,
@@ -55,12 +105,30 @@ function buildPlainText(draft: SavedBlogDraft): string {
     `■ 메타 설명`, draft.meta_description, '',
     `■ 태그`, draft.tags.join(', '), '',
     '─'.repeat(40), '',
+    ...(tocSections.length > 0 ? [
+      '📋 목차',
+      ...tocSections.map((s, i) => `  ${i + 1}. ${s.heading}`),
+      '', '─'.repeat(40), '',
+    ] : []),
   ]
   for (const s of draft.sections) {
     if (s.heading) lines.push(`▌ ${s.heading}`, '')
     lines.push(s.text)
     if (s.timestamp && s.seconds !== null) lines.push(`▶ ${ytBase}?t=${s.seconds} (${s.timestamp})`)
     lines.push('')
+  }
+  if (draft.faq?.length) {
+    lines.push('─'.repeat(40), '', '■ 자주 묻는 질문', '')
+    draft.faq.forEach(f => {
+      lines.push(`Q. ${f.question}`, `A. ${f.answer}`, '')
+    })
+  }
+  if (draft.comments) {
+    lines.push('─'.repeat(40), '', '💬 시청자 반응', '')
+    lines.push('🔥 인기 댓글 경향', draft.comments.popular_summary, '')
+    draft.comments.popular_highlights.forEach(h => lines.push(`  "${h.text}"  [👍${h.likes}]`, ''))
+    lines.push('🕐 최신 댓글 경향', draft.comments.recent_summary, '')
+    draft.comments.recent_highlights.forEach(h => lines.push(`  "${h.text}"  [👍${h.likes}]`, ''))
   }
   return lines.join('\n')
 }
@@ -133,6 +201,26 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
               <img src={draft.thumbnail} alt="" className="w-full rounded-xl object-cover max-h-48" />
               <h1 className="text-lg font-bold leading-snug">{draft.seo_title}</h1>
               <p className="text-xs text-zinc-400">📹 {draft.channel} | 약 {draft.reading_time}분</p>
+
+              {/* 목차 */}
+              {(() => {
+                const tocItems = draft.sections.filter(s => s.heading)
+                if (tocItems.length === 0) return null
+                return (
+                  <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-200">
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">📋 목차</p>
+                    <ol className="space-y-1">
+                      {tocItems.map((s, i) => (
+                        <li key={s.id} className="flex items-start gap-2 text-xs">
+                          <span className="text-orange-500 font-bold shrink-0">{i + 1}.</span>
+                          <span className="text-zinc-600">{s.heading}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )
+              })()}
+
               {draft.sections.map(s => (
                 <div key={s.id}>
                   {s.heading && <h2 className="text-base font-bold mt-4 mb-1 text-zinc-700">{s.heading}</h2>}
@@ -140,6 +228,51 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
                   {s.timestamp && <p className="text-xs text-orange-500 mt-1">▶ {s.timestamp} 구간</p>}
                 </div>
               ))}
+
+              {/* FAQ */}
+              {draft.faq && draft.faq.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <p className="text-xs font-bold text-zinc-500">💬 자주 묻는 질문</p>
+                  {draft.faq.map((f, i) => (
+                    <details key={i} className="border border-zinc-200 rounded-lg px-3 py-2 text-xs">
+                      <summary className="font-semibold text-zinc-700 cursor-pointer">{f.question}</summary>
+                      <p className="mt-2 text-zinc-500 leading-relaxed">{f.answer}</p>
+                    </details>
+                  ))}
+                </div>
+              )}
+
+              {/* 댓글 분석 */}
+              {draft.comments && (
+                <div className="mt-4 space-y-3">
+                  <p className="text-xs font-bold text-zinc-500">💬 시청자 반응</p>
+                  <div className="bg-orange-50 rounded-xl p-3 border border-orange-100">
+                    <p className="text-[10px] font-bold text-orange-600 mb-1.5">🔥 인기 댓글 경향</p>
+                    <p className="text-xs text-zinc-600 leading-relaxed mb-2">{draft.comments.popular_summary}</p>
+                    <div className="space-y-1.5">
+                      {draft.comments.popular_highlights.map((h, i) => (
+                        <div key={i} className="bg-white rounded-lg px-3 py-2 border-l-2 border-orange-400">
+                          <p className="text-xs text-zinc-700 leading-relaxed">"{h.text}"</p>
+                          <p className="text-[9px] text-zinc-400 mt-0.5">👍 {h.likes.toLocaleString()}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="bg-indigo-50 rounded-xl p-3 border border-indigo-100">
+                    <p className="text-[10px] font-bold text-indigo-600 mb-1.5">🕐 최신 댓글 경향</p>
+                    <p className="text-xs text-zinc-600 leading-relaxed mb-2">{draft.comments.recent_summary}</p>
+                    <div className="space-y-1.5">
+                      {draft.comments.recent_highlights.map((h, i) => (
+                        <div key={i} className="bg-white rounded-lg px-3 py-2 border-l-2 border-indigo-400">
+                          <p className="text-xs text-zinc-700 leading-relaxed">"{h.text}"</p>
+                          <p className="text-[9px] text-zinc-400 mt-0.5">👍 {h.likes.toLocaleString()}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex flex-wrap gap-1 pt-2">
                 {draft.tags.map(t => (
                   <span key={t} className="px-2 py-0.5 bg-zinc-100 rounded-full text-[10px] text-zinc-500">#{t}</span>

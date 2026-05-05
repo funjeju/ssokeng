@@ -297,6 +297,8 @@ export default function BlogDraftModal({ data, onClose }: Props) {
         tags: draft.tags,
         reading_time: draft.reading_time,
         sections: draft.sections,
+        faq: draft.faq ?? [],
+        comments: draft.comments,
       })
       setSaved(true)
     } catch (e: any) {

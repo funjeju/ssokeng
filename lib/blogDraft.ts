@@ -13,6 +13,23 @@ export interface BlogSection {
   seconds: number | null
 }
 
+export interface FaqItem {
+  question: string
+  answer: string
+}
+
+export interface CommentHighlight {
+  text: string
+  likes: number
+}
+
+export interface CommentsData {
+  popular_summary: string
+  popular_highlights: CommentHighlight[]
+  recent_summary: string
+  recent_highlights: CommentHighlight[]
+}
+
 export interface SavedBlogDraft {
   id: string
   userId: string
@@ -27,6 +44,8 @@ export interface SavedBlogDraft {
   tags: string[]
   reading_time: number
   sections: BlogSection[]
+  faq?: FaqItem[]
+  comments?: CommentsData
   createdAt: any
 }
 
