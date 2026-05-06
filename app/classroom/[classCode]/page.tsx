@@ -730,8 +730,18 @@ export default function ClassDashboard() {
                         const hasQuiz = item.videoId && videoQuizSets[item.videoId]
                         return (
                           <div key={item.id} className="flex items-center gap-3 rounded-xl bg-[var(--bg-surface)] px-3 py-2.5">
-                            {item.thumbnail && <img src={item.thumbnail} alt="" className="w-14 h-8 rounded object-cover shrink-0" />}
-                            <p className="flex-1 text-xs text-gray-200 truncate">{item.title}</p>
+                            {item.thumbnail && (
+                              item.sessionId
+                                ? <a href={`/result/${item.sessionId}`} target="_blank" rel="noopener noreferrer">
+                                    <img src={item.thumbnail} alt="" className="w-14 h-8 rounded object-cover shrink-0 hover:opacity-80 transition-opacity" />
+                                  </a>
+                                : <img src={item.thumbnail} alt="" className="w-14 h-8 rounded object-cover shrink-0" />
+                            )}
+                            {item.sessionId
+                              ? <a href={`/result/${item.sessionId}`} target="_blank" rel="noopener noreferrer"
+                                  className="flex-1 text-xs text-gray-200 truncate hover:text-orange-400 transition-colors">{item.title}</a>
+                              : <p className="flex-1 text-xs text-gray-200 truncate">{item.title}</p>
+                            }
                             {hasQuiz && (
                               <button
                                 onClick={() => setQuizViewModal({ videoTitle: item.title, quiz: videoQuizSets[item.videoId] })}

@@ -38,6 +38,7 @@
 ## 🟢 추후 (기능 확장)
 
 - [ ] **VIP 자막 STT 무제한 해제** — 현재 자막 없는 영상은 10분까지만 STT 처리. VIP 요금제 도입 시 `getTranscript()` options에 `isVip: boolean` 추가 → 10분 초과도 허용. `app/api/summarize/route.ts`에서 `userProfile.planId === 'vip'` 체크 후 전달. (현재는 admin만 무제한)
+- [ ] **VIP 장문 영상 STT — AssemblyAI 연동** — SocialKit 10MB 제한·Vercel 300초 제한으로 10분 초과 자막 없는 영상은 Vercel 내에서 불가. 구조: ① Vercel이 AssemblyAI에 YouTube URL 제출(1~2초) → ② "처리 중" 응답 반환 → ③ AssemblyAI가 백그라운드 처리(10~20분) → ④ webhook → Firestore 저장 → ⑤ 유저에게 푸시/이메일 알림. VIP 플랜 도입 시 AssemblyAI 요금제 함께 검토.
 - [ ] **교사 플랜 학생 관리 기능** — 학생 30명 등록·관리 UI
 - [ ] **블로그 발행 기능** — pro2 이상, 외부 블로그 자동 포스팅
 - [ ] **AI 일정 기능** — pro2 이상, 학습 일정 자동 생성
