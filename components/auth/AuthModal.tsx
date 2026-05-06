@@ -4,11 +4,10 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/providers/AuthProvider'
 import { buildStudentEmail } from '@/lib/classroom'
 
-type View = 'login' | 'signup' | 'forgot' | 'verify_sent' | 'student' | 'student_school' | 'student_teacher'
+type View = 'login' | 'signup' | 'forgot' | 'verify_sent' | 'student' | 'student_teacher' | 'student_credentials' | 'student_forgot' | 'student_forgot_sent'
 
-interface StudentLookupResult {
+interface Teacher {
   classCode: string
-  schoolName: string
   teacherName: string
   grade: number
   classNum: number
@@ -28,15 +27,20 @@ export default function AuthModal() {
   // 학생 로그인 전용 state
   const [studentName, setStudentName] = useState('')
   const [studentPassword, setStudentPassword] = useState('')
-  const [studentResults, setStudentResults] = useState<StudentLookupResult[]>([])
+  const [schools, setSchools] = useState<string[]>([])
+  const [teachers, setTeachers] = useState<Teacher[]>([])
   const [selectedSchool, setSelectedSchool] = useState('')
+  const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null)
+  const [studentHint, setStudentHint] = useState('')
+  const [helpMessage, setHelpMessage] = useState('이름 또는 비밀번호를 잊어버렸습니다.')
 
   // 모달이 열릴 때마다 view와 폼 상태를 authModalView로 리셋
   useEffect(() => {
     if (authModalOpen) {
       setView(authModalView)
       setEmail(''); setPassword(''); setPasswordConfirm(''); setDisplayName(''); setError(''); setResetSent(false)
-      setStudentName(''); setStudentPassword(''); setStudentResults([]); setSelectedSchool('')
+      setStudentName(''); setStudentPassword(''); setSchools([]); setTeachers([]); setSelectedSchool(''); setSelectedTeacher(null)
+      setStudentHint(''); setHelpMessage('이름 또는 비밀번호를 잊어버렸습니다.')
     }
   }, [authModalOpen, authModalView])
 
@@ -48,69 +52,79 @@ export default function AuthModal() {
 
   const switchView = (v: View) => {
     resetForm()
-    if (v !== 'student' && v !== 'student_school' && v !== 'student_teacher') {
-      setStudentName(''); setStudentPassword(''); setStudentResults([]); setSelectedSchool('')
+    if (!v.startsWith('student')) {
+      setStudentName(''); setStudentPassword(''); setSchools([]); setTeachers([]); setSelectedSchool(''); setSelectedTeacher(null)
+      setStudentHint(''); setHelpMessage('이름 또는 비밀번호를 잊어버렸습니다.')
     }
     setView(v)
   }
 
-  const doStudentLogin = async (classCode: string) => {
-    const email = buildStudentEmail(classCode, studentName.trim())
-    await signInStudent(email, studentPassword)
-  }
-
-  const handleStudentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const goToStudentLogin = async () => {
     setError('')
-    if (!studentName.trim() || !studentPassword) { setError('이름과 비밀번호를 입력해주세요.'); return }
     setLoading(true)
     try {
-      const res = await fetch('/api/classroom/lookup-student', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentName: studentName.trim() }),
-      })
+      const res = await fetch('/api/classroom/schools')
       const data = await res.json()
-      const found: StudentLookupResult[] = data.results ?? []
-      if (found.length === 0) { setError('해당 이름의 학생을 찾을 수 없습니다. 선생님께 확인하세요.'); return }
-      if (found.length === 1) { await doStudentLogin(found[0].classCode); return }
-      setStudentResults(found)
-      setSelectedSchool('')
-      setView('student_school')
+      setSchools(data.schools ?? [])
+      setView('student')
+    } catch {
+      setError('학교 목록을 불러오지 못했습니다.')
+    } finally { setLoading(false) }
+  }
+
+  const handleSchoolSelect = async (school: string) => {
+    setSelectedSchool(school)
+    setError('')
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/classroom/teachers?school=${encodeURIComponent(school)}`)
+      const data = await res.json()
+      setTeachers(data.teachers ?? [])
+      setView('student_teacher')
+    } catch {
+      setError('선생님 목록을 불러오지 못했습니다.')
+    } finally { setLoading(false) }
+  }
+
+  const handleTeacherSelect = (teacher: Teacher) => {
+    setSelectedTeacher(teacher)
+    setError('')
+    setView('student_credentials')
+  }
+
+  const handleStudentLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!studentName.trim() || !studentPassword) { setError('이름과 비밀번호를 입력해주세요.'); return }
+    if (!selectedTeacher) return
+    setLoading(true); setError('')
+    try {
+      const email = buildStudentEmail(selectedTeacher.classCode, studentName.trim())
+      await signInStudent(email, studentPassword)
     } catch (e: any) {
       const code = e.code
       setError(
         code === 'auth/invalid-credential' || code === 'auth/wrong-password'
           ? '비밀번호가 올바르지 않습니다.'
+          : code === 'auth/user-not-found'
+          ? '등록되지 않은 이름입니다. 선생님께 확인하세요.'
           : e.message || '로그인에 실패했습니다.'
       )
     } finally { setLoading(false) }
   }
 
-  const handleSchoolSelect = (school: string) => {
-    setSelectedSchool(school)
-    setError('')
-    const inSchool = studentResults.filter(r => r.schoolName === school)
-    if (inSchool.length === 1) {
-      setLoading(true)
-      doStudentLogin(inSchool[0].classCode)
-        .catch(e => {
-          setError(e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password' ? '비밀번호가 올바르지 않습니다.' : e.message || '로그인에 실패했습니다.')
-          setView('student_school')
-        })
-        .finally(() => setLoading(false))
-    } else {
-      setView('student_teacher')
-    }
-  }
-
-  const handleTeacherSelect = async (classCode: string) => {
-    setError('')
-    setLoading(true)
+  const handleHelpRequest = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedTeacher) return
+    setLoading(true); setError('')
     try {
-      await doStudentLogin(classCode)
-    } catch (e: any) {
-      setError(e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password' ? '비밀번호가 올바르지 않습니다.' : e.message || '로그인에 실패했습니다.')
+      await fetch('/api/classroom/help-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ classCode: selectedTeacher.classCode, studentHint, message: helpMessage }),
+      })
+      setView('student_forgot_sent')
+    } catch {
+      setError('요청 전송 중 오류가 발생했습니다.')
     } finally { setLoading(false) }
   }
 
@@ -265,15 +279,16 @@ export default function AuthModal() {
                 <div className="flex-1 h-px bg-[var(--overlay-default)]" />
               </div>
               <button
-                onClick={() => switchView('student')}
-                className="w-full mt-3 py-3 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 hover:border-blue-500/60 text-blue-300 font-semibold text-sm rounded-2xl transition-all"
+                onClick={goToStudentLogin}
+                disabled={loading}
+                className="w-full mt-3 py-3 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 hover:border-blue-500/60 text-blue-300 font-semibold text-sm rounded-2xl transition-all disabled:opacity-50"
               >
-                학생 로그인
+                {loading ? '불러오는 중...' : '학생 로그인'}
               </button>
             </>
           )}
 
-          {/* ── 학생 로그인 Step 1: 이름 + 비밀번호 ── */}
+          {/* ── 학생 로그인 Step 1: 학교 선택 ── */}
           {view === 'student' && (
             <>
               <button
@@ -283,9 +298,71 @@ export default function AuthModal() {
                 ← 일반 로그인
               </button>
               <h2 className="text-lg font-bold text-white text-center mb-1">학생 로그인</h2>
-              <p className="text-[var(--text-subtle)] text-xs text-center mb-6">이름과 선생님이 알려준 비밀번호로 로그인하세요.</p>
+              <p className="text-[var(--text-subtle)] text-xs text-center mb-5">먼저 학교를 선택해주세요.</p>
+              {schools.length === 0 ? (
+                <p className="text-[var(--text-subtle)] text-xs text-center py-4">등록된 학교가 없습니다.</p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {schools.map(school => (
+                    <button
+                      key={school}
+                      onClick={() => handleSchoolSelect(school)}
+                      disabled={loading}
+                      className="w-full text-left px-4 py-3.5 rounded-xl border border-[var(--border-default)] hover:border-blue-500/50 hover:bg-blue-500/5 transition-all disabled:opacity-50"
+                    >
+                      <span className="font-semibold text-white text-sm">{school}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {error && <p className="mt-3 text-red-400 text-xs text-center">{error}</p>}
+            </>
+          )}
 
-              <form onSubmit={handleStudentSubmit} className="flex flex-col gap-3">
+          {/* ── 학생 로그인 Step 2: 선생님 선택 ── */}
+          {view === 'student_teacher' && (
+            <>
+              <button
+                onClick={() => { setView('student'); setError('') }}
+                className="flex items-center gap-1 text-xs text-[var(--text-subtle)] hover:text-white mb-5 transition-colors"
+              >
+                ← 학교 다시 선택
+              </button>
+              <h2 className="text-lg font-bold text-white text-center mb-1">선생님을 선택해주세요</h2>
+              <p className="text-[var(--text-subtle)] text-xs text-center mb-5">
+                <span className="text-white font-semibold">{selectedSchool}</span>의 담임 선생님
+              </p>
+              <div className="flex flex-col gap-2">
+                {teachers.map(t => (
+                  <button
+                    key={t.classCode}
+                    onClick={() => handleTeacherSelect(t)}
+                    className="w-full text-left px-4 py-3.5 rounded-xl border border-[var(--border-default)] hover:border-blue-500/50 hover:bg-blue-500/5 transition-all"
+                  >
+                    <span className="font-semibold text-white text-sm">{t.teacherName} 선생님</span>
+                    <span className="ml-2 text-xs text-[var(--text-subtle)]">{t.grade}학년 {t.classNum}반</span>
+                  </button>
+                ))}
+              </div>
+              {error && <p className="mt-3 text-red-400 text-xs text-center">{error}</p>}
+            </>
+          )}
+
+          {/* ── 학생 로그인 Step 3: 이름 + 비밀번호 ── */}
+          {view === 'student_credentials' && (
+            <>
+              <button
+                onClick={() => { setView('student_teacher'); setError('') }}
+                className="flex items-center gap-1 text-xs text-[var(--text-subtle)] hover:text-white mb-5 transition-colors"
+              >
+                ← 선생님 다시 선택
+              </button>
+              <div className="mb-5 text-center">
+                <p className="text-xs text-[var(--text-subtle)]">{selectedSchool}</p>
+                <h2 className="text-base font-bold text-white">{selectedTeacher?.teacherName} 선생님 반</h2>
+                <p className="text-xs text-[var(--text-subtle)]">{selectedTeacher?.grade}학년 {selectedTeacher?.classNum}반</p>
+              </div>
+              <form onSubmit={handleStudentLogin} className="flex flex-col gap-3">
                 <input
                   type="text"
                   value={studentName}
@@ -306,74 +383,79 @@ export default function AuthModal() {
                   disabled={loading}
                   className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl text-sm transition-colors disabled:opacity-50 mt-1"
                 >
-                  {loading ? '확인 중...' : '로그인'}
+                  {loading ? '로그인 중...' : '로그인'}
+                </button>
+              </form>
+              <div className="mt-4 text-center">
+                <button
+                  onClick={() => { setView('student_forgot'); setError('') }}
+                  className="text-xs text-blue-400 hover:text-blue-300 hover:underline transition-colors"
+                >
+                  {selectedTeacher?.teacherName} 선생님께 도움 요청하기 →
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* ── 학생 로그인 Step 4: 도움 요청 ── */}
+          {view === 'student_forgot' && (
+            <>
+              <button
+                onClick={() => { setView('student_credentials'); setError('') }}
+                className="flex items-center gap-1 text-xs text-[var(--text-subtle)] hover:text-white mb-5 transition-colors"
+              >
+                ← 돌아가기
+              </button>
+              <h2 className="text-base font-bold text-white text-center mb-1">선생님께 도움 요청</h2>
+              <p className="text-[var(--text-subtle)] text-xs text-center mb-5">
+                <span className="text-white font-semibold">{selectedTeacher?.teacherName} 선생님</span>께 전달됩니다.
+              </p>
+              <form onSubmit={handleHelpRequest} className="flex flex-col gap-3">
+                <input
+                  type="text"
+                  value={studentHint}
+                  onChange={e => setStudentHint(e.target.value)}
+                  placeholder="이름 (기억나는 경우, 선택사항)"
+                  className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-blue-500/50 transition-colors"
+                />
+                <select
+                  value={helpMessage}
+                  onChange={e => setHelpMessage(e.target.value)}
+                  className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-colors"
+                >
+                  <option value="이름 또는 비밀번호를 잊어버렸습니다.">이름 또는 비밀번호를 잊어버렸습니다.</option>
+                  <option value="비밀번호를 잊어버렸습니다.">비밀번호를 잊어버렸습니다.</option>
+                  <option value="등록된 이름을 잊어버렸습니다.">등록된 이름을 잊어버렸습니다.</option>
+                </select>
+                {error && <p className="text-red-400 text-xs text-center">{error}</p>}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl text-sm transition-colors disabled:opacity-50 mt-1"
+                >
+                  {loading ? '전송 중...' : '선생님께 요청 보내기'}
                 </button>
               </form>
             </>
           )}
 
-          {/* ── 학생 로그인 Step 2: 학교 선택 ── */}
-          {view === 'student_school' && (() => {
-            const uniqueSchools = [...new Set(studentResults.map(r => r.schoolName).filter(Boolean))]
-            return (
-              <>
-                <button
-                  onClick={() => { setView('student'); setError('') }}
-                  className="flex items-center gap-1 text-xs text-[var(--text-subtle)] hover:text-white mb-5 transition-colors"
-                >
-                  ← 이름 다시 입력
-                </button>
-                <h2 className="text-lg font-bold text-white text-center mb-1">학교를 선택해주세요</h2>
-                <p className="text-[var(--text-subtle)] text-xs text-center mb-5">같은 이름의 학생이 여러 반에 있어요.</p>
-                <div className="flex flex-col gap-2">
-                  {uniqueSchools.map(school => (
-                    <button
-                      key={school}
-                      onClick={() => handleSchoolSelect(school)}
-                      disabled={loading}
-                      className="w-full text-left px-4 py-3.5 rounded-xl border border-[var(--border-default)] hover:border-blue-500/50 hover:bg-blue-500/5 transition-all disabled:opacity-50"
-                    >
-                      <span className="font-semibold text-white text-sm">{school}</span>
-                    </button>
-                  ))}
-                </div>
-                {error && <p className="mt-3 text-red-400 text-xs text-center">{error}</p>}
-              </>
-            )
-          })()}
-
-          {/* ── 학생 로그인 Step 3: 선생님 선택 ── */}
-          {view === 'student_teacher' && (() => {
-            const filtered = studentResults.filter(r => r.schoolName === selectedSchool)
-            return (
-              <>
-                <button
-                  onClick={() => { setView('student_school'); setSelectedSchool(''); setError('') }}
-                  className="flex items-center gap-1 text-xs text-[var(--text-subtle)] hover:text-white mb-5 transition-colors"
-                >
-                  ← 학교 다시 선택
-                </button>
-                <h2 className="text-lg font-bold text-white text-center mb-1">선생님을 선택해주세요</h2>
-                <p className="text-[var(--text-subtle)] text-xs text-center mb-5">
-                  <span className="text-white font-semibold">{selectedSchool}</span>에 같은 이름의 학생이 여러 반에 있어요.
-                </p>
-                <div className="flex flex-col gap-2">
-                  {filtered.map(r => (
-                    <button
-                      key={r.classCode}
-                      onClick={() => handleTeacherSelect(r.classCode)}
-                      disabled={loading}
-                      className="w-full text-left px-4 py-3.5 rounded-xl border border-[var(--border-default)] hover:border-blue-500/50 hover:bg-blue-500/5 transition-all disabled:opacity-50"
-                    >
-                      <span className="font-semibold text-white text-sm">{r.teacherName} 선생님</span>
-                      <span className="ml-2 text-xs text-[var(--text-subtle)]">{r.grade}학년 {r.classNum}반</span>
-                    </button>
-                  ))}
-                </div>
-                {error && <p className="mt-3 text-red-400 text-xs text-center">{error}</p>}
-              </>
-            )
-          })()}
+          {/* ── 학생 로그인 Step 5: 요청 완료 ── */}
+          {view === 'student_forgot_sent' && (
+            <div className="flex flex-col items-center gap-3 py-4 text-center">
+              <div className="text-4xl">📩</div>
+              <h2 className="text-base font-bold text-white">요청이 전달됐어요!</h2>
+              <p className="text-[var(--text-subtle)] text-xs leading-relaxed">
+                <span className="text-white font-semibold">{selectedTeacher?.teacherName} 선생님</span>께<br/>
+                도움 요청이 전송됐습니다.
+              </p>
+              <button
+                onClick={() => setView('student_credentials')}
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl text-sm transition-colors mt-2"
+              >
+                다시 로그인하기
+              </button>
+            </div>
+          )}
 
           {/* ── 회원가입 ── */}
           {view === 'signup' && (

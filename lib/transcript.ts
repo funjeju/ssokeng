@@ -308,15 +308,30 @@ export async function getTranscript(videoId: string, options?: { durationSeconds
       const text = await getTranscriptViaSocialKit(videoId)
       const lang = detectTranscriptLang(text)
 
-      // 영어 자막인데 분당 단어 수가 너무 적으면 한국어 영상의 잘못된 자동자막으로 판단 → STT 전환
-      // (정상 영어 영상: 100~150 단어/분 / 엉터리 영어 자동자막: 10~20 단어/분)
       const durationMin = (options?.durationSeconds ?? 0) / 60
+
+      // [Check 1] 영어 자막인데 분당 단어 수가 너무 적으면 한국어 영상의 잘못된 자동자막으로 판단
+      // (정상 영어 영상: 100~150 wpm / 엉터리 영어 자동자막: 10~20 wpm)
       if (lang === 'en' && durationMin > 0) {
         const wordCount = text.split(/\s+/).filter(Boolean).length
         const wordsPerMin = wordCount / durationMin
         if (wordsPerMin < 40) {
-          console.warn(`[Transcript] ⚠️ 영어 자막이지만 품질 불량 (${wordCount}단어 / ${durationMin.toFixed(1)}분 = ${wordsPerMin.toFixed(0)} wpm) — STT로 전환`)
+          console.warn(`[Transcript] ⚠️ 영어 자막 품질 불량 (${wordCount}단어 / ${durationMin.toFixed(1)}분 = ${wordsPerMin.toFixed(0)} wpm) — STT로 전환`)
           errors.push(`SocialKit: LOW_QUALITY_EN_CAPTIONS`)
+          throw new Error('LOW_QUALITY_CAPTIONS')
+        }
+      }
+
+      // [Check 2] [음악]/[박수] 등 noise 태그 제거 후 실제 단어가 너무 적으면 쓰레기 자막 판단 (언어 무관)
+      // 1분 이상 영상에서 noise 제거 후 15 wpm 미만이면 STT 전환
+      // (정상 영상: 50~200 wpm / 노래: 50~100 wpm / [음악] 가득한 쓰레기: 5~15 wpm)
+      if (durationMin >= 1) {
+        const cleanText = text.replace(/\[[^\]]*\]/g, ' ').trim()
+        const cleanWordCount = cleanText.split(/\s+/).filter(Boolean).length
+        const cleanWpm = cleanWordCount / durationMin
+        if (cleanWpm < 15) {
+          console.warn(`[Transcript] ⚠️ noise 제거 후 자막 품질 불량 (lang=${lang}, ${cleanWordCount}단어 / ${durationMin.toFixed(1)}분 = ${cleanWpm.toFixed(0)} wpm) — STT로 전환`)
+          errors.push(`SocialKit: LOW_QUALITY_NOISE_CAPTIONS`)
           throw new Error('LOW_QUALITY_CAPTIONS')
         }
       }
