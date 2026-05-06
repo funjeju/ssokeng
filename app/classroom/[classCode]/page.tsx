@@ -142,6 +142,8 @@ export default function ClassDashboard() {
   const [pdfRef, setPdfRef] = useState<HTMLDivElement | null>(null)
   const [distributingFolder, setDistributingFolder] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [cleaningUp, setCleaningUp] = useState(false)
+  const [cleanupResult, setCleanupResult] = useState<{ deleted: number; deletedItems: number } | null>(null)
   const [videoPickerFolder, setVideoPickerFolder] = useState<{ id: string; name: string } | null>(null)
   const [libraryVideos, setLibraryVideos] = useState<any[]>([])
   const [librarySearch, setLibrarySearch] = useState('')
@@ -849,6 +851,46 @@ export default function ClassDashboard() {
                 className="px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 text-xs font-bold rounded-xl transition-colors"
               >
                 {copied ? '복사됨 ✓' : '🔗 참여 링크 복사'}
+              </button>
+            </div>
+
+            {/* 기본폴더 복사본 정리 */}
+            <div className="pt-4 border-t border-[var(--border-subtle)]">
+              <p className="text-xs text-gray-400 font-bold mb-1">기본폴더 복사본 정리</p>
+              <p className="text-xs text-gray-500 mb-3 leading-relaxed">
+                예전 '기본폴더' 기능으로 학생 라이브러리에 자동 복사된 폴더를 삭제합니다.<br/>
+                현재 배포/회수 시스템과는 무관합니다. 삭제 후 복구되지 않습니다.
+              </p>
+              {cleanupResult && (
+                <p className="text-xs text-emerald-400 mb-2">
+                  ✓ {cleanupResult.deleted}개 폴더, {cleanupResult.deletedItems}개 영상 복사본 삭제 완료
+                </p>
+              )}
+              <button
+                onClick={async () => {
+                  if (!confirm('학생들 라이브러리에서 기본폴더 복사본을 전부 삭제합니다.\n복구할 수 없습니다. 계속할까요?')) return
+                  setCleaningUp(true)
+                  setCleanupResult(null)
+                  try {
+                    const token = await user!.getIdToken()
+                    const res = await fetch('/api/classroom/cleanup-inherited', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                      body: JSON.stringify({ classCode }),
+                    })
+                    const data = await res.json()
+                    if (!res.ok) throw new Error(data.error)
+                    setCleanupResult({ deleted: data.deleted, deletedItems: data.deletedItems })
+                  } catch (e: any) {
+                    alert('오류: ' + e.message)
+                  } finally {
+                    setCleaningUp(false)
+                  }
+                }}
+                disabled={cleaningUp}
+                className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 text-xs font-bold rounded-xl transition-colors disabled:opacity-50"
+              >
+                {cleaningUp ? '삭제 중...' : '🗑️ 기본폴더 복사본 전체 삭제'}
               </button>
             </div>
           </div>

@@ -9,8 +9,34 @@ export async function PATCH(req: NextRequest) {
     const isAdmin = await checkIsAdminByToken(idToken)
     if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-    const { userId, updates } = await req.json()
-    if (!userId || !updates) return NextResponse.json({ error: 'userId and updates required' }, { status: 400 })
+    const { userId, updates, action } = await req.json()
+    if (!userId) return NextResponse.json({ error: 'userId required' }, { status: 400 })
+
+    initAdminApp()
+    const { getFirestore, FieldValue } = await import('firebase-admin/firestore')
+    const db = getFirestore()
+
+    // ── 특수 액션: 배포된 폴더 전체 회수 ──
+    if (action === 'recall_distributions') {
+      const foldersSnap = await db.collection('folders')
+        .where('userId', '==', userId)
+        .get()
+      const toRecall = foldersSnap.docs.filter(d => {
+        const codes = d.data().distributedClassCodes
+        return Array.isArray(codes) && codes.length > 0
+      })
+      if (toRecall.length > 0) {
+        const batch = db.batch()
+        for (const doc of toRecall) {
+          batch.update(doc.ref, { distributedClassCodes: [] })
+        }
+        await batch.commit()
+      }
+      return NextResponse.json({ success: true, recalled: toRecall.length })
+    }
+
+    // ── 일반 필드 업데이트 ──
+    if (!updates) return NextResponse.json({ error: 'updates required' }, { status: 400 })
 
     // 허용 필드만 추출
     const allowed: Record<string, unknown> = {}
@@ -23,9 +49,6 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
-    initAdminApp()
-    const { getFirestore, FieldValue } = await import('firebase-admin/firestore')
-    const db = getFirestore()
     const ref = db.collection('users').doc(userId)
 
     // null로 표시한 필드는 FieldValue.delete()로 변환

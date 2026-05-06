@@ -64,6 +64,8 @@ export default function AdminDashboard() {
   const [editForm, setEditForm] = useState<Record<string, string | number>>({})
   const [editSaving, setEditSaving] = useState(false)
   const [editError, setEditError] = useState('')
+  const [recalling, setRecalling] = useState(false)
+  const [recallDone, setRecallDone] = useState<number | null>(null)
 
   const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL
 
@@ -187,6 +189,7 @@ export default function AdminDashboard() {
   const openEditUser = (u: any) => {
     setEditingUser(u)
     setEditError('')
+    setRecallDone(null)
     setEditForm({
       role: u.role || '',
       plan: u.plan || 'free',
