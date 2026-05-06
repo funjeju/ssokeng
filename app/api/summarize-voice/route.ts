@@ -59,19 +59,37 @@ export async function POST(req: NextRequest) {
     const base64 = Buffer.from(buffer).toString('base64')
 
     // ── Step 1: Gemini로 전사 + 제목 추출 ─────────────────────────────────────
-    const gemini = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
-      generationConfig: { responseMimeType: 'application/json', temperature: 0 },
-    })
-
-    const transcribeResult = await gemini.generateContent([
-      { inlineData: { mimeType, data: base64 } },
-      `이 오디오를 분석하세요. JSON으로만 응답하세요 (설명 없음):
+    const TRANSCRIBE_PROMPT = `이 오디오를 분석하세요. JSON으로만 응답하세요 (설명 없음):
 {
   "title": "녹음 내용을 잘 표현하는 제목 (한국어, 20자 이내)",
   "transcript": "전체 녹음 내용을 텍스트로 전사. 알아들을 수 없으면 빈 문자열."
-}`,
-    ])
+}`
+    const inlineData = { inlineData: { mimeType, data: base64 } }
+
+    async function tryTranscribe(modelName: string) {
+      const m = genAI.getGenerativeModel({
+        model: modelName,
+        generationConfig: { responseMimeType: 'application/json', temperature: 0 },
+      })
+      return m.generateContent([inlineData, TRANSCRIBE_PROMPT])
+    }
+
+    let transcribeResult
+    try {
+      transcribeResult = await tryTranscribe('gemini-2.5-flash')
+    } catch (e: any) {
+      // Google 500 → fallback to gemini-2.0-flash
+      if (e?.status === 500 || /500|internal/i.test(e?.message || '')) {
+        try {
+          transcribeResult = await tryTranscribe('gemini-2.0-flash')
+        } catch (e2: any) {
+          // retry once more with 2.0-flash
+          transcribeResult = await tryTranscribe('gemini-2.0-flash')
+        }
+      } else {
+        throw e
+      }
+    }
 
     let transcribed: { title: string; transcript: string }
     try {

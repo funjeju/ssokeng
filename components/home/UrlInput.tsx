@@ -81,6 +81,7 @@ export default function UrlInput() {
   const [recordingSeconds, setRecordingSeconds] = useState(0)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
   const [error, setError] = useState('')
   const [step, setStep] = useState(0)
@@ -200,6 +201,8 @@ export default function UrlInput() {
       // 중지 → 처리
       mediaRecorderRef.current?.stop()
       if (recordingTimerRef.current) clearInterval(recordingTimerRef.current)
+      wakeLockRef.current?.release().catch(() => {})
+      wakeLockRef.current = null
       setRecording(false)
       setRecordingSeconds(0)
       return
@@ -215,10 +218,17 @@ export default function UrlInput() {
       rec.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data) }
       rec.onstop = async () => {
         stream.getTracks().forEach(t => t.stop())
+        wakeLockRef.current?.release().catch(() => {})
+        wakeLockRef.current = null
         const blob = new Blob(chunks, { type: mimeType })
         const file = new File([blob], `recording_${Date.now()}.webm`, { type: mimeType })
         await processFile(file)
       }
+
+      // 화면 꺼짐 방지 (지원 브라우저: Chrome 84+, Safari 16.4+)
+      try {
+        wakeLockRef.current = await navigator.wakeLock.request('screen')
+      } catch { /* 미지원 기기 무시 */ }
 
       rec.start()
       setRecording(true)
