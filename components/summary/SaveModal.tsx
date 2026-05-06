@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { getLocalUserId } from '@/lib/user'
@@ -22,15 +22,30 @@ export interface SavedResult {
   isPublic: boolean
 }
 
+type SortKey = 'date_desc' | 'date_asc' | 'name_asc' | 'name_desc'
+
+function sortFolders(folders: Folder[], sort: SortKey): Folder[] {
+  return [...folders].sort((a, b) => {
+    if (sort === 'date_desc' || sort === 'date_asc') {
+      const aTime = a.createdAt?.toMillis?.() ?? a.createdAt?.getTime?.() ?? 0
+      const bTime = b.createdAt?.toMillis?.() ?? b.createdAt?.getTime?.() ?? 0
+      return sort === 'date_desc' ? bTime - aTime : aTime - bTime
+    }
+    const cmp = a.name.localeCompare(b.name, 'ko', { numeric: true, sensitivity: 'base' })
+    return sort === 'name_asc' ? cmp : -cmp
+  })
+}
+
 export default function SaveModal({ data, onClose }: { data: any, onClose: (saved?: SavedResult) => void }) {
   const { user, openAuthModal } = useAuth()
   const [folders, setFolders] = useState<Folder[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [classifying, setClassifying] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
   const [isPublic, setIsPublic] = useState(false)
   const [duplicateInfo, setDuplicateInfo] = useState<{ id: string; folderId: string } | null>(null)
+  const [search, setSearch] = useState('')
+  const [sort, setSort] = useState<SortKey>('date_desc')
 
   useEffect(() => {
     const fetchFolders = async () => {
@@ -51,6 +66,13 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
     fetchFolders()
   }, [])
 
+  const filteredFolders = useMemo(() => {
+    const sorted = sortFolders(folders, sort)
+    if (!search.trim()) return sorted
+    const q = search.trim().toLowerCase()
+    return sorted.filter(f => f.name.toLowerCase().includes(q))
+  }, [folders, sort, search])
+
   const doEmbed = (docId: string) => {
     fetch('/api/embed', {
       method: 'POST',
@@ -65,7 +87,6 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
       const uid = getLocalUserId()
       if (user) await upsertUserProfile({ uid: user.uid, displayName: user.displayName || '', photoURL: user.photoURL || '' })
 
-      // 같은 영상이 이미 저장된 경우 → 업데이트
       let savedId = ''
       if (duplicateInfo) {
         await withTimeout(updateSavedSummary(duplicateInfo.id, {
@@ -170,90 +191,9 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
     }
   }
 
-  const handleAutoClassify = async () => {
-    setClassifying(true)
-    try {
-      const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), 10000)
-      const res = await fetch('/api/folder-classify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          videoTitle: data.title,
-          tags: data.summary?.square_meta?.tags || [],
-          existingFolders: folders.map(f => f.name)
-        }),
-        signal: controller.signal
-      })
-      clearTimeout(timeout)
-      const result = await res.json()
-      
-      const suggestedName = (result.suggestedFolder || '기타').trim()
-      const normalize = (s: string) => s.trim().toLowerCase()
-      const existingFolder = folders.find(f => normalize(f.name) === normalize(suggestedName))
-      let targetFolderId = ''
-      if (result.isNew || !existingFolder) {
-        const uid = getLocalUserId()
-        // createFolder 내부에서도 중복 체크하여 기존 폴더 반환
-        const newFolder = await withTimeout(createFolder(uid, suggestedName))
-        targetFolderId = newFolder.id
-      } else {
-        targetFolderId = existingFolder.id
-      }
-
-      if (targetFolderId) {
-        const uid = getLocalUserId()
-        if (user) await upsertUserProfile({ uid: user.uid, displayName: user.displayName || '', photoURL: user.photoURL || '' })
-
-        let savedId3 = ''
-        if (duplicateInfo) {
-          await withTimeout(updateSavedSummary(duplicateInfo.id, {
-            sessionId: data.sessionId,
-            folderId: targetFolderId,
-            title: data.title,
-            thumbnail: data.thumbnail,
-            category: data.category,
-            summary: data.summary ?? null,
-            square_meta: data.summary?.square_meta,
-            transcript: data.transcript,
-            isPublic,
-          }))
-          doEmbed(duplicateInfo.id)
-          savedId3 = duplicateInfo.id
-        } else {
-          const docId3 = await withTimeout(saveSummary({
-            userId: uid,
-            userDisplayName: user?.displayName || '',
-            userPhotoURL: user?.photoURL || '',
-            folderId: targetFolderId,
-            sessionId: data.sessionId,
-            videoId: data.videoId,
-            title: data.title,
-            thumbnail: data.thumbnail,
-            category: data.category,
-            summary: data.summary ?? null,
-            square_meta: data.summary?.square_meta,
-            transcript: data.transcript,
-            isPublic,
-          }))
-          doEmbed(docId3)
-          savedId3 = docId3
-        }
-        alert(duplicateInfo ? '기존 항목이 업데이트되었습니다!' : '저장되었습니다!')
-        onClose({ id: savedId3, folderId: targetFolderId, isPublic })
-      }
-    } catch (e) {
-      console.error('Auto classify error:', e)
-      alert((e as Error).message || '자동 분류 실패. 잠시 후 다시 시도해 주세요.')
-    } finally {
-      setClassifying(false)
-    }
-  }
-
-
   return (
     <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-3xl w-full max-w-md p-6 flex flex-col gap-6 shadow-2xl">
+      <div className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-3xl w-full max-w-md p-6 flex flex-col gap-5 shadow-2xl">
         <h2 className="text-xl font-bold text-white text-center">라이브러리에 저장</h2>
 
         {/* 중복 영상 안내 */}
@@ -261,7 +201,7 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
           <div className="flex items-start gap-2.5 bg-amber-500/10 border border-amber-500/25 rounded-2xl px-4 py-3">
             <span className="text-base shrink-0">🔄</span>
             <p className="text-amber-300 text-xs leading-relaxed">
-              이미 저장된 영상입니다. 저장하면 <span className="font-bold">기존 항목이 최신 분석 내용으로 업데이트</span>됩니다. 중복 저장되지 않습니다.
+              이미 저장된 영상입니다. 저장하면 <span className="font-bold">기존 항목이 최신 분석 내용으로 업데이트</span>됩니다.
             </p>
           </div>
         )}
@@ -286,78 +226,88 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
           </div>
         )}
 
-        {/* 로그인된 경우: 기존 저장 UI */}
         {user && (<>
 
-        <div className="flex bg-[var(--bg-elevated)] rounded-xl p-1 relative border border-[var(--border-subtle)]">
-          <button
-            onClick={() => setIsPublic(false)}
-            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${!isPublic ? 'bg-[var(--bg-surface)] text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'}`}
-          >
-            🔒 비공개 (나만 보기)
-          </button>
-          <button
-            onClick={() => setIsPublic(true)}
-            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${isPublic ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'}`}
-          >
-            🌍 공개 (광장에 공유)
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          <Button 
-            className="w-full h-12 bg-white hover:bg-zinc-200 text-black font-bold rounded-xl flex items-center justify-center gap-2"
-            onClick={handleAutoClassify}
-            disabled={classifying || saving}
-          >
-            {classifying ? '분석 중...' : '✨ AI 자동 분류해서 저장'}
-          </Button>
-          
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-[var(--border-default)]"></span></div>
-            <div className="relative flex justify-center text-xs uppercase"><span className="bg-[var(--bg-surface)] px-2 text-[var(--text-subtle)]">또는 수동 선택</span></div>
+          {/* 공개 여부 */}
+          <div className="flex bg-[var(--bg-elevated)] rounded-xl p-1 border border-[var(--border-subtle)]">
+            <button
+              onClick={() => setIsPublic(false)}
+              className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${!isPublic ? 'bg-[var(--bg-surface)] text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'}`}
+            >
+              🔒 비공개
+            </button>
+            <button
+              onClick={() => setIsPublic(true)}
+              className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${isPublic ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'}`}
+            >
+              🌍 광장에 공유
+            </button>
           </div>
 
-          <div className="max-h-48 overflow-y-auto space-y-2">
+          {/* 검색 + 정렬 */}
+          <div className="flex gap-2">
+            <Input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="🔍 폴더 검색"
+              className="bg-[var(--bg-elevated)] border-[var(--border-subtle)] text-white h-10 text-sm"
+            />
+            <select
+              value={sort}
+              onChange={e => setSort(e.target.value as SortKey)}
+              className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-muted)] text-xs rounded-lg px-2 h-10 shrink-0 focus:outline-none"
+            >
+              <option value="date_desc">최신순</option>
+              <option value="date_asc">오래된순</option>
+              <option value="name_asc">가나다 ↑</option>
+              <option value="name_desc">가나다 ↓</option>
+            </select>
+          </div>
+
+          {/* 폴더 목록 */}
+          <div className="max-h-52 overflow-y-auto space-y-1.5 pr-0.5">
             {loading ? (
-              <p className="text-center text-sm text-[var(--text-subtle)]">폴더 불러오는 중...</p>
-            ) : folders.length > 0 ? (
-              folders.map(f => (
-                <Button 
-                  key={f.id} 
-                  variant="outline" 
-                  className="w-full h-12 justify-start px-4 border-[var(--border-subtle)] bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] hover:text-white text-[var(--text-muted)]"
+              <p className="text-center text-sm text-[var(--text-subtle)] py-4">폴더 불러오는 중...</p>
+            ) : filteredFolders.length > 0 ? (
+              filteredFolders.map(f => (
+                <Button
+                  key={f.id}
+                  variant="outline"
+                  className="w-full h-11 justify-start px-4 border-[var(--border-subtle)] bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] hover:text-white text-[var(--text-muted)]"
                   onClick={() => handleSaveToFolder(f.id)}
                   disabled={saving}
                 >
                   📁 {f.name}
                 </Button>
               ))
+            ) : search.trim() ? (
+              <p className="text-center text-sm text-[var(--text-subtle)] py-4">"{search}"에 해당하는 폴더가 없습니다.</p>
             ) : (
-              <p className="text-center text-sm text-[var(--text-subtle)]">생성된 폴더가 없습니다.</p>
+              <p className="text-center text-sm text-[var(--text-subtle)] py-4">생성된 폴더가 없습니다.</p>
             )}
           </div>
 
-          <div className="flex gap-2">
-            <Input 
+          {/* 새 폴더 생성 + 저장 */}
+          <div className="flex gap-2 pt-1 border-t border-[var(--border-subtle)]">
+            <Input
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
-              placeholder="새 폴더 이름" 
-              className="bg-[var(--bg-elevated)] border-none text-white h-12"
+              onKeyDown={e => { if (e.key === 'Enter' && newFolderName.trim()) handleCreateAndSave() }}
+              placeholder="새 폴더 이름 입력"
+              className="bg-[var(--bg-elevated)] border-none text-white h-11"
             />
-            <Button 
-              className="h-12 bg-zinc-700 text-white hover:bg-zinc-600"
+            <Button
+              className="h-11 bg-zinc-700 text-white hover:bg-zinc-600 shrink-0"
               onClick={handleCreateAndSave}
               disabled={saving || !newFolderName.trim()}
             >
               만들고 저장
             </Button>
           </div>
-        </div>
 
-        <Button variant="ghost" className="w-full text-zinc-500 hover:text-zinc-300" onClick={() => onClose()} disabled={saving}>
-          취소
-        </Button>
+          <Button variant="ghost" className="w-full text-zinc-500 hover:text-zinc-300" onClick={() => onClose()} disabled={saving}>
+            취소
+          </Button>
         </>)}
       </div>
     </div>

@@ -37,6 +37,9 @@
 
 ## 🟢 추후 (기능 확장)
 
+- [ ] **스퀘어 Kids 분리** — 저장 옵션 3개(나만/스퀘어K/스퀘어Kids) + visibility 필드 마이그레이션(`isPublic` → `'private'|'square_k'|'square_kids'|'square_kids_pending'`). 교사 → 즉시 노출, 일반인 → 관리자 승인 후 노출. 학생 계정엔 스퀘어K 숨기고 스퀘어Kids만 표시. 어드민에 승인 대기 목록 추가.
+
+
 - [ ] **VIP 자막 STT 무제한 해제** — 현재 자막 없는 영상은 10분까지만 STT 처리. VIP 요금제 도입 시 `getTranscript()` options에 `isVip: boolean` 추가 → 10분 초과도 허용. `app/api/summarize/route.ts`에서 `userProfile.planId === 'vip'` 체크 후 전달. (현재는 admin만 무제한)
 - [ ] **VIP 장문 영상 STT — AssemblyAI 연동** — SocialKit 10MB 제한·Vercel 300초 제한으로 10분 초과 자막 없는 영상은 Vercel 내에서 불가. 구조: ① Vercel이 AssemblyAI에 YouTube URL 제출(1~2초) → ② "처리 중" 응답 반환 → ③ AssemblyAI가 백그라운드 처리(10~20분) → ④ webhook → Firestore 저장 → ⑤ 유저에게 푸시/이메일 알림. VIP 플랜 도입 시 AssemblyAI 요금제 함께 검토.
 - [ ] **교사 플랜 학생 관리 기능** — 학생 30명 등록·관리 UI
