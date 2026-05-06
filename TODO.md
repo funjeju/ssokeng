@@ -37,6 +37,7 @@
 
 ## 🟢 추후 (기능 확장)
 
+- [ ] **VIP 자막 STT 무제한 해제** — 현재 자막 없는 영상은 10분까지만 STT 처리. VIP 요금제 도입 시 `getTranscript()` options에 `isVip: boolean` 추가 → 10분 초과도 허용. `app/api/summarize/route.ts`에서 `userProfile.planId === 'vip'` 체크 후 전달. (현재는 admin만 무제한)
 - [ ] **교사 플랜 학생 관리 기능** — 학생 30명 등록·관리 UI
 - [ ] **블로그 발행 기능** — pro2 이상, 외부 블로그 자동 포스팅
 - [ ] **AI 일정 기능** — pro2 이상, 학습 일정 자동 생성

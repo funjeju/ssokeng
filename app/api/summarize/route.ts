@@ -286,6 +286,7 @@ export async function POST(req: NextRequest) {
     // 선택적 인증 — 로그인 유저면 userId 추출
     let userId = ''
     let userDisplayName = ''
+    let isAdmin = false
     const authHeader = req.headers.get('Authorization')
     if (authHeader?.startsWith('Bearer ')) {
       try {
@@ -293,6 +294,8 @@ export async function POST(req: NextRequest) {
         const decoded = await getAuth().verifyIdToken(authHeader.slice(7))
         userId = decoded.uid
         userDisplayName = (decoded as any).name || decoded.email || ''
+        const adminEmail = process.env.ADMIN_EMAIL || process.env.NEXT_PUBLIC_ADMIN_EMAIL
+        if (adminEmail && decoded.email === adminEmail) isAdmin = true
       } catch { /* 토큰 만료/무효 — 익명으로 진행 */ }
     }
 
@@ -409,8 +412,9 @@ export async function POST(req: NextRequest) {
     const [transcriptResult, commentResult] = await Promise.all([
       cachedTranscript
         ? Promise.resolve({ text: cachedTranscript as string, source: 'cached', lang: detectTranscriptLang(cachedTranscript as string) })
-        : getTranscript(videoId, { durationSeconds }).catch((e: Error) => {
+        : getTranscript(videoId, { durationSeconds, isAdmin }).catch((e: Error) => {
             if (e.message === 'LONG_VIDEO_NO_CAPTIONS') throw e
+            if (e.message === 'STT_VIP_REQUIRED') throw e
             console.warn(`[Summarize] ⚠️ 자막 추출 실패 (${videoId}): ${e.message} — 영상 설명 및 댓글 요약으로 대체합니다.`)
             return { text: '', source: 'none', lang: 'ko' as const }
           }),
@@ -567,6 +571,9 @@ export async function POST(req: NextRequest) {
     const errMsg = error instanceof Error ? error.message : '처리 중 오류가 발생했습니다.'
     if (errMsg === 'LONG_VIDEO_NO_CAPTIONS') {
       return NextResponse.json({ error: '긴 러닝타임에 자막까지 없어 처리가 불가합니다.' }, { status: 422 })
+    }
+    if (errMsg === 'STT_VIP_REQUIRED') {
+      return NextResponse.json({ error: 'STT_VIP_REQUIRED' }, { status: 403 })
     }
     console.error('Summarize error:', errMsg)
     return NextResponse.json({ error: errMsg }, { status: 500 })

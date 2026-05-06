@@ -224,44 +224,81 @@ export interface TranscriptResult {
   lang: 'ko' | 'en' | 'other'
 }
 
-async function getTranscriptViaGemini(videoId: string): Promise<string> {
+async function getTranscriptViaGeminiSTT(videoId: string): Promise<string> {
   const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY
+  const socialkitKey = process.env.SOCIALKIT_API_KEY
   if (!apiKey) throw new Error('GEMINI_NOT_CONFIGURED')
+  if (!socialkitKey) throw new Error('SOCIALKIT_NOT_CONFIGURED')
 
-  const { GoogleGenerativeAI } = await import('@google/generative-ai')
-  const genAI = new GoogleGenerativeAI(apiKey)
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash',
-    generationConfig: { temperature: 0, maxOutputTokens: 8192 },
+  // 1. SocialKit에서 MP3 다운로드 URL 획득
+  const videoUrl = `https://www.youtube.com/watch?v=${videoId}`
+  const dlRes = await fetch(
+    `https://api.socialkit.dev/youtube/download?url=${encodeURIComponent(videoUrl)}&format=mp3`,
+    { headers: { 'x-access-key': socialkitKey }, signal: AbortSignal.timeout(30000) }
+  )
+  if (!dlRes.ok) throw new Error(`SOCIALKIT_DOWNLOAD_FAILED: ${dlRes.status}`)
+
+  const dlData = await dlRes.json() as {
+    success?: boolean
+    data?: { downloadUrl?: string; url?: string; fileUrl?: string }
+  }
+  const downloadUrl = dlData.data?.downloadUrl ?? dlData.data?.url ?? dlData.data?.fileUrl
+  if (!downloadUrl) throw new Error('SOCIALKIT_DOWNLOAD_NO_URL')
+
+  // 2. 오디오 바이너리 다운로드 (최대 10MB)
+  const audioRes = await fetch(downloadUrl, { signal: AbortSignal.timeout(60000) })
+  if (!audioRes.ok) throw new Error(`AUDIO_DOWNLOAD_FAILED: ${audioRes.status}`)
+
+  const audioBuffer = Buffer.from(await audioRes.arrayBuffer())
+  const sizeMB = (audioBuffer.length / 1024 / 1024).toFixed(1)
+  console.log(`[Gemini STT] 오디오 다운로드 완료: ${sizeMB}MB`)
+
+  // 3. Gemini File API에 업로드 (Buffer 직접 전달)
+  const { GoogleAIFileManager } = await import('@google/generative-ai/server')
+  const fileManager = new GoogleAIFileManager(apiKey)
+  const uploadResult = await fileManager.uploadFile(audioBuffer, {
+    mimeType: 'audio/mpeg',
+    displayName: `stt_${videoId}`,
   })
+  const fileUri = uploadResult.file.uri
+  const fileName = uploadResult.file.name
+  console.log(`[Gemini STT] File API 업로드 완료: ${fileUri}`)
 
-  const geminiPromise = model.generateContent([
-    {
-      fileData: {
-        mimeType: 'video/*',
-        fileUri: `https://www.youtube.com/watch?v=${videoId}`,
-      },
-    },
-    {
-      text: `이 영상의 음성 내용을 타임스탬프와 함께 전사해줘.
+  // 4. 전사 요청
+  try {
+    const { GoogleGenerativeAI } = await import('@google/generative-ai')
+    const genAI = new GoogleGenerativeAI(apiKey)
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash',
+      generationConfig: { temperature: 0, maxOutputTokens: 8192 },
+    })
+
+    const result = await Promise.race([
+      model.generateContent([
+        { fileData: { mimeType: 'audio/mpeg', fileUri } },
+        {
+          text: `이 음성 내용을 타임스탬프와 함께 전사해줘.
 형식: [MM:SS] 내용
 - 대화나 해설이 없는 무음 구간은 건너뜀
 - 원본 언어 그대로 전사 (번역 금지)
 - 최대한 상세하게`,
-    },
-  ])
+        },
+      ]),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('GEMINI_STT_TIMEOUT')), 120000)
+      ),
+    ])
 
-  const timeoutPromise = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error('GEMINI_STT_TIMEOUT')), 90000)
-  )
-
-  const result = await Promise.race([geminiPromise, timeoutPromise])
-  const text = result.response.text().trim()
-  if (!text || text.length < 30) throw new Error('GEMINI_EMPTY_RESPONSE')
-  return text
+    const text = result.response.text().trim()
+    if (!text || text.length < 30) throw new Error('GEMINI_EMPTY_RESPONSE')
+    return text
+  } finally {
+    // 5. Gemini에서 파일 삭제 (48시간 자동 만료지만 즉시 정리)
+    fileManager.deleteFile(fileName).catch(() => {})
+  }
 }
 
-export async function getTranscript(videoId: string, options?: { durationSeconds?: number }): Promise<TranscriptResult> {
+export async function getTranscript(videoId: string, options?: { durationSeconds?: number; isAdmin?: boolean }): Promise<TranscriptResult> {
   const errors: string[] = []
 
   // ── 1단계: SocialKit — 자막 추출 (수동/자동 모두, 자막 없으면 빠른 404 실패) ──
@@ -278,23 +315,32 @@ export async function getTranscript(videoId: string, options?: { durationSeconds
     }
   }
 
-  // ── 2단계: Gemini STT 폴백 — 자막 없는 영상 대상, 30분 미만만 시도 ──
+  // ── 2단계: Gemini STT 폴백 — 자막 없는 영상 대상 ──
   const durationSeconds = options?.durationSeconds ?? 0
-  if (durationSeconds > 1800) {
+  const isAdmin = options?.isAdmin ?? false
+
+  // 10분 초과 & 비관리자 → VIP 전용 예정 차단
+  if (!isAdmin && durationSeconds > 600) {
+    console.warn(`[Transcript] ⛔ 10분 초과 자막 없는 영상 (${Math.round(durationSeconds / 60)}분), 관리자 아님 — STT 차단`)
+    throw new Error('STT_VIP_REQUIRED')
+  }
+
+  // 관리자: 30분 초과도 스킵 (너무 길면 Gemini 타임아웃)
+  if (isAdmin && durationSeconds > 1800) {
     console.warn(`[Transcript] ⛔ 30분 초과 자막 없는 영상 (${Math.round(durationSeconds / 60)}분) — Gemini STT 스킵`)
     throw new Error('LONG_VIDEO_NO_CAPTIONS')
   }
 
-  if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (process.env.GOOGLE_GENERATIVE_AI_API_KEY && process.env.SOCIALKIT_API_KEY) {
     try {
-      console.log(`[Transcript] Trying: Gemini STT for ${videoId} (${Math.round(durationSeconds / 60)}분)`)
-      const text = await getTranscriptViaGemini(videoId)
+      console.log(`[Transcript] Trying: Gemini STT (SocialKit MP3 → File API) for ${videoId} (${Math.round(durationSeconds / 60)}분)`)
+      const text = await getTranscriptViaGeminiSTT(videoId)
       console.log(`[Transcript] ✅ Gemini STT 성공 (${text.length}자)`)
       return { text, source: 'Gemini STT', lang: detectTranscriptLang(text) }
     } catch (e) {
       const msg = (e as Error).message
       console.error(`[Transcript] ❌ Gemini STT 실패: ${msg}`)
-      errors.push(`Gemini: ${msg}`)
+      errors.push(`Gemini STT: ${msg}`)
     }
   }
 

@@ -2,11 +2,20 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/providers/AuthProvider'
+import { buildStudentEmail } from '@/lib/classroom'
 
-type View = 'login' | 'signup' | 'forgot' | 'verify_sent'
+type View = 'login' | 'signup' | 'forgot' | 'verify_sent' | 'student' | 'student_school' | 'student_teacher'
+
+interface StudentLookupResult {
+  classCode: string
+  schoolName: string
+  teacherName: string
+  grade: number
+  classNum: number
+}
 
 export default function AuthModal() {
-  const { authModalOpen, authModalView, closeAuthModal, signInWithGoogle, signInWithEmail, signUpWithEmail, sendPasswordReset } = useAuth()
+  const { authModalOpen, authModalView, closeAuthModal, signInWithGoogle, signInStudent, signInWithEmail, signUpWithEmail, sendPasswordReset } = useAuth()
   const [view, setView] = useState<View>(authModalView)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -16,11 +25,18 @@ export default function AuthModal() {
   const [error, setError] = useState('')
   const [resetSent, setResetSent] = useState(false)
 
+  // 학생 로그인 전용 state
+  const [studentName, setStudentName] = useState('')
+  const [studentPassword, setStudentPassword] = useState('')
+  const [studentResults, setStudentResults] = useState<StudentLookupResult[]>([])
+  const [selectedSchool, setSelectedSchool] = useState('')
+
   // 모달이 열릴 때마다 view와 폼 상태를 authModalView로 리셋
   useEffect(() => {
     if (authModalOpen) {
       setView(authModalView)
       setEmail(''); setPassword(''); setPasswordConfirm(''); setDisplayName(''); setError(''); setResetSent(false)
+      setStudentName(''); setStudentPassword(''); setStudentResults([]); setSelectedSchool('')
     }
   }, [authModalOpen, authModalView])
 
@@ -30,7 +46,73 @@ export default function AuthModal() {
     setEmail(''); setPassword(''); setPasswordConfirm(''); setDisplayName(''); setError('')
   }
 
-  const switchView = (v: View) => { resetForm(); setView(v) }
+  const switchView = (v: View) => {
+    resetForm()
+    if (v !== 'student' && v !== 'student_school' && v !== 'student_teacher') {
+      setStudentName(''); setStudentPassword(''); setStudentResults([]); setSelectedSchool('')
+    }
+    setView(v)
+  }
+
+  const doStudentLogin = async (classCode: string) => {
+    const email = buildStudentEmail(classCode, studentName.trim())
+    await signInStudent(email, studentPassword)
+  }
+
+  const handleStudentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    if (!studentName.trim() || !studentPassword) { setError('이름과 비밀번호를 입력해주세요.'); return }
+    setLoading(true)
+    try {
+      const res = await fetch('/api/classroom/lookup-student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentName: studentName.trim() }),
+      })
+      const data = await res.json()
+      const found: StudentLookupResult[] = data.results ?? []
+      if (found.length === 0) { setError('해당 이름의 학생을 찾을 수 없습니다. 선생님께 확인하세요.'); return }
+      if (found.length === 1) { await doStudentLogin(found[0].classCode); return }
+      setStudentResults(found)
+      setSelectedSchool('')
+      setView('student_school')
+    } catch (e: any) {
+      const code = e.code
+      setError(
+        code === 'auth/invalid-credential' || code === 'auth/wrong-password'
+          ? '비밀번호가 올바르지 않습니다.'
+          : e.message || '로그인에 실패했습니다.'
+      )
+    } finally { setLoading(false) }
+  }
+
+  const handleSchoolSelect = (school: string) => {
+    setSelectedSchool(school)
+    setError('')
+    const inSchool = studentResults.filter(r => r.schoolName === school)
+    if (inSchool.length === 1) {
+      setLoading(true)
+      doStudentLogin(inSchool[0].classCode)
+        .catch(e => {
+          setError(e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password' ? '비밀번호가 올바르지 않습니다.' : e.message || '로그인에 실패했습니다.')
+          setView('student_school')
+        })
+        .finally(() => setLoading(false))
+    } else {
+      setView('student_teacher')
+    }
+  }
+
+  const handleTeacherSelect = async (classCode: string) => {
+    setError('')
+    setLoading(true)
+    try {
+      await doStudentLogin(classCode)
+    } catch (e: any) {
+      setError(e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password' ? '비밀번호가 올바르지 않습니다.' : e.message || '로그인에 실패했습니다.')
+    } finally { setLoading(false) }
+  }
 
   const handleGoogleLogin = async () => {
     setLoading(true)
@@ -176,8 +258,122 @@ export default function AuthModal() {
                   회원가입
                 </button>
               </p>
+
+              <div className="flex items-center gap-3 mt-5">
+                <div className="flex-1 h-px bg-[var(--overlay-default)]" />
+                <span className="text-[11px] text-[var(--text-subtle)]">학생이라면</span>
+                <div className="flex-1 h-px bg-[var(--overlay-default)]" />
+              </div>
+              <button
+                onClick={() => switchView('student')}
+                className="w-full mt-3 py-3 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 hover:border-blue-500/60 text-blue-300 font-semibold text-sm rounded-2xl transition-all"
+              >
+                학생 로그인
+              </button>
             </>
           )}
+
+          {/* ── 학생 로그인 Step 1: 이름 + 비밀번호 ── */}
+          {view === 'student' && (
+            <>
+              <button
+                onClick={() => switchView('login')}
+                className="flex items-center gap-1 text-xs text-[var(--text-subtle)] hover:text-white mb-5 transition-colors"
+              >
+                ← 일반 로그인
+              </button>
+              <h2 className="text-lg font-bold text-white text-center mb-1">학생 로그인</h2>
+              <p className="text-[var(--text-subtle)] text-xs text-center mb-6">이름과 선생님이 알려준 비밀번호로 로그인하세요.</p>
+
+              <form onSubmit={handleStudentSubmit} className="flex flex-col gap-3">
+                <input
+                  type="text"
+                  value={studentName}
+                  onChange={e => setStudentName(e.target.value)}
+                  placeholder="본인 이름"
+                  className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-blue-500/50 transition-colors"
+                />
+                <input
+                  type="password"
+                  value={studentPassword}
+                  onChange={e => setStudentPassword(e.target.value)}
+                  placeholder="비밀번호"
+                  className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-blue-500/50 transition-colors"
+                />
+                {error && <p className="text-red-400 text-xs text-center">{error}</p>}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl text-sm transition-colors disabled:opacity-50 mt-1"
+                >
+                  {loading ? '확인 중...' : '로그인'}
+                </button>
+              </form>
+            </>
+          )}
+
+          {/* ── 학생 로그인 Step 2: 학교 선택 ── */}
+          {view === 'student_school' && (() => {
+            const uniqueSchools = [...new Set(studentResults.map(r => r.schoolName).filter(Boolean))]
+            return (
+              <>
+                <button
+                  onClick={() => { setView('student'); setError('') }}
+                  className="flex items-center gap-1 text-xs text-[var(--text-subtle)] hover:text-white mb-5 transition-colors"
+                >
+                  ← 이름 다시 입력
+                </button>
+                <h2 className="text-lg font-bold text-white text-center mb-1">학교를 선택해주세요</h2>
+                <p className="text-[var(--text-subtle)] text-xs text-center mb-5">같은 이름의 학생이 여러 반에 있어요.</p>
+                <div className="flex flex-col gap-2">
+                  {uniqueSchools.map(school => (
+                    <button
+                      key={school}
+                      onClick={() => handleSchoolSelect(school)}
+                      disabled={loading}
+                      className="w-full text-left px-4 py-3.5 rounded-xl border border-[var(--border-default)] hover:border-blue-500/50 hover:bg-blue-500/5 transition-all disabled:opacity-50"
+                    >
+                      <span className="font-semibold text-white text-sm">{school}</span>
+                    </button>
+                  ))}
+                </div>
+                {error && <p className="mt-3 text-red-400 text-xs text-center">{error}</p>}
+              </>
+            )
+          })()}
+
+          {/* ── 학생 로그인 Step 3: 선생님 선택 ── */}
+          {view === 'student_teacher' && (() => {
+            const filtered = studentResults.filter(r => r.schoolName === selectedSchool)
+            return (
+              <>
+                <button
+                  onClick={() => { setView('student_school'); setSelectedSchool(''); setError('') }}
+                  className="flex items-center gap-1 text-xs text-[var(--text-subtle)] hover:text-white mb-5 transition-colors"
+                >
+                  ← 학교 다시 선택
+                </button>
+                <h2 className="text-lg font-bold text-white text-center mb-1">선생님을 선택해주세요</h2>
+                <p className="text-[var(--text-subtle)] text-xs text-center mb-5">
+                  <span className="text-white font-semibold">{selectedSchool}</span>에 같은 이름의 학생이 여러 반에 있어요.
+                </p>
+                <div className="flex flex-col gap-2">
+                  {filtered.map(r => (
+                    <button
+                      key={r.classCode}
+                      onClick={() => handleTeacherSelect(r.classCode)}
+                      disabled={loading}
+                      className="w-full text-left px-4 py-3.5 rounded-xl border border-[var(--border-default)] hover:border-blue-500/50 hover:bg-blue-500/5 transition-all disabled:opacity-50"
+                    >
+                      <span className="font-semibold text-white text-sm">{r.teacherName} 선생님</span>
+                      <span className="ml-2 text-xs text-[var(--text-subtle)]">{r.grade}학년 {r.classNum}반</span>
+                    </button>
+                  ))}
+                </div>
+                {error && <p className="mt-3 text-red-400 text-xs text-center">{error}</p>}
+              </>
+            )
+          })()}
 
           {/* ── 회원가입 ── */}
           {view === 'signup' && (

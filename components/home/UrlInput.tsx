@@ -65,6 +65,8 @@ function toUserMessage(err: unknown): string {
     return '네트워크 오류가 발생했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.'
   if (/quota|rate.?limit|resource.?exhausted/i.test(msg))
     return 'AI 서비스가 일시적으로 혼잡합니다. 잠시 후 다시 시도해주세요.'
+  if (msg === 'STT_VIP_REQUIRED')
+    return '자막이 없는 10분 초과 영상은 추후 VIP 회원에게 제공될 예정입니다. 현재는 10분 이하 영상만 지원됩니다.'
   if (msg.length > 80) return '요약 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
   return msg
 }
