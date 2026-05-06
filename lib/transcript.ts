@@ -116,7 +116,7 @@ async function getTranscriptViaSocialKit(videoId: string): Promise<string> {
     `https://api.socialkit.dev/youtube/transcript?url=${encodeURIComponent(videoUrl)}`,
     {
       headers: { 'x-access-key': apiKey },
-      signal: AbortSignal.timeout(15000),  // 15초 — 자막 있으면 1~3초 내 응답, 없으면 빠른 404 실패
+      signal: AbortSignal.timeout(25000),  // 25초 — 자막 있으면 1~3초 내 응답, 없으면 빠른 404 실패
     }
   )
 
@@ -234,7 +234,7 @@ async function getTranscriptViaGeminiSTT(videoId: string): Promise<string> {
   const videoUrl = `https://www.youtube.com/watch?v=${videoId}`
   const dlRes = await fetch(
     `https://api.socialkit.dev/youtube/download?url=${encodeURIComponent(videoUrl)}&format=mp3`,
-    { headers: { 'x-access-key': socialkitKey }, signal: AbortSignal.timeout(30000) }
+    { headers: { 'x-access-key': socialkitKey }, signal: AbortSignal.timeout(90000) }
   )
   if (!dlRes.ok) throw new Error(`SOCIALKIT_DOWNLOAD_FAILED: ${dlRes.status}`)
 
