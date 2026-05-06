@@ -306,12 +306,29 @@ export async function getTranscript(videoId: string, options?: { durationSeconds
     try {
       console.log(`[Transcript] Trying: SocialKit for ${videoId}`)
       const text = await getTranscriptViaSocialKit(videoId)
+      const lang = detectTranscriptLang(text)
+
+      // 영어 자막인데 분당 단어 수가 너무 적으면 한국어 영상의 잘못된 자동자막으로 판단 → STT 전환
+      // (정상 영어 영상: 100~150 단어/분 / 엉터리 영어 자동자막: 10~20 단어/분)
+      const durationMin = (options?.durationSeconds ?? 0) / 60
+      if (lang === 'en' && durationMin > 0) {
+        const wordCount = text.split(/\s+/).filter(Boolean).length
+        const wordsPerMin = wordCount / durationMin
+        if (wordsPerMin < 40) {
+          console.warn(`[Transcript] ⚠️ 영어 자막이지만 품질 불량 (${wordCount}단어 / ${durationMin.toFixed(1)}분 = ${wordsPerMin.toFixed(0)} wpm) — STT로 전환`)
+          errors.push(`SocialKit: LOW_QUALITY_EN_CAPTIONS`)
+          throw new Error('LOW_QUALITY_CAPTIONS')
+        }
+      }
+
       console.log('[Transcript] ✅ SocialKit 성공')
-      return { text, source: 'SocialKit', lang: detectTranscriptLang(text) }
+      return { text, source: 'SocialKit', lang }
     } catch (e) {
       const msg = (e as Error).message
-      console.warn(`[Transcript] ❌ SocialKit 실패: ${msg}`)
-      errors.push(`SocialKit: ${msg}`)
+      if (msg !== 'LOW_QUALITY_CAPTIONS') {
+        console.warn(`[Transcript] ❌ SocialKit 실패: ${msg}`)
+        errors.push(`SocialKit: ${msg}`)
+      }
     }
   }
 
