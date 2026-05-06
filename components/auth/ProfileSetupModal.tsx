@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/providers/AuthProvider'
 import { completeUserProfile, PROFILE_COMPLETE_TOKENS, AgeGroup, Gender } from '@/lib/db'
+import SchoolSearchInput, { SchoolResult } from '@/components/classroom/SchoolSearchInput'
 
 const AGE_GROUPS: { value: AgeGroup; label: string; emoji: string }[] = [
   { value: '10s',  label: '10대', emoji: '🎒' },
@@ -56,7 +57,7 @@ function ProfileSetupModalInner() {
   const [interests, setInterests] = useState<string[]>([])
 
   // 선생님 전용
-  const [schoolName, setSchoolName] = useState('')
+  const [selectedSchool, setSelectedSchool] = useState<SchoolResult | null>(null)
   const [grade, setGrade]           = useState('')
   const [classNum, setClassNum]     = useState('')
   const [classCode, setClassCode]   = useState('')
@@ -97,10 +98,8 @@ function ProfileSetupModalInner() {
   // 선생님 클래스 생성
   const handleTeacherSetup = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!schoolName.trim() || !grade || !classNum) {
-      setTeacherError('모든 항목을 입력해주세요.')
-      return
-    }
+    if (!selectedSchool) { setTeacherError('학교를 목록에서 선택해주세요.'); return }
+    if (!grade || !classNum) { setTeacherError('학년과 반을 선택해주세요.'); return }
     setSaving(true)
     setTeacherError('')
     try {
@@ -112,7 +111,10 @@ function ProfileSetupModalInner() {
           uid: user.uid,
           idToken,
           teacherName: userProfile?.displayName || user.displayName || '',
-          schoolName: schoolName.trim(),
+          schoolName: selectedSchool.name,
+          schoolCode: selectedSchool.code,
+          schoolType: selectedSchool.type,
+          region: selectedSchool.region,
           grade: Number(grade),
           classNum: Number(classNum),
         }),
@@ -232,13 +234,7 @@ function ProfileSetupModalInner() {
               <form onSubmit={handleTeacherSetup} className="flex flex-col gap-4">
                 <div>
                   <label className="block text-xs text-[var(--text-subtle)] mb-1.5">학교명</label>
-                  <input
-                    type="text"
-                    value={schoolName}
-                    onChange={e => setSchoolName(e.target.value)}
-                    placeholder="예) 제주초등학교"
-                    className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-emerald-500/50 transition-colors"
-                  />
+                  <SchoolSearchInput value={selectedSchool} onChange={setSelectedSchool} accentColor="emerald" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -454,7 +450,7 @@ function ProfileSetupModalInner() {
                     <p className="text-[var(--text-subtle)] text-xs mb-2">우리 반 코드</p>
                     <p className="text-4xl font-black text-emerald-400 tracking-widest">{classCode}</p>
                     <p className="text-[var(--text-subtle)] text-xs mt-2">
-                      {schoolName} {grade}학년 {classNum}반
+                      {selectedSchool?.name} {grade}학년 {classNum}반
                     </p>
                   </div>
                   <button

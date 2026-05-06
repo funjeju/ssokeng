@@ -19,6 +19,7 @@ import { AVATARS, getAvatarBg } from '@/lib/avatar'
 import { naturalSearch } from '@/lib/nlp-search'
 import FloatingChat from '@/components/chat/FloatingChat'
 import AvatarUploadModal from '@/components/profile/AvatarUploadModal'
+import SchoolSearchInput, { SchoolResult } from '@/components/classroom/SchoolSearchInput'
 import TravelWishlist from '@/components/travel/TravelWishlist'
 import SavedItineraries from '@/components/travel/SavedItineraries'
 import SavedBlogDrafts from '@/components/blog/SavedBlogDrafts'
@@ -648,7 +649,7 @@ export default function MyPage() {
   const [savingAvatar, setSavingAvatar] = useState(false)
   // 선생님 전환 모달
   const [showTeacherModal, setShowTeacherModal] = useState(false)
-  const [teacherSchool, setTeacherSchool] = useState('')
+  const [teacherSelectedSchool, setTeacherSelectedSchool] = useState<SchoolResult | null>(null)
   const [teacherGrade, setTeacherGrade] = useState('')
   const [teacherClassNum, setTeacherClassNum] = useState('')
   const [teacherSaving, setTeacherSaving] = useState(false)
@@ -753,8 +754,9 @@ export default function MyPage() {
 
   const handleTeacherSetup = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user || !teacherSchool.trim() || !teacherGrade || !teacherClassNum) {
-      setTeacherError('모든 항목을 입력해주세요.')
+    if (!user || !teacherSelectedSchool) { setTeacherError('학교를 목록에서 선택해주세요.'); return }
+    if (!teacherGrade || !teacherClassNum) {
+      setTeacherError('학년과 반을 선택해주세요.')
       return
     }
     setTeacherSaving(true)
@@ -768,7 +770,10 @@ export default function MyPage() {
           uid: user.uid,
           idToken,
           teacherName: userProfile?.displayName || user.displayName || '',
-          schoolName: teacherSchool.trim(),
+          schoolName: teacherSelectedSchool.name,
+          schoolCode: teacherSelectedSchool.code,
+          schoolType: teacherSelectedSchool.type,
+          region: teacherSelectedSchool.region,
           grade: Number(teacherGrade),
           classNum: Number(teacherClassNum),
         }),
@@ -2063,7 +2068,7 @@ export default function MyPage() {
                 <div className="bg-[var(--bg-surface-2)] rounded-2xl p-4 mb-5">
                   <p className="text-[var(--text-subtle)] text-xs mb-1">우리 반 코드</p>
                   <p className="text-4xl font-black text-emerald-400 tracking-widest">{teacherDoneCode}</p>
-                  <p className="text-[var(--text-subtle)] text-xs mt-2">{teacherSchool} {teacherGrade}학년 {teacherClassNum}반</p>
+                  <p className="text-[var(--text-subtle)] text-xs mt-2">{teacherSelectedSchool?.name} {teacherGrade}학년 {teacherClassNum}반</p>
                 </div>
                 <Link
                   href={`/classroom/${teacherDoneCode}`}
@@ -2081,13 +2086,7 @@ export default function MyPage() {
                 <form onSubmit={handleTeacherSetup} className="flex flex-col gap-4">
                   <div>
                     <label className="block text-xs text-[var(--text-subtle)] mb-1.5">학교명</label>
-                    <input
-                      type="text"
-                      value={teacherSchool}
-                      onChange={e => setTeacherSchool(e.target.value)}
-                      placeholder="예) 제주초등학교"
-                      className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-emerald-500/50 transition-colors"
-                    />
+                    <SchoolSearchInput value={teacherSelectedSchool} onChange={setTeacherSelectedSchool} accentColor="emerald" />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
