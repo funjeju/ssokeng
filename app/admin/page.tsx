@@ -59,6 +59,12 @@ export default function AdminDashboard() {
   const [userTotal, setUserTotal] = useState(0)
   const [userLoading, setUserLoading] = useState(false)
 
+  // 회원 편집 모달
+  const [editingUser, setEditingUser] = useState<any | null>(null)
+  const [editForm, setEditForm] = useState<Record<string, string | number>>({})
+  const [editSaving, setEditSaving] = useState(false)
+  const [editError, setEditError] = useState('')
+
   const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL
 
   useEffect(() => {
@@ -176,6 +182,46 @@ export default function AdminDashboard() {
       }
     } catch { alert('오류가 발생했습니다.') }
     finally { setSquareManagingId(null) }
+  }
+
+  const openEditUser = (u: any) => {
+    setEditingUser(u)
+    setEditError('')
+    setEditForm({
+      role: u.role || '',
+      plan: u.plan || 'free',
+      tokens: u.tokens ?? 0,
+      classCode: u.classCode || '',
+      schoolName: u.schoolName || '',
+      grade: u.grade || '',
+      classNum: u.classNum || '',
+      teacherName: u.teacherName || '',
+    })
+  }
+
+  const handleSaveUser = async () => {
+    if (!editingUser) return
+    setEditSaving(true); setEditError('')
+    try {
+      const headers = await getAuthHeader()
+      const res = await fetch('/api/admin/users', {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ userId: editingUser.id, updates: editForm }),
+      })
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}))
+        throw new Error(d.error || res.status)
+      }
+      // 로컬 상태 반영
+      setUsers(prev => prev.map(u => u.id === editingUser.id
+        ? { ...u, ...editForm, role: editForm.role || undefined, classCode: editForm.classCode || undefined, schoolName: editForm.schoolName || undefined }
+        : u
+      ))
+      setEditingUser(null)
+    } catch (e: any) {
+      setEditError(e.message)
+    } finally { setEditSaving(false) }
   }
 
   const handleDelete = async (id: string, title: string) => {
@@ -521,13 +567,14 @@ export default function AdminDashboard() {
                       <th className="pb-3 font-medium">클래스 정보</th>
                       <th className="pb-3 font-medium text-center">토큰</th>
                       <th className="pb-3 font-medium">가입일</th>
+                      <th className="pb-3 font-medium text-right">관리</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {userLoading ? (
-                      <tr><td colSpan={6} className="py-16 text-center text-gray-500">불러오는 중...</td></tr>
+                      <tr><td colSpan={7} className="py-16 text-center text-gray-500">불러오는 중...</td></tr>
                     ) : users.length === 0 ? (
-                      <tr><td colSpan={6} className="py-16 text-center text-gray-500">회원이 없습니다.</td></tr>
+                      <tr><td colSpan={7} className="py-16 text-center text-gray-500">회원이 없습니다.</td></tr>
                     ) : users.map(u => {
                       const isIncomplete = !u.profileCompleted && !u.role
                       const isStudentEmail = (u.email || '').includes('@cls.ssoktube.com')
@@ -574,6 +621,13 @@ export default function AdminDashboard() {
                         <td className="py-3 text-gray-500">
                           {u.createdAt || u.updatedAt ? formatRelativeDate(u.createdAt || u.updatedAt) : '-'}
                         </td>
+                        <td className="py-3 text-right">
+                          <button
+                            onClick={() => openEditUser(u)}
+                            className="px-2.5 py-1.5 rounded-lg text-[11px] bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-gray-400 hover:text-white transition-colors"
+                            title="편집"
+                          >✏️ 편집</button>
+                        </td>
                       </tr>
                     )})}
 
@@ -601,6 +655,135 @@ export default function AdminDashboard() {
           </div>
         )}
       </main>
+
+      {/* ── 회원 편집 모달 ── */}
+      {editingUser && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setEditingUser(null)} />
+          <div className="relative w-full max-w-md bg-[var(--bg-base)] rounded-3xl border border-[var(--border-default)] shadow-2xl p-6">
+            <button
+              onClick={() => setEditingUser(null)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-white text-lg transition-colors"
+            >✕</button>
+
+            <div className="flex items-center gap-3 mb-5">
+              {editingUser.photoURL
+                ? <img src={editingUser.photoURL} className="w-10 h-10 rounded-full border border-[var(--border-default)] object-cover" alt="" />
+                : <div className="w-10 h-10 rounded-full bg-[var(--bg-elevated-2)] flex items-center justify-center text-xl">{editingUser.avatarEmoji || '👤'}</div>
+              }
+              <div>
+                <p className="font-bold text-white">{editingUser.displayName || editingUser.studentName || '(이름 없음)'}</p>
+                <p className="text-xs text-gray-500">{editingUser.email}</p>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              {/* 역할 */}
+              <div>
+                <label className="block text-gray-400 mb-1">역할</label>
+                <select
+                  value={editForm.role as string}
+                  onChange={e => setEditForm(f => ({ ...f, role: e.target.value }))}
+                  className="w-full bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-white focus:outline-none focus:border-orange-500"
+                >
+                  <option value="">일반 (역할 없음)</option>
+                  <option value="teacher">선생님</option>
+                  <option value="student">학생</option>
+                </select>
+              </div>
+
+              {/* 플랜 */}
+              <div>
+                <label className="block text-gray-400 mb-1">플랜</label>
+                <select
+                  value={editForm.plan as string}
+                  onChange={e => setEditForm(f => ({ ...f, plan: e.target.value }))}
+                  className="w-full bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-white focus:outline-none focus:border-orange-500"
+                >
+                  <option value="free">무료</option>
+                  <option value="paid">유료</option>
+                </select>
+              </div>
+
+              {/* 토큰 */}
+              <div>
+                <label className="block text-gray-400 mb-1">토큰</label>
+                <input
+                  type="number"
+                  value={editForm.tokens as number}
+                  onChange={e => setEditForm(f => ({ ...f, tokens: Number(e.target.value) }))}
+                  className="w-full bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-white focus:outline-none focus:border-orange-500"
+                />
+              </div>
+
+              {/* 클래스 정보 구분선 */}
+              <div className="pt-2 border-t border-[var(--border-subtle)]">
+                <p className="text-gray-500 mb-2">클래스 정보 <span className="text-gray-600">(비우면 삭제)</span></p>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-gray-400 mb-1">클래스 코드</label>
+                    <input
+                      type="text"
+                      value={editForm.classCode as string}
+                      onChange={e => setEditForm(f => ({ ...f, classCode: e.target.value }))}
+                      placeholder="예: RCJ84V"
+                      className="w-full bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-white focus:outline-none focus:border-orange-500 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-400 mb-1">학교명</label>
+                    <input
+                      type="text"
+                      value={editForm.schoolName as string}
+                      onChange={e => setEditForm(f => ({ ...f, schoolName: e.target.value }))}
+                      placeholder="예: 제주초등학교"
+                      className="w-full bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-white focus:outline-none focus:border-orange-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-400 mb-1">학년</label>
+                    <input
+                      type="number"
+                      value={editForm.grade as string}
+                      onChange={e => setEditForm(f => ({ ...f, grade: e.target.value }))}
+                      placeholder="3"
+                      className="w-full bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-white focus:outline-none focus:border-orange-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-400 mb-1">반</label>
+                    <input
+                      type="number"
+                      value={editForm.classNum as string}
+                      onChange={e => setEditForm(f => ({ ...f, classNum: e.target.value }))}
+                      placeholder="1"
+                      className="w-full bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-white focus:outline-none focus:border-orange-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {editError && <p className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2">{editError}</p>}
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={() => setEditingUser(null)}
+                  className="flex-1 py-2.5 rounded-xl text-xs bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-gray-400 transition-colors"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleSaveUser}
+                  disabled={editSaving}
+                  className="flex-1 py-2.5 rounded-xl text-xs bg-orange-500 hover:bg-orange-600 text-white font-bold transition-colors disabled:opacity-50"
+                >
+                  {editSaving ? '저장 중...' : '저장'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

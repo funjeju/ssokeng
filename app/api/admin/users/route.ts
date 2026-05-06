@@ -1,6 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { runFirestoreQuery } from '@/lib/firestore-rest'
 import { checkIsAdminByToken } from '@/lib/admin'
+import { initAdminApp } from '@/lib/firebase-admin'
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const idToken = req.headers.get('Authorization')?.replace('Bearer ', '') ?? ''
+    const isAdmin = await checkIsAdminByToken(idToken)
+    if (!isAdmin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+    const { userId, updates } = await req.json()
+    if (!userId || !updates) return NextResponse.json({ error: 'userId and updates required' }, { status: 400 })
+
+    // 허용 필드만 추출
+    const allowed: Record<string, unknown> = {}
+    const fields = ['role', 'plan', 'tokens', 'classCode', 'schoolName', 'grade', 'classNum', 'teacherName']
+    for (const field of fields) {
+      if (field in updates) {
+        const val = updates[field]
+        // 빈 문자열 → 필드 삭제 (FieldValue.delete())
+        allowed[field] = val === '' ? null : val
+      }
+    }
+
+    initAdminApp()
+    const { getFirestore, FieldValue } = await import('firebase-admin/firestore')
+    const db = getFirestore()
+    const ref = db.collection('users').doc(userId)
+
+    // null로 표시한 필드는 FieldValue.delete()로 변환
+    const firestoreUpdates: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(allowed)) {
+      firestoreUpdates[k] = v === null ? FieldValue.delete() : v
+    }
+
+    await ref.update(firestoreUpdates)
+    return NextResponse.json({ success: true })
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 })
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
