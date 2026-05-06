@@ -148,6 +148,36 @@ export default function ClassDashboard() {
   const [loadingLibrary, setLoadingLibrary] = useState(false)
   const [movingVideo, setMovingVideo] = useState<string | null>(null)
 
+  // 비밀번호 초기화
+  const [resetTarget, setResetTarget] = useState<StudentRow | null>(null)
+  const [resetPassword, setResetPassword] = useState('')
+  const [resetting, setResetting] = useState(false)
+  const [resetDone, setResetDone] = useState(false)
+
+  const handleResetPassword = async () => {
+    if (!resetTarget || !resetPassword.trim() || !user) return
+    if (resetPassword.trim().length < 4) {
+      alert('비밀번호는 4자 이상이어야 합니다.')
+      return
+    }
+    setResetting(true)
+    try {
+      const token = await user.getIdToken()
+      const res = await fetch('/api/classroom/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ studentUid: resetTarget.uid, newPassword: resetPassword.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setResetDone(true)
+    } catch (e: any) {
+      alert('비밀번호 변경 실패: ' + e.message)
+    } finally {
+      setResetting(false)
+    }
+  }
+
   // 클립 배포 관련 상태
   const [expandedFolder, setExpandedFolder] = useState<string | null>(null)
   const [folderVideos, setFolderVideos] = useState<Record<string, any[]>>({})
@@ -581,7 +611,7 @@ export default function ClassDashboard() {
                       <th className="pb-3 font-medium text-center">❓전혀모름</th>
                       <th className="pb-3 font-medium text-center">퀴즈정답률</th>
                       <th className="pb-3 font-medium">마지막 활동</th>
-                      <th className="pb-3 font-medium text-right">상세</th>
+                      <th className="pb-3 font-medium text-right">관리</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
@@ -601,12 +631,21 @@ export default function ClassDashboard() {
                           {s.lastActive ? formatRelativeDate(s.lastActive?.toDate?.() || s.lastActive) : '없음'}
                         </td>
                         <td className="py-3 text-right">
-                          <button
-                            onClick={() => openStudentDetail(s)}
-                            className="px-3 py-1 rounded-lg bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] transition-colors text-gray-400"
-                          >
-                            상세보기
-                          </button>
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => { setResetTarget(s); setResetPassword(''); setResetDone(false) }}
+                              className="px-2.5 py-1 rounded-lg bg-[var(--overlay-subtle)] hover:bg-yellow-500/15 hover:text-yellow-400 transition-colors text-gray-500 text-xs"
+                              title="비밀번호 변경"
+                            >
+                              🔑
+                            </button>
+                            <button
+                              onClick={() => openStudentDetail(s)}
+                              className="px-3 py-1 rounded-lg bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] transition-colors text-gray-400 text-xs"
+                            >
+                              상세보기
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -1369,6 +1408,64 @@ export default function ClassDashboard() {
                 )
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 비밀번호 변경 모달 */}
+      {resetTarget && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setResetTarget(null)}>
+          <div
+            className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] w-full max-w-sm p-7"
+            onClick={e => e.stopPropagation()}
+          >
+            {!resetDone ? (
+              <>
+                <div className="flex items-center justify-between mb-5">
+                  <div>
+                    <h2 className="text-base font-black text-white">비밀번호 변경</h2>
+                    <p className="text-xs text-gray-400 mt-0.5">{resetTarget.studentName} 학생</p>
+                  </div>
+                  <button onClick={() => setResetTarget(null)} className="text-gray-500 hover:text-white text-lg leading-none">✕</button>
+                </div>
+                <p className="text-xs text-gray-400 mb-4 leading-relaxed">
+                  새 비밀번호를 입력하고 학생에게 직접 알려주세요.
+                </p>
+                <input
+                  type="text"
+                  value={resetPassword}
+                  onChange={e => setResetPassword(e.target.value)}
+                  placeholder="새 비밀번호 (4자 이상)"
+                  className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors mb-4"
+                  autoFocus
+                />
+                <button
+                  onClick={handleResetPassword}
+                  disabled={resetting || !resetPassword.trim()}
+                  className="w-full py-3 bg-orange-500 hover:bg-orange-600 rounded-xl font-bold text-sm transition-colors disabled:opacity-50"
+                >
+                  {resetting ? '변경 중...' : '비밀번호 변경'}
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="text-center py-4">
+                  <div className="text-4xl mb-3">✅</div>
+                  <p className="font-black text-white mb-1">변경 완료</p>
+                  <p className="text-sm text-gray-400 mb-1">
+                    <span className="text-white font-bold">{resetTarget.studentName}</span> 학생의 비밀번호가
+                  </p>
+                  <p className="text-lg font-black text-orange-400 font-mono mb-4">{resetPassword}</p>
+                  <p className="text-xs text-gray-500 mb-5">위 비밀번호를 학생에게 알려주세요.</p>
+                  <button
+                    onClick={() => setResetTarget(null)}
+                    className="w-full py-3 bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] rounded-xl font-bold text-sm transition-colors"
+                  >
+                    닫기
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
