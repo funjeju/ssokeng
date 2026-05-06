@@ -69,35 +69,39 @@ function buildThumbnail(category: string, title: string, sourceType: string): st
 
 export async function POST(req: NextRequest) {
   try {
-    const { transcript, title, category, sourceType, noSave } = await req.json()
+    const { transcript, title, category, sourceType, noSave, videoId, channel, thumbnail: existingThumbnail } = await req.json()
 
     if (!transcript || !category) {
       return NextResponse.json({ error: '필수 파라미터가 없습니다.' }, { status: 400 })
     }
 
+    const isYoutube = sourceType === 'youtube' || !!videoId
+
     const [summary, contextSummary] = await Promise.all([
-      generateSummary(category as any, transcript, sourceType as any),
+      generateSummary(category as any, transcript, isYoutube ? 'youtube' as any : sourceType as any),
       generateContextSummary(title || '문서', category as any, {} as any).catch(() => ''),
     ])
     const finalContext = await generateContextSummary(title || '문서', category as any, summary).catch(() => contextSummary)
 
     const sessionId = randomUUID()
-    const thumbnail = buildThumbnail(category, title || '문서', sourceType || 'pdf')
+    const thumbnail = isYoutube
+      ? (existingThumbnail || `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`)
+      : (existingThumbnail || buildThumbnail(category, title || '문서', sourceType || 'pdf'))
 
     const responseData = {
       sessionId,
-      videoId: '',
+      videoId: videoId || '',
       title: title || '문서',
-      channel: sourceType === 'voice' ? '음성 녹음' : 'PDF 문서',
+      channel: isYoutube ? (channel || '') : sourceType === 'voice' ? '음성 녹음' : 'PDF 문서',
       thumbnail,
       duration: 0,
       category,
       summary,
       contextSummary: finalContext,
       transcript,
-      transcriptSource: sourceType === 'voice' ? 'voice' : 'pdf',
+      transcriptSource: isYoutube ? 'youtube' : sourceType === 'voice' ? 'voice' : 'pdf',
       summarizedAt: new Date().toISOString(),
-      sourceType: sourceType || 'pdf',
+      sourceType: isYoutube ? 'youtube' : (sourceType || 'pdf'),
     }
 
     if (!noSave) {

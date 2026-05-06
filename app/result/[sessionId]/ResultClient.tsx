@@ -594,53 +594,24 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
     try {
       const isTranscriptSource = (data as any).sourceType === 'voice' || (data as any).sourceType === 'pdf'
 
-      let res: Response
-      if (isTranscriptSource) {
-        // 음성/PDF → transcript 기반 재분석
-        res = await fetch('/api/reanalyze-transcript', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            transcript: data.transcript,
-            title: data.title,
-            category,
-            sourceType: (data as any).sourceType,
-            noSave: fromSquare,
-          }),
-        })
-      } else {
-        // YouTube/URL → 기존 방식
-        res = await fetch('/api/summarize', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            url: `https://www.youtube.com/watch?v=${data.videoId}`,
-            category,
-            noSave: fromSquare,
-          }),
-        })
-      }
+      // 항상 기존 transcript 재사용 — YouTube도 재수집 없이 요약만 재생성
+      res = await fetch('/api/reanalyze-transcript', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transcript: data.transcript,
+          title: data.title,
+          category,
+          sourceType: isTranscriptSource ? (data as any).sourceType : 'youtube',
+          videoId: isTranscriptSource ? undefined : data.videoId,
+          channel: isTranscriptSource ? undefined : data.channel,
+          thumbnail: isTranscriptSource ? undefined : data.thumbnail,
+          noSave: fromSquare,
+        }),
+      })
 
       if (!res.ok) { const e = await res.json(); throw new Error(e.error) }
-      let newData: SummarizeResponse = await res.json()
-
-      // 비한국어 영상 재분석 시 언어선택 프롬프트가 올 수 있음 → 자동으로 원문 언어로 재요청
-      if ((newData as any).needsLangChoice) {
-        const res2 = await fetch('/api/summarize', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            url: `https://www.youtube.com/watch?v=${data.videoId}`,
-            category,
-            summaryLang: 'original',
-            cachedTranscript: (newData as any).cachedTranscript,
-            cachedVideoInfo: (newData as any).cachedVideoInfo,
-            noSave: fromSquare,
-          }),
-        })
-        if (!res2.ok) { const e = await res2.json(); throw new Error(e.error) }
-        newData = await res2.json()
-      }
+      const newData: SummarizeResponse = await res.json()
 
       sessionStorage.setItem(`summary_${newData.sessionId}`, JSON.stringify(newData))
       // fromSquare 임시 모드: URL에 ?temp=1 추가하여 저장 유도 배너 표시
