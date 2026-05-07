@@ -16,15 +16,15 @@ import MagazineCard from '@/components/square/MagazineCard'
 import { getPublishedPosts, CuratedPost } from '@/lib/magazine'
 
 const CATEGORIES = [
-  { id: 'all',     label: '전체' },
-  { id: 'recipe',  label: '🍳 요리' },
-  { id: 'english', label: '🔤 영어' },
-  { id: 'learning',label: '📐 학습' },
-  { id: 'news',    label: '🗞️ 뉴스' },
-  { id: 'selfdev', label: '💪 자기계발' },
-  { id: 'travel',  label: '🧳 여행' },
-  { id: 'story',   label: '🍿 스토리' },
-  { id: 'tips',    label: '💡 팁' },
+  { id: 'all',     label: 'All' },
+  { id: 'recipe',  label: '🍳 Recipe' },
+  { id: 'english', label: '🔤 Language' },
+  { id: 'learning',label: '📐 Learning' },
+  { id: 'news',    label: '🗞️ News' },
+  { id: 'selfdev', label: '💪 Self-Dev' },
+  { id: 'travel',  label: '🧳 Travel' },
+  { id: 'story',   label: '🍿 Story' },
+  { id: 'tips',    label: '💡 Tips' },
 ]
 
 const CATEGORY_META: Record<string, { color: string; bg: string; emoji: string }> = {
@@ -121,7 +121,7 @@ function SummaryCard({ item, likedIds, likingIds, user, messagingId, commentCoun
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-sm text-[9px] font-bold text-white border border-[var(--border-default)]">
-          {CATEGORIES.find(c => c.id === item.category)?.label ?? '분석됨'}
+          {CATEGORIES.find(c => c.id === item.category)?.label ?? 'Analyzed'}
         </div>
       </div>
 
@@ -141,7 +141,7 @@ function SummaryCard({ item, likedIds, likingIds, user, messagingId, commentCoun
               <div className="w-4 h-4 rounded-full bg-[var(--bg-elevated-2)] shrink-0 flex items-center justify-center text-[8px] text-white/40">👤</div>
             )}
             <span className="text-[9px] text-[var(--text-subtle)] group-hover/profile:text-white truncate transition-colors">
-              {item.userDisplayName || '익명'}
+              {item.userDisplayName || 'Anonymous'}
             </span>
           </Link>
           <div className="flex items-center gap-1 text-[var(--text-subtle)] shrink-0">
@@ -175,13 +175,13 @@ function SummaryCard({ item, likedIds, likingIds, user, messagingId, commentCoun
               <button
                 onClick={(e) => onAdminManage(e, item, 'hide')}
                 className="text-[9px] px-1.5 py-0.5 rounded bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30 transition-colors"
-                title="스퀘어에서 숨기기"
-              >숨김</button>
+                title="Hide from Square"
+              >Hide</button>
               <button
                 onClick={(e) => onAdminManage(e, item, 'delete')}
                 className="text-[9px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
-                title="영구 삭제"
-              >삭제</button>
+                title="Permanent delete"
+              >Delete</button>
             </div>
           )}
         </div>
@@ -226,8 +226,8 @@ function MagazineBoard({ posts }: { posts: CuratedPost[] }) {
     return (
       <div className="bg-[var(--bg-elevated)]/50 rounded-[32px] p-16 text-center border border-[var(--border-subtle)]">
         <span className="text-4xl mb-4 block">✍️</span>
-        <h2 className="text-xl text-white font-bold mb-2">아직 발행된 매거진이 없습니다</h2>
-        <p className="text-[var(--text-subtle)] text-sm">AI가 영상들을 분석해 블로그 포스트를 자동으로 작성합니다.</p>
+        <h2 className="text-xl text-white font-bold mb-2">No magazines published yet</h2>
+        <p className="text-[var(--text-subtle)] text-sm">AI analyzes videos and automatically writes blog posts.</p>
       </div>
     )
   }
@@ -251,8 +251,8 @@ function MagazineBoard({ posts }: { posts: CuratedPost[] }) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-4">
               <div className="flex items-center gap-2 mb-2">
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/90 text-white">✍️ 매거진</span>
-                <span className="text-[10px] text-white/60">{featured.readTime}분 읽기 · 영상 {featured.videoTitles?.length ?? 0}개</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/90 text-white">✍️ Magazine</span>
+                <span className="text-[10px] text-white/60">{featured.readTime} min read · {featured.videoTitles?.length ?? 0} videos</span>
               </div>
               <h2 className="text-white text-lg sm:text-xl font-black leading-tight line-clamp-2 mb-1">{featured.title}</h2>
               {featured.subtitle && <p className="text-white/70 text-sm line-clamp-1">{featured.subtitle}</p>}
@@ -261,8 +261,8 @@ function MagazineBoard({ posts }: { posts: CuratedPost[] }) {
         ) : (
           <div className="p-5">
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30">✍️ 매거진</span>
-              <span className="text-[10px] text-[var(--text-subtle)]">{featured.readTime}분 읽기 · 영상 {featured.videoTitles?.length ?? 0}개</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30">✍️ Magazine</span>
+              <span className="text-[10px] text-[var(--text-subtle)]">{featured.readTime} min read · {featured.videoTitles?.length ?? 0} videos</span>
             </div>
             <h2 className="text-white text-lg font-black leading-tight line-clamp-2 mb-1">{featured.title}</h2>
             {featured.subtitle && <p className="text-[var(--text-muted)] text-sm line-clamp-2">{featured.subtitle}</p>}
@@ -279,7 +279,7 @@ function MagazineBoard({ posts }: { posts: CuratedPost[] }) {
               ))}
               {featured.publishedAt && (
                 <span className="text-[10px] text-[var(--text-subtle)] ml-auto">
-                  {new Intl.DateTimeFormat('ko-KR', { month: 'short', day: 'numeric' }).format(new Date(featured.publishedAt))}
+                  {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(featured.publishedAt))}
                 </span>
               )}
             </div>
@@ -303,8 +303,8 @@ function MagazineBoard({ posts }: { posts: CuratedPost[] }) {
               )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <span className="text-[9px] font-bold text-orange-400">✍️ 매거진</span>
-                  <span className="text-[9px] text-[var(--text-subtle)]">{post.readTime}분 · {post.videoTitles?.length ?? 0}개 영상</span>
+                  <span className="text-[9px] font-bold text-orange-400">✍️ Magazine</span>
+                  <span className="text-[9px] text-[var(--text-subtle)]">{post.readTime} min · {post.videoTitles?.length ?? 0} videos</span>
                 </div>
                 <h3 className="text-[var(--text-primary)] text-[12px] font-bold leading-snug line-clamp-2 mb-1">{post.title}</h3>
                 <p className="text-[10px] text-[var(--text-subtle)] line-clamp-1">{post.seoDescription || post.subtitle}</p>
@@ -333,7 +333,7 @@ function SummaryListRow({ item, likedIds, likingIds, user, messagingId, commentC
 }) {
   const router = useRouter()
   const catMeta = CATEGORY_META[item.category]
-  const catLabel = CATEGORIES.find(c => c.id === item.category)?.label ?? '분석됨'
+  const catLabel = CATEGORIES.find(c => c.id === item.category)?.label ?? 'Analyzed'
 
   return (
     <div
@@ -379,7 +379,7 @@ function SummaryListRow({ item, likedIds, likingIds, user, messagingId, commentC
               <div className="w-4 h-4 rounded-full bg-[var(--bg-elevated-2)] shrink-0 flex items-center justify-center text-[8px] text-white/40">👤</div>
             )}
             <span className="text-[9px] text-[var(--text-subtle)] group-hover/profile:text-white truncate transition-colors">
-              {item.userDisplayName || '익명'}
+              {item.userDisplayName || 'Anonymous'}
             </span>
           </Link>
 
@@ -413,7 +413,7 @@ function SummaryListRow({ item, likedIds, likingIds, user, messagingId, commentC
               <button
                 onClick={(e) => onDelete(e, item)}
                 className="text-[9px] text-[var(--text-subtle)] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
-                title="삭제"
+                title="Delete"
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -431,11 +431,11 @@ function SummaryListRow({ item, likedIds, likingIds, user, messagingId, commentC
                 <button
                   onClick={(e) => onAdminManage(e, item, 'hide')}
                   className="text-[9px] px-1.5 py-0.5 rounded bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30"
-                >숨김</button>
+                >Hide</button>
                 <button
                   onClick={(e) => onAdminManage(e, item, 'delete')}
                   className="text-[9px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 hover:bg-red-500/30"
-                >삭제</button>
+                >Delete</button>
               </div>
             )}
           </div>
@@ -461,10 +461,10 @@ function RecommendationCard({ slot }: { slot: RecSlot }) {
         <span className="text-sm leading-none">{meta.emoji}</span>
         <div className="min-w-0 flex-1">
           <p className="text-[10px] font-bold leading-tight" style={{ color: meta.color }}>
-            {slot.personalized ? `${catLabel} 취향 추천` : `${catLabel} 인기 콘텐츠`}
+            {slot.personalized ? `${catLabel} Recommended` : `${catLabel} Popular`}
           </p>
           <p className="text-[9px] text-white/40">
-            {slot.personalized ? 'AI가 고른 콘텐츠' : '지금 인기있는 콘텐츠'}
+            {slot.personalized ? 'Picked by AI for you' : 'Trending right now'}
           </p>
         </div>
       </div>
@@ -617,7 +617,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
 
   const handleMessage = async (e: React.MouseEvent, item: SavedSummary) => {
     e.preventDefault(); e.stopPropagation()
-    if (!user) { alert('쪽지는 로그인 후 이용할 수 있습니다.'); return }
+    if (!user) { alert('Please log in to send messages.'); return }
     if (item.userId === user.uid) return
     if (messagingId) return
     setMessagingId(item.id)
@@ -626,31 +626,31 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
         user.uid,
         { displayName: user.displayName || '', photoURL: user.photoURL || '' },
         item.userId,
-        { displayName: item.userDisplayName || '익명', photoURL: item.userPhotoURL || '' }
+        { displayName: item.userDisplayName || 'Anonymous', photoURL: item.userPhotoURL || '' }
       )
       router.push(`/messages/${cid}`)
-    } catch { alert('오류가 발생했습니다.') }
+    } catch { alert('An error occurred.') }
     finally { setMessagingId(null) }
   }
 
   const handleDelete = async (e: React.MouseEvent, item: SavedSummary) => {
     e.preventDefault(); e.stopPropagation()
     if (!user || user.uid !== item.userId) return
-    if (!confirm(`스퀘어에서 이 카드를 내립니다.\n내 마이페이지에는 그대로 유지됩니다.`)) return
+    if (!confirm(`This will remove the card from the Square.\nIt will remain in your library.`)) return
     try {
       await updateSummaryVisibility(item.id, false)
       setSummaries(prev => prev.filter(s => s.id !== item.id))
       setAllSummaries(prev => prev.filter(s => s.id !== item.id))
     } catch {
-      alert('삭제에 실패했습니다.')
+      alert('Failed to remove.')
     }
   }
 
   const handleAdminManage = async (e: React.MouseEvent, item: SavedSummary, action: 'hide' | 'delete') => {
     e.preventDefault(); e.stopPropagation()
     if (!isAdmin) return
-    if (action === 'delete' && !confirm(`[영구 삭제] 복구 불가합니다.\n"${item.title}"`)) return
-    if (action === 'hide' && !confirm(`스퀘어에서 숨깁니다 (데이터 유지).\n"${item.title}"`)) return
+    if (action === 'delete' && !confirm(`[Permanent delete] Cannot be undone.\n"${item.title}"`)) return
+    if (action === 'hide' && !confirm(`Hide from Square (data kept).\n"${item.title}"`)) return
     try {
       const token = await user!.getIdToken()
       await fetch('/api/admin/square', {
@@ -660,13 +660,13 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
       })
       setSummaries(prev => prev.filter(s => s.id !== item.id))
       setAllSummaries(prev => prev.filter(s => s.id !== item.id))
-    } catch { alert('처리 실패') }
+    } catch { alert('Action failed') }
   }
 
   const handleLike = async (e: React.MouseEvent, item: SavedSummary) => {
     e.preventDefault()
     e.stopPropagation()
-    if (!user) { alert('좋아요는 로그인 후 이용할 수 있습니다.'); return }
+    if (!user) { alert('Please log in to like.'); return }
     if (likingIds.has(item.id)) return
 
     setLikingIds(prev => new Set(prev).add(item.id))
@@ -834,13 +834,13 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
                 : 'border-transparent text-[var(--text-subtle)] hover:text-white'
             }`}
           >
-            피드
+            Feed
           </button>
           <Link
             href="/magazine"
             className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-bold transition-all border-b-2 -mb-px border-transparent text-[var(--text-subtle)] hover:text-white hover:border-orange-500/50"
           >
-            ✍️ 매거진
+            ✍️ Magazine
             {magazinePosts.length > 0 && (
               <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30">
                 {magazinePosts.length}
@@ -859,7 +859,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') handleSearch() }}
-              placeholder="검색어 입력 후 버튼을 누르세요 (예: 당근 요리, 영어 발음 팁)"
+              placeholder="Enter search terms and press the button (e.g. carrot recipe, pronunciation tips)"
               className={`w-full h-10 pl-9 pr-8 bg-[var(--bg-elevated)] border rounded-xl text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none transition-colors ${
                 committedQuery ? 'border-orange-500/50' : 'border-[var(--border-default)] focus:border-orange-500/40'
               }`}
@@ -878,7 +878,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
             onClick={handleSearch}
             className="h-10 px-4 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-xl transition-colors shrink-0"
           >
-            검색
+            Search
           </button>
         </div>
 
@@ -902,7 +902,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
 
           <div className="flex items-center gap-2">
             {(['latest', 'popular', 'views'] as SortType[]).map(type => {
-              const labels: Record<SortType, string> = { latest: '최신순', popular: '인기순', views: '조회수순' }
+              const labels: Record<SortType, string> = { latest: 'Latest', popular: 'Popular', views: 'Most viewed' }
               return (
                 <button
                   key={type}
@@ -919,13 +919,13 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
             })}
             <div className="flex items-center gap-2 ml-auto">
               <span className="text-[var(--text-subtle)] text-xs">
-                {committedQuery ? `"${committedQuery}" 결과 ${filtered.length}개` : `${filtered.length}개`}
+                {committedQuery ? `"${committedQuery}" — ${filtered.length} results` : `${filtered.length} posts`}
               </span>
               {/* 뷰 모드 토글 */}
               <div className="flex items-center gap-0.5 bg-[var(--bg-elevated)] rounded-lg p-0.5">
                 <button
                   onClick={() => toggleViewMode('grid')}
-                  title="그리드 보기"
+                  title="Grid view"
                   className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-[var(--overlay-default)] text-white' : 'text-[var(--text-subtle)] hover:text-white'}`}
                 >
                   <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 16 16">
@@ -935,7 +935,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
                 </button>
                 <button
                   onClick={() => toggleViewMode('list')}
-                  title="목록 보기"
+                  title="List view"
                   className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-[var(--overlay-default)] text-white' : 'text-[var(--text-subtle)] hover:text-white'}`}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16">
@@ -956,10 +956,10 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
           <div className="bg-[var(--bg-elevated)]/50 rounded-[32px] p-16 text-center border border-[var(--border-subtle)]">
             <span className="text-4xl mb-4 block">🌍</span>
             <h2 className="text-xl text-white font-bold mb-2">
-              {activeCategory === 'all' ? '아직 공개된 요약이 없습니다' : '해당 카테고리의 요약이 없습니다'}
+              {activeCategory === 'all' ? 'No public summaries yet' : 'No summaries in this category'}
             </h2>
             <Link href="/" className="inline-block mt-6 px-6 py-3 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-2xl">
-              새 영상 분석하기
+              Analyze a video
             </Link>
           </div>
         ) : viewMode === 'list' ? (
@@ -1017,7 +1017,7 @@ export default function SquareClient({ initialSummaries = [], initialMagazinePos
             {loadingMore && (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-orange-500/60" />
-                <span className="text-[var(--text-subtle)] text-xs">불러오는 중...</span>
+                <span className="text-[var(--text-subtle)] text-xs">Loading...</span>
               </>
             )}
           </div>

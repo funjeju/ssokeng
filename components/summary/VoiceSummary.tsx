@@ -38,13 +38,13 @@ export default function VoiceSummary({ data }: Props) {
 
   const copyText = [
     `🎙 ${data.title}`,
-    `📌 핵심 주제: ${data.main_topic}`,
+    `📌 Main Topic: ${data.main_topic}`,
     '',
-    '💡 핵심 포인트:',
+    '💡 Key Points:',
     ...data.key_points.map(k => `• ${k.point}${k.detail ? `\n  ${k.detail}` : ''}`),
-    ...(data.action_items.length > 0 ? ['', '✅ 실행 항목:', ...data.action_items.map(a => `• ${a}`)] : []),
+    ...(data.action_items.length > 0 ? ['', '✅ Action Items:', ...data.action_items.map(a => `• ${a}`)] : []),
     '',
-    '📝 전사 내용:',
+    '📝 Transcript:',
     data.transcript,
   ].join('\n')
 
@@ -54,7 +54,7 @@ export default function VoiceSummary({ data }: Props) {
         <div className="flex items-start gap-3">
           <span className="text-4xl shrink-0">{data.emoji}</span>
           <div>
-            <CardTitle className={`${accentClass} text-sm mb-1`}>🎙 음성 녹음 메모</CardTitle>
+            <CardTitle className={`${accentClass} text-sm mb-1`}>🎙 Voice Memo</CardTitle>
             <h2 className="text-xl font-bold text-zinc-100">{data.title}</h2>
             <p className="text-zinc-400 text-sm mt-1">{data.duration_estimate}</p>
           </div>
@@ -65,7 +65,7 @@ export default function VoiceSummary({ data }: Props) {
       <CardContent className="flex flex-col gap-5">
         {/* 핵심 주제 */}
         <div className={`rounded-xl bg-black/20 border border-[var(--border-subtle)] px-4 py-3`}>
-          <p className={`text-xs font-semibold ${accentClass} mb-1`}>📌 핵심 주제</p>
+          <p className={`text-xs font-semibold ${accentClass} mb-1`}>📌 Main Topic</p>
           <p className="text-zinc-200 text-sm leading-relaxed">{data.main_topic}</p>
         </div>
 
@@ -74,7 +74,7 @@ export default function VoiceSummary({ data }: Props) {
         {/* 핵심 포인트 */}
         {data.key_points.length > 0 && (
           <div>
-            <h3 className={`${accentClass} font-semibold text-sm mb-3`}>💡 핵심 포인트</h3>
+            <h3 className={`${accentClass} font-semibold text-sm mb-3`}>💡 Key Points</h3>
             <div className="flex flex-col gap-3">
               {data.key_points.map((kp, i) => (
                 <div key={i} className="flex gap-3">
@@ -96,7 +96,7 @@ export default function VoiceSummary({ data }: Props) {
           <>
             <Separator className="bg-[var(--overlay-default)]" />
             <div>
-              <h3 className="text-emerald-400 font-semibold text-sm mb-3">✅ 실행 항목</h3>
+              <h3 className="text-emerald-400 font-semibold text-sm mb-3">✅ Action Items</h3>
               <div className="flex flex-col gap-2">
                 {data.action_items.map((item, i) => (
                   <div key={i} className="flex items-start gap-2.5">
@@ -132,7 +132,7 @@ export default function VoiceSummary({ data }: Props) {
             className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors"
           >
             <span className={`transition-transform ${showTranscript ? 'rotate-90' : ''}`}>▶</span>
-            📝 전체 전사 내용 {showTranscript ? '접기' : '펼치기'}
+            📝 Full Transcript {showTranscript ? 'Hide' : 'Show'}
           </button>
           {showTranscript && (
             <div className="mt-3 bg-black/20 rounded-xl border border-[var(--border-subtle)] p-4">

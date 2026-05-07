@@ -48,7 +48,7 @@ export default function StorySummary({ data, onSeek, sessionId, commentCounts = 
       {data.characters && data.characters.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-            <span>👥</span> 주요 인물
+            <span>👥</span> Main Characters
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {data.characters.map((char, i) => (
@@ -65,12 +65,12 @@ export default function StorySummary({ data, onSeek, sessionId, commentCounts = 
       {data.timeline && data.timeline.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-            <span>{hasTimestamps ? '⏱️' : '📋'}</span> 스토리 {hasTimestamps ? '타임라인' : '전개'}
+            <span>{hasTimestamps ? '⏱️' : '📋'}</span> Story {hasTimestamps ? 'Timeline' : 'Flow'}
           </h3>
           <div className="space-y-3 relative before:absolute before:left-4 before:top-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-white/10 before:to-transparent">
             {data.timeline.map((item, i) => {
               const segId = `timeline-${i}`
-              const segLabel = `타임라인 ${i + 1}번째`
+              const segLabel = `Timeline ${i + 1}`
               return (
                 <div key={i} id={`seg-${segId}`} className="relative flex items-start gap-3 group transition-all">
                   <div className="flex items-center justify-center w-8 h-8 rounded-full border-4 border-[var(--bg-elevated)] bg-[var(--bg-surface)] text-pink-500 shadow shrink-0 mt-1 group-hover:bg-pink-500/20 transition-colors z-10" />
@@ -95,9 +95,9 @@ export default function StorySummary({ data, onSeek, sessionId, commentCounts = 
                             ? 'bg-pink-500/15 border-pink-500/30 text-pink-400'
                             : 'bg-[var(--bg-elevated)] border-[var(--border-default)] text-[var(--text-subtle)] hover:text-pink-300 hover:border-pink-500/30'
                         }`}
-                        title="이 장면의 웹툰 이미지 생성 프롬프트를 클립보드에 복사"
+                        title="Copy webtoon image prompt for this scene to clipboard"
                       >
-                        {copiedIdx === i ? '✅ 복사됨' : '🎨 웹툰 프롬프트'}
+                        {copiedIdx === i ? '✅ Copied' : '🎨 Webtoon Prompt'}
                       </button>
                     </div>
                   </div>
@@ -112,7 +112,7 @@ export default function StorySummary({ data, onSeek, sessionId, commentCounts = 
       {data.conclusion && (
         <div className="space-y-3 pt-6 border-t border-[var(--border-default)]">
           <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-            <span>🎬</span> 핵심 요약 / 결말
+            <span>🎬</span> Key Summary / Ending
           </h3>
           <div id="seg-conclusion" className="p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-start gap-3">
             <p className="text-[var(--text-muted)] text-[15px] leading-relaxed whitespace-pre-wrap flex-1">
@@ -122,7 +122,7 @@ export default function StorySummary({ data, onSeek, sessionId, commentCounts = 
               <CommentBubble
                 sessionId={sessionId}
                 segmentId="conclusion"
-                segmentLabel="결말/핵심 요약"
+                segmentLabel="Ending / Key Summary"
                 initialCount={commentCounts['conclusion'] ?? 0}
               />
             )}

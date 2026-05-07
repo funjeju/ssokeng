@@ -4,44 +4,43 @@ import { useEffect, useState, useRef } from 'react'
 import { Progress } from '@/components/ui/progress'
 
 const STEPS_YOUTUBE = [
-  { label: '영상 정보 확인 중...', weight: 1 },
-  { label: '자막 추출 중...',      weight: 3 },
-  { label: '카테고리 분류 중...',  weight: 1 },
-  { label: '요약 생성 중...',      weight: 2 },
-  { label: '타임스탬프 연결 중...', weight: 1 },
+  { label: 'Fetching video info...', weight: 1 },
+  { label: 'Extracting captions...',  weight: 3 },
+  { label: 'Classifying category...', weight: 1 },
+  { label: 'Generating summary...',   weight: 2 },
+  { label: 'Linking timestamps...',   weight: 1 },
 ]
 
 const STEPS_PDF = [
-  { label: 'PDF 파일 읽는 중...',  weight: 1 },
-  { label: '텍스트 추출 중...',    weight: 2 },
-  { label: '카테고리 분류 중...',  weight: 1 },
-  { label: '요약 생성 중...',      weight: 3 },
-  { label: '정리 마무리 중...',    weight: 1 },
+  { label: 'Reading PDF...',          weight: 1 },
+  { label: 'Extracting text...',      weight: 2 },
+  { label: 'Classifying category...', weight: 1 },
+  { label: 'Generating summary...',   weight: 3 },
+  { label: 'Finishing up...',         weight: 1 },
 ]
 
 const STEPS_URL = [
-  { label: '페이지 접근 중...',    weight: 1 },
-  { label: '본문 추출 중...',      weight: 2 },
-  { label: '카테고리 분류 중...',  weight: 1 },
-  { label: '요약 생성 중...',      weight: 3 },
-  { label: '정리 마무리 중...',    weight: 1 },
+  { label: 'Accessing page...',       weight: 1 },
+  { label: 'Extracting content...',   weight: 2 },
+  { label: 'Classifying category...', weight: 1 },
+  { label: 'Generating summary...',   weight: 3 },
+  { label: 'Finishing up...',         weight: 1 },
 ]
 
 const STEPS_VOICE = [
-  { label: '녹음 파일 읽는 중...', weight: 1 },
-  { label: '음성 전사 중...',      weight: 3 },
-  { label: '내용 분석 중...',      weight: 2 },
-  { label: '요약 카드 생성 중...', weight: 2 },
-  { label: '마무리 중...',         weight: 1 },
+  { label: 'Reading audio file...',   weight: 1 },
+  { label: 'Transcribing speech...',  weight: 3 },
+  { label: 'Analyzing content...',    weight: 2 },
+  { label: 'Building summary...',     weight: 2 },
+  { label: 'Wrapping up...',          weight: 1 },
 ]
 
-// step 2 (자막/텍스트 추출) 에서 오래 걸릴 때 순환할 메시지
 const PATIENCE_MESSAGES = [
-  '영상 길이에 따라 처리 시간이 달라질 수 있어요.',
-  '긴 영상일수록 시간이 더 걸릴 수 있어요.',
-  '조금만 기다려 주세요, 거의 다 왔어요!',
-  '복잡한 내용일수록 분석 시간이 길어질 수 있어요.',
-  '취소하고 나중에 다시 시도해도 괜찮아요.',
+  'Processing time varies with video length.',
+  'Longer videos take a bit more time.',
+  'Almost there — hang tight!',
+  'Complex content takes a little longer to analyze.',
+  'Feel free to cancel and try again later.',
 ]
 
 function buildThresholds(steps: { label: string; weight: number }[]) {
@@ -54,8 +53,8 @@ function buildThresholds(steps: { label: string; weight: number }[]) {
 }
 
 function formatElapsed(sec: number): string {
-  if (sec < 60) return `${sec}초`
-  return `${Math.floor(sec / 60)}분 ${sec % 60}초`
+  if (sec < 60) return `${sec}s`
+  return `${Math.floor(sec / 60)}m ${sec % 60}s`
 }
 
 interface LoadingStepsProps {
@@ -74,7 +73,6 @@ export default function LoadingSteps({ currentStep, mode = 'youtube', onCancel }
   const stepStartRef = useRef<number>(Date.now())
   const totalStartRef = useRef<number>(Date.now())
 
-  // 전체 경과 시간
   useEffect(() => {
     totalStartRef.current = Date.now()
     const t = setInterval(() => {
@@ -83,7 +81,6 @@ export default function LoadingSteps({ currentStep, mode = 'youtube', onCancel }
     return () => clearInterval(t)
   }, [])
 
-  // 현재 단계 경과 시간 — step 바뀔 때마다 리셋
   useEffect(() => {
     stepStartRef.current = Date.now()
     setStepElapsed(0)
@@ -94,14 +91,12 @@ export default function LoadingSteps({ currentStep, mode = 'youtube', onCancel }
     return () => clearInterval(t)
   }, [currentStep])
 
-  // 30초마다 안내 메시지 순환
   useEffect(() => {
     if (stepElapsed > 0 && stepElapsed % 30 === 0) {
       setPatienceIdx(prev => (prev + 1) % PATIENCE_MESSAGES.length)
     }
   }, [stepElapsed])
 
-  // 프로그레스 바 easing
   useEffect(() => {
     if (currentStep < 1) return
     const completedPct = currentStep > 1 ? STEP_THRESHOLDS[currentStep - 2] : 0
@@ -151,7 +146,6 @@ export default function LoadingSteps({ currentStep, mode = 'youtube', onCancel }
         })}
       </div>
 
-      {/* 오래 걸릴 때 안내 메시지 */}
       {isLongWait && (
         <div className="rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)] px-4 py-3 text-center">
           <p className="text-[var(--text-muted)] text-xs leading-relaxed transition-all duration-500">
@@ -161,12 +155,11 @@ export default function LoadingSteps({ currentStep, mode = 'youtube', onCancel }
       )}
 
       <div className="space-y-2">
-        {/* 프로그레스 바 — 오래 걸릴 땐 pulse 애니메이션 */}
         <div className={isLongWait ? 'animate-pulse' : ''}>
           <Progress value={displayProgress} className="h-2" />
         </div>
         <div className="flex items-center justify-between text-xs text-[var(--text-muted)] tabular-nums">
-          <span>총 {formatElapsed(elapsed)} 경과</span>
+          <span>{formatElapsed(elapsed)} elapsed</span>
           <span>{Math.round(displayProgress)}%</span>
         </div>
       </div>
@@ -176,7 +169,7 @@ export default function LoadingSteps({ currentStep, mode = 'youtube', onCancel }
           onClick={onCancel}
           className="w-full h-10 rounded-xl border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-subtle)] text-sm hover:bg-[var(--bg-elevated-2)] hover:text-white hover:border-[var(--border-strong)] transition-all"
         >
-          취소
+          Cancel
         </button>
       )}
     </div>

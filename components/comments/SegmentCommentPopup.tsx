@@ -40,7 +40,7 @@ export default function SegmentCommentPopup({ sessionId, segmentId, segmentLabel
         segmentLabel,
         parentId: null,
         userId: user.uid,
-        userDisplayName: user.displayName || '익명',
+        userDisplayName: user.displayName || 'Anonymous',
         userPhotoURL: user.photoURL || '',
         text: text.trim(),
       })
@@ -50,7 +50,7 @@ export default function SegmentCommentPopup({ sessionId, segmentId, segmentLabel
       // 하단 댓글 섹션에 실시간 반영
       window.dispatchEvent(new CustomEvent('segment-comment-added', { detail: newComment }))
     } catch {
-      alert('댓글 작성에 실패했습니다.')
+      alert('Failed to post comment.')
     } finally {
       setSubmitting(false)
     }
@@ -82,9 +82,9 @@ export default function SegmentCommentPopup({ sessionId, segmentId, segmentLabel
         {/* 댓글 목록 */}
         <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-[60px]">
           {loading ? (
-            <p className="text-xs text-[var(--text-subtle)] text-center py-2">불러오는 중...</p>
+            <p className="text-xs text-[var(--text-subtle)] text-center py-2">Loading...</p>
           ) : comments.length === 0 ? (
-            <p className="text-xs text-[var(--text-subtle)] text-center py-3">내용 없음</p>
+            <p className="text-xs text-[var(--text-subtle)] text-center py-3">No comments yet</p>
           ) : (
             comments.map(c => (
               <div key={c.id} className="flex gap-2 items-start">
@@ -113,7 +113,7 @@ export default function SegmentCommentPopup({ sessionId, segmentId, segmentLabel
                 value={text}
                 onChange={e => setText(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="댓글 작성... (Enter로 전송)"
+                placeholder="Write a comment... (Enter to send)"
                 rows={2}
                 className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-white placeholder-[#75716e] resize-none outline-none focus:border-orange-500/40 transition-colors"
               />
@@ -122,11 +122,11 @@ export default function SegmentCommentPopup({ sessionId, segmentId, segmentLabel
                 disabled={!text.trim() || submitting}
                 className="h-10 px-3 bg-orange-500 hover:bg-orange-600 disabled:opacity-40 text-white text-xs font-bold rounded-xl transition-colors shrink-0"
               >
-                {submitting ? '...' : '전송'}
+                {submitting ? '...' : 'Send'}
               </button>
             </div>
           ) : (
-            <p className="text-xs text-[var(--text-subtle)] text-center py-1">로그인 후 댓글 작성 가능합니다.</p>
+            <p className="text-xs text-[var(--text-subtle)] text-center py-1">Log in to write a comment.</p>
           )}
         </div>
       </div>

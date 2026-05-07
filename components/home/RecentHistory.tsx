@@ -14,13 +14,13 @@ interface HistoryItem {
 }
 
 const CATEGORY_LABEL: Record<string, string> = {
-  recipe: '🍳요리',
-  english: '🔤영어',
-  learning: '📐학습',
-  news: '🗞️뉴스',
-  selfdev: '💪자기계발',
-  travel: '🧳여행',
-  story: '🍿스토리',
+  recipe: '🍳 Recipe',
+  english: '🔤 Language',
+  learning: '📐 Learning',
+  news: '🗞️ News',
+  selfdev: '💪 Self-Dev',
+  travel: '🧳 Travel',
+  story: '🍿 Story',
 }
 
 export default function RecentHistory() {
@@ -54,9 +54,9 @@ export default function RecentHistory() {
   return (
     <div className="w-full flex flex-col gap-4 border-b border-[var(--border-subtle)] pb-8 mb-2">
       <div className="flex items-center justify-between">
-        <p className="text-[var(--text-subtle)] text-sm font-medium">최근 요약 기록</p>
+        <p className="text-[var(--text-subtle)] text-sm font-medium">Recent Summaries</p>
         <Link href="/history" className="text-xs font-medium text-orange-400 hover:text-orange-300 transition-colors">
-          모든 기록 보기 →
+          View all history →
         </Link>
       </div>
 
@@ -75,7 +75,7 @@ export default function RecentHistory() {
               />
               <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
               <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-[10px] text-white">
-                {CATEGORY_LABEL[item.category] || '분석됨'}
+                {CATEGORY_LABEL[item.category] || 'Analyzed'}
               </div>
             </div>
             <div className="p-3">

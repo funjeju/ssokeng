@@ -1395,8 +1395,8 @@ export default function MyPage() {
       {activeTab === 'bookmarks' && (
         <div className="max-w-7xl mx-auto px-6 pb-12">
           <div className="mb-5">
-            <h2 className="text-white font-bold text-lg">🔖 타임스탬프 북마크</h2>
-            <p className="text-[var(--text-subtle)] text-sm mt-0.5">영상 시청 중 저장한 구간과 메모를 한눈에 확인하세요.</p>
+            <h2 className="text-white font-bold text-lg">🔖 Timestamp Bookmarks</h2>
+            <p className="text-[var(--text-subtle)] text-sm mt-0.5">See all timestamps and notes you saved while watching videos.</p>
           </div>
           <SavedBookmarks userId={user?.uid ?? getLocalUserId()} />
         </div>
@@ -1405,8 +1405,8 @@ export default function MyPage() {
       {activeTab === 'quizzes' && (
         <div className="max-w-2xl mx-auto px-6 pb-12">
           <div className="mb-5">
-            <h2 className="text-white font-bold text-lg">🧩 타임스탬프 퀴즈</h2>
-            <p className="text-[var(--text-subtle)] text-sm mt-0.5">영상 특정 시점에 추가한 퀴즈를 관리하세요. 영상이 해당 시점에 도달하면 자동으로 표시됩니다.</p>
+            <h2 className="text-white font-bold text-lg">🧩 Timestamp Quizzes</h2>
+            <p className="text-[var(--text-subtle)] text-sm mt-0.5">Manage quizzes added at specific video timestamps. They appear automatically when playback reaches that point.</p>
           </div>
           <SavedVideoQuizzes userId={user?.uid ?? getLocalUserId()} />
         </div>
@@ -1415,8 +1415,8 @@ export default function MyPage() {
       {activeTab === 'worksheets' && (
         <div className="max-w-2xl mx-auto px-6 pb-12">
           <div className="mb-5">
-            <h2 className="text-white font-bold text-lg">📝 저장된 워크시트</h2>
-            <p className="text-[var(--text-subtle)] text-sm mt-0.5">영어 영상 분석 후 생성한 워크시트를 저장하고 다시 꺼내볼 수 있어요.</p>
+            <h2 className="text-white font-bold text-lg">📝 Saved Worksheets</h2>
+            <p className="text-[var(--text-subtle)] text-sm mt-0.5">Worksheets generated from video analysis — saved here for later review.</p>
           </div>
           <SavedWorksheets userId={user?.uid ?? getLocalUserId()} />
         </div>
@@ -2027,7 +2027,7 @@ export default function MyPage() {
             )}
             <button
               onClick={handleDeleteAccount}
-              disabled={withdrawConfirm !== '탈퇴합니다' || withdrawing}
+              disabled={withdrawConfirm !== 'DELETE' || withdrawing}
               className="w-full py-3 bg-red-600 hover:bg-red-500 disabled:bg-[var(--bg-elevated-2)] disabled:text-[var(--text-subtle)] text-white font-bold rounded-2xl text-sm transition-colors flex items-center justify-center gap-2"
             >
               {withdrawing ? (

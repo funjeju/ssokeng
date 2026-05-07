@@ -82,7 +82,7 @@ export default function CommentSection({
         segmentLabel: replyTo ? null : focusSegmentLabel,
         parentId: replyTo?.id ?? null,
         userId: user.uid,
-        userDisplayName: user.displayName || '익명',
+        userDisplayName: user.displayName || 'Anonymous',
         userPhotoURL: user.photoURL || '',
         text: text.trim(),
         isAI: false,
@@ -100,7 +100,7 @@ export default function CommentSection({
   }
 
   const handleDelete = async (commentId: string) => {
-    if (!confirm('댓글을 삭제하시겠습니까?')) return
+    if (!confirm('Are you sure you want to delete this comment?')) return
     await deleteComment(commentId)
     const updated = comments.filter(c => c.id !== commentId && c.parentId !== commentId)
     setComments(updated)
@@ -139,7 +139,7 @@ export default function CommentSection({
         }),
       })
       const data = await res.json()
-      if (!data.comment) throw new Error(data.error ?? 'AI 응답 실패')
+      if (!data.comment) throw new Error(data.error ?? 'AI response failed')
 
       const aiComment = {
         ...data.comment as Comment,
@@ -166,10 +166,10 @@ export default function CommentSection({
     <div ref={sectionRef} className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-subtle)] p-5 flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-bold text-white flex items-center gap-2">
-          💬 댓글
-          <span className="text-sm text-[var(--text-subtle)] font-normal">{topLevel.length}개</span>
+          💬 Comments
+          <span className="text-sm text-[var(--text-subtle)] font-normal">{topLevel.length}</span>
         </h3>
-        <span className="text-[10px] text-[var(--text-subtle)] bg-[var(--bg-elevated)] px-2 py-1 rounded-full">📌 단락명 클릭 시 해당 위치로 이동</span>
+        <span className="text-[10px] text-[var(--text-subtle)] bg-[var(--bg-elevated)] px-2 py-1 rounded-full">📌 Click section name to jump</span>
       </div>
 
       {/* 입력폼 */}
@@ -184,7 +184,7 @@ export default function CommentSection({
               )}
               {replyTo && (
                 <span className="text-xs bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full">
-                  ↩️ @{replyTo.userName}에 답글
+                  ↩️ Replying to @{replyTo.userName}
                 </span>
               )}
               <button
@@ -199,7 +199,7 @@ export default function CommentSection({
               value={text}
               onChange={e => setText(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit() } }}
-              placeholder={replyTo ? '답글을 입력하세요...' : focusSegmentLabel ? `"${focusSegmentLabel}"에 대한 댓글...` : '댓글을 입력하세요...'}
+              placeholder={replyTo ? 'Write a reply...' : focusSegmentLabel ? `Comment on "${focusSegmentLabel}"...` : 'Write a comment...'}
               rows={2}
               className="flex-1 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-white placeholder:text-[var(--text-subtle)] resize-none focus:outline-none focus:border-orange-500/50 transition-colors"
             />
@@ -208,12 +208,12 @@ export default function CommentSection({
               disabled={!text.trim() || submitting}
               className="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-xl disabled:opacity-40 transition-colors whitespace-nowrap"
             >
-              {submitting ? '...' : '등록'}
+              {submitting ? '...' : 'Post'}
             </button>
           </div>
         </div>
       ) : (
-        <p className="text-[var(--text-subtle)] text-sm">로그인하면 댓글을 남길 수 있습니다.</p>
+        <p className="text-[var(--text-subtle)] text-sm">Log in to leave a comment.</p>
       )}
 
       {/* 댓글 목록 */}
@@ -222,7 +222,7 @@ export default function CommentSection({
           <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : topLevel.length === 0 ? (
-        <p className="text-[var(--text-subtle)] text-sm text-center py-4">첫 번째 댓글을 남겨보세요!</p>
+        <p className="text-[var(--text-subtle)] text-sm text-center py-4">Be the first to comment!</p>
       ) : (
         <div className="flex flex-col divide-y divide-white/5">
           {topLevel.map(comment => (
@@ -238,7 +238,7 @@ export default function CommentSection({
               }}
               onReplyToThread={parentComment => {
                 // AI 대댓글에 답글 → 최상위 댓글 스레드에 추가
-                setReplyTo({ id: parentComment.id, userName: 'AI 댓글봇' })
+                setReplyTo({ id: parentComment.id, userName: 'AI Bot' })
                 setTimeout(() => textareaRef.current?.focus(), 100)
               }}
               onDelete={handleDelete}
@@ -292,12 +292,12 @@ function CommentItem({ comment, replies, currentUserId, aiLoadingId, onReply, on
           </div>
           <p className="text-[var(--text-primary)] text-sm leading-relaxed break-words">{comment.text}</p>
           {(comment as any)._truncated && (
-            <p className="text-[10px] text-amber-500/70 mt-1">⚠️ 응답이 길어 일부가 잘렸습니다.</p>
+            <p className="text-[10px] text-amber-500/70 mt-1">⚠️ Response was truncated.</p>
           )}
           <div className="flex items-center gap-3 mt-1.5">
             {!comment.isAI && (
               <button onClick={() => onReply(comment)} className="text-[10px] text-[var(--text-subtle)] hover:text-white transition-colors">
-                ↩️ 답글
+                ↩️ Reply
               </button>
             )}
             {!comment.isAI && (
@@ -309,7 +309,7 @@ function CommentItem({ comment, replies, currentUserId, aiLoadingId, onReply, on
             )}
             {currentUserId === comment.userId && (
               <button onClick={() => onDelete(comment.id)} className="text-[10px] text-[var(--text-subtle)] hover:text-red-400 transition-colors">
-                삭제
+                Delete
               </button>
             )}
           </div>
@@ -332,7 +332,7 @@ function CommentItem({ comment, replies, currentUserId, aiLoadingId, onReply, on
                 </div>
                 <p className="text-[var(--text-primary)] text-xs leading-relaxed break-words">{reply.text}</p>
                 {(reply as any)._truncated && (
-                  <p className="text-[10px] text-amber-500/70 mt-0.5">⚠️ 응답이 길어 일부가 잘렸습니다.</p>
+                  <p className="text-[10px] text-amber-500/70 mt-0.5">⚠️ Response was truncated.</p>
                 )}
                 <div className="flex items-center gap-3 mt-1">
                   {reply.isAI ? (
@@ -342,7 +342,7 @@ function CommentItem({ comment, replies, currentUserId, aiLoadingId, onReply, on
                         onClick={() => onReplyToThread(comment)}
                         className="text-[10px] text-[var(--text-subtle)] hover:text-white transition-colors"
                       >
-                        ↩️ 답글
+                        ↩️ Reply
                       </button>
                     )
                   ) : (
@@ -358,7 +358,7 @@ function CommentItem({ comment, replies, currentUserId, aiLoadingId, onReply, on
                   )}
                   {currentUserId === reply.userId && (
                     <button onClick={() => onDelete(reply.id)} className="text-[9px] text-[var(--text-subtle)] hover:text-red-400 mt-0.5 transition-colors">
-                      삭제
+                      Delete
                     </button>
                   )}
                 </div>
@@ -390,10 +390,10 @@ function AIReplyButton({ commentId, aiLoadingId, onClick }: {
             <span className="w-1 h-1 rounded-full bg-violet-400 animate-bounce [animation-delay:150ms]" />
             <span className="w-1 h-1 rounded-full bg-violet-400 animate-bounce [animation-delay:300ms]" />
           </span>
-          AI 생각중...
+          AI thinking...
         </>
       ) : (
-        <>🤖 AI 반응</>
+        <>🤖 AI</>
       )}
     </button>
   )

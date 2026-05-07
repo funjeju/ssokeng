@@ -20,23 +20,23 @@ export default function ReportSummary({ data, onSeek, sessionId, commentCounts =
   const copyText = [
     `# ${data.title}`,
     '',
-    `[개요] ${data.context_summary}`,
+    `[Overview] ${data.context_summary}`,
     '',
-    '## 목차',
+    '## Table of Contents',
     ...data.table_of_contents.map(t => `  ${t}`),
     '',
     ...data.sections.map(s =>
       `## ${s.number}. ${s.heading}${s.timestamp && !hideTimestamp ? ` [${s.timestamp}]` : ''}\n${s.body}`
     ),
     '',
-    `[결론] ${data.conclusion}`,
+    `[Conclusion] ${data.conclusion}`,
   ].join('\n')
 
   return (
     <Card className="bg-zinc-900 border-zinc-800">
       <CardHeader className="flex flex-row items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <CardTitle className="text-blue-400 text-sm mb-1.5">📋 보고서</CardTitle>
+          <CardTitle className="text-blue-400 text-sm mb-1.5">📋 Report</CardTitle>
           <p className="text-zinc-100 text-base font-semibold leading-snug">{data.title}</p>
         </div>
         <CopyButton text={copyText} />
@@ -47,9 +47,9 @@ export default function ReportSummary({ data, onSeek, sessionId, commentCounts =
         {/* 맥락 요약 */}
         <div id="seg-context" className="bg-zinc-800/70 rounded-xl p-4 border-l-4 border-blue-500">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className="text-blue-400 text-xs font-semibold uppercase tracking-wide">개요</span>
+            <span className="text-blue-400 text-xs font-semibold uppercase tracking-wide">Overview</span>
             {sessionId && (
-              <CommentBubble sessionId={sessionId} segmentId="context" segmentLabel="개요" initialCount={commentCounts['context'] ?? 0} />
+              <CommentBubble sessionId={sessionId} segmentId="context" segmentLabel="Overview" initialCount={commentCounts['context'] ?? 0} />
             )}
           </div>
           <p className="text-zinc-300 text-sm leading-relaxed">{data.context_summary}</p>
@@ -58,7 +58,7 @@ export default function ReportSummary({ data, onSeek, sessionId, commentCounts =
         {/* 목차 */}
         {data.table_of_contents.length > 0 && (
           <div className="bg-zinc-800/40 rounded-xl p-4">
-            <h3 className="text-zinc-400 text-xs font-semibold uppercase tracking-wide mb-3">목차</h3>
+            <h3 className="text-zinc-400 text-xs font-semibold uppercase tracking-wide mb-3">Table of Contents</h3>
             <ol className="flex flex-col gap-1.5">
               {data.table_of_contents.map((item, i) => (
                 <li key={i} className="text-zinc-300 text-sm flex items-start gap-2">
@@ -104,9 +104,9 @@ export default function ReportSummary({ data, onSeek, sessionId, commentCounts =
         {/* 결론 */}
         <div id="seg-conclusion" className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/20 rounded-xl px-4 py-3.5">
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <span className="text-blue-400 text-xs font-semibold uppercase tracking-wide">핵심 결론</span>
+            <span className="text-blue-400 text-xs font-semibold uppercase tracking-wide">Key Conclusion</span>
             {sessionId && (
-              <CommentBubble sessionId={sessionId} segmentId="conclusion" segmentLabel="핵심 결론" initialCount={commentCounts['conclusion'] ?? 0} />
+              <CommentBubble sessionId={sessionId} segmentId="conclusion" segmentLabel="Key Conclusion" initialCount={commentCounts['conclusion'] ?? 0} />
             )}
           </div>
           <p className="text-zinc-200 text-sm font-medium leading-relaxed">{data.conclusion}</p>

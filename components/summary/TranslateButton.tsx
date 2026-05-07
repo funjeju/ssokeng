@@ -40,14 +40,14 @@ export default function TranslateButton({ text, className = '' }: Props) {
             ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/25'
             : 'bg-[var(--bg-elevated)] border-[var(--border-default)] text-[var(--text-subtle)] hover:text-white hover:border-[var(--border-strong)]'
         } disabled:opacity-50`}
-        title={state === 'done' ? '번역 닫기' : '한국어로 번역'}
+        title={state === 'done' ? 'Close translation' : 'Translate to Korean'}
       >
         {state === 'loading' ? (
           <span className="animate-spin text-[9px]">⏳</span>
         ) : state === 'done' ? (
-          <span>🇰🇷 번역 닫기</span>
+          <span>🇰🇷 Close</span>
         ) : (
-          <span>🇰🇷 한국어 해석</span>
+          <span>🇰🇷 Korean</span>
         )}
       </button>
       {state === 'done' && translated && (

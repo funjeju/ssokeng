@@ -115,20 +115,20 @@ export default function VoiceControl({ playerRef, steps }: Props) {
 
   const seekToStep = useCallback((num: number, player: YT.Player) => {
     const step = steps.find(s => s.step === num)
-    if (!step) { showFeedback(`❌ ${num}단계가 없어요`); return }
-    if (!step.timestamp || step.timestamp === '00:00') { showFeedback(`⚠️ ${num}단계 타임스탬프 없음`); return }
+    if (!step) { showFeedback(`❌ Step ${num} not found`); return }
+    if (!step.timestamp || step.timestamp === '00:00') { showFeedback(`⚠️ Step ${num} has no timestamp`); return }
     player.seekTo(timestampToSeconds(step.timestamp), true)
     player.playVideo()
     currentStepRef.current = num
     lastAutoStepRef.current = num
     scrollToStep(num)
-    showFeedback(`✅ ${num}단계 재생`)
+    showFeedback(`✅ Playing step ${num}`)
   }, [steps, showFeedback])
 
   const executeCommand = useCallback((text: string) => {
     const t = text.trim().toLowerCase()
     const player = playerRef.current
-    if (!player) { showFeedback('❌ 플레이어가 준비되지 않았어요'); return }
+    if (!player) { showFeedback('❌ Player not ready'); return }
 
     // 다음단계 / 전단계
     if (/다음\s*단계|next/.test(t)) {
@@ -157,33 +157,33 @@ export default function VoiceControl({ playerRef, steps }: Props) {
       const isBack = /뒤|back/.test(seekSecMatch[2])
       const cur = player.getCurrentTime?.() ?? 0
       player.seekTo(isBack ? Math.max(0, cur - secs) : cur + secs, true)
-      showFeedback(isBack ? `⏪ ${secs}초 뒤로` : `⏩ ${secs}초 앞으로`)
+      showFeedback(isBack ? `⏪ Back ${secs}s` : `⏩ Forward ${secs}s`)
       return
     }
 
     if (/처음|맨 앞|처음부터|restart/.test(t)) {
-      player.seekTo(0, true); player.playVideo(); showFeedback('⏮ 처음부터'); return
+      player.seekTo(0, true); player.playVideo(); showFeedback('⏮ From start'); return
     }
 
-    if (/재생|틀어|시작|계속|play/.test(t))               { player.playVideo();  showFeedback('▶️ 재생'); return }
-    if (/멈춰|멈추|정지|일시정지|pause|스톱|stop/.test(t)) { player.pauseVideo(); showFeedback('⏸ 일시정지'); return }
+    if (/재생|틀어|시작|계속|play/.test(t))               { player.playVideo();  showFeedback('▶️ Play'); return }
+    if (/멈춰|멈추|정지|일시정지|pause|스톱|stop/.test(t)) { player.pauseVideo(); showFeedback('⏸ Pause'); return }
 
     const rateMatch = t.match(/(\d+(?:\.\d+)?)\s*배속?/)
     if (rateMatch) {
       const r = Math.min(2, Math.max(0.25, parseFloat(rateMatch[1])))
-      player.setPlaybackRate(r); showFeedback(`⚡ ${r}배속`); return
+      player.setPlaybackRate(r); showFeedback(`⚡ ${r}x speed`); return
     }
     if (/느리게|천천히|slow/.test(t)) {
       const next = Math.max(0.25, parseFloat(((player.getPlaybackRate?.() ?? 1) - 0.25).toFixed(2)))
-      player.setPlaybackRate(next); showFeedback(`🐢 ${next}배속`); return
+      player.setPlaybackRate(next); showFeedback(`🐢 ${next}x`); return
     }
     if (/빠르게|빨리|fast/.test(t)) {
       const next = Math.min(2, parseFloat(((player.getPlaybackRate?.() ?? 1) + 0.25).toFixed(2)))
-      player.setPlaybackRate(next); showFeedback(`🐇 ${next}배속`); return
+      player.setPlaybackRate(next); showFeedback(`🐇 ${next}x`); return
     }
-    if (/보통|정상|1배|원래/.test(t)) { player.setPlaybackRate(1); showFeedback('🔄 보통 속도'); return }
+    if (/보통|정상|1배|원래/.test(t)) { player.setPlaybackRate(1); showFeedback('🔄 Normal speed'); return }
 
-    showFeedback(`❓ "${text}" — 이해하지 못했어요`)
+    showFeedback(`❓ "${text}" — not understood`)
   }, [playerRef, steps, seekToStep, showFeedback])
 
   const startRecognition = useCallback(() => {
@@ -191,7 +191,7 @@ export default function VoiceControl({ playerRef, steps }: Props) {
     if (!SR) return
 
     const rec = new SR()
-    rec.lang = 'ko-KR'
+    rec.lang = 'en-US'
     rec.continuous = true
     rec.interimResults = false
     recognitionRef.current = rec
@@ -213,7 +213,7 @@ export default function VoiceControl({ playerRef, steps }: Props) {
     rec.onerror = (e: any) => {
       if (e.error === 'not-allowed') {
         setPermission('denied')
-        showFeedback('🔒 마이크 권한이 차단됐어요')
+        showFeedback('🔒 Microphone blocked')
         activeRef.current = false
         setActive(false)
       } else if (e.error === 'no-speech' || e.error === 'aborted') {
@@ -255,7 +255,7 @@ export default function VoiceControl({ playerRef, steps }: Props) {
     if (active) { stopAll(); return }
 
     if (permission === 'denied') {
-      showFeedback('🔒 브라우저 설정에서 마이크를 허용해주세요')
+      showFeedback('🔒 Allow microphone in browser settings')
       return
     }
 
@@ -268,7 +268,7 @@ export default function VoiceControl({ playerRef, steps }: Props) {
     }
 
     setPermission('requesting')
-    showFeedback('🎙 마이크 권한을 요청하는 중...')
+    showFeedback('🎙 Requesting microphone...')
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
@@ -282,9 +282,9 @@ export default function VoiceControl({ playerRef, steps }: Props) {
       setActive(false)
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
         setPermission('denied')
-        showFeedback('🔒 마이크 권한이 차단됐어요.')
+        showFeedback('🔒 Microphone access blocked.')
       } else {
-        showFeedback(`❌ 마이크를 사용할 수 없어요 (${err.name})`)
+        showFeedback(`❌ Microphone unavailable (${err.name})`)
         setPermission('unknown')
       }
     }
@@ -305,7 +305,7 @@ export default function VoiceControl({ playerRef, steps }: Props) {
       {/* 영상 끊김 안내 */}
       {active && !feedback && !transcript && (
         <div className="bg-[var(--bg-base)] border border-orange-500/10 rounded-2xl px-3 py-2 max-w-[200px]">
-          <p className="text-[var(--text-subtle)] text-[10px] leading-snug">영상이 끊기면 YouTube 플레이어 음소거 후 사용하세요</p>
+          <p className="text-[var(--text-subtle)] text-[10px] leading-snug">If video stutters, mute the YouTube player first</p>
         </div>
       )}
 
@@ -323,11 +323,11 @@ export default function VoiceControl({ playerRef, steps }: Props) {
             : 'bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] border border-[var(--border-default)] hover:border-orange-500/40'
         }`}
         title={
-          permission === 'denied'     ? '마이크 권한이 차단됨' :
-          listening                   ? '듣는 중 (탭해서 중지)' :
-          active                      ? '대기 중 (탭해서 중지)' :
-          permission === 'requesting' ? '권한 요청 중...' :
-          '음성 명령'
+          permission === 'denied'     ? 'Microphone blocked' :
+          listening                   ? 'Listening (tap to stop)' :
+          active                      ? 'Active (tap to stop)' :
+          permission === 'requesting' ? 'Requesting...' :
+          'Voice control'
         }
       >
         {permission === 'denied' ? (
@@ -351,11 +351,11 @@ export default function VoiceControl({ playerRef, steps }: Props) {
       </button>
 
       <p className="text-[var(--text-subtle)] text-[10px] pl-1">
-        {permission === 'denied'     ? '🔒 권한 차단됨' :
-         listening                   ? '🔴 듣는 중...' :
-         active                      ? '🟠 대기 중' :
-         permission === 'requesting' ? '권한 요청 중...' :
-         '🎙 음성 제어'}
+        {permission === 'denied'     ? '🔒 Blocked' :
+         listening                   ? '🔴 Listening...' :
+         active                      ? '🟠 Active' :
+         permission === 'requesting' ? 'Requesting...' :
+         '🎙 Voice'}
       </p>
     </div>
   )

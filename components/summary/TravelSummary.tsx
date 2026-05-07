@@ -32,14 +32,14 @@ export default function TravelSummary({ data, onSeek, sessionId, commentCounts =
   }
 
   const userId = user?.uid ?? getLocalUserId()
-  const copyText = `${data.destination}\n\n방문지:\n${data.places.map(p => `[${p.timestamp}] ${p.name}\n${p.desc}${p.price ? `\n가격: ${p.price}` : ''}${p.tip ? `\n팁: ${p.tip}` : ''}`).join('\n\n')}\n\n추천 동선: ${data.route}\n\n실용 정보:\n${data.practical_info.map(i => `• ${i}`).join('\n')}\n\n주의사항:\n${data.warnings.map(w => `⚠️ ${w}`).join('\n')}`
+  const copyText = `${data.destination}\n\nPlaces:\n${data.places.map(p => `[${p.timestamp}] ${p.name}\n${p.desc}${p.price ? `\nPrice: ${p.price}` : ''}${p.tip ? `\nTip: ${p.tip}` : ''}`).join('\n\n')}\n\nRecommended Route: ${data.route}\n\nPractical Info:\n${data.practical_info.map(i => `• ${i}`).join('\n')}\n\nWarnings:\n${data.warnings.map(w => `⚠️ ${w}`).join('\n')}`
 
   return (
     <>
     <Card className="bg-zinc-900 border-zinc-800">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-cyan-400 text-sm mb-1">🧳 여행 가이드 카드</CardTitle>
+          <CardTitle className="text-cyan-400 text-sm mb-1">🧳 Travel Guide</CardTitle>
           <h2 className="text-xl font-bold text-zinc-100">{data.destination}</h2>
         </div>
         <CopyButton text={copyText} />
@@ -48,7 +48,7 @@ export default function TravelSummary({ data, onSeek, sessionId, commentCounts =
 
         {/* 방문지 */}
         <div>
-          <h3 className="text-zinc-300 font-semibold mb-3">📍 방문지 리스트</h3>
+          <h3 className="text-zinc-300 font-semibold mb-3">📍 Places</h3>
           <div className="flex flex-col gap-3">
             {data.places.map((place, i) => {
               const segId = `place-${i}`
@@ -62,12 +62,12 @@ export default function TravelSummary({ data, onSeek, sessionId, commentCounts =
                       <button
                         onClick={() => handleWish(place)}
                         className="flex items-center gap-1 px-2 py-1 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-400 text-[11px] font-semibold transition-colors"
-                        title="여행 찜에 저장"
+                        title="Save to wish list"
                       >
-                        🗺️ 찜
+                        🗺️ Wish
                       </button>
                       {sessionId && (
-                        <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`방문지 - ${place.name}`} initialCount={commentCounts[segId] ?? 0} />
+                        <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`Place - ${place.name}`} initialCount={commentCounts[segId] ?? 0} />
                       )}
                     </div>
                   </div>
@@ -84,9 +84,9 @@ export default function TravelSummary({ data, onSeek, sessionId, commentCounts =
         {/* 추천 동선 */}
         <div id="seg-route">
           <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-zinc-300 font-semibold">🗺️ 추천 동선</h3>
+            <h3 className="text-zinc-300 font-semibold">🗺️ Recommended Route</h3>
             {sessionId && (
-              <CommentBubble sessionId={sessionId} segmentId="route" segmentLabel="추천 동선" initialCount={commentCounts['route'] ?? 0} />
+              <CommentBubble sessionId={sessionId} segmentId="route" segmentLabel="Recommended Route" initialCount={commentCounts['route'] ?? 0} />
             )}
           </div>
           <p className="text-zinc-300 text-sm">{data.route}</p>
@@ -97,7 +97,7 @@ export default function TravelSummary({ data, onSeek, sessionId, commentCounts =
           <>
             <Separator className="bg-zinc-800" />
             <div>
-              <h3 className="text-zinc-300 font-semibold mb-2">실용 정보</h3>
+              <h3 className="text-zinc-300 font-semibold mb-2">Practical Info</h3>
               <ul className="flex flex-col gap-1">
                 {data.practical_info.map((info, i) => {
                   const segId = `practical-${i}`
@@ -105,7 +105,7 @@ export default function TravelSummary({ data, onSeek, sessionId, commentCounts =
                     <li key={i} id={`seg-${segId}`} className="flex items-start gap-2">
                       <span className="text-zinc-300 text-sm flex-1">• {info}</span>
                       {sessionId && (
-                        <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`실용 정보 ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
+                        <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`Practical Info ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
                       )}
                     </li>
                   )
@@ -120,7 +120,7 @@ export default function TravelSummary({ data, onSeek, sessionId, commentCounts =
           <>
             <Separator className="bg-zinc-800" />
             <div>
-              <h3 className="text-amber-400 font-semibold mb-2">⚠️ 주의사항</h3>
+              <h3 className="text-amber-400 font-semibold mb-2">⚠️ Warnings</h3>
               <ul className="flex flex-col gap-1">
                 {data.warnings.map((warning, i) => {
                   const segId = `warning-${i}`
@@ -128,7 +128,7 @@ export default function TravelSummary({ data, onSeek, sessionId, commentCounts =
                     <li key={i} id={`seg-${segId}`} className="flex items-start gap-2">
                       <span className="text-amber-300 text-sm flex-1">• {warning}</span>
                       {sessionId && (
-                        <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`주의사항 ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
+                        <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`Warning ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
                       )}
                     </li>
                   )

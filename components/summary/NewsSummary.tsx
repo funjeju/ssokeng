@@ -21,33 +21,33 @@ interface Props {
 
 export default function NewsSummary({ data, onSeek, sessionId, commentCounts = {}, showTranslate }: Props) {
   const fiveW = [
-    { key: '누가', value: data.five_w.who },
-    { key: '언제', value: data.five_w.when },
-    { key: '어디서', value: data.five_w.where },
-    { key: '무엇을', value: data.five_w.what },
-    { key: '어떻게', value: data.five_w.how },
-    { key: '왜', value: data.five_w.why },
+    { key: 'Who',   value: data.five_w.who },
+    { key: 'When',  value: data.five_w.when },
+    { key: 'Where', value: data.five_w.where },
+    { key: 'What',  value: data.five_w.what },
+    { key: 'How',   value: data.five_w.how },
+    { key: 'Why',   value: data.five_w.why },
   ]
 
-  const copyText = `${data.headline}\n\n${data.three_line_summary}\n\n육하원칙:\n${fiveW.map(f => `${f.key}: ${f.value}`).join('\n')}\n\n배경 [${data.background.timestamp}]:\n${data.background.desc}\n\n시사점:\n${data.implications.map(i => `[${i.timestamp}] ${i.point}`).join('\n')}`
+  const copyText = `${data.headline}\n\n${data.three_line_summary}\n\n5 W's:\n${fiveW.map(f => `${f.key}: ${f.value}`).join('\n')}\n\nBackground [${data.background.timestamp}]:\n${data.background.desc}\n\nTakeaways:\n${data.implications.map(i => `[${i.timestamp}] ${i.point}`).join('\n')}`
 
   return (
     <Card className="bg-zinc-900 border-zinc-800">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-zinc-400 text-sm mb-1">🗞️ 뉴스 브리핑</CardTitle>
+          <CardTitle className="text-zinc-400 text-sm mb-1">🗞️ News Brief</CardTitle>
           <h2 className="text-xl font-bold text-zinc-100">{data.headline}</h2>
         </div>
         <CopyButton text={copyText} />
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
 
-        {/* 3줄 요약 */}
+        {/* 3-line summary */}
         <div id="seg-three-line" className="bg-zinc-800 rounded-lg p-4 border-l-4 border-blue-500">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-blue-400 font-semibold text-sm">📌 3줄 요약</h3>
+            <h3 className="text-blue-400 font-semibold text-sm">📌 3-Line Summary</h3>
             {sessionId && (
-              <CommentBubble sessionId={sessionId} segmentId="three-line" segmentLabel="3줄 요약" initialCount={commentCounts['three-line'] ?? 0} />
+              <CommentBubble sessionId={sessionId} segmentId="three-line" segmentLabel="3-Line Summary" initialCount={commentCounts['three-line'] ?? 0} />
             )}
           </div>
           <div className="text-zinc-200 text-sm leading-relaxed space-y-1.5">
@@ -61,9 +61,9 @@ export default function NewsSummary({ data, onSeek, sessionId, commentCounts = {
           {showTranslate && <TranslateButton text={data.three_line_summary} className="mt-2" />}
         </div>
 
-        {/* 육하원칙 */}
+        {/* 5 W's */}
         <div>
-          <h3 className="text-zinc-300 font-semibold mb-3">육하원칙</h3>
+          <h3 className="text-zinc-300 font-semibold mb-3">5 W&apos;s</h3>
           <Table>
             <TableBody>
               {fiveW.map((item, i) => {
@@ -74,7 +74,7 @@ export default function NewsSummary({ data, onSeek, sessionId, commentCounts = {
                     <TableCell className="text-zinc-200">{item.value}</TableCell>
                     <TableCell className="w-10 text-right">
                       {sessionId && (
-                        <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`육하원칙 - ${item.key}`} initialCount={commentCounts[segId] ?? 0} />
+                        <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`5W - ${item.key}`} initialCount={commentCounts[segId] ?? 0} />
                       )}
                     </TableCell>
                   </TableRow>
@@ -86,23 +86,23 @@ export default function NewsSummary({ data, onSeek, sessionId, commentCounts = {
 
         <Separator className="bg-zinc-800" />
 
-        {/* 배경 */}
+        {/* Background */}
         <div id="seg-background">
           <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-zinc-300 font-semibold">배경</h3>
+            <h3 className="text-zinc-300 font-semibold">Background</h3>
             {sessionId && (
-              <CommentBubble sessionId={sessionId} segmentId="background" segmentLabel="배경" initialCount={commentCounts['background'] ?? 0} />
+              <CommentBubble sessionId={sessionId} segmentId="background" segmentLabel="Background" initialCount={commentCounts['background'] ?? 0} />
             )}
           </div>
           <p className="text-zinc-300 text-sm">{data.background.desc}{' '}<TimestampBadge timestamp={data.background.timestamp} onSeek={onSeek} /></p>
         </div>
 
-        {/* 주요 장면 타임라인 */}
+        {/* Key moments timeline */}
         {data.key_moments?.length > 0 && (
           <>
             <Separator className="bg-zinc-800" />
             <div>
-              <h3 className="text-zinc-300 font-semibold mb-3">🕐 주요 장면</h3>
+              <h3 className="text-zinc-300 font-semibold mb-3">🕐 Key Moments</h3>
               <div className="flex flex-col gap-2">
                 {data.key_moments.map((km, i) => {
                   const segId = `key-moment-${i}`
@@ -112,7 +112,7 @@ export default function NewsSummary({ data, onSeek, sessionId, commentCounts = {
                         <p className="text-zinc-200 text-sm">{km.point}{' '}<TimestampBadge timestamp={km.timestamp} onSeek={onSeek} /></p>
                       </div>
                       {sessionId && (
-                        <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`주요 장면 ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
+                        <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`Key Moment ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
                       )}
                     </div>
                   )
@@ -122,12 +122,12 @@ export default function NewsSummary({ data, onSeek, sessionId, commentCounts = {
           </>
         )}
 
-        {/* 시사점 */}
+        {/* Takeaways */}
         {data.implications.length > 0 && (
           <>
             <Separator className="bg-zinc-800" />
             <div>
-              <h3 className="text-zinc-300 font-semibold mb-3">시사점</h3>
+              <h3 className="text-zinc-300 font-semibold mb-3">Takeaways</h3>
               <div className="flex flex-col gap-2">
                 {data.implications.map((imp, i) => {
                   const segId = `implication-${i}`
@@ -138,7 +138,7 @@ export default function NewsSummary({ data, onSeek, sessionId, commentCounts = {
                         {showTranslate && <TranslateButton text={imp.point} />}
                       </div>
                       {sessionId && (
-                        <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`시사점 ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
+                        <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`Takeaway ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
                       )}
                     </div>
                   )

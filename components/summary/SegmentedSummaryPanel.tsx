@@ -85,8 +85,8 @@ export default function SegmentedSummaryPanel({ segments, onSeek, onRequestQuiz 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-white font-semibold text-base">🗂 구간별 분석</span>
-        <span className="text-xs text-[var(--text-subtle)] bg-[var(--bg-elevated)] px-2 py-0.5 rounded-full border border-[var(--border-default)]">{segments.length}개 구간</span>
+        <span className="text-white font-semibold text-base">🗂 Segment Analysis</span>
+        <span className="text-xs text-[var(--text-subtle)] bg-[var(--bg-elevated)] px-2 py-0.5 rounded-full border border-[var(--border-default)]">{segments.length} segments</span>
       </div>
 
       {segments.map((seg, i) => {
@@ -116,7 +116,7 @@ export default function SegmentedSummaryPanel({ segments, onSeek, onRequestQuiz 
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                {hasQuiz && <span className="text-[10px] text-violet-400 bg-violet-500/10 border border-violet-500/20 px-1.5 py-0.5 rounded-full">퀴즈</span>}
+                {hasQuiz && <span className="text-[10px] text-violet-400 bg-violet-500/10 border border-violet-500/20 px-1.5 py-0.5 rounded-full">Quiz</span>}
                 <svg
                   className={`w-4 h-4 text-[var(--text-subtle)] transition-transform ${isOpen ? 'rotate-180' : ''}`}
                   fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -134,7 +134,7 @@ export default function SegmentedSummaryPanel({ segments, onSeek, onRequestQuiz 
                   onClick={() => onSeek(seg.startTimestamp)}
                   className="self-start flex items-center gap-1.5 px-2.5 py-1 bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs rounded-full hover:bg-orange-500/20 transition-all"
                 >
-                  ▶ {seg.startTimestamp}부터 재생
+                  ▶ Play from {seg.startTimestamp}
                 </button>
 
                 {/* 포인트 목록 */}
@@ -164,10 +164,10 @@ export default function SegmentedSummaryPanel({ segments, onSeek, onRequestQuiz 
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                             </svg>
-                            퀴즈 생성 중...
+                            Generating quiz...
                           </>
                         ) : (
-                          <>🧠 이 구간 퀴즈 풀기</>
+                          <>🧠 Quiz this segment</>
                         )}
                       </button>
                     )}

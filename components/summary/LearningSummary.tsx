@@ -19,22 +19,22 @@ interface Props {
 }
 
 export default function LearningSummary({ data, onSeek, sessionId, commentCounts = {}, showTranslate }: Props) {
-  const copyText = `${data.subject}\n\n핵심 개념:\n${data.concepts.map(c => `[${c.timestamp}] ${c.name}: ${c.desc}`).join('\n')}\n\n핵심 포인트:\n${data.key_points.map(p => `[${p.timestamp}] • ${p.point}`).join('\n')}\n\n예시:\n${data.examples.map(e => `[${e.timestamp}] ${e.desc}`).join('\n')}`
+  const copyText = `${data.subject}\n\nKey Concepts:\n${data.concepts.map(c => `[${c.timestamp}] ${c.name}: ${c.desc}`).join('\n')}\n\nKey Points:\n${data.key_points.map(p => `[${p.timestamp}] • ${p.point}`).join('\n')}\n\nExamples:\n${data.examples.map(e => `[${e.timestamp}] ${e.desc}`).join('\n')}`
 
   return (
     <Card className="bg-zinc-900 border-zinc-800">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-violet-400 text-sm mb-1">📐 학습 정리 카드</CardTitle>
+          <CardTitle className="text-violet-400 text-sm mb-1">📐 Learning Summary</CardTitle>
           <h2 className="text-xl font-bold text-zinc-100">{data.subject}</h2>
         </div>
         <CopyButton text={copyText} />
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
 
-        {/* 핵심 개념 */}
+        {/* Key concepts */}
         <div>
-          <h3 className="text-zinc-300 font-semibold mb-3">핵심 개념</h3>
+          <h3 className="text-zinc-300 font-semibold mb-3">Key Concepts</h3>
           <div className="flex flex-col gap-3">
             {data.concepts.map((concept, i) => {
               const segId = `concept-${i}`
@@ -44,7 +44,7 @@ export default function LearningSummary({ data, onSeek, sessionId, commentCounts
                     <span className="text-violet-300 font-medium text-sm">{concept.name}</span>
                     <TimestampBadge timestamp={concept.timestamp} onSeek={onSeek} />
                     {sessionId && (
-                      <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`개념 - ${concept.name}`} initialCount={commentCounts[segId] ?? 0} />
+                      <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`Concept - ${concept.name}`} initialCount={commentCounts[segId] ?? 0} />
                     )}
                     {showTranslate && <TranslateButton text={`${concept.name}: ${concept.desc}`} />}
                   </div>
@@ -57,9 +57,9 @@ export default function LearningSummary({ data, onSeek, sessionId, commentCounts
 
         <Separator className="bg-zinc-800" />
 
-        {/* 핵심 포인트 */}
+        {/* Key points */}
         <div>
-          <h3 className="text-zinc-300 font-semibold mb-3">핵심 포인트</h3>
+          <h3 className="text-zinc-300 font-semibold mb-3">Key Points</h3>
           <div className="flex flex-col gap-2">
             {data.key_points.map((kp, i) => {
               const segId = `keypoint-${i}`
@@ -70,7 +70,7 @@ export default function LearningSummary({ data, onSeek, sessionId, commentCounts
                     {showTranslate && <TranslateButton text={kp.point} />}
                   </div>
                   {sessionId && (
-                    <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`핵심 포인트 ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
+                    <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`Key Point ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
                   )}
                 </div>
               )
@@ -78,12 +78,12 @@ export default function LearningSummary({ data, onSeek, sessionId, commentCounts
           </div>
         </div>
 
-        {/* 예시 */}
+        {/* Examples */}
         {data.examples.length > 0 && (
           <>
             <Separator className="bg-zinc-800" />
             <div>
-              <h3 className="text-zinc-300 font-semibold mb-3">영상 내 예시</h3>
+              <h3 className="text-zinc-300 font-semibold mb-3">Examples</h3>
               <div className="flex flex-col gap-2">
                 {data.examples.map((ex, i) => {
                   const segId = `example-${i}`
@@ -93,7 +93,7 @@ export default function LearningSummary({ data, onSeek, sessionId, commentCounts
                         <p className="text-zinc-300 text-sm">{ex.desc}{' '}<TimestampBadge timestamp={ex.timestamp} onSeek={onSeek} /></p>
                       </div>
                       {sessionId && (
-                        <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`예시 ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
+                        <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`Example ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
                       )}
                     </div>
                   )

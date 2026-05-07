@@ -23,7 +23,7 @@ export default function CopyButton({ text }: CopyButtonProps) {
       onClick={handleCopy}
       className="text-zinc-400 hover:text-zinc-100"
     >
-      {copied ? '✅ 복사됨' : '📋 복사'}
+      {copied ? '✅ Copied' : '📋 Copy'}
     </Button>
   )
 }

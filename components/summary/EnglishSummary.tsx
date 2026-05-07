@@ -22,13 +22,13 @@ export default function EnglishSummary({ data, onSeek, sessionId, commentCounts 
 
   const copyText = [
     displayTitle,
-    data.key_message ? `\n핵심 내용:\n${data.key_message}` : '',
-    `\n핵심 표현:\n${data.expressions.map(e => `[${e.timestamp}] "${e.text}" → ${e.meaning}\n💡 ${e.note}`).join('\n\n')}`,
+    data.key_message ? `\nKey Content:\n${data.key_message}` : '',
+    `\nKey Expressions:\n${data.expressions.map(e => `[${e.timestamp}] "${e.text}" → ${e.meaning}\n💡 ${e.note}`).join('\n\n')}`,
     data.vocabulary.length
-      ? `\n주요 단어:\n${data.vocabulary.map(v => `${v.word}: ${v.meaning}${v.example ? ` / 예) ${v.example} (${v.example_ko})` : v.pronunciation ? ` (${v.pronunciation})` : ''}`).join('\n')}`
+      ? `\nKey Vocabulary:\n${data.vocabulary.map(v => `${v.word}: ${v.meaning}${v.example ? ` / e.g. ${v.example}${v.example_ko ? ` (${v.example_ko})` : ''}` : v.pronunciation ? ` (${v.pronunciation})` : ''}`).join('\n')}`
       : '',
     data.patterns.length
-      ? `\n반복 패턴:\n${data.patterns.map(p => typeof p === 'string' ? p : `${p.pattern} → ${p.desc}`).join('\n')}`
+      ? `\nRecurring Patterns:\n${data.patterns.map(p => typeof p === 'string' ? p : `${p.pattern} → ${p.desc}`).join('\n')}`
       : '',
   ].join('')
 
@@ -36,7 +36,7 @@ export default function EnglishSummary({ data, onSeek, sessionId, commentCounts 
     <Card className="bg-zinc-900 border-zinc-800">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle className="text-blue-400 text-sm mb-1">🔤 영어 학습 카드</CardTitle>
+          <CardTitle className="text-blue-400 text-sm mb-1">🔤 Language Learning</CardTitle>
           <h2 className="text-xl font-bold text-zinc-100">{displayTitle}</h2>
           {data.artist && <p className="text-zinc-400 text-sm mt-1">{data.artist}</p>}
         </div>
@@ -44,17 +44,17 @@ export default function EnglishSummary({ data, onSeek, sessionId, commentCounts 
       </CardHeader>
       <CardContent className="flex flex-col gap-6">
 
-        {/* 핵심 내용 요약 */}
+        {/* Key content summary */}
         {data.key_message && (
           <div className="bg-blue-950/40 border border-blue-800/40 rounded-lg p-4">
-            <h3 className="text-blue-300 font-semibold text-sm mb-2">📌 핵심 내용</h3>
+            <h3 className="text-blue-300 font-semibold text-sm mb-2">📌 Key Content</h3>
             <p className="text-zinc-200 text-sm leading-relaxed">{data.key_message}</p>
           </div>
         )}
 
-        {/* 핵심 표현 */}
+        {/* Key expressions */}
         <div>
-          <h3 className="text-zinc-300 font-semibold mb-3">핵심 표현</h3>
+          <h3 className="text-zinc-300 font-semibold mb-3">Key Expressions</h3>
           <div className="flex flex-col gap-4">
             {data.expressions.map((expr, i) => {
               const segId = `expr-${i}`
@@ -62,7 +62,7 @@ export default function EnglishSummary({ data, onSeek, sessionId, commentCounts 
                 <div key={i} id={`seg-${segId}`} className="bg-zinc-800 rounded-lg p-3 flex flex-col gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
                     {sessionId && (
-                      <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`핵심 표현 - "${expr.text.slice(0, 20)}"`} initialCount={commentCounts[segId] ?? 0} />
+                      <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`Expression - "${expr.text.slice(0, 20)}"`} initialCount={commentCounts[segId] ?? 0} />
                     )}
                   </div>
                   <p className="text-zinc-100 font-mono text-sm">&quot;{expr.text}&quot;</p>
@@ -74,18 +74,18 @@ export default function EnglishSummary({ data, onSeek, sessionId, commentCounts 
           </div>
         </div>
 
-        {/* 주요 단어 */}
+        {/* Key vocabulary */}
         {data.vocabulary.length > 0 && (
           <>
             <Separator className="bg-zinc-800" />
             <div>
-              <h3 className="text-zinc-300 font-semibold mb-3">주요 단어</h3>
+              <h3 className="text-zinc-300 font-semibold mb-3">Key Vocabulary</h3>
               <Table>
                 <TableHeader>
                   <TableRow className="border-zinc-700">
-                    <TableHead className="text-zinc-400">단어</TableHead>
-                    <TableHead className="text-zinc-400">한국어 뜻</TableHead>
-                    <TableHead className="text-zinc-400">예문</TableHead>
+                    <TableHead className="text-zinc-400">Word</TableHead>
+                    <TableHead className="text-zinc-400">Meaning</TableHead>
+                    <TableHead className="text-zinc-400">Example</TableHead>
                     <TableHead className="w-10" />
                   </TableRow>
                 </TableHeader>
@@ -109,7 +109,7 @@ export default function EnglishSummary({ data, onSeek, sessionId, commentCounts 
                         </TableCell>
                         <TableCell className="text-right">
                           {sessionId && (
-                            <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`단어 - ${vocab.word}`} initialCount={commentCounts[segId] ?? 0} />
+                            <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`Vocab - ${vocab.word}`} initialCount={commentCounts[segId] ?? 0} />
                           )}
                         </TableCell>
                       </TableRow>
@@ -121,12 +121,12 @@ export default function EnglishSummary({ data, onSeek, sessionId, commentCounts 
           </>
         )}
 
-        {/* 반복 패턴 */}
+        {/* Recurring patterns */}
         {data.patterns.length > 0 && (
           <>
             <Separator className="bg-zinc-800" />
             <div>
-              <h3 className="text-zinc-300 font-semibold mb-2">반복 패턴</h3>
+              <h3 className="text-zinc-300 font-semibold mb-2">Recurring Patterns</h3>
               <div className="flex flex-col gap-2">
                 {data.patterns.map((pattern, i) => {
                   const segId = `pattern-${i}`
@@ -141,7 +141,7 @@ export default function EnglishSummary({ data, onSeek, sessionId, commentCounts 
                           )}
                         </div>
                         {sessionId && (
-                          <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`패턴 ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
+                          <CommentBubble sessionId={sessionId} segmentId={segId} segmentLabel={`Pattern ${i + 1}`} initialCount={commentCounts[segId] ?? 0} />
                         )}
                       </div>
                     </div>
@@ -152,15 +152,15 @@ export default function EnglishSummary({ data, onSeek, sessionId, commentCounts 
           </>
         )}
 
-        {/* 문화 맥락 */}
+        {/* Cultural context */}
         {data.cultural_context && (
           <>
             <Separator className="bg-zinc-800" />
             <div id="seg-cultural">
               <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-zinc-300 font-semibold">문화 맥락</h3>
+                <h3 className="text-zinc-300 font-semibold">Cultural Context</h3>
                 {sessionId && (
-                  <CommentBubble sessionId={sessionId} segmentId="cultural" segmentLabel="문화 맥락" initialCount={commentCounts['cultural'] ?? 0} />
+                  <CommentBubble sessionId={sessionId} segmentId="cultural" segmentLabel="Cultural Context" initialCount={commentCounts['cultural'] ?? 0} />
                 )}
               </div>
               <p className="text-zinc-400 text-sm">{data.cultural_context}</p>
