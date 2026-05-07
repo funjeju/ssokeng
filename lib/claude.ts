@@ -135,85 +135,84 @@ Respond with JSON: {"category": "news", "confidence": 0.95}`)
 }
 
 const SUMMARY_PROMPTS: Record<Category, string> = {
-  recipe: `다음 요리 영상 자막을 분석해서 레시피 JSON을 만드세요.
+  recipe: `Analyze the following cooking video transcript and create a recipe JSON.
 
-재료는 역할에 따라 그룹으로 분류하세요. 예: "메인 재료", "양념", "육수", "소스", "고명", "반죽", "채소" 등 해당되는 그룹만 사용하세요. 그룹이 1개라도 ingredient_groups를 사용하세요.
+Group ingredients by role. Examples: "Main Ingredients", "Seasoning", "Broth", "Sauce", "Garnish", "Batter", "Vegetables" — use only relevant groups. Use ingredient_groups even if there is only one group.
 
-{"square_meta":{"tags":["키워드1","키워드2","키워드3","키워드4","키워드5"],"topic_cluster":"대주제","vibe":"분위기"},"dish_name":"요리명","difficulty":"초보","total_time":"시간","servings":"인분","ingredient_groups":[{"group":"메인 재료","items":[{"name":"재료","amount":"분량"}]},{"group":"양념","items":[{"name":"재료","amount":"분량"}]}],"steps":[{"step":1,"desc":"설명","timestamp":"MM:SS"}],"key_tips":["팁"]}`,
+{"square_meta":{"tags":["keyword1","keyword2","keyword3","keyword4","keyword5"],"topic_cluster":"main topic","vibe":"mood"},"dish_name":"dish name","difficulty":"beginner","total_time":"time","servings":"servings","ingredient_groups":[{"group":"Main Ingredients","items":[{"name":"ingredient","amount":"amount"}]},{"group":"Seasoning","items":[{"name":"ingredient","amount":"amount"}]}],"steps":[{"step":1,"desc":"description","timestamp":"MM:SS"}],"key_tips":["tip"]}`,
 
-  english: `다음 영어 영상 자막을 분석해서 한국인 영어 학습자를 위한 학습카드 JSON을 만드세요.
+  english: `Analyze the following language learning video transcript and create a study card JSON for English-speaking learners.
 
-[필수 지침]
-- 이 결과물은 한국인이 영어를 공부하기 위한 자료입니다. 모든 설명(meaning, note, desc)은 반드시 한국어로 작성하세요.
-- expressions: 영상에서 실제로 사용된 핵심 영어 표현을 그대로 추출하고, 한국어로 의미와 뉘앙스를 설명하세요.
-- vocabulary: 고급 어휘나 헷갈리기 쉬운 단어를 선별하고, 한국어로 뜻과 예문 설명을 담으세요.
-- patterns: 영상에서 반복되는 문법 패턴이나 표현 구조를 "영어 패턴 → 한국어 설명" 형식으로 작성하세요.
-- cultural_context: 문화적 배경이나 뉘앙스를 한국어로 설명하세요.
-- key_message: 이 영상의 핵심 내용을 한국어로 2~3문장 요약하세요.
+[Guidelines]
+- expressions: Extract key expressions actually used in the video with meaning and nuance explained in English.
+- vocabulary: Select advanced or tricky words with definitions and example explanations in English.
+- patterns: Identify recurring grammar patterns or structures as "pattern → explanation" in English.
+- cultural_context: Explain cultural background or nuance in English.
+- key_message: Summarize the core message of the video in 2-3 sentences in English.
 
-{"square_meta":{"tags":["키워드1","키워드2","키워드3","키워드4","키워드5"],"topic_cluster":"대주제","vibe":"분위기"},"title":"영상 제목(영어)","key_message":"영상 핵심 내용 한국어 요약 2~3문장","expressions":[{"text":"영어 원문 표현","meaning":"한국어 의미","note":"한국어로 뉘앙스·사용법 설명","timestamp":"MM:SS"}],"vocabulary":[{"word":"영어 단어","meaning":"한국어 뜻","example":"영어 예문","example_ko":"한국어 번역"}],"patterns":[{"pattern":"영어 문법/표현 패턴","desc":"한국어 설명"}],"cultural_context":"문화적 맥락 한국어 설명"}`,
+{"square_meta":{"tags":["keyword1","keyword2","keyword3","keyword4","keyword5"],"topic_cluster":"main topic","vibe":"mood"},"title":"video title","key_message":"2-3 sentence summary in English","expressions":[{"text":"expression","meaning":"meaning in English","note":"nuance and usage in English","timestamp":"MM:SS"}],"vocabulary":[{"word":"word","meaning":"definition in English","example":"example sentence","example_ko":"translation"}],"patterns":[{"pattern":"grammar/expression pattern","desc":"explanation in English"}],"cultural_context":"cultural context in English"}`,
 
-  learning: `다음 학습 영상 자막을 분석해서 학습정리 JSON을 만드세요.
+  learning: `Analyze the following educational video transcript and create a study summary JSON.
 
-[필수 지침]
-- concepts의 name은 반드시 자막에 실제로 등장하는 용어만 사용하세요. 자막에 없는 개념을 만들어내지 마세요.
-- concepts의 desc는 "이 개념이 무엇인지"와 "왜 중요한지"를 2문장으로 설명하세요. 단순 정의에 그치지 말고, 이해를 돕는 맥락을 담으세요.
-- key_points는 "이것만 알면 된다"는 핵심 인사이트를 완전한 문장으로 써주세요.
-- examples는 강사가 든 구체적인 예시·비유·사례를 원문에 가깝게 재현하세요.
+[Guidelines]
+- concepts: Use only terms that actually appear in the transcript. Do not invent concepts.
+- concepts.desc: Explain "what this concept is" and "why it matters" in 2 sentences. Go beyond a simple definition — add context.
+- key_points: Write the essential insights as complete sentences.
+- examples: Reproduce specific examples, analogies, or cases the instructor used, as close to the original as possible.
 
-{"square_meta":{"tags":["키워드1","키워드2","키워드3","키워드4","키워드5"],"topic_cluster":"대주제","vibe":"분위기"},"subject":"주제","concepts":[{"name":"개념명","desc":"개념 설명 2문장 (정의 + 중요성/맥락)","timestamp":"MM:SS"}],"key_points":[{"point":"핵심 포인트 완전한 문장","timestamp":"MM:SS"}],"examples":[{"desc":"강사가 든 구체적 예시나 비유","timestamp":"MM:SS"}]}`,
+{"square_meta":{"tags":["keyword1","keyword2","keyword3","keyword4","keyword5"],"topic_cluster":"main topic","vibe":"mood"},"subject":"subject","concepts":[{"name":"concept name","desc":"2-sentence explanation (definition + importance/context)","timestamp":"MM:SS"}],"key_points":[{"point":"key insight as a complete sentence","timestamp":"MM:SS"}],"examples":[{"desc":"specific example or analogy from the instructor","timestamp":"MM:SS"}]}`,
 
-  news: `자막을 처음부터 끝까지 읽고, 이 뉴스/시사 영상의 핵심 내용을 JSON으로 완성하세요.
+  news: `Read the transcript from start to finish and complete the JSON for this news/current events video.
 
-[필수 지침]
-- 자막에 나온 실제 인물명·기관명·날짜·장소·수치를 그대로 사용하세요. 추측하거나 일반론으로 채우지 마세요.
-- headline: 이 영상의 핵심을 담은 제목 (기사 헤드라인처럼).
-- three_line_summary: 반드시 3개의 독립 문장. 1문장=무슨 일이 발생했는가, 2문장=왜 발생했는가(배경·원인), 3문장=결과·현재 상황 또는 전망. 줄바꿈(\n)으로 구분.
-- five_w: 이 영상을 관통하는 육하원칙. 각 항목은 구체적인 사실이어야 함.
-  · who: 핵심 주체 (인물명 또는 기관명 명시)
-  · when: 사건 발생 시점
-  · where: 사건 발생 장소 또는 국가·지역
-  · what: 실제로 일어난 일 — 가장 구체적으로 서술
-  · how: 어떤 경위나 방법으로 벌어졌는지
-  · why: 자막에 명시된 원인·동기·이유 (없으면 "" 로 둘 것)
-- background: 이번 사건 이전에 있었던 관련 맥락 또는 역사적 배경.
-- key_moments: 영상 전체를 시간 순서대로 커버하는 핵심 장면/발언/논점. 영상 길이에 비례해 5~10개. 자막 전체에서 고르게 추출하고, 각 항목의 timestamp는 해당 내용이 실제 언급되는 자막 시점으로.
-- implications: 2~4개, 서로 겹치지 않는 독립적 시사점.
+[Guidelines]
+- Use actual names, organizations, dates, places, and figures from the transcript. Do not speculate or generalize.
+- headline: A headline-style title capturing the core of this video.
+- three_line_summary: Exactly 3 independent sentences. 1=what happened, 2=why it happened (background/cause), 3=outcome/current situation or outlook. Separate with newline (\n).
+- five_w: The 5W1H of this video. Each field must be a specific fact.
+  · who: Key actor (name or organization)
+  · when: When the event occurred
+  · where: Location or country/region
+  · what: What actually happened — be as specific as possible
+  · how: How or by what means it happened
+  · why: Cause/motive/reason stated in the transcript (use "" if not mentioned)
+- background: Relevant context or historical background prior to this event.
+- key_moments: 5–10 key scenes/statements/points covering the full video in chronological order. Extract evenly from the entire transcript; timestamp = when it is actually mentioned.
+- implications: 2–4 independent takeaways that do not overlap.
 
-{"square_meta":{"tags":["키워드1","키워드2","키워드3","키워드4","키워드5"],"topic_cluster":"대주제","vibe":"분위기"},"headline":"제목","three_line_summary":"무슨 일.\n왜 발생했나.\n결과·전망.","five_w":{"who":"","when":"","where":"","what":"","how":"","why":""},"background":{"desc":"","timestamp":"MM:SS"},"key_moments":[{"point":"핵심 장면/발언 한 문장","timestamp":"MM:SS"}],"implications":[{"point":"","timestamp":"MM:SS"}]}`,
+{"square_meta":{"tags":["keyword1","keyword2","keyword3","keyword4","keyword5"],"topic_cluster":"main topic","vibe":"mood"},"headline":"title","three_line_summary":"What happened.\nWhy it happened.\nOutcome/outlook.","five_w":{"who":"","when":"","where":"","what":"","how":"","why":""},"background":{"desc":"","timestamp":"MM:SS"},"key_moments":[{"point":"key scene/statement in one sentence","timestamp":"MM:SS"}],"implications":[{"point":"","timestamp":"MM:SS"}]}`,
 
-  selfdev: `다음 자기계발 영상 자막을 분석해서 인사이트 JSON을 만드세요.
+  selfdev: `Analyze the following self-development video transcript and create an insight JSON.
 
-[필수 지침]
-- core_message: 이 영상이 전하려는 단 하나의 핵심 메시지를 명확하고 임팩트 있게 한 문장으로.
-- insights: 단순 나열이 아닌, "왜 이것이 삶을 바꾸는가"라는 관점에서 각 인사이트를 2문장으로 서술. 번화한 자기계발서 문체보다는 솔직하고 설득력 있게.
-- checklist: 내일 당장 실행 가능한 행동으로 구체화. "~하기" 동사형으로.
-- quotes: 영상에 나온 인상적인 실제 발언이나 핵심 문장을 그대로.
+[Guidelines]
+- core_message: The single core message of this video — clear and impactful, in one sentence.
+- insights: Not a simple list — write each insight in 2 sentences from the angle of "why this changes your life." Be honest and persuasive rather than generic.
+- checklist: Concrete actions you can take tomorrow. Use action verb form.
+- quotes: Impressive actual statements or key lines from the video, verbatim.
 
-{"square_meta":{"tags":["키워드1","키워드2","키워드3","키워드4","키워드5"],"topic_cluster":"대주제","vibe":"분위기"},"core_message":{"text":"핵심 메시지 한 문장","timestamp":"MM:SS"},"insights":[{"point":"인사이트 2문장 (관찰 + 이유/의미)","timestamp":"MM:SS"}],"checklist":["내일 당장 실행 가능한 행동 (~하기 형식)"],"quotes":[{"text":"영상에서 나온 인상적인 실제 발언","timestamp":"MM:SS"}]}`,
+{"square_meta":{"tags":["keyword1","keyword2","keyword3","keyword4","keyword5"],"topic_cluster":"main topic","vibe":"mood"},"core_message":{"text":"core message in one sentence","timestamp":"MM:SS"},"insights":[{"point":"insight in 2 sentences (observation + reason/meaning)","timestamp":"MM:SS"}],"checklist":["actionable step you can take tomorrow"],"quotes":[{"text":"impressive actual quote from the video","timestamp":"MM:SS"}]}`,
 
-  travel: `다음 여행 영상 자막을 분석해서 가이드 JSON을 만드세요.
+  travel: `Analyze the following travel video transcript and create a travel guide JSON.
 
-{"square_meta":{"tags":["키워드1","키워드2","키워드3","키워드4","키워드5"],"topic_cluster":"대주제","vibe":"분위기"},"destination":"여행지","places":[{"name":"장소","desc":"설명","price":"가격","tip":"팁","timestamp":"MM:SS"}],"route":"동선","practical_info":["정보"],"warnings":["주의"]}`,
+{"square_meta":{"tags":["keyword1","keyword2","keyword3","keyword4","keyword5"],"topic_cluster":"main topic","vibe":"mood"},"destination":"destination","places":[{"name":"place","desc":"description","price":"price","tip":"tip","timestamp":"MM:SS"}],"route":"itinerary","practical_info":["info"],"warnings":["warning"]}`,
 
-  story: `다음 스토리/드라마/가십 영상 자막을 분석해서 독자를 몰입시키는 스토리 JSON을 만드세요.
+  story: `Analyze the following story/drama/gossip video transcript and create an immersive story JSON.
 
-[필수 지침 — 반드시 따를 것]
-- timeline의 각 event는 마치 웹소설 화자가 독자에게 들려주듯, 생생하고 맛깔난 2~3문장으로 써주세요.
-  · 인물의 감정·표정·반응·대화 뉘앙스를 살려주세요.
-  · 긴장감, 반전, 웃음 포인트가 있다면 자연스럽게 녹여주세요.
-  · 예시 문체: "그 순간 A의 표정이 굳어버렸다. B가 꺼낸 말 한마디가 그것도 그 타이밍에 나올 줄은 아무도 몰랐다."
-  · 절대 "A가 B를 만남", "C 사건 발생" 식의 건조한 나열은 하지 마세요.
-- characters의 desc는 이 인물의 성격·행동 패턴·관계를 독자가 상상할 수 있게 2문장으로.
-- conclusion은 결말의 여운 또는 반전을 살린 마무리 1~2문장으로 끝내주세요.
-- genre에는 실제 분위기를 반영하세요 (예: "충격 반전 썰", "풋풋한 로맨스", "억장 무너지는 드라마").
+[Guidelines — follow strictly]
+- Each event in timeline should be written in 2–3 vivid sentences, as if a storyteller is narrating to the reader.
+  · Capture the character's emotions, expressions, reactions, and dialogue nuance.
+  · Naturally weave in tension, twists, and humor where they exist.
+  · Example style: "At that moment, A's expression froze. Nobody expected B to say what they said — not then, not like that."
+  · Never write dry lists like "A meets B", "C event occurs."
+- characters.desc: 2 sentences that let the reader imagine this person's personality, behavior patterns, and relationships.
+- conclusion: End with 1–2 sentences that carry the weight of the ending or a twist.
+- genre: Reflect the actual tone (e.g., "shocking twist", "sweet romance", "tear-jerking drama").
 
-{"square_meta":{"tags":["키워드1","키워드2","키워드3","키워드4","키워드5"],"topic_cluster":"대주제","vibe":"분위기 (예: 긴장감 넘치는, 웃음 폭발, 눈물 찔끔)"},"title":"스토리 제목","genre":"장르 (예: 충격 반전 썰, 로맨스 드라마, 소름 미스터리)","characters":[{"name":"인물명 또는 호칭","desc":"성격·행동 패턴·관계를 독자가 상상할 수 있게 2문장으로"}],"timeline":[{"timestamp":"MM:SS","event":"웹소설 화자처럼 생생하게 2~3문장. 감정·뉘앙스·반전 포인트 살릴 것"}],"conclusion":"결말의 여운 또는 반전을 살린 마무리 1~2문장"}`,
+{"square_meta":{"tags":["keyword1","keyword2","keyword3","keyword4","keyword5"],"topic_cluster":"main topic","vibe":"mood (e.g. tense, hilarious, emotional)"},"title":"story title","genre":"genre (e.g. shocking twist, romance drama, mystery)","characters":[{"name":"character name or title","desc":"2 sentences on personality, behavior, and relationships"}],"timeline":[{"timestamp":"MM:SS","event":"vivid 2–3 sentences as a storyteller. Capture emotions, nuance, and twists."}],"conclusion":"1–2 sentences carrying the weight of the ending or a twist"}`,
 
-  tips: `다음 팁/하우투 영상 자막을 분석해서 팁 카드 JSON을 만드세요.
-각 팁은 번호와 함께 명확한 제목과 실용적인 설명으로 정리하세요. difficulty는 "쉬움"/"보통"/"어려움" 중 하나.
+  tips: `Analyze the following tips/how-to video transcript and create a tip card JSON.
+Each tip should have a clear title and practical description. difficulty must be one of: "easy" / "medium" / "hard".
 
-{"square_meta":{"tags":["키워드1","키워드2","키워드3","키워드4","키워드5"],"topic_cluster":"대주제","vibe":"분위기"},"topic":"팁 주제 (예: 집 정리 꿀팁)","tips":[{"number":1,"title":"팁 제목","desc":"팁 설명 1~2문장","timestamp":"MM:SS","difficulty":"쉬움"}],"key_message":"영상을 관통하는 핵심 메시지 한 줄","tools":["필요한 도구나 앱 등 (없으면 빈 배열)"],"top3":["지금 당장 적용할 수 있는 팁 요약 1","지금 당장 적용할 수 있는 팁 요약 2","지금 당장 적용할 수 있는 팁 요약 3"]}`,
+{"square_meta":{"tags":["keyword1","keyword2","keyword3","keyword4","keyword5"],"topic_cluster":"main topic","vibe":"mood"},"topic":"tip topic (e.g. home organization hacks)","tips":[{"number":1,"title":"tip title","desc":"1-2 sentence description","timestamp":"MM:SS","difficulty":"easy"}],"key_message":"one-line core message of the video","tools":["tools or apps needed (empty array if none)"],"top3":["top tip summary 1","top tip summary 2","top tip summary 3"]}`,
 
   // voice는 별도 API에서 Gemini가 직접 처리하므로 placeholder만 사용
   voice: '',
@@ -273,10 +272,9 @@ conclusion은 한 문장 핵심 결론입니다.
     ? `\n※ 이 콘텐츠는 웹 페이지입니다. timestamp 필드는 모두 빈 문자열("")로 채우세요.`
     : ''
 
-  // 원문 언어 출력 모드: 한국어로 쓰지 않고 원문 언어 그대로 출력
   const langNote = outputLang === 'original'
-    ? '\n\n[IMPORTANT: Write ALL text values in the original language of the content (e.g. English). Do NOT translate to Korean.]'
-    : '\n\n[IMPORTANT: 원문 언어가 무엇이든(영어 포함) 모든 텍스트 값은 반드시 한국어로 작성하세요. 영어나 외국어 자막은 한국어로 번역하여 작성하세요.]'
+    ? '\n\n[IMPORTANT: Write ALL text values in English. Do NOT output in any other language.]'
+    : '\n\n[IMPORTANT: Write ALL text values in English. Do NOT output in any other language.]'
 
   const model = category === 'story' ? storyModel : summaryModel
   const result = await model.generateContent(`${prompt}${sourceNote}${langNote}
@@ -308,35 +306,35 @@ export async function generateReportSummary(
   const targetChars = approxMinutes >= 30 ? '2000~3000자' : approxMinutes >= 15 ? '1200~2000자' : '800~1200자'
   const sectionCount = approxMinutes >= 30 ? '8~12개' : approxMinutes >= 15 ? '6~8개' : '4~6개'
   const categoryHint: Record<Category, string> = {
-    recipe:   '요리/레시피 영상',
-    english:  '영어 학습 영상',
-    learning: '학습/강의 영상',
-    news:     '뉴스/시사 영상',
-    selfdev:  '자기계발 영상',
-    travel:   '여행 영상',
-    story:    '스토리/드라마 영상',
-    tips:     '팁/라이프핵 영상',
-    voice:    '음성 녹음 메모',
-    report:   '보고서 형식 정리',
+    recipe:   'Cooking/Recipe video',
+    english:  'Language Learning video',
+    learning: 'Educational/Lecture video',
+    news:     'News/Current Events video',
+    selfdev:  'Self-Development video',
+    travel:   'Travel video',
+    story:    'Story/Drama video',
+    tips:     'Tips/Life Hacks video',
+    voice:    'Voice Recording memo',
+    report:   'Report format summary',
   }
 
-  const result = await reportModel.generateContent(`당신은 전문 콘텐츠 에디터입니다.
-아래 "${categoryHint[category]}"의 자막/설명을 읽고, 보고서 형식의 정리 문서를 반드시 한국어로 작성하세요.
-[IMPORTANT: 자막이 영어나 다른 외국어로 되어 있어도 보고서 전체를 한국어로 작성해야 합니다. 번역하여 한국어로 서술하세요.]
+  const result = await reportModel.generateContent(`You are a professional content editor.
+Read the transcript/content of the following "${categoryHint[category]}" and write a structured report document entirely in English.
+[IMPORTANT: Write the entire report in English regardless of the source language of the transcript.]
 
-요구사항:
-- ${sectionCount}의 소제목(##)으로 구성
-- 각 섹션은 3~5문장의 서술형 단락으로 작성 (글머리표 최소화)
-- 첫 섹션은 반드시 "## 개요"로 시작하여 배경과 주제를 소개
-- 마지막 섹션은 반드시 "## 핵심 정리"로 끝내며 결론/시사점 서술
-- 중간 섹션 소제목은 내용에 맞게 자유롭게 설정
-- 전체 분량: ${targetChars} (영상 길이에 비례하여 충분히 상세하게)
-- 마크다운 형식만 사용 (bold, 소제목만), 표나 코드블록 사용 금지
+Requirements:
+- ${sectionCount} sections with subheadings (##)
+- Each section: 3–5 sentences in narrative paragraph form (minimize bullet points)
+- First section must start with "## Overview" introducing the background and topic
+- Last section must end with "## Key Takeaways" covering conclusions/implications
+- Middle section headings can be set freely based on content
+- Total length: ${targetChars} (detailed in proportion to video length)
+- Use markdown only (bold, subheadings), no tables or code blocks
 
-영상 제목: ${title}
-카테고리: ${categoryHint[category]}
+Video title: ${title}
+Category: ${categoryHint[category]}
 
-자막/내용:
+Transcript/Content:
 ${sampleTranscript(fullContext, 60000)}`)
 
   return result.response.text().trim()
@@ -352,29 +350,29 @@ export async function generateContextSummary(
   summaryData: SummaryData
 ): Promise<string> {
   const categoryHint: Record<Category, string> = {
-    recipe: '요리/레시피',
-    english: '영어 학습',
-    learning: '학습/강의',
-    news: '뉴스/시사',
-    selfdev: '자기계발',
-    travel: '여행',
-    story: '스토리/드라마',
-    tips: '팁/라이프핵',
-    voice: '음성 녹음 메모',
-    report: '보고서 형식 정리',
+    recipe: 'Cooking/Recipe',
+    english: 'Language Learning',
+    learning: 'Educational/Lecture',
+    news: 'News/Current Events',
+    selfdev: 'Self-Development',
+    travel: 'Travel',
+    story: 'Story/Drama',
+    tips: 'Tips/Life Hacks',
+    voice: 'Voice Recording',
+    report: 'Report',
   }
 
-  const result = await classifyModel.generateContent(`다음 콘텐츠를 200~300자 이내로 맥락 요약하세요.
+  const result = await classifyModel.generateContent(`Summarize the following content in context within 50–80 words.
 
-규칙:
-- 이 텍스트는 검색과 AI 추천에 사용됩니다
-- 핵심 주제, 다루는 내용, 대상 독자, 실용적 가치를 자연스러운 문장으로 담으세요
-- 제목을 반복하지 말고 내용의 "맥락"을 설명하세요
-- 한국어, 200~300자 이내, 단락 없이 한 문단으로
+Rules:
+- This text is used for search and AI recommendations
+- Cover the core topic, what it addresses, target audience, and practical value in natural sentences
+- Do not repeat the title — explain the "context" of the content
+- Write in English, 50–80 words, single paragraph without line breaks
 
-제목: ${title}
-카테고리: ${categoryHint[category]}
-요약 데이터: ${JSON.stringify(summaryData).slice(0, 2000)}`)
+Title: ${title}
+Category: ${categoryHint[category]}
+Summary data: ${JSON.stringify(summaryData).slice(0, 2000)}`)
 
   const text = result.response.text().trim()
   return text.slice(0, 350)  // 최대 350자 안전 마진
@@ -386,34 +384,34 @@ export async function generateQuiz(
   title: string
 ): Promise<import('@/types/summary').QuizData> {
   const hint = category === 'english'
-    ? `영어 학습 요약에서 단어/표현 플래시카드와 사용법 객관식 문제를 만드세요.
-flashcard: 앞면=영어 단어/표현, 뒷면=한국어 의미+실전 예문
-multiple_choice: 실제 문장에서 올바르게 쓰인 용례 찾기, 혼동하기 쉬운 다른 표현과 구별, 4개 보기`
-    : `학습 영상의 핵심 개념을 진짜 이해했는지 확인하는 문제를 만드세요.
+    ? `From a language learning summary, create word/expression flashcards and multiple-choice usage questions.
+flashcard: front=English word/expression, back=meaning + real-world example sentence in English
+multiple_choice: find correct usage in real sentences, distinguish from easily confused expressions, 4 options`
+    : `Create questions that verify true understanding of the core concepts from this educational video.
 
-[flashcard 원칙]
-- 앞면: 개념/원리의 이름 또는 "~하면 어떻게 되는가?" 형태의 질문
-- 뒷면: 그 이유·원리·작동 방식 설명 (단순 정의 나열 금지)
+[Flashcard principles]
+- Front: name of concept/principle OR a question like "What happens when...?"
+- Back: explanation of the reason, principle, or mechanism (no simple definitions)
 
-[multiple_choice 원칙 — 아래 규칙 반드시 준수]
-1. "영상에서 뭐라고 했는가"를 묻는 문제 절대 금지
-2. 개념을 새로운 상황·사례에 적용하는 문제 필수 포함
-3. "왜", "어떻게", "이 상황에서 무슨 일이 일어나는가" 형태 권장
-4. 오답 보기는 흔한 오개념·혼동 개념 기반으로 설계 (단순 엉터리 금지)
-5. 정답을 알려면 개념의 원리를 이해해야만 풀 수 있어야 함`
+[Multiple-choice principles — strictly follow]
+1. Never ask "what did the video say" verbatim recall questions
+2. Must include questions applying concepts to new situations/cases
+3. Prefer "why", "how", "what happens in this situation" formats
+4. Incorrect options should be based on common misconceptions (not random nonsense)
+5. Answering correctly must require understanding the underlying principle`
 
   const result = await classifyModel.generateContent(`${hint}
 
-요약 데이터:
+Summary data:
 ${JSON.stringify(summaryData).slice(0, 3000)}
 
-영상 제목: ${title}
+Video title: ${title}
 
-총 8~12개 문제를 만드세요. flashcard와 multiple_choice를 섞어서.
-multiple_choice의 options는 정답 포함 4개 문자열 배열.
+Create 8–12 questions total, mixing flashcard and multiple_choice.
+multiple_choice options must be an array of 4 strings including the correct answer.
 
-JSON 형식:
-{"category":"${category}","title":"퀴즈 제목","questions":[{"type":"flashcard","question":"앞면","answer":"뒷면","hint":"힌트(선택)"},{"type":"multiple_choice","question":"문제","answer":"정답 문자열","options":["보기1","보기2","보기3","보기4"]}]}`)
+JSON format:
+{"category":"${category}","title":"Quiz title","questions":[{"type":"flashcard","question":"front","answer":"back","hint":"hint (optional)"},{"type":"multiple_choice","question":"question","answer":"correct answer string","options":["option1","option2","option3","option4"]}]}`)
 
   const text = result.response.text().trim()
   return extractJSON(text) as import('@/types/summary').QuizData

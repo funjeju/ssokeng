@@ -4,33 +4,32 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/providers/AuthProvider'
 import { completeUserProfile, PROFILE_COMPLETE_TOKENS, AgeGroup, Gender } from '@/lib/db'
-import SchoolSearchInput, { SchoolResult } from '@/components/classroom/SchoolSearchInput'
 
 const AGE_GROUPS: { value: AgeGroup; label: string; emoji: string }[] = [
-  { value: '10s',  label: '10대', emoji: '🎒' },
-  { value: '20s',  label: '20대', emoji: '🎓' },
-  { value: '30s',  label: '30대', emoji: '💼' },
-  { value: '40s',  label: '40대', emoji: '🏡' },
-  { value: '50s',  label: '50대', emoji: '⚡' },
-  { value: '60s+', label: '60대 이상', emoji: '🌿' },
+  { value: '10s',  label: 'Teens',    emoji: '🎒' },
+  { value: '20s',  label: '20s',      emoji: '🎓' },
+  { value: '30s',  label: '30s',      emoji: '💼' },
+  { value: '40s',  label: '40s',      emoji: '🏡' },
+  { value: '50s',  label: '50s',      emoji: '⚡' },
+  { value: '60s+', label: '60s+',     emoji: '🌿' },
 ]
 
 const GENDERS: { value: Gender; label: string; emoji: string }[] = [
-  { value: 'male',       label: '남성',      emoji: '👨' },
-  { value: 'female',     label: '여성',      emoji: '👩' },
-  { value: 'other',      label: '기타',      emoji: '🌈' },
-  { value: 'prefer_not', label: '공개 안 함', emoji: '🔒' },
+  { value: 'male',       label: 'Male',            emoji: '👨' },
+  { value: 'female',     label: 'Female',          emoji: '👩' },
+  { value: 'other',      label: 'Other',           emoji: '🌈' },
+  { value: 'prefer_not', label: 'Prefer not to say', emoji: '🔒' },
 ]
 
 const INTEREST_CATS = [
-  { id: 'recipe',  label: '🍳 요리',    desc: '레시피·음식' },
-  { id: 'english', label: '🔤 영어',    desc: '영어 학습' },
-  { id: 'learning',label: '📐 학습',    desc: '강의·지식' },
-  { id: 'news',    label: '🗞️ 뉴스',   desc: '시사·정보' },
-  { id: 'selfdev', label: '💪 자기계발', desc: '동기·심리' },
-  { id: 'travel',  label: '🧳 여행',    desc: '여행·장소' },
-  { id: 'story',   label: '🍿 스토리',  desc: '드라마·예능' },
-  { id: 'tips',    label: '💡 팁',      desc: '생활꿀팁' },
+  { id: 'recipe',  label: '🍳 Recipe',      desc: 'Cooking & food' },
+  { id: 'english', label: '🔤 Language',    desc: 'Language learning' },
+  { id: 'learning',label: '📐 Learning',    desc: 'Lectures & knowledge' },
+  { id: 'news',    label: '🗞️ News',        desc: 'Current events' },
+  { id: 'selfdev', label: '💪 Self-dev',    desc: 'Motivation & growth' },
+  { id: 'travel',  label: '🧳 Travel',      desc: 'Travel & places' },
+  { id: 'story',   label: '🍿 Story',       desc: 'Drama & entertainment' },
+  { id: 'tips',    label: '💡 Tips',        desc: 'Life hacks & how-to' },
 ]
 
 type Step = 'role' | 'teacher_setup' | 'age' | 'gender' | 'interests' | 'done'
@@ -51,16 +50,14 @@ function ProfileSetupModalInner() {
   const [dismissed, setDismissed] = useState(false)
   const [role, setRole]           = useState<'user' | 'teacher' | null>(null)
 
-  // 일반 사용자 프로필
   const [ageGroup, setAgeGroup]   = useState<AgeGroup | null>(null)
   const [gender, setGender]       = useState<Gender | null>(null)
   const [interests, setInterests] = useState<string[]>([])
 
-  // 선생님 전용
-  const [selectedSchool, setSelectedSchool] = useState<SchoolResult | null>(null)
-  const [grade, setGrade]           = useState('')
-  const [classNum, setClassNum]     = useState('')
-  const [classCode, setClassCode]   = useState('')
+  const [schoolName, setSchoolName]     = useState('')
+  const [grade, setGrade]               = useState('')
+  const [classNum, setClassNum]         = useState('')
+  const [classCode, setClassCode]       = useState('')
   const [teacherError, setTeacherError] = useState('')
 
   const [saving, setSaving]       = useState(false)
@@ -70,7 +67,6 @@ function ProfileSetupModalInner() {
 
   const handleTeacherInvite = () => { setRole('teacher'); setStep('teacher_setup') }
 
-  // 진행 바 계산 (일반 사용자: 3단계, 선생님: 1단계)
   const userStepIndex = step === 'age' ? 0 : step === 'gender' ? 1 : step === 'interests' ? 2 : 3
   const totalUserSteps = 3
 
@@ -78,7 +74,6 @@ function ProfileSetupModalInner() {
     setInterests(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
   }
 
-  // 일반 사용자 완료
   const handleComplete = async () => {
     if (!ageGroup || !gender) return
     setSaving(true)
@@ -89,17 +84,16 @@ function ProfileSetupModalInner() {
       await refreshProfile()
     } catch (e) {
       console.error('Profile save failed:', e)
-      alert('저장에 실패했습니다. 다시 시도해주세요.')
+      alert('Failed to save. Please try again.')
     } finally {
       setSaving(false)
     }
   }
 
-  // 선생님 클래스 생성
   const handleTeacherSetup = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!selectedSchool) { setTeacherError('학교를 목록에서 선택해주세요.'); return }
-    if (!grade || !classNum) { setTeacherError('학년과 반을 선택해주세요.'); return }
+    if (!schoolName.trim()) { setTeacherError('Please enter your school name.'); return }
+    if (!grade || !classNum) { setTeacherError('Please select a grade and class number.'); return }
     setSaving(true)
     setTeacherError('')
     try {
@@ -111,10 +105,10 @@ function ProfileSetupModalInner() {
           uid: user.uid,
           idToken,
           teacherName: userProfile?.displayName || user.displayName || '',
-          schoolName: selectedSchool.name,
-          schoolCode: selectedSchool.code,
-          schoolType: selectedSchool.type,
-          region: selectedSchool.region,
+          schoolName: schoolName.trim(),
+          schoolCode: '',
+          schoolType: '',
+          region: '',
           grade: Number(grade),
           classNum: Number(classNum),
         }),
@@ -125,7 +119,7 @@ function ProfileSetupModalInner() {
       setStep('done')
       await refreshProfile()
     } catch (e: any) {
-      setTeacherError(e.message || '오류가 발생했습니다.')
+      setTeacherError(e.message || 'An error occurred. Please try again.')
     } finally {
       setSaving(false)
     }
@@ -137,12 +131,11 @@ function ProfileSetupModalInner() {
     <div className="fixed inset-0 z-[300] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-[28px] w-full max-w-md shadow-2xl overflow-hidden relative">
 
-        {/* 닫기 버튼 — done 단계 제외 */}
         {step !== 'done' && (
           <button
             onClick={() => setDismissed(true)}
             className="absolute top-4 right-4 z-10 text-[var(--text-subtle)] hover:text-white transition-colors p-1"
-            aria-label="닫기"
+            aria-label="Close"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -150,7 +143,6 @@ function ProfileSetupModalInner() {
           </button>
         )}
 
-        {/* 진행 바 — 일반 사용자만 */}
         {step !== 'done' && step !== 'role' && step !== 'teacher_setup' && (
           <div className="h-1 bg-[var(--bg-elevated)]">
             <div
@@ -162,14 +154,14 @@ function ProfileSetupModalInner() {
 
         <div className="p-7">
 
-          {/* ── Step 0: 역할 선택 ── */}
+          {/* Step 0: Role */}
           {step === 'role' && (
             <>
               <div className="mb-7 text-center">
                 <p className="text-white text-xl font-bold mb-1">
-                  안녕하세요, {user.displayName?.split(' ')[0]}님! 👋
+                  Welcome, {user.displayName?.split(' ')[0]}! 👋
                 </p>
-                <p className="text-[var(--text-muted)] text-sm">어떻게 이용하실 건가요?</p>
+                <p className="text-[var(--text-muted)] text-sm">How will you be using this?</p>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mb-6">
@@ -183,8 +175,8 @@ function ProfileSetupModalInner() {
                 >
                   <span className="text-4xl">📚</span>
                   <div className="text-center">
-                    <p className="text-sm font-bold">일반 사용자</p>
-                    <p className="text-[10px] text-[var(--text-subtle)] mt-0.5">영상 학습 · 큐레이션</p>
+                    <p className="text-sm font-bold">Learner</p>
+                    <p className="text-[10px] text-[var(--text-subtle)] mt-0.5">Video learning · Curation</p>
                   </div>
                 </button>
 
@@ -198,8 +190,8 @@ function ProfileSetupModalInner() {
                 >
                   <span className="text-4xl">🏫</span>
                   <div className="text-center">
-                    <p className="text-sm font-bold">선생님</p>
-                    <p className="text-[10px] text-[var(--text-subtle)] mt-0.5">클래스 관리 · 학생 지도</p>
+                    <p className="text-sm font-bold">Teacher</p>
+                    <p className="text-[10px] text-[var(--text-subtle)] mt-0.5">Class management · Student guide</p>
                   </div>
                 </button>
               </div>
@@ -212,12 +204,12 @@ function ProfileSetupModalInner() {
                 disabled={!role}
                 className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                다음
+                Next
               </button>
             </>
           )}
 
-          {/* ── Step T: 선생님 클래스 설정 ── */}
+          {/* Step T: Teacher Setup */}
           {step === 'teacher_setup' && (
             <>
               <div className="mb-6">
@@ -225,42 +217,48 @@ function ProfileSetupModalInner() {
                   onClick={() => setStep('role')}
                   className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors mb-4 flex items-center gap-1"
                 >
-                  ← 이전
+                  ← Back
                 </button>
-                <h2 className="text-xl font-bold text-white mb-1">🏫 클래스 개설</h2>
-                <p className="text-[var(--text-muted)] text-sm">학생들과 공유할 고유 코드가 발급됩니다.</p>
+                <h2 className="text-xl font-bold text-white mb-1">🏫 Set Up Your Class</h2>
+                <p className="text-[var(--text-muted)] text-sm">You'll get a unique code to share with students.</p>
               </div>
 
               <form onSubmit={handleTeacherSetup} className="flex flex-col gap-4">
                 <div>
-                  <label className="block text-xs text-[var(--text-subtle)] mb-1.5">학교명</label>
-                  <SchoolSearchInput value={selectedSchool} onChange={setSelectedSchool} accentColor="emerald" />
+                  <label className="block text-xs text-[var(--text-subtle)] mb-1.5">School Name</label>
+                  <input
+                    type="text"
+                    value={schoolName}
+                    onChange={e => setSchoolName(e.target.value)}
+                    placeholder="Enter your school name"
+                    className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-emerald-500/70 transition-colors"
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-[var(--text-subtle)] mb-1.5">학년</label>
+                    <label className="block text-xs text-[var(--text-subtle)] mb-1.5">Grade</label>
                     <select
                       value={grade}
                       onChange={e => setGrade(e.target.value)}
                       className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-colors"
                     >
-                      <option value="">선택</option>
-                      {[1,2,3,4,5,6].map(n => (
-                        <option key={n} value={n}>{n}학년</option>
+                      <option value="">Select</option>
+                      {[1,2,3,4,5,6,7,8,9,10,11,12].map(n => (
+                        <option key={n} value={n}>Grade {n}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-[var(--text-subtle)] mb-1.5">반</label>
+                    <label className="block text-xs text-[var(--text-subtle)] mb-1.5">Class</label>
                     <select
                       value={classNum}
                       onChange={e => setClassNum(e.target.value)}
                       className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-colors"
                     >
-                      <option value="">선택</option>
+                      <option value="">Select</option>
                       {Array.from({length: 15}, (_, i) => i+1).map(n => (
-                        <option key={n} value={n}>{n}반</option>
+                        <option key={n} value={n}>Class {n}</option>
                       ))}
                     </select>
                   </div>
@@ -281,21 +279,21 @@ function ProfileSetupModalInner() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                       </svg>
-                      클래스 개설 중...
+                      Creating class...
                     </>
-                  ) : '클래스 개설하기'}
+                  ) : 'Create Class'}
                 </button>
               </form>
             </>
           )}
 
-          {/* ── Step 1: 연령대 (일반 사용자) ── */}
+          {/* Step 1: Age */}
           {step === 'age' && (
             <>
               <div className="mb-6">
                 <p className="text-[var(--text-subtle)] text-xs font-medium mb-1">STEP 1 / {totalUserSteps}</p>
-                <h2 className="text-xl font-bold text-white mb-1">연령대를 알려주세요</h2>
-                <p className="text-[var(--text-muted)] text-sm">맞춤 콘텐츠 추천에 활용됩니다.</p>
+                <h2 className="text-xl font-bold text-white mb-1">What's your age group?</h2>
+                <p className="text-[var(--text-muted)] text-sm">Used for personalized content recommendations.</p>
               </div>
 
               <div className="grid grid-cols-3 gap-2 mb-6">
@@ -321,22 +319,22 @@ function ProfileSetupModalInner() {
                   disabled={!ageGroup}
                   className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  다음
+                  Next
                 </button>
                 <button onClick={() => setStep('role')} className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1">
-                  이전으로
+                  Back
                 </button>
               </div>
             </>
           )}
 
-          {/* ── Step 2: 성별 ── */}
+          {/* Step 2: Gender */}
           {step === 'gender' && (
             <>
               <div className="mb-6">
                 <p className="text-[var(--text-subtle)] text-xs font-medium mb-1">STEP 2 / {totalUserSteps}</p>
-                <h2 className="text-xl font-bold text-white mb-1">성별을 선택해주세요</h2>
-                <p className="text-[var(--text-muted)] text-sm">광고 및 콘텐츠 추천에 활용됩니다.</p>
+                <h2 className="text-xl font-bold text-white mb-1">Select your gender</h2>
+                <p className="text-[var(--text-muted)] text-sm">Used for content recommendations.</p>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mb-6">
@@ -362,22 +360,22 @@ function ProfileSetupModalInner() {
                   disabled={!gender}
                   className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  다음
+                  Next
                 </button>
                 <button onClick={() => setStep('age')} className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1">
-                  이전으로
+                  Back
                 </button>
               </div>
             </>
           )}
 
-          {/* ── Step 3: 관심 카테고리 ── */}
+          {/* Step 3: Interests */}
           {step === 'interests' && (
             <>
               <div className="mb-6">
                 <p className="text-[var(--text-subtle)] text-xs font-medium mb-1">STEP 3 / {totalUserSteps}</p>
-                <h2 className="text-xl font-bold text-white mb-1">관심 있는 분야를 골라주세요</h2>
-                <p className="text-[var(--text-muted)] text-sm">여러 개 선택 가능 · 언제든 변경할 수 있어요</p>
+                <h2 className="text-xl font-bold text-white mb-1">Pick your interests</h2>
+                <p className="text-[var(--text-muted)] text-sm">Choose as many as you like · change anytime</p>
               </div>
 
               <div className="grid grid-cols-2 gap-2 mb-3">
@@ -407,8 +405,8 @@ function ProfileSetupModalInner() {
               <div className="bg-gradient-to-r from-orange-500/10 to-pink-500/10 border border-orange-500/20 rounded-2xl px-4 py-3 mb-4 flex items-center gap-3">
                 <span className="text-2xl">🎁</span>
                 <div>
-                  <p className="text-white text-xs font-bold">완성하면 {PROFILE_COMPLETE_TOKENS} 토큰 지급!</p>
-                  <p className="text-[var(--text-muted)] text-[10px]">향후 프리미엄 기능에 사용 가능</p>
+                  <p className="text-white text-xs font-bold">Complete profile → earn {PROFILE_COMPLETE_TOKENS} tokens!</p>
+                  <p className="text-[var(--text-muted)] text-[10px]">Use for premium features</p>
                 </div>
               </div>
 
@@ -424,75 +422,73 @@ function ProfileSetupModalInner() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                       </svg>
-                      저장 중...
+                      Saving...
                     </>
-                  ) : '프로필 완성하기'}
+                  ) : 'Complete Profile'}
                 </button>
                 <button onClick={() => setStep('gender')} className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1">
-                  이전으로
+                  Back
                 </button>
               </div>
             </>
           )}
 
-          {/* ── Done: 완료 화면 ── */}
+          {/* Done */}
           {step === 'done' && (
             <div className="text-center py-2">
               {role === 'teacher' ? (
-                /* 선생님 완료 */
                 <>
                   <div className="text-6xl mb-4">🏫</div>
-                  <h2 className="text-2xl font-bold text-white mb-2">클래스 개설 완료!</h2>
+                  <h2 className="text-2xl font-bold text-white mb-2">Class Created!</h2>
                   <p className="text-[var(--text-muted)] text-sm mb-6">
-                    학생들에게 아래 코드를 알려주세요.
+                    Share this code with your students.
                   </p>
                   <div className="bg-[var(--bg-elevated)] rounded-2xl p-5 mb-6">
-                    <p className="text-[var(--text-subtle)] text-xs mb-2">우리 반 코드</p>
+                    <p className="text-[var(--text-subtle)] text-xs mb-2">Your Class Code</p>
                     <p className="text-4xl font-black text-emerald-400 tracking-widest">{classCode}</p>
                     <p className="text-[var(--text-subtle)] text-xs mt-2">
-                      {selectedSchool?.name} {grade}학년 {classNum}반
+                      {schoolName} · Grade {grade} · Class {classNum}
                     </p>
                   </div>
                   <button
                     onClick={() => { setDismissed(true); router.push(`/classroom/${classCode}`) }}
                     className="w-full h-12 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl transition-colors"
                   >
-                    클래스 대시보드로 이동
+                    Go to Class Dashboard
                   </button>
                 </>
               ) : (
-                /* 일반 사용자 완료 */
                 <>
                   <div className="text-6xl mb-4 animate-bounce">🎉</div>
-                  <h2 className="text-2xl font-bold text-white mb-2">프로필 완성!</h2>
+                  <h2 className="text-2xl font-bold text-white mb-2">Profile Complete!</h2>
                   <p className="text-[var(--text-muted)] text-sm mb-6 leading-relaxed">
-                    SSOKTUBE를 더 스마트하게 쓸 수 있게 됐어요.
+                    You're all set to get the most out of SSOKTUBE.
                   </p>
 
                   <div className="bg-gradient-to-br from-orange-500/20 to-pink-500/20 border border-orange-500/30 rounded-2xl p-5 mb-6">
-                    <p className="text-[var(--text-muted)] text-xs mb-1">지급된 보상</p>
+                    <p className="text-[var(--text-muted)] text-xs mb-1">Tokens Earned</p>
                     <div className="flex items-center justify-center gap-2">
                       <span className="text-3xl">🪙</span>
                       <span className="text-4xl font-black text-white">+{tokensEarned}</span>
-                      <span className="text-xl text-[var(--text-muted)] font-bold">토큰</span>
+                      <span className="text-xl text-[var(--text-muted)] font-bold">tokens</span>
                     </div>
                     <p className="text-[var(--text-subtle)] text-xs mt-2">
-                      현재 잔액: {(userProfile?.tokens ?? 0) + tokensEarned}개
+                      Balance: {(userProfile?.tokens ?? 0) + tokensEarned}
                     </p>
                   </div>
 
                   <div className="bg-[var(--bg-elevated)] rounded-2xl p-4 mb-6 text-left space-y-2">
-                    <p className="text-white text-xs font-bold mb-2">🚀 토큰으로 이용할 수 있는 기능 (출시 예정)</p>
-                    <p className="text-[var(--text-subtle)] text-xs flex items-center gap-2"><span className="text-orange-400">⚡</span> 30분 이상 영상 요약</p>
-                    <p className="text-[var(--text-subtle)] text-xs flex items-center gap-2"><span className="text-orange-400">⚡</span> AI 챗봇 무제한 대화</p>
-                    <p className="text-[var(--text-subtle)] text-xs flex items-center gap-2"><span className="text-orange-400">⚡</span> 요약 카드 PDF 내보내기</p>
+                    <p className="text-white text-xs font-bold mb-2">🚀 Coming soon with tokens</p>
+                    <p className="text-[var(--text-subtle)] text-xs flex items-center gap-2"><span className="text-orange-400">⚡</span> Summarize 30+ min videos</p>
+                    <p className="text-[var(--text-subtle)] text-xs flex items-center gap-2"><span className="text-orange-400">⚡</span> Unlimited AI chat</p>
+                    <p className="text-[var(--text-subtle)] text-xs flex items-center gap-2"><span className="text-orange-400">⚡</span> Export summary as PDF</p>
                   </div>
 
                   <button
                     onClick={() => setDismissed(true)}
                     className="w-full h-12 bg-white text-black font-bold rounded-2xl hover:bg-zinc-200 transition-colors"
                   >
-                    시작하기
+                    Get Started
                   </button>
                 </>
               )}

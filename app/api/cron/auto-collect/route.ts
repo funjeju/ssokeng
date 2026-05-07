@@ -11,14 +11,13 @@ export const maxDuration = 120
 
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY!
 
-// 카테고리별 검색 설정
 const CATEGORY_QUERIES = [
-  { category: 'news',    query: '한국 뉴스 시사 최신',        label: '뉴스/시사' },
-  { category: 'selfdev', query: '자기계발 성장 동기부여',      label: '자기계발' },
-  { category: 'travel',  query: '국내여행 추천 여행지',        label: '여행' },
-  { category: 'tips',    query: '생활 꿀팁 유용한 정보',       label: '팁' },
-  { category: 'english', query: '영어 학습 공부법 회화',       label: '영어학습' },
-  { category: 'recipe',  query: '요리 레시피 만들기',          label: '요리' },
+  { category: 'news',    query: 'latest news current events today',     label: 'News' },
+  { category: 'selfdev', query: 'self improvement motivation productivity', label: 'Self-Dev' },
+  { category: 'travel',  query: 'travel guide best places to visit',    label: 'Travel' },
+  { category: 'tips',    query: 'life hacks tips useful how to',        label: 'Tips' },
+  { category: 'english', query: 'English learning vocabulary speaking',  label: 'Language' },
+  { category: 'recipe',  query: 'cooking recipe how to make food',      label: 'Recipe' },
 ]
 
 const MIN_DURATION_SEC = 180  // 3분 미만 쇼츠/짧은 클립 제외
@@ -93,8 +92,8 @@ async function searchVideoIds(query: string, maxResults = 10): Promise<string[]>
   url.searchParams.set('type', 'video')
   url.searchParams.set('q', query)
   url.searchParams.set('maxResults', String(maxResults))
-  url.searchParams.set('regionCode', 'KR')
-  url.searchParams.set('relevanceLanguage', 'ko')
+  url.searchParams.set('regionCode', 'US')
+  url.searchParams.set('relevanceLanguage', 'en')
   url.searchParams.set('key', YOUTUBE_API_KEY)
 
   console.log('[AutoCollect] Search URL (key redacted):', url.toString().replace(YOUTUBE_API_KEY, 'REDACTED'))
@@ -150,7 +149,7 @@ async function generateYtCommentSummary(popular: { text: string; likes: number }
   try {
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!)
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
-    const prompt = `다음은 유튜브 영상의 인기 댓글입니다. 시청자 반응과 분위기를 한국어로 280자 이내로 요약해주세요.\n\n${popular.slice(0, 20).map(c => `"${c.text}" (좋아요 ${c.likes})`).join('\n')}`
+    const prompt = `Here are popular comments from a YouTube video. Summarize the viewer reactions and overall mood in English within 200 words.\n\n${popular.slice(0, 20).map(c => `"${c.text}" (likes: ${c.likes})`).join('\n')}`
     const result = await model.generateContent(prompt)
     return result.response.text().slice(0, 300)
   } catch {

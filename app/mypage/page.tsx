@@ -19,7 +19,6 @@ import { AVATARS, getAvatarBg } from '@/lib/avatar'
 import { naturalSearch } from '@/lib/nlp-search'
 import FloatingChat from '@/components/chat/FloatingChat'
 import AvatarUploadModal from '@/components/profile/AvatarUploadModal'
-import SchoolSearchInput, { SchoolResult } from '@/components/classroom/SchoolSearchInput'
 import TravelWishlist from '@/components/travel/TravelWishlist'
 import SavedItineraries from '@/components/travel/SavedItineraries'
 import SavedBlogDrafts from '@/components/blog/SavedBlogDrafts'
@@ -649,7 +648,7 @@ export default function MyPage() {
   const [savingAvatar, setSavingAvatar] = useState(false)
   // 선생님 전환 모달
   const [showTeacherModal, setShowTeacherModal] = useState(false)
-  const [teacherSelectedSchool, setTeacherSelectedSchool] = useState<SchoolResult | null>(null)
+  const [teacherSchoolName, setTeacherSchoolName] = useState('')
   const [teacherGrade, setTeacherGrade] = useState('')
   const [teacherClassNum, setTeacherClassNum] = useState('')
   const [teacherSaving, setTeacherSaving] = useState(false)
@@ -754,9 +753,9 @@ export default function MyPage() {
 
   const handleTeacherSetup = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user || !teacherSelectedSchool) { setTeacherError('학교를 목록에서 선택해주세요.'); return }
+    if (!user || !teacherSchoolName.trim()) { setTeacherError('Please enter your school name.'); return }
     if (!teacherGrade || !teacherClassNum) {
-      setTeacherError('학년과 반을 선택해주세요.')
+      setTeacherError('Please select a grade and class number.')
       return
     }
     setTeacherSaving(true)
@@ -770,10 +769,10 @@ export default function MyPage() {
           uid: user.uid,
           idToken,
           teacherName: userProfile?.displayName || user.displayName || '',
-          schoolName: teacherSelectedSchool.name,
-          schoolCode: teacherSelectedSchool.code,
-          schoolType: teacherSelectedSchool.type,
-          region: teacherSelectedSchool.region,
+          schoolName: teacherSchoolName.trim(),
+          schoolCode: '',
+          schoolType: '',
+          region: '',
           grade: Number(teacherGrade),
           classNum: Number(teacherClassNum),
         }),
@@ -783,7 +782,7 @@ export default function MyPage() {
       setTeacherDoneCode(data.classCode)
       await refreshProfile()
     } catch (err: any) {
-      setTeacherError(err.message || '오류가 발생했습니다.')
+      setTeacherError(err.message || 'An error occurred. Please try again.')
     } finally {
       setTeacherSaving(false)
     }
@@ -2063,52 +2062,58 @@ export default function MyPage() {
               /* 완료 화면 */
               <div className="text-center">
                 <div className="text-5xl mb-4">🏫</div>
-                <h2 className="text-xl font-bold text-white mb-2">클래스 개설 완료!</h2>
-                <p className="text-[var(--text-muted)] text-sm mb-5">학생들에게 아래 코드를 알려주세요.</p>
+                <h2 className="text-xl font-bold text-white mb-2">Class Created!</h2>
+                <p className="text-[var(--text-muted)] text-sm mb-5">Share this code with your students.</p>
                 <div className="bg-[var(--bg-surface-2)] rounded-2xl p-4 mb-5">
-                  <p className="text-[var(--text-subtle)] text-xs mb-1">우리 반 코드</p>
+                  <p className="text-[var(--text-subtle)] text-xs mb-1">Your Class Code</p>
                   <p className="text-4xl font-black text-emerald-400 tracking-widest">{teacherDoneCode}</p>
-                  <p className="text-[var(--text-subtle)] text-xs mt-2">{teacherSelectedSchool?.name} {teacherGrade}학년 {teacherClassNum}반</p>
+                  <p className="text-[var(--text-subtle)] text-xs mt-2">{teacherSchoolName} · Grade {teacherGrade} · Class {teacherClassNum}</p>
                 </div>
                 <Link
                   href={`/classroom/${teacherDoneCode}`}
                   onClick={() => setShowTeacherModal(false)}
                   className="block w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl text-sm transition-colors text-center"
                 >
-                  클래스 대시보드로 이동
+                  Go to Class Dashboard
                 </Link>
               </div>
             ) : (
               /* 입력 폼 */
               <>
-                <h2 className="text-lg font-bold text-white mb-1">🏫 선생님으로 전환</h2>
-                <p className="text-[var(--text-muted)] text-sm mb-6">클래스를 개설하면 학생들을 초대할 수 있어요.</p>
+                <h2 className="text-lg font-bold text-white mb-1">🏫 Switch to Teacher</h2>
+                <p className="text-[var(--text-muted)] text-sm mb-6">Create a class and invite your students.</p>
                 <form onSubmit={handleTeacherSetup} className="flex flex-col gap-4">
                   <div>
-                    <label className="block text-xs text-[var(--text-subtle)] mb-1.5">학교명</label>
-                    <SchoolSearchInput value={teacherSelectedSchool} onChange={setTeacherSelectedSchool} accentColor="emerald" />
+                    <label className="block text-xs text-[var(--text-subtle)] mb-1.5">School Name</label>
+                    <input
+                      type="text"
+                      value={teacherSchoolName}
+                      onChange={e => setTeacherSchoolName(e.target.value)}
+                      placeholder="Enter your school name"
+                      className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-emerald-500/70 transition-colors"
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs text-[var(--text-subtle)] mb-1.5">학년</label>
+                      <label className="block text-xs text-[var(--text-subtle)] mb-1.5">Grade</label>
                       <select
                         value={teacherGrade}
                         onChange={e => setTeacherGrade(e.target.value)}
                         className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-colors"
                       >
-                        <option value="">선택</option>
-                        {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n}학년</option>)}
+                        <option value="">Select</option>
+                        {[1,2,3,4,5,6,7,8,9,10,11,12].map(n => <option key={n} value={n}>Grade {n}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs text-[var(--text-subtle)] mb-1.5">반</label>
+                      <label className="block text-xs text-[var(--text-subtle)] mb-1.5">Class</label>
                       <select
                         value={teacherClassNum}
                         onChange={e => setTeacherClassNum(e.target.value)}
                         className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500/50 transition-colors"
                       >
-                        <option value="">선택</option>
-                        {Array.from({length: 15}, (_, i) => i+1).map(n => <option key={n} value={n}>{n}반</option>)}
+                        <option value="">Select</option>
+                        {Array.from({length: 15}, (_, i) => i+1).map(n => <option key={n} value={n}>Class {n}</option>)}
                       </select>
                     </div>
                   </div>
@@ -2124,9 +2129,9 @@ export default function MyPage() {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                         </svg>
-                        클래스 개설 중...
+                        Creating class...
                       </>
-                    ) : '클래스 개설하기'}
+                    ) : 'Create Class'}
                   </button>
                 </form>
               </>
