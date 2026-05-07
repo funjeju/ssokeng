@@ -173,10 +173,10 @@ function ProfileSetupModalInner() {
                       : 'border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-white'
                   }`}
                 >
-                  <span className="text-4xl">📚</span>
+                  <span className="text-4xl">👤</span>
                   <div className="text-center">
-                    <p className="text-sm font-bold">Learner</p>
-                    <p className="text-[10px] text-[var(--text-subtle)] mt-0.5">Video learning · Curation</p>
+                    <p className="text-sm font-bold">Individual</p>
+                    <p className="text-[10px] text-[var(--text-subtle)] mt-0.5">Personal use · Video curation</p>
                   </div>
                 </button>
 
