@@ -7,42 +7,6 @@ import { randomUUID } from 'crypto'
 import { initAdminApp } from '@/lib/firebase-admin'
 import { getAuth } from 'firebase-admin/auth'
 
-async function translateTranscriptToKorean(transcript: string): Promise<string> {
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!)
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash',
-    generationConfig: {
-      temperature: 0.1,
-      maxOutputTokens: 65536,
-      // @ts-expect-error thinkingConfig not yet in types
-      thinkingConfig: { thinkingBudget: 0 },
-    },
-  })
-
-  // 15,000자 단위로 청크 분할 (타임스탬프 경계 기준)
-  const lines = transcript.split('\n')
-  const MAX_CHARS = 15000
-  const chunks: string[] = []
-  let cur = ''
-  for (const line of lines) {
-    if (cur.length + line.length > MAX_CHARS && cur) {
-      chunks.push(cur)
-      cur = line
-    } else {
-      cur += (cur ? '\n' : '') + line
-    }
-  }
-  if (cur) chunks.push(cur)
-
-  const translated = await Promise.all(
-    chunks.map(chunk =>
-      model.generateContent(
-        `다음 자막을 한국어로 번역하세요. [MM:SS] 또는 [HH:MM:SS] 형식의 타임스탬프는 절대 변경하지 마세요. 번역된 자막만 출력하세요.\n\n${chunk}`
-      ).then(r => r.response.text().trim())
-    )
-  )
-  return translated.join('\n')
-}
 
 async function generateYtCommentSummary(popular: { text: string; likes: number }[]): Promise<string> {
   if (popular.length === 0) return ''
@@ -59,7 +23,7 @@ async function generateYtCommentSummary(popular: { text: string; likes: number }
     })
     const lines = popular.slice(0, 25).map(c => `- [👍${c.likes}] ${c.text.slice(0, 150)}`).join('\n')
     const result = await model.generateContent(
-      `다음은 유튜브 영상의 인기 댓글입니다.\n\n${lines}\n\n시청자 반응의 방향성을 280자 이내로 요약해주세요. 긍정/부정/혼재 여부, 주요 언급 포인트, 전체 분위기를 간결하게. 마크다운 없이 문장만.`
+      `These are the top comments on a YouTube video.\n\n${lines}\n\nSummarize the overall viewer reaction in 2–3 sentences (under 80 words). Cover whether the response is positive/negative/mixed, the main talking points, and the general vibe. Plain sentences only, no markdown.`
     )
     return result.response.text().trim().slice(0, 300)
   } catch {
@@ -262,7 +226,7 @@ async function fetchUrlContent(url: string): Promise<string> {
     headers: { 'User-Agent': 'Mozilla/5.0 (compatible; NextCurator/1.0)' },
     signal: AbortSignal.timeout(10000),
   })
-  if (!res.ok) throw new Error('URL 접근 실패')
+  if (!res.ok) throw new Error('Failed to access URL')
   const html = await res.text()
   // HTML 태그 제거, 공백 정리
   return html
@@ -302,30 +266,29 @@ export async function POST(req: NextRequest) {
     const {
       url,
       category: userCategory,
-      summaryLang,           // 'ko' | 'original' — 언어 선택 후 재호출 시 포함
-      cachedTranscript,      // 1차 호출에서 반환된 자막 캐시
-      cachedVideoInfo,       // 1차 호출에서 반환된 영상 정보 캐시
-      noSave,                // true: Firestore 저장 안 함 (타인 요약 임시 재분석)
+      cachedTranscript,
+      cachedVideoInfo,
+      noSave,
     } = await req.json()
 
     if (!url) {
-      return NextResponse.json({ error: 'URL이 필요합니다.' }, { status: 400 })
+      return NextResponse.json({ error: 'URL is required.' }, { status: 400 })
     }
 
     const videoId = extractVideoId(url)
 
-    // ── 일반 URL (YouTube 아님) ──
+    // ── Non-YouTube URL ──
     if (!videoId) {
       try { new URL(url) } catch {
-        return NextResponse.json({ error: '올바른 URL을 입력해주세요.' }, { status: 400 })
+        return NextResponse.json({ error: 'Please enter a valid URL.' }, { status: 400 })
       }
 
       let pageText = ''
       try { pageText = await fetchUrlContent(url) } catch {
-        return NextResponse.json({ error: 'URL 내용을 가져올 수 없습니다. 접근이 차단된 페이지일 수 있습니다.' }, { status: 422 })
+        return NextResponse.json({ error: 'Could not fetch the URL. The page may be blocked.' }, { status: 422 })
       }
       if (!pageText.trim()) {
-        return NextResponse.json({ error: '페이지에서 텍스트를 추출할 수 없습니다.' }, { status: 422 })
+        return NextResponse.json({ error: 'No text could be extracted from the page.' }, { status: 422 })
       }
 
       let category = userCategory
@@ -415,7 +378,7 @@ export async function POST(req: NextRequest) {
         : getTranscript(videoId, { durationSeconds, isAdmin }).catch((e: Error) => {
             if (e.message === 'LONG_VIDEO_NO_CAPTIONS') throw e
             if (e.message === 'STT_VIP_REQUIRED') throw e
-            console.warn(`[Summarize] ⚠️ 자막 추출 실패 (${videoId}): ${e.message} — 영상 설명 및 댓글 요약으로 대체합니다.`)
+            console.warn(`[Summarize] ⚠️ Transcript extraction failed (${videoId}): ${e.message} — falling back to description/comments.`)
             return { text: '', source: 'none', lang: 'ko' as const }
           }),
       fetchVideoComments(videoId).catch(() => ({ popular: [], recent: [], combined: [] })),
@@ -425,71 +388,29 @@ export async function POST(req: NextRequest) {
     let transcriptSource = transcriptResult.source
     let transcriptLang = transcriptResult.lang as 'ko' | 'en' | 'other'
 
-    // ── 언어 선택 필요 여부 확인 ──
-    // summaryLang 미지정 + 비한국어 자막 → 프론트에서 선택하도록 early return
-    if (!summaryLang && transcriptLang !== 'ko' && transcript.trim().length > 50) {
-      return NextResponse.json({
-        needsLangChoice: true,
-        detectedLang: transcriptLang,
-        cachedTranscript: transcript,
-        cachedVideoInfo: cachedVideoInfo || {
-          title: videoInfo.title,
-          channel: videoInfo.channel,
-          thumbnail: videoInfo.thumbnail,
-          publishedAt: videoInfo.publishedAt,
-        },
-      })
-    }
-
-    const outputLang: 'ko' | 'original' = summaryLang === 'original' ? 'original' : 'ko'
-
-    // 한국어 출력 모드 + 비한국어 자막 → 자막 자체를 한국어로 번역 후 저장
-    // 이후 모든 재분석은 한국어 자막 기반으로 자연스럽게 한국어 출력
-    let transcriptOriginal: string | undefined
-    if (outputLang === 'ko' && transcriptLang !== 'ko' && transcript.trim().length > 50) {
-      transcriptOriginal = transcript  // 번역 전 원문 보존
-      try {
-        console.log('[Summarize] 🌐 Translating transcript to Korean...')
-        transcript = await translateTranscriptToKorean(transcript)
-        transcriptLang = 'ko'
-        transcriptSource = transcriptSource === 'cached' ? 'cached' : `${transcriptSource}_translated`
-        console.log('[Summarize] ✅ Transcript translated to Korean')
-      } catch (e) {
-        console.warn('[Summarize] ⚠️ Transcript translation failed, using original:', e)
-        transcriptOriginal = undefined  // 번역 실패 시 원문 그대로이므로 따로 저장 불필요
-      }
-    }
-
     const description = (videoInfo as any).description ?? ''
-    // pinnedComment: 인기 댓글 1위로 대체 (getVideoMeta 제거)
     const pinnedComment = commentResult.popular[0]?.text ?? ''
 
     const contextParts = []
-
-    // 제목+채널은 항상 포함 — fullContext가 절대 빈값이 되지 않도록 보장
-    contextParts.push(`[영상 제목]\n${videoInfo.title}\n[채널]\n${videoInfo.channel}`)
+    contextParts.push(`[Video Title]\n${videoInfo.title}\n[Channel]\n${videoInfo.channel}`)
 
     if (transcript) {
-      const transNote = outputLang === 'ko' && transcriptLang !== 'ko'
-        ? `[언어 안내: 아래 자막은 ${transcriptLang === 'en' ? '영어(English)' : '외국어'}입니다. 내용을 이해하고 한국어로 번역하여 요약해주세요.]\n\n`
-        : ''
-      contextParts.push(`[자막]\n${transNote}${transcript}`)
+      contextParts.push(`[Transcript]\n${transcript}`)
     }
     if (description) {
-      contextParts.push(`[영상 설명]\n${description}`)
+      contextParts.push(`[Description]\n${description}`)
     }
-    if (pinnedComment) contextParts.push(`[상위 댓글]\n${pinnedComment}`)
+    if (pinnedComment) contextParts.push(`[Top Comment]\n${pinnedComment}`)
 
     const fullContext = contextParts.join('\n\n')
 
-    // 자막 실패 시 경고 메시지 생성
     let transcriptWarning = ''
     if (transcriptSource === 'none') {
       if (!description) {
-        transcriptWarning = '이 영상은 자막과 설명 정보를 모두 가져올 수 없어 제목만으로 요약했습니다. 정확도가 낮을 수 있습니다.'
+        transcriptWarning = 'Captions and description were unavailable — this summary is based on the title only and may be inaccurate.'
         console.warn(`[Summarize] ⚠️ No transcript or description for ${videoId} — summarizing from title only`)
       } else {
-        transcriptWarning = '이 영상은 자막을 가져올 수 없어 영상 설명과 댓글을 기반으로 요약했습니다. 실제 내용과 다를 수 있습니다.'
+        transcriptWarning = 'Captions were unavailable — this summary is based on the video description and comments.'
         console.warn(`[Summarize] ⚠️ No transcript for ${videoId} — summarizing from description/comments`)
       }
     }
@@ -501,7 +422,7 @@ export async function POST(req: NextRequest) {
     }
 
     const [summary, reportSummary, ytCommentSummary] = await Promise.all([
-      generateSummary(category, fullContext, 'youtube', outputLang),
+      generateSummary(category, fullContext, 'youtube'),
       generateReportSummary(category, videoInfo.title, fullContext).catch(() => ''),
       generateYtCommentSummary(commentResult.popular),
     ])
@@ -511,23 +432,7 @@ export async function POST(req: NextRequest) {
       ? formatCommentsForPrompt(commentResult.popular, commentResult.recent).slice(0, 3000)
       : ''
 
-    // 영어 원제 → 한국어 번역 제목 추출 (한국어 출력 모드이고 제목에 한글 없을 때)
-    const displayTitle = (() => {
-      if (outputLang !== 'ko' || /[가-힣]/.test(videoInfo.title)) return videoInfo.title
-      const s = summary as any
-      const candidates = [
-        category === 'news'     ? s.headline              : '',
-        category === 'recipe'   ? s.dish_name             : '',
-        category === 'learning' ? s.subject               : '',
-        category === 'story'    ? s.title                 : '',
-        category === 'tips'     ? s.topic                 : '',
-        category === 'report'   ? s.title                 : '',
-        category === 'selfdev'  ? s.core_message?.text    : '',
-        category === 'travel'   ? s.destination           : '',
-        s.square_meta?.topic_cluster,
-      ].filter(Boolean)
-      return (candidates[0] as string) || videoInfo.title
-    })()
+    const displayTitle = videoInfo.title
 
     const sessionId = randomUUID()
     const result = {
@@ -543,7 +448,6 @@ export async function POST(req: NextRequest) {
       summary,
       contextSummary,
       transcript,
-      ...(transcriptOriginal ? { transcriptOriginal } : {}),
       transcriptSource,
       transcriptWarning,
       videoPublishedAt: videoInfo.publishedAt || '',
@@ -568,9 +472,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(result)
   } catch (error) {
-    const errMsg = error instanceof Error ? error.message : '처리 중 오류가 발생했습니다.'
+    const errMsg = error instanceof Error ? error.message : 'An error occurred during processing.'
     if (errMsg === 'LONG_VIDEO_NO_CAPTIONS') {
-      return NextResponse.json({ error: '긴 러닝타임에 자막까지 없어 처리가 불가합니다.' }, { status: 422 })
+      return NextResponse.json({ error: 'This video is too long and has no captions — unable to process.' }, { status: 422 })
     }
     if (errMsg === 'STT_VIP_REQUIRED') {
       return NextResponse.json({ error: 'STT_VIP_REQUIRED' }, { status: 403 })

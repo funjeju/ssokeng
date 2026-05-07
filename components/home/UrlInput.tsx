@@ -47,13 +47,7 @@ function incrementGuestUsage() {
   } catch {}
 }
 
-type ModalType = 'guest_info' | 'guest_limit_duration' | 'guest_limit_count' | 'lang_choice' | null
-
-interface LangChoiceData {
-  detectedLang: 'en' | 'other'
-  cachedTranscript: string
-  cachedVideoInfo: { title: string; channel: string; thumbnail: string; publishedAt: string }
-}
+type ModalType = 'guest_info' | 'guest_limit_duration' | 'guest_limit_count' | null
 
 function toUserMessage(err: unknown): string {
   const msg = err instanceof Error ? err.message : String(err)
@@ -86,7 +80,6 @@ export default function UrlInput() {
   const [error, setError] = useState('')
   const [step, setStep] = useState(0)
   const [modal, setModal] = useState<ModalType>(null)
-  const [langChoiceData, setLangChoiceData] = useState<LangChoiceData | null>(null)
   const [checkingDuration, setCheckingDuration] = useState(false)
   const router = useRouter()
 
@@ -280,56 +273,7 @@ export default function UrlInput() {
       if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'An error occurred.') }
       const data = await res.json()
 
-      // 비한국어 자막 감지 → 언어 선택 모달 표시
-      if (data.needsLangChoice) {
-        setLoading(false)
-        setStep(0)
-        setLangChoiceData(data as LangChoiceData)
-        setModal('lang_choice')
-        return
-      }
-
       setStep(4)
-      finalizeSummary(data)
-    } catch (err) {
-      if ((err as Error).name === 'AbortError') return
-      setError(toUserMessage(err))
-      setLoading(false)
-      setStep(0)
-    }
-  }
-
-  // 2차 요약 실행 (언어 선택 후)
-  const runSummarizeWithLang = async (summaryLang: 'ko' | 'original') => {
-    if (!langChoiceData) return
-    setModal(null)
-    setLoading(true)
-    setStep(3)
-
-    const controller = new AbortController()
-    abortControllerRef.current = controller
-
-    try {
-      setStep(4)
-      const headers: HeadersInit = { 'Content-Type': 'application/json' }
-      if (user) {
-        try { headers['Authorization'] = `Bearer ${await user.getIdToken()}` } catch {}
-      }
-      const res = await fetch('/api/summarize', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          url,
-          category: selectedCategory === 'auto' ? undefined : selectedCategory,
-          summaryLang,
-          cachedTranscript: langChoiceData.cachedTranscript,
-          cachedVideoInfo: langChoiceData.cachedVideoInfo,
-        }),
-        signal: controller.signal,
-      })
-      if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'An error occurred.') }
-      setStep(5)
-      const data = await res.json()
       finalizeSummary(data)
     } catch (err) {
       if ((err as Error).name === 'AbortError') return
@@ -557,45 +501,6 @@ export default function UrlInput() {
                   </button>
                   <button onClick={() => setModal(null)} className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1">
                     Close
-                  </button>
-                </div>
-              </>
-            )}
-
-            {/* 언어 선택 */}
-            {modal === 'lang_choice' && langChoiceData && (
-              <>
-                <div className="text-center">
-                  <div className="text-4xl mb-3">
-                    {langChoiceData.detectedLang === 'en' ? '🇺🇸' : '🌐'}
-                  </div>
-                  <h2 className="text-lg font-bold text-white mb-2">Source Language Detected</h2>
-                  <p className="text-[var(--text-muted)] text-sm leading-relaxed">
-                    This video's captions are in&nbsp;
-                    <span className="text-white font-semibold">
-                      {langChoiceData.detectedLang === 'en' ? 'English' : 'a foreign language'}
-                    </span>
-                    .<br />How would you like to summarize it?
-                  </p>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <button
-                    onClick={() => runSummarizeWithLang('original')}
-                    className="w-full h-12 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-2xl text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                  >
-                    🇺🇸 Summarize in English
-                  </button>
-                  <button
-                    onClick={() => runSummarizeWithLang('ko')}
-                    className="w-full h-12 bg-[var(--bg-elevated)] border border-[var(--border-default)] text-white font-bold rounded-2xl text-sm hover:bg-[var(--bg-elevated-2)] transition-colors flex items-center justify-center gap-2"
-                  >
-                    🇰🇷 Translate to Korean
-                  </button>
-                  <button
-                    onClick={() => { setModal(null); setLangChoiceData(null) }}
-                    className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1"
-                  >
-                    Cancel
                   </button>
                 </div>
               </>

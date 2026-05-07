@@ -53,7 +53,7 @@ function extractJSON(text: string): unknown {
 
   // 2. JSON 부분만 추출 ({ ... })
   const match = cleaned.match(/\{[\s\S]*\}/)
-  if (!match) throw new Error('응답에서 JSON 구조를 찾을 수 없습니다.')
+  if (!match) throw new Error('No JSON structure found in response.')
   cleaned = match[0]
 
   try {
@@ -239,7 +239,7 @@ function sampleTranscript(transcript: string, maxChars = 60000): string {
   const middle = transcript.slice(midStart, midStart + middleChars)
   const end    = transcript.slice(endStart)
 
-  return [front, '\n...[중략]...\n', middle, '\n...[중략]...\n', end].join('')
+  return [front, '\n...[continued]...\n', middle, '\n...[continued]...\n', end].join('')
 }
 
 export async function generateSummary(
@@ -252,34 +252,32 @@ export async function generateSummary(
   let prompt = SUMMARY_PROMPTS[category]
   if (category === 'report') {
     const approxMinutes = Math.round(transcript.length / 800)
-    const sectionCount = approxMinutes >= 40 ? '12~18개' : approxMinutes >= 20 ? '8~12개' : approxMinutes >= 10 ? '5~8개' : '4~6개'
-    const bodyLen = approxMinutes >= 20 ? '3~5문장' : '2~3문장'
-    prompt = `다음 영상 자막을 분석해서 보고서 형식의 JSON을 만드세요.
-sections는 영상 흐름에 따라 ${sectionCount}로 구성하고, 각 섹션은 ${bodyLen}의 서술형 body로 작성하세요.
-영상 전체 구간을 빠짐없이 커버하도록 timestamp를 균등하게 배분하세요.
-timestamp는 해당 섹션이 시작되는 시점(MM:SS 또는 HH:MM:SS)을 기입하세요.
-context_summary는 200~300자 분량의 한국어 맥락 요약입니다.
-conclusion은 한 문장 핵심 결론입니다.
+    const sectionCount = approxMinutes >= 40 ? '12–18 sections' : approxMinutes >= 20 ? '8–12 sections' : approxMinutes >= 10 ? '5–8 sections' : '4–6 sections'
+    const bodyLen = approxMinutes >= 20 ? '3–5 sentences' : '2–3 sentences'
+    prompt = `Analyze the following video transcript and create a structured report JSON.
+Organize sections according to the video flow — ${sectionCount} sections total. Each section body should be ${bodyLen} in narrative prose.
+Distribute timestamps evenly to cover the entire video without gaps.
+Timestamp = the moment in the video where that section begins (MM:SS or HH:MM:SS format).
+context_summary = 50–80 word contextual overview of the entire video.
+conclusion = one sentence capturing the core conclusion.
 
-{"square_meta":{"tags":["키워드1","키워드2","키워드3","키워드4","키워드5"],"topic_cluster":"대주제","vibe":"분위기"},"title":"보고서 제목","context_summary":"전체 맥락 200~300자 요약","table_of_contents":["1. 섹션 제목","2. 섹션 제목"],"sections":[{"number":1,"heading":"소제목","timestamp":"MM:SS","body":"서술형 요약"}],"conclusion":"핵심 결론 한 문장"}`
+{"square_meta":{"tags":["keyword1","keyword2","keyword3","keyword4","keyword5"],"topic_cluster":"main topic","vibe":"mood"},"title":"report title","context_summary":"50–80 word contextual overview","table_of_contents":["1. Section Title","2. Section Title"],"sections":[{"number":1,"heading":"subheading","timestamp":"MM:SS","body":"narrative summary in prose"}],"conclusion":"core conclusion in one sentence"}`
   }
 
   const sampled = sampleTranscript(transcript)  // 기본 6만자
 
   const sourceNote = source === 'pdf'
-    ? `\n※ 이 콘텐츠는 PDF 문서입니다. 텍스트에 [PAGE N] 마커가 있습니다. timestamp 필드에는 해당 내용이 등장하는 페이지를 반드시 "p.N" 형식으로 기입하세요 (예: "p.3", "p.7"). MM:SS 형식은 사용하지 마세요. 페이지를 특정할 수 없으면 빈 문자열로 채우세요.`
+    ? `\n※ This content is from a PDF document. The text contains [PAGE N] markers. For the timestamp field, always use "p.N" format (e.g. "p.3", "p.7") for the page where the content appears. Do NOT use MM:SS format. Use an empty string if the page cannot be determined.`
     : source === 'web'
-    ? `\n※ 이 콘텐츠는 웹 페이지입니다. timestamp 필드는 모두 빈 문자열("")로 채우세요.`
+    ? `\n※ This content is from a web page. Set all timestamp fields to empty strings ("").`
     : ''
 
-  const langNote = outputLang === 'original'
-    ? '\n\n[IMPORTANT: Write ALL text values in English. Do NOT output in any other language.]'
-    : '\n\n[IMPORTANT: Write ALL text values in English. Do NOT output in any other language.]'
+  const langNote = '\n\n[IMPORTANT: Write ALL text values in English. Do NOT output in any other language.]'
 
   const model = category === 'story' ? storyModel : summaryModel
   const result = await model.generateContent(`${prompt}${sourceNote}${langNote}
 
-${source === 'youtube' ? '자막' : '내용'}:
+${source === 'youtube' ? 'Transcript' : 'Content'}:
 ${sampled}`)
 
   const text = result.response.text().trim()
@@ -303,8 +301,8 @@ export async function generateReportSummary(
 ): Promise<string> {
   // 자막 길이로 영상 분량 추정 → 보고서 분량 동적 조절
   const approxMinutes = Math.round(fullContext.length / 800)
-  const targetChars = approxMinutes >= 30 ? '2000~3000자' : approxMinutes >= 15 ? '1200~2000자' : '800~1200자'
-  const sectionCount = approxMinutes >= 30 ? '8~12개' : approxMinutes >= 15 ? '6~8개' : '4~6개'
+  const targetChars = approxMinutes >= 30 ? '800–1200 words' : approxMinutes >= 15 ? '500–800 words' : '300–500 words'
+  const sectionCount = approxMinutes >= 30 ? '8–12 sections' : approxMinutes >= 15 ? '6–8 sections' : '4–6 sections'
   const categoryHint: Record<Category, string> = {
     recipe:   'Cooking/Recipe video',
     english:  'Language Learning video',
@@ -519,16 +517,18 @@ export async function generateSegmentSummary(
   chunk: { start: string; end: string; text: string },
   index: number
 ): Promise<SegmentSummary> {
-  const result = await segmentModel.generateContent(`다음은 영상의 ${chunk.start}~${chunk.end} 구간 자막입니다.
-이 구간을 분석해서 JSON으로 정리하세요.
+  const result = await segmentModel.generateContent(`The following is the transcript for the ${chunk.start}–${chunk.end} segment of a video.
+Analyze this segment and organize it as JSON.
 
-[지침]
-- headline: 이 구간의 핵심을 담은 제목 (20자 이내, 흥미를 끄는 문구)
-- keyPoints: 3~5개. 각 포인트는 "무엇이 다뤄졌고 왜 중요한지"를 완전한 문장 1~2개로. 단어나 구절이 아닌 문장으로 써주세요.
+[Guidelines]
+- headline: A compelling title capturing the core of this segment (under 10 words)
+- keyPoints: 3–5 points. Each point should be 1–2 complete sentences explaining "what was covered and why it matters." Write full sentences, not words or phrases.
 
-{"headline":"이 구간의 핵심 제목 (20자 이내)","keyPoints":["포인트를 완전한 문장으로 (무엇 + 왜 중요한지)","포인트2","포인트3"]}
+{"headline":"core title for this segment (under 10 words)","keyPoints":["complete sentence: what + why it matters","point2","point3"]}
 
-자막:
+[IMPORTANT: Write ALL text values in English.]
+
+Transcript:
 ${chunk.text.slice(0, 25000)}`)
 
   const text = result.response.text().trim()
@@ -549,16 +549,18 @@ export async function generateSegmentQuiz(
   segment: SegmentSummary,
   chunkText: string
 ): Promise<SegmentQuizQuestion[]> {
-  const result = await segmentModel.generateContent(`다음 구간 내용을 바탕으로 이해도 확인 퀴즈 3문제를 만드세요.
-각 문제는 4개의 보기 중 1개가 정답인 객관식입니다.
+  const result = await segmentModel.generateContent(`Based on the following segment content, create 3 comprehension quiz questions.
+Each question is multiple-choice with 4 options and 1 correct answer.
 
-{"questions":[{"question":"질문","options":["보기1","보기2","보기3","보기4"],"answer":0}]}
+[IMPORTANT: Write ALL text values in English.]
 
-구간 요약:
+{"questions":[{"question":"question text","options":["option1","option2","option3","option4"],"answer":0}]}
+
+Segment summary:
 ${segment.headline}
 ${segment.keyPoints.join('\n')}
 
-자막:
+Transcript:
 ${chunkText.slice(0, 10000)}`)
 
   const text = result.response.text().trim()
@@ -587,6 +589,6 @@ Respond in JSON ONLY:
   try {
     return extractJSON(text) as { suggestedFolder: string, isNew: boolean }
   } catch (e) {
-    return { suggestedFolder: existingFolders[0] || '기타', isNew: existingFolders.length === 0 }
+    return { suggestedFolder: existingFolders[0] || 'Other', isNew: existingFolders.length === 0 }
   }
 }
