@@ -9,8 +9,8 @@ import { getLocalUserId } from '@/lib/user'
 import { useAuth } from '@/providers/AuthProvider'
 
 const CATEGORY_LABEL: Record<string, string> = {
-  recipe: '🍳 요리', english: '🔤 영어', learning: '📐 학습', news: '🗞️ 뉴스',
-  selfdev: '💪 자기계발', travel: '🧳 여행', story: '🍿 스토리', tips: '💡 팁',
+  recipe: '🍳 Recipe', english: '🔤 Language', learning: '📐 Learning', news: '🗞️ News',
+  selfdev: '💪 Self-Dev', travel: '🧳 Travel', story: '🍿 Story', tips: '💡 Tips',
 }
 
 export default function SharePage() {
@@ -26,10 +26,10 @@ export default function SharePage() {
   useEffect(() => {
     getSharedFolder(shareId)
       .then(data => {
-        if (!data) setError('공유 폴더를 찾을 수 없습니다.')
+        if (!data) setError('Shared folder not found.')
         else setShared(data)
       })
-      .catch(() => setError('불러오기에 실패했습니다.'))
+      .catch(() => setError('Failed to load.'))
       .finally(() => setLoading(false))
   }, [shareId])
 
@@ -38,12 +38,12 @@ export default function SharePage() {
     setCopying(true)
     try {
       const uid = user?.uid || getLocalUserId()
-      const displayName = user?.displayName || '익명'
+      const displayName = user?.displayName || 'Anonymous'
       const photoURL = user?.photoURL || ''
       await copySharedFolder(shareId, uid, displayName, photoURL)
       setDone(true)
     } catch (e) {
-      alert((e as Error).message || '복사에 실패했습니다.')
+      alert((e as Error).message || 'Failed to copy.')
     } finally {
       setCopying(false)
     }
@@ -51,7 +51,7 @@ export default function SharePage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-page)] font-sans">
-      <Header title="공유 폴더" />
+      <Header title="Shared Folder" />
       <div className="max-w-2xl mx-auto px-4 py-10">
 
         {loading && (
@@ -64,7 +64,7 @@ export default function SharePage() {
           <div className="text-center py-24">
             <p className="text-3xl mb-4">😢</p>
             <p className="text-white font-bold mb-2">{error}</p>
-            <Link href="/" className="text-orange-400 text-sm underline">홈으로</Link>
+            <Link href="/" className="text-orange-400 text-sm underline">Go Home</Link>
           </div>
         )}
 
@@ -84,9 +84,9 @@ export default function SharePage() {
                     ) : (
                       <div className="w-5 h-5 rounded-full bg-[var(--bg-elevated-2)] flex items-center justify-center text-[9px]">👤</div>
                     )}
-                    <span className="text-[var(--text-muted)] text-sm">{shared.ownerName}님이 공유한 폴더</span>
+                    <span className="text-[var(--text-muted)] text-sm">Shared by {shared.ownerName}</span>
                   </div>
-                  <p className="text-[var(--text-subtle)] text-xs mt-1">영상 {shared.items.length}개</p>
+                  <p className="text-[var(--text-subtle)] text-xs mt-1">{shared.items.length} video{shared.items.length !== 1 ? 's' : ''}</p>
                 </div>
               </div>
 
@@ -96,13 +96,13 @@ export default function SharePage() {
                   <div className="flex flex-col items-center gap-3">
                     <div className="flex items-center gap-2 text-emerald-400 font-bold">
                       <span>✅</span>
-                      <span>내 라이브러리에 추가됐어요!</span>
+                      <span>Added to your library!</span>
                     </div>
                     <button
                       onClick={() => router.push('/mypage')}
                       className="px-6 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm transition-colors"
                     >
-                      마이페이지에서 확인하기 →
+                      View in My Page →
                     </button>
                   </div>
                 ) : (
@@ -114,16 +114,16 @@ export default function SharePage() {
                     {copying ? (
                       <>
                         <div className="w-4 h-4 rounded-full border-2 border-[var(--border-emphasis)] border-t-white animate-spin" />
-                        복사 중...
+                        Adding...
                       </>
                     ) : (
-                      '📥 내 라이브러리에 추가하기'
+                      '📥 Add to my library'
                     )}
                   </button>
                 )}
                 {!user && (
                   <p className="text-[var(--text-subtle)] text-xs text-center mt-2">
-                    비로그인 상태로 추가하면 로그인 후 기기가 달라질 때 보이지 않을 수 있어요
+                    Added as a guest — items may not appear on other devices after sign-in.
                   </p>
                 )}
               </div>
@@ -131,7 +131,7 @@ export default function SharePage() {
 
             {/* 영상 목록 */}
             <div className="space-y-2">
-              <p className="text-[var(--text-subtle)] text-xs px-1">포함된 영상</p>
+              <p className="text-[var(--text-subtle)] text-xs px-1">Included videos</p>
               {shared.items.map((item, i) => (
                 <div
                   key={item.sessionId}

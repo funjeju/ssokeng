@@ -6,35 +6,35 @@ import { useState } from 'react'
 
 const NAV = [
   {
-    label: '시작하기',
+    label: 'Getting Started',
     href: '/guide',
     icon: '🚀',
   },
   {
-    label: '영상 요약',
+    label: 'Video Summary',
     icon: '✨',
     children: [
-      { label: '요리 레시피 정리', href: '/guide/summary/recipe', icon: '🍳' },
-      { label: '영어 학습 정리', href: '/guide/summary/english', icon: '🔤' },
-      { label: '뉴스 & 경제', href: '/guide/summary/news', icon: '🗞️' },
-      { label: '여행 스팟 추출', href: '/guide/summary/travel', icon: '🧳' },
+      { label: 'Cooking Recipes', href: '/guide/summary/recipe', icon: '🍳' },
+      { label: 'English Learning', href: '/guide/summary/english', icon: '🔤' },
+      { label: 'News & Economics', href: '/guide/summary/news', icon: '🗞️' },
+      { label: 'Travel Spots', href: '/guide/summary/travel', icon: '🧳' },
     ],
   },
-  { label: '재생목록 가져오기', href: '/guide/import', icon: '📋' },
-  { label: '블로그 초안 생성', href: '/guide/blog', icon: '✍️' },
-  { label: '숏폼 스크립트', href: '/guide/shorts', icon: '🎬' },
-  { label: 'AI 대화 검색', href: '/guide/search', icon: '🔍' },
-  { label: '스퀘어 활용법', href: '/guide/square', icon: '🌐' },
-  { label: '클래스룸', href: '/guide/classroom', icon: '🎓' },
+  { label: 'Import Playlist', href: '/guide/import', icon: '📋' },
+  { label: 'Blog Draft', href: '/guide/blog', icon: '✍️' },
+  { label: 'Shorts Script', href: '/guide/shorts', icon: '🎬' },
+  { label: 'AI Chat Search', href: '/guide/search', icon: '🔍' },
+  { label: 'Square Guide', href: '/guide/square', icon: '🌐' },
+  { label: 'Classroom', href: '/guide/classroom', icon: '🎓' },
 ]
 
 export default function GuideNav() {
   const pathname = usePathname()
-  const [openGroup, setOpenGroup] = useState<string | null>('영상 요약')
+  const [openGroup, setOpenGroup] = useState<string | null>('Video Summary')
 
   return (
     <nav className="sticky top-6">
-      <p className="text-[10px] text-[var(--text-subtle)] uppercase tracking-widest mb-3 font-semibold">사용설명서</p>
+      <p className="text-[10px] text-[var(--text-subtle)] uppercase tracking-widest mb-3 font-semibold">User Guide</p>
       <ul className="flex flex-col gap-0.5">
         {NAV.map((item) => {
           if (item.children) {

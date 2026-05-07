@@ -22,17 +22,17 @@ interface DocentChatProps {
 
 // 카테고리별 첫 질문 제안
 const SUGGESTIONS: Record<string, string[]> = {
-  recipe:  ['이 요리에서 가장 중요한 핵심 포인트가 뭐야?', '초보자가 실수하기 쉬운 부분이 있어?', '재료를 대체할 수 있는 게 있어?'],
-  english: ['이 표현을 실생활에서 어떻게 써?', '비슷한 표현이랑 어떻게 달라?', '이 단어 더 쉽게 외우는 방법 있어?'],
-  learning:['이 개념을 한 줄로 설명하면?', '실생활에서 이게 어디에 쓰여?', '관련된 개념을 더 알고 싶어'],
-  news:    ['이 뉴스의 배경이 뭐야?', '앞으로 어떻게 전개될 것 같아?', '이 사건이 나한테 미치는 영향은?'],
-  selfdev: ['이 내용 중 당장 실천할 수 있는 게 뭐야?', '핵심 메시지를 한 줄로 요약하면?', '비슷한 책이나 콘텐츠 추천해줘'],
-  travel:  ['여기서 꼭 챙겨야 할 준비물이 뭐야?', '예산은 얼마나 잡아야 해?', '초보 여행자에게 주의할 점은?'],
-  story:   ['결말의 의미가 뭐야?', '주인공이 왜 그런 선택을 했을까?', '이 작품의 핵심 메시지는?'],
-  tips:    ['이 팁 중에 가장 효과적인 게 뭐야?', '어떤 준비물이 필요해?', '처음 해보는 사람도 바로 할 수 있어?'],
+  recipe:  ['What are the most important tips in this recipe?', 'What mistakes do beginners usually make?', 'Can any ingredients be substituted?'],
+  english: ['How do you use this expression in real life?', 'How is it different from similar expressions?', 'What\'s an easy way to remember this word?'],
+  learning:['Can you summarize this concept in one sentence?', 'Where is this used in real life?', 'I\'d like to learn more about related concepts'],
+  news:    ['What\'s the background of this news story?', 'How do you think this will unfold?', 'How does this affect me?'],
+  selfdev: ['What can I start doing right away from this content?', 'Summarize the core message in one sentence', 'Recommend similar books or content'],
+  travel:  ['What essentials should I bring here?', 'How much budget should I plan for?', 'What should first-time travelers watch out for?'],
+  story:   ['What does the ending mean?', 'Why did the main character make that choice?', 'What is the core message of this work?'],
+  tips:    ['Which of these tips is the most effective?', 'What preparation do I need?', 'Can a complete beginner do this right away?'],
 }
 
-const DEFAULT_SUGGESTIONS = ['이 내용에서 가장 중요한 포인트가 뭐야?', '이해가 안 되는 부분을 설명해줘', '관련해서 더 알아볼 만한 내용이 있어?']
+const DEFAULT_SUGGESTIONS = ['What is the most important point in this content?', 'Explain the part I don\'t understand', 'What related topics should I explore further?']
 
 /** 초 → "M:SS" 포맷 */
 function fmtTime(sec: number): string {
@@ -150,7 +150,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
     setSelectionPopup(null)
     window.getSelection()?.removeAllRanges()
 
-    const content = isQuote ? `> "${text}"\n\n이 부분이 궁금해요.` : text
+    const content = isQuote ? `> "${text}"\n\nI'm curious about this part.` : text
     const userMsg: ChatMsg = { role: 'user', content, isQuote }
     const newMessages = [...messages, userMsg]
     setMessages(newMessages)
@@ -165,7 +165,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
       ? extractNearbyTranscript(transcript, currentSec)
       : ''
     const positionHint = currentSec !== null
-      ? `[현재 재생 위치: ${fmtTime(currentSec)}]`
+      ? `[Current position: ${fmtTime(currentSec)}]`
       : ''
 
     try {
@@ -187,12 +187,12 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
       if (data.cacheId) cacheIdRef.current = data.cacheId
       setMessages(prev => [...prev, {
         role: 'model',
-        content: data.text ?? '오류가 발생했습니다.',
+        content: data.text ?? 'An error occurred.',
       }])
     } catch {
       setMessages(prev => [...prev, {
         role: 'model',
-        content: '죄송해요, 오류가 발생했어요. 다시 시도해 주세요.',
+        content: 'Sorry, something went wrong. Please try again.',
       }])
     } finally {
       setLoading(false)
@@ -229,7 +229,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
             }}
             className="text-xs font-semibold text-orange-400 hover:text-orange-300 transition-colors"
           >
-            AI 도슨트에게 질문
+            Ask AI Docent
           </button>
         </div>
       )}
@@ -242,14 +242,14 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
             ? 'w-14 h-14 rounded-full bg-[var(--bg-elevated-2)] text-white text-xl'
             : 'h-12 rounded-full bg-violet-600 hover:bg-violet-700 text-white px-4 gap-2'
         }`}
-        title="AI 도슨트 — 이 내용의 전문 해설 AI"
+        title="AI Docent — expert guide for this content"
       >
         {open ? (
           <span className="text-xl">✕</span>
         ) : (
           <>
             <span className="text-lg leading-none">🎓</span>
-            <span className="text-sm font-bold whitespace-nowrap">AI 도슨트</span>
+            <span className="text-sm font-bold whitespace-nowrap">AI Docent</span>
           </>
         )}
       </button>
@@ -266,7 +266,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
               🎓
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-bold">AI 도슨트</p>
+              <p className="text-white text-sm font-bold">AI Docent</p>
               <p className="text-violet-400/70 text-[11px] truncate">{title}</p>
             </div>
             {messages.length > 0 && (
@@ -274,7 +274,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
                 onClick={() => { setMessages([]); cacheIdRef.current = undefined }}
                 className="text-[var(--text-subtle)] hover:text-white text-xs px-2 py-1 rounded-lg hover:bg-[var(--overlay-subtle)] transition-colors shrink-0"
               >
-                초기화
+                Reset
               </button>
             )}
           </div>
@@ -285,17 +285,17 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
               <div className="space-y-3">
                 {/* 도슨트 소개 + 사용 팁 */}
                 <div className="bg-violet-600/10 border border-violet-500/20 rounded-xl px-3 py-3 space-y-1.5">
-                  <p className="text-violet-300 text-xs font-semibold">이 콘텐츠의 전담 해설 AI예요.</p>
+                  <p className="text-violet-300 text-xs font-semibold">Your dedicated AI guide for this content.</p>
                   <p className="text-[var(--text-muted)] text-xs leading-relaxed">
-                    내용이 궁금하거나 이해가 안 되는 부분을 물어보세요.<br/>
-                    <span className="text-violet-400 font-medium">💡 팁: </span>
-                    <span className="hidden md:inline">궁금한 부분을 <strong className="text-white">드래그</strong>하면 바로 질문할 수 있어요.</span>
-                    <span className="md:hidden">궁금한 부분을 <strong className="text-white">길게 누른 후 복사</strong>하거나 직접 입력해보세요.</span>
+                    Ask anything you&apos;re curious about or don&apos;t understand.<br/>
+                    <span className="text-violet-400 font-medium">💡 Tip: </span>
+                    <span className="hidden md:inline"><strong className="text-white">Drag</strong> any text to ask about it instantly.</span>
+                    <span className="md:hidden"><strong className="text-white">Long-press and copy</strong> any text, or type your question directly.</span>
                   </p>
                 </div>
 
                 {/* 빠른 질문 */}
-                <p className="text-[var(--text-subtle)] text-xs px-1">이런 것도 물어볼 수 있어요</p>
+                <p className="text-[var(--text-subtle)] text-xs px-1">You can also ask things like</p>
                 <div className="space-y-1.5">
                   {suggestions.map(q => (
                     <button
@@ -314,7 +314,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
               <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className="max-w-[88%]">
                   {msg.role === 'model' && (
-                    <p className="text-[10px] text-violet-400/60 mb-1 pl-1">🎓 AI 도슨트</p>
+                    <p className="text-[10px] text-violet-400/60 mb-1 pl-1">🎓 AI Docent</p>
                   )}
                   <div className={`px-3 py-2 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
                     msg.role === 'user'
@@ -350,7 +350,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="궁금한 점을 물어보세요..."
+                placeholder="Ask anything..."
                 disabled={loading}
                 rows={1}
                 className="flex-1 min-h-[36px] max-h-[96px] px-3 py-2 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-violet-500/50 transition-colors disabled:opacity-60 resize-none"
@@ -366,7 +366,7 @@ export default function DocentChat({ title, category, summaryData, playerRef, tr
                 </svg>
               </button>
             </div>
-            <p className="text-[10px] text-[var(--text-subtle)] mt-1.5 text-center">Shift+Enter 줄바꿈 · Enter 전송</p>
+            <p className="text-[10px] text-[var(--text-subtle)] mt-1.5 text-center">Shift+Enter newline · Enter to send</p>
           </div>
         </div>
       )}

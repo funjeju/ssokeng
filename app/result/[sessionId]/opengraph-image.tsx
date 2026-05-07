@@ -219,13 +219,13 @@ export default async function OgImage(
                 border: '1px solid #3f3f46',
                 fontSize: 13, fontWeight: 600, display: 'flex',
               }}>
-                📄 전체 자막 보기
+                📄 View full transcript
               </div>
             </div>
             <div style={{ fontSize: 11, color: '#52525b', display: 'flex', gap: 8 }}>
-              <span>유튜브를 SSOK쏙 내 지식을 SSUK쑥</span>
+              <span>Smart YouTube summaries, powered by AI</span>
               <span>·</span>
-              <span>ssoktube.com</span>
+              <span>ssokeng.com</span>
             </div>
           </div>
         </div>

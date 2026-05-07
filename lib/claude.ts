@@ -246,7 +246,7 @@ export async function generateSummary(
   category: Category,
   transcript: string,
   source: 'youtube' | 'pdf' | 'web' = 'youtube',
-  outputLang: 'ko' | 'original' = 'ko'
+  outputLang: 'en' | 'ja' | 'zh' | 'es' = 'en'
 ): Promise<SummaryData> {
   // report 카테고리: 영상 길이에 비례해 섹션 수 동적 결정
   let prompt = SUMMARY_PROMPTS[category]
@@ -272,7 +272,13 @@ conclusion = one sentence capturing the core conclusion.
     ? `\n※ This content is from a web page. Set all timestamp fields to empty strings ("").`
     : ''
 
-  const langNote = '\n\n[IMPORTANT: Write ALL text values in English. Do NOT output in any other language.]'
+  const langMap: Record<string, string> = {
+    en: 'English',
+    ja: 'Japanese (日本語)',
+    zh: 'Simplified Chinese (中文)',
+    es: 'Spanish (Español)',
+  }
+  const langNote = `\n\n[IMPORTANT: Write ALL text values in ${langMap[outputLang] ?? 'English'}. Do NOT output in any other language.]`
 
   const model = category === 'story' ? storyModel : summaryModel
   const result = await model.generateContent(`${prompt}${sourceNote}${langNote}
@@ -297,7 +303,8 @@ const reportModel = genAI.getGenerativeModel({
 export async function generateReportSummary(
   category: Category,
   title: string,
-  fullContext: string
+  fullContext: string,
+  outputLang: 'en' | 'ja' | 'zh' | 'es' = 'en'
 ): Promise<string> {
   // 자막 길이로 영상 분량 추정 → 보고서 분량 동적 조절
   const approxMinutes = Math.round(fullContext.length / 800)
@@ -316,9 +323,17 @@ export async function generateReportSummary(
     report:   'Report format summary',
   }
 
+  const reportLangMap: Record<string, string> = {
+    en: 'English',
+    ja: 'Japanese (日本語)',
+    zh: 'Simplified Chinese (中文)',
+    es: 'Spanish (Español)',
+  }
+  const reportLang = reportLangMap[outputLang] ?? 'English'
+
   const result = await reportModel.generateContent(`You are a professional content editor.
-Read the transcript/content of the following "${categoryHint[category]}" and write a structured report document entirely in English.
-[IMPORTANT: Write the entire report in English regardless of the source language of the transcript.]
+Read the transcript/content of the following "${categoryHint[category]}" and write a structured report document entirely in ${reportLang}.
+[IMPORTANT: Write the entire report in ${reportLang} regardless of the source language of the transcript.]
 
 Requirements:
 - ${sectionCount} sections with subheadings (##)

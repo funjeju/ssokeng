@@ -23,7 +23,7 @@ export default function CommentBubble({ sessionId, segmentId, segmentLabel, init
             ? 'bg-orange-500/10 border-orange-500/25 text-orange-300 hover:bg-orange-500/20'
             : 'bg-[var(--overlay-subtle)] border-transparent text-[var(--text-subtle)] hover:bg-orange-500/10 hover:text-orange-300 hover:border-orange-500/20'
         }`}
-        title={`"${segmentLabel}" 에 댓글 달기`}
+        title={`Comment on "${segmentLabel}"`}
       >
         <span>💬</span>
         <span className="font-bold">{count}</span>

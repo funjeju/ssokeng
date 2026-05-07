@@ -37,7 +37,7 @@ export default function SharePage() {
     <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         <div className="w-10 h-10 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-        <p className="text-[var(--text-subtle)] text-sm">쏙튜브로 이동 중...</p>
+        <p className="text-[var(--text-subtle)] text-sm">Redirecting to SSOKENG...</p>
       </div>
       <Suspense>
         <ShareHandler />

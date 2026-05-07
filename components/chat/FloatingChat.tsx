@@ -88,13 +88,13 @@ function extractShortText(category: string, summary: any): string {
 }
 
 const CATEGORY_LABEL: Record<string, string> = {
-  recipe: '🍳 요리', english: '🔤 영어', learning: '📐 학습', news: '🗞️ 뉴스',
-  selfdev: '💪 자기계발', travel: '🧳 여행', story: '🍿 스토리', tips: '💡 팁',
+  recipe: '🍳 Cooking', english: '🔤 English', learning: '📐 Learning', news: '🗞️ News',
+  selfdev: '💪 Self-dev', travel: '🧳 Travel', story: '🍿 Story', tips: '💡 Tips',
 }
 
 const QUICK_QUESTIONS: Record<'mypage' | 'square', string[]> = {
-  mypage: ['저번에 저장한 요리 영상 있어?', '학습 관련 저장한 거 보여줘', '최근에 뭐 저장했어?'],
-  square: ['초보자용 영어 콘텐츠 추천해줘', '최근 올라온 팁 영상 뭐 있어?', '요리 영상 인기 있는 거 뭐야?'],
+  mypage: ['Do I have any saved cooking videos?', 'Show me study-related saves', 'What did I save recently?'],
+  square: ['Recommend English content for beginners', 'Any new tips videos lately?', 'What cooking videos are popular?'],
 }
 
 export default function FloatingChat({ summaries, source, userId }: FloatingChatProps) {
@@ -105,7 +105,7 @@ export default function FloatingChat({ summaries, source, userId }: FloatingChat
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const contextLabel = source === 'mypage' ? '내 라이브러리' : '스퀘어'
+  const contextLabel = source === 'mypage' ? 'My Library' : 'Square'
 
   useEffect(() => {
     if (open) {
@@ -158,13 +158,13 @@ export default function FloatingChat({ summaries, source, userId }: FloatingChat
       const data = await res.json()
       setMessages(prev => [...prev, {
         role: 'model',
-        content: data.text ?? '오류가 발생했습니다.',
+        content: data.text ?? 'An error occurred.',
         relatedIds: data.relatedIds ?? [],
       }])
     } catch {
       setMessages(prev => [...prev, {
         role: 'model',
-        content: '죄송해요, 오류가 발생했어요. 다시 시도해 주세요.',
+        content: 'Sorry, something went wrong. Please try again.',
       }])
     } finally {
       setLoading(false)
@@ -181,14 +181,14 @@ export default function FloatingChat({ summaries, source, userId }: FloatingChat
             ? 'w-14 h-14 rounded-full bg-[var(--bg-elevated-2)] text-white text-xl'
             : 'h-12 rounded-full bg-orange-500 hover:bg-orange-600 text-white px-4 gap-2'
         }`}
-        title={`${contextLabel} AI 어시스턴트`}
+        title={`${contextLabel} AI Assistant`}
       >
         {open ? (
           <span className="text-xl">✕</span>
         ) : (
           <>
             <span className="text-lg leading-none">💬</span>
-            <span className="hidden md:inline text-sm font-bold whitespace-nowrap">AI 맞춤검색</span>
+            <span className="hidden md:inline text-sm font-bold whitespace-nowrap">AI Search</span>
           </>
         )}
       </button>
@@ -201,15 +201,15 @@ export default function FloatingChat({ summaries, source, userId }: FloatingChat
           <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border-default)] bg-[var(--bg-surface)] shrink-0">
             <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center text-sm">💬</div>
             <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-semibold">AI 어시스턴트</p>
-              <p className="text-[var(--text-subtle)] text-[11px]">{contextLabel} · {summaries.length}개 콘텐츠</p>
+              <p className="text-white text-sm font-semibold">AI Assistant</p>
+              <p className="text-[var(--text-subtle)] text-[11px]">{contextLabel} · {summaries.length} items</p>
             </div>
             {messages.length > 0 && (
               <button
                 onClick={() => setMessages([])}
                 className="text-[var(--text-subtle)] hover:text-white text-xs px-2 py-1 rounded-lg hover:bg-[var(--overlay-subtle)] transition-colors"
               >
-                초기화
+                Reset
               </button>
             )}
           </div>
@@ -219,7 +219,7 @@ export default function FloatingChat({ summaries, source, userId }: FloatingChat
             {messages.length === 0 && (
               <div className="space-y-3">
                 <p className="text-[var(--text-subtle)] text-sm text-center pt-2">
-                  {contextLabel}에 대해 무엇이든 물어보세요.
+                  Ask anything about {contextLabel}.
                 </p>
                 <div className="space-y-1.5">
                   {QUICK_QUESTIONS[source].map(q => (
@@ -310,7 +310,7 @@ export default function FloatingChat({ summaries, source, userId }: FloatingChat
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
-                placeholder={`${contextLabel}에서 찾아보기...`}
+                placeholder={`Search in ${contextLabel}...`}
                 disabled={loading}
                 className="flex-1 h-9 px-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 transition-colors disabled:opacity-60"
               />

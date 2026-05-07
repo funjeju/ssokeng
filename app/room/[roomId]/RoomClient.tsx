@@ -101,7 +101,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
       setLoading(false)
     }).catch((e) => {
       console.error('[Room] getRoom failed:', e)
-      setError(`방 로드에 실패했습니다. (${(e as Error)?.message || String(e)})`)
+      setError(`Failed to load room. (${(e as Error)?.message || String(e)})`)
       setLoading(false)
     })
   }, [roomId, uid])
@@ -607,7 +607,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
                   value={chatInput}
                   onChange={e => setChatInput(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendChat() } }}
-                  placeholder="메시지 입력..."
+                  placeholder="Type a message..."
                   className="flex-1 h-9 px-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl text-xs text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50"
                 />
                 <button
@@ -776,7 +776,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
                       })}
                     </div>
                     <p className="text-[var(--text-subtle)] text-[9px]">
-                      {poll.closed ? '✅ 종료됨' : `총 ${total}표`}
+                      {poll.closed ? '✅ Ended' : `${total} votes`}
                     </p>
                   </div>
                 )
@@ -797,9 +797,9 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
                     }
                     <div className="flex-1 min-w-0">
                       <p className="text-white text-xs font-medium truncate">{p.displayName}</p>
-                      {p.uid === room.hostUid && <span className="text-orange-400 text-[9px]">👑 방장</span>}
+                      {p.uid === room.hostUid && <span className="text-orange-400 text-[9px]">👑 Host</span>}
                     </div>
-                    {p.handRaised && <span className="text-yellow-400 text-base animate-bounce" title="손 든 상태">✋</span>}
+                    {p.handRaised && <span className="text-yellow-400 text-base animate-bounce" title="Hand raised">✋</span>}
                   </div>
                 ))}
             </div>

@@ -563,7 +563,7 @@ export default function TravelWishlist({ userId }: { userId: string }) {
                             <a
                               href={`/result/${s.sourceSessionId}`}
                               className="w-7 h-7 rounded-lg bg-red-500/15 flex items-center justify-center text-red-400 hover:bg-red-500/25 transition-colors text-xs"
-                              title="원본 영상"
+                              title="Source video"
                             >
                               ▶
                             </a>
@@ -572,7 +572,7 @@ export default function TravelWishlist({ userId }: { userId: string }) {
                           <button
                             onClick={() => handleDeleteSpot(s)}
                             className="w-7 h-7 rounded-lg bg-[var(--overlay-subtle)] flex items-center justify-center text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-colors text-xs"
-                            title="삭제"
+                            title="Delete"
                           >
                             ✕
                           </button>

@@ -96,7 +96,7 @@ export default function AnalyticsTab({ getAuthHeader }: { getAuthHeader: () => P
       <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-orange-500" />
     </div>
   )
-  if (error) return <div className="py-16 text-center text-red-400">데이터 로드 실패: {error}</div>
+  if (error) return <div className="py-16 text-center text-red-400">Failed to load data: {error}</div>
   if (!data) return null
 
   const { kpi, dailySignups, dailyVideos, dailySaved, roleBreakdown } = data
@@ -105,16 +105,16 @@ export default function AnalyticsTab({ getAuthHeader }: { getAuthHeader: () => P
   const tickInterval = 4
   const combinedDaily = dailySignups.map((s, i) => ({
     date: shortDate(s.date),
-    신규가입: s.count,
-    누적가입: s.cumulative,
-    영상분석: dailyVideos[i]?.count ?? 0,
-    저장: dailySaved[i]?.count ?? 0,
+    'New Users': s.count,
+    'Total Users': s.cumulative,
+    'Videos': dailyVideos[i]?.count ?? 0,
+    'Saved': dailySaved[i]?.count ?? 0,
   }))
 
   const pieData = [
-    { name: '일반', value: roleBreakdown.general || 0, color: COLORS.zinc },
-    { name: '선생님', value: roleBreakdown.teacher || 0, color: COLORS.emerald },
-    { name: '학생', value: roleBreakdown.student || 0, color: COLORS.blue },
+    { name: 'General', value: roleBreakdown.general || 0, color: COLORS.zinc },
+    { name: 'Teacher', value: roleBreakdown.teacher || 0, color: COLORS.emerald },
+    { name: 'Student', value: roleBreakdown.student || 0, color: COLORS.blue },
   ].filter(d => d.value > 0)
 
   return (
@@ -124,7 +124,7 @@ export default function AnalyticsTab({ getAuthHeader }: { getAuthHeader: () => P
       <div className="flex items-center justify-between bg-[#1a2235] rounded-2xl border border-blue-500/20 px-5 py-3.5">
         <div>
           <p className="text-white font-semibold text-sm">Google Analytics 4</p>
-          <p className="text-gray-400 text-xs mt-0.5">실시간 방문자 · 페이지뷰 · 유입 경로 · 이탈률</p>
+          <p className="text-gray-400 text-xs mt-0.5">Real-time visitors · Pageviews · Traffic sources · Bounce rate</p>
         </div>
         <a
           href="https://analytics.google.com"
@@ -136,41 +136,41 @@ export default function AnalyticsTab({ getAuthHeader }: { getAuthHeader: () => P
             <path d="M13.5 4.5L19.5 4.5L19.5 10.5L17.5 10.5L17.5 7.91L8.71 16.71L7.29 15.29L16.09 6.5L13.5 6.5Z"/>
             <path d="M19 12v7H5V5h7V3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2z"/>
           </svg>
-          GA4 대시보드 열기
+          Open GA4 Dashboard
         </a>
       </div>
 
       {/* ── KPI 카드 ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard label="누적 가입 유저" value={kpi.totalUsers} unit="명" icon="👥" color="text-white"
-          sub={`최근 30일 +${kpi.newUsersLast30}명`} />
-        <KpiCard label="전체 영상 분석" value={kpi.totalVideos} unit="건" icon="🎬" color="text-orange-400"
-          sub={`최근 30일 +${kpi.newVideosLast30}건`} />
-        <KpiCard label="유저 저장률" value={`${kpi.saveRate}%`} icon="📌" color="text-emerald-400"
-          sub={`저장 ${kpi.totalSaved.toLocaleString()}건`} />
-        <KpiCard label="유저당 평균 분석" value={kpi.avgVideosPerUser} unit="건" icon="📊" color="text-blue-400"
-          sub="전체 기간 기준" />
+        <KpiCard label="Total Users" value={kpi.totalUsers} icon="👥" color="text-white"
+          sub={`Last 30d +${kpi.newUsersLast30}`} />
+        <KpiCard label="Total Videos Analyzed" value={kpi.totalVideos} icon="🎬" color="text-orange-400"
+          sub={`Last 30d +${kpi.newVideosLast30}`} />
+        <KpiCard label="Save Rate" value={`${kpi.saveRate}%`} icon="📌" color="text-emerald-400"
+          sub={`${kpi.totalSaved.toLocaleString()} saved`} />
+        <KpiCard label="Avg Videos / User" value={kpi.avgVideosPerUser} icon="📊" color="text-blue-400"
+          sub="All time" />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard label="이번 주 신규 가입" value={kpi.last7Signups} unit="명" icon="🌱" color="text-emerald-400" />
-        <KpiCard label="이번 주 영상 분석" value={kpi.last7Videos} unit="건" icon="⚡" color="text-orange-400" />
-        <KpiCard label="선생님 계정" value={roleBreakdown.teacher} unit="명" icon="🏫" color="text-emerald-400"
-          sub={`학생 ${roleBreakdown.student}명`} />
-        <KpiCard label="EdTech 전환율" value={kpi.totalUsers > 0 ? Math.round((roleBreakdown.teacher + roleBreakdown.student) / kpi.totalUsers * 100) : 0}
-          unit="%" icon="🎓" color="text-purple-400" sub="교육 기능 사용 비율" />
+        <KpiCard label="New Signups (7d)" value={kpi.last7Signups} icon="🌱" color="text-emerald-400" />
+        <KpiCard label="Videos Analyzed (7d)" value={kpi.last7Videos} icon="⚡" color="text-orange-400" />
+        <KpiCard label="Teacher Accounts" value={roleBreakdown.teacher} icon="🏫" color="text-emerald-400"
+          sub={`Students: ${roleBreakdown.student}`} />
+        <KpiCard label="EdTech Adoption" value={kpi.totalUsers > 0 ? Math.round((roleBreakdown.teacher + roleBreakdown.student) / kpi.totalUsers * 100) : 0}
+          unit="%" icon="🎓" color="text-purple-400" sub="% of edu accounts" />
       </div>
 
       {/* ── 일별 영상 분석 + 저장 Bar ── */}
       <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-subtle)] p-6">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h3 className="text-white font-bold">일별 영상 분석 현황</h3>
-            <p className="text-gray-500 text-xs mt-0.5">최근 30일 · 영상 분석 수 및 저장 수</p>
+            <h3 className="text-white font-bold">Daily Video Analysis</h3>
+            <p className="text-gray-500 text-xs mt-0.5">Last 30 days · Videos analyzed & saved</p>
           </div>
           <div className="flex items-center gap-4 text-xs text-gray-400">
-            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-orange-500 inline-block" />분석</span>
-            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500 inline-block" />저장</span>
+            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-orange-500 inline-block" />Videos</span>
+            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500 inline-block" />Saved</span>
           </div>
         </div>
         <ResponsiveContainer width="100%" height={220}>
@@ -180,8 +180,8 @@ export default function AnalyticsTab({ getAuthHeader }: { getAuthHeader: () => P
               interval={tickInterval} />
             <YAxis tick={{ fill: '#71717a', fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
-            <Bar dataKey="영상분석" fill={COLORS.orange} radius={[3, 3, 0, 0]} maxBarSize={20} />
-            <Bar dataKey="저장" fill={COLORS.emerald} radius={[3, 3, 0, 0]} maxBarSize={20} />
+            <Bar dataKey="Videos" fill={COLORS.orange} radius={[3, 3, 0, 0]} maxBarSize={20} />
+            <Bar dataKey="Saved" fill={COLORS.emerald} radius={[3, 3, 0, 0]} maxBarSize={20} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -190,12 +190,12 @@ export default function AnalyticsTab({ getAuthHeader }: { getAuthHeader: () => P
       <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-subtle)] p-6">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h3 className="text-white font-bold">유저 성장 추이</h3>
-            <p className="text-gray-500 text-xs mt-0.5">최근 30일 · 일별 신규 가입 및 누적 가입자</p>
+            <h3 className="text-white font-bold">User Growth Trend</h3>
+            <p className="text-gray-500 text-xs mt-0.5">Last 30 days · Daily new & cumulative signups</p>
           </div>
           <div className="flex items-center gap-4 text-xs text-gray-400">
-            <span className="flex items-center gap-1.5"><span className="w-3 h-1.5 rounded-full bg-blue-400 inline-block" />신규</span>
-            <span className="flex items-center gap-1.5"><span className="w-3 h-1.5 rounded-full bg-orange-400 inline-block" />누적</span>
+            <span className="flex items-center gap-1.5"><span className="w-3 h-1.5 rounded-full bg-blue-400 inline-block" />New</span>
+            <span className="flex items-center gap-1.5"><span className="w-3 h-1.5 rounded-full bg-orange-400 inline-block" />Total</span>
           </div>
         </div>
         <ResponsiveContainer width="100%" height={220}>
@@ -215,9 +215,9 @@ export default function AnalyticsTab({ getAuthHeader }: { getAuthHeader: () => P
               interval={tickInterval} />
             <YAxis tick={{ fill: '#71717a', fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
             <Tooltip content={<CustomTooltip />} />
-            <Area type="monotone" dataKey="신규가입" stroke={COLORS.blue} strokeWidth={2}
+            <Area type="monotone" dataKey="New Users" stroke={COLORS.blue} strokeWidth={2}
               fill="url(#gBlue)" dot={false} />
-            <Area type="monotone" dataKey="누적가입" stroke={COLORS.orange} strokeWidth={2}
+            <Area type="monotone" dataKey="Total Users" stroke={COLORS.orange} strokeWidth={2}
               fill="url(#gOrange)" dot={false} />
           </AreaChart>
         </ResponsiveContainer>
@@ -227,8 +227,8 @@ export default function AnalyticsTab({ getAuthHeader }: { getAuthHeader: () => P
       <div className="grid md:grid-cols-2 gap-4">
         {/* 파이차트 */}
         <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-subtle)] p-6">
-          <h3 className="text-white font-bold mb-1">회원 역할 분포</h3>
-          <p className="text-gray-500 text-xs mb-4">최근 30일 신규 가입 기준</p>
+          <h3 className="text-white font-bold mb-1">User Role Distribution</h3>
+          <p className="text-gray-500 text-xs mb-4">Based on new signups in last 30 days</p>
           {pieData.length > 0 ? (
             <div className="flex items-center gap-6">
               <ResponsiveContainer width={160} height={160}>
@@ -247,48 +247,48 @@ export default function AnalyticsTab({ getAuthHeader }: { getAuthHeader: () => P
                   <div key={d.name} className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
                     <span className="text-gray-400 text-sm">{d.name}</span>
-                    <span className="text-white font-bold text-sm ml-auto">{d.value}명</span>
+                    <span className="text-white font-bold text-sm ml-auto">{d.value}</span>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="h-40 flex items-center justify-center text-gray-500 text-sm">데이터 없음</div>
+            <div className="h-40 flex items-center justify-center text-gray-500 text-sm">No data</div>
           )}
         </div>
 
         {/* 투자자용 핵심 지표 */}
         <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-subtle)] p-6 flex flex-col gap-3">
-          <h3 className="text-white font-bold mb-1">📈 투자 핵심 지표</h3>
+          <h3 className="text-white font-bold mb-1">📈 Key Metrics</h3>
           {[
             {
               label: 'Total Analyzed Videos',
               value: kpi.totalVideos.toLocaleString(),
-              desc: '누적 AI 영상 분석 건수',
+              desc: 'Total AI video analyses',
               color: 'text-orange-400',
             },
             {
               label: 'Content Save Rate',
               value: `${kpi.saveRate}%`,
-              desc: '분석 후 라이브러리 저장 비율',
+              desc: 'Library save rate after analysis',
               color: kpi.saveRate >= 30 ? 'text-emerald-400' : 'text-yellow-400',
             },
             {
               label: 'Avg. Videos / User',
-              value: `${kpi.avgVideosPerUser}건`,
-              desc: '유저당 평균 분석 수 (활성도)',
+              value: `${kpi.avgVideosPerUser}`,
+              desc: 'Avg analyses per user (engagement)',
               color: 'text-blue-400',
             },
             {
               label: 'EdTech Adoption',
               value: `${kpi.totalUsers > 0 ? Math.round((roleBreakdown.teacher + roleBreakdown.student) / kpi.totalUsers * 100) : 0}%`,
-              desc: '교사·학생 계정 비율',
+              desc: '% of teacher & student accounts',
               color: 'text-purple-400',
             },
             {
               label: 'W/W Growth (Users)',
-              value: `+${kpi.last7Signups}명`,
-              desc: '최근 7일 신규 가입',
+              value: `+${kpi.last7Signups}`,
+              desc: 'New signups in last 7 days',
               color: 'text-emerald-400',
             },
           ].map(m => (
@@ -305,7 +305,7 @@ export default function AnalyticsTab({ getAuthHeader }: { getAuthHeader: () => P
 
       {/* ── 푸터 노트 ── */}
       <p className="text-center text-gray-600 text-[10px] pb-4">
-        * 최근 30일 기준 · updatedAt 필드 기준 집계 · 실시간 반영
+        * Last 30 days · Aggregated by updatedAt field · Live data
       </p>
     </div>
   )

@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: '쏙튜브 요금제 — 무료 · 유료 플랜 비교',
-  description: '쏙튜브 무료 플랜과 유료 플랜을 비교합니다. 가입 없이 체험, 무제한 저장, 클래스룸 등 플랜별 기능 안내.',
-  keywords: ['쏙튜브 요금제', '쏙튜브 가격', '유튜브 AI 요약 무료', '쏙튜브 유료 플랜'],
+  title: 'SSOKENG Pricing — Free & Paid Plans Compared',
+  description: 'Compare SSOKENG free and paid plans. Try without signing up, unlimited saves, Classroom access, and more — see what each plan includes.',
+  keywords: ['SSOKENG pricing', 'SSOKENG plans', 'youtube AI summary free', 'SSOKENG pro plan'],
 }
 
 export default function PricingGuidePage() {
@@ -12,40 +12,40 @@ export default function PricingGuidePage() {
     <article className="flex flex-col gap-8 max-w-2xl">
       <div>
         <div className="flex items-center gap-2 text-[var(--text-subtle)] text-xs mb-4">
-          <Link href="/guide" className="hover:text-white transition-colors">사용설명서</Link>
+          <Link href="/guide" className="hover:text-white transition-colors">User Guide</Link>
           <span>›</span>
-          <span className="text-white">요금제 안내</span>
+          <span className="text-white">Pricing</span>
         </div>
-        <h1 className="text-2xl font-black text-white mb-3">💳 요금제 안내</h1>
+        <h1 className="text-2xl font-black text-white mb-3">💳 Pricing</h1>
         <p className="text-[var(--text-muted)] text-sm leading-relaxed">
-          쏙튜브는 회원가입 없이도 체험할 수 있습니다. 더 많이 활용할수록 로그인 플랜이 유리합니다.
+          Try SSOKENG without signing up. The more you use it, the more a logged-in plan pays off.
         </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           {
-            name: '비회원',
-            price: '무료',
+            name: 'Guest',
+            price: 'Free',
             color: 'border-[var(--border-default)]',
-            features: ['10분 미만 영상 1회', '요약 결과 확인', '저장 불가'],
+            features: ['1 summary (videos under 10 min)', 'View summary result', 'No saves'],
             cta: null,
           },
           {
-            name: '무료 회원',
-            price: '0원',
+            name: 'Free Member',
+            price: '$0',
             color: 'border-orange-500/30',
             highlight: true,
-            features: ['영상 길이 제한 없음', '라이브러리 무제한 저장', '스퀘어 공유', 'AI 대화 검색', '재생목록 가져오기'],
-            cta: '구글로 무료 가입',
+            features: ['No video length limit', 'Unlimited library saves', 'Square sharing', 'AI chat search', 'Playlist import'],
+            cta: 'Sign up free with Google',
             ctaHref: '/',
           },
           {
-            name: '선생님 (Pro)',
-            price: '문의',
+            name: 'Teacher (Pro)',
+            price: 'Contact us',
             color: 'border-lime-500/30',
-            features: ['무료 회원 모든 기능', '클래스룸 개설', '학생 학습 관리', '워크시트 자동 배포', '우선 지원'],
-            cta: '문의하기',
+            features: ['All Free Member features', 'Create a Classroom', 'Student learning management', 'Auto worksheet distribution', 'Priority support'],
+            cta: 'Contact us',
             ctaHref: 'mailto:naggu1999@gmail.com',
           },
         ].map(plan => (
@@ -75,7 +75,7 @@ export default function PricingGuidePage() {
 
       <div className="pt-2 border-t border-[var(--border-subtle)]">
         <Link href="/guide" className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors">
-          ← 사용설명서 홈으로
+          ← Back to User Guide
         </Link>
       </div>
     </article>

@@ -24,7 +24,7 @@ export default function ExtensionAuthPage() {
 
   async function sendToken(user: any, eid: string | null) {
     if (!eid) {
-      setError('확장 프로그램 ID가 없습니다. 쏙튜브 확장에서 다시 시도해주세요.')
+      setError('Extension ID is missing. Please try again from the SSOKENG extension.')
       setStatus('error')
       return
     }
@@ -35,7 +35,7 @@ export default function ExtensionAuthPage() {
       await new Promise<void>((resolve, reject) => {
         const w = window as any
         if (typeof w.chrome === 'undefined' || !w.chrome?.runtime) {
-          reject(new Error('Chrome 확장 환경이 아닙니다.'))
+          reject(new Error('Chrome extension environment not detected.'))
           return
         }
         w.chrome.runtime.sendMessage(eid, {
@@ -56,7 +56,7 @@ export default function ExtensionAuthPage() {
 
       setStatus('success')
     } catch (e: any) {
-      setError(e.message || '연결 중 오류가 발생했습니다.')
+      setError(e.message || 'An error occurred while connecting.')
       setStatus('error')
     }
   }
@@ -68,7 +68,7 @@ export default function ExtensionAuthPage() {
       const result = await signInWithPopup(auth, provider)
       await sendToken(result.user, extId)
     } catch (e: any) {
-      setError(e.message || '로그인 중 오류가 발생했습니다.')
+      setError(e.message || 'An error occurred while signing in.')
       setStatus('error')
     }
   }
@@ -92,20 +92,20 @@ export default function ExtensionAuthPage() {
         textAlign: 'center',
       }}>
         <div style={{ fontSize: '28px', fontWeight: 900, color: '#fff', marginBottom: '6px' }}>
-          쏙<span style={{ color: '#8b5cf6' }}>튜브</span>
+          SSOK<span style={{ color: '#8b5cf6' }}>ENG</span>
         </div>
         <div style={{ fontSize: '13px', color: '#75716e', marginBottom: '28px' }}>
-          Chrome 확장 프로그램 로그인
+          Chrome Extension Sign-In
         </div>
 
         {status === 'success' ? (
           <div>
             <div style={{ fontSize: '36px', marginBottom: '12px' }}>✅</div>
             <div style={{ color: '#a4a09c', fontSize: '14px', marginBottom: '8px' }}>
-              로그인 완료!
+              Signed in!
             </div>
             <div style={{ color: '#75716e', fontSize: '12px' }}>
-              이 탭을 닫고 확장 프로그램으로 돌아가세요.
+              Close this tab and return to the extension.
             </div>
           </div>
         ) : status === 'error' ? (
@@ -121,15 +121,15 @@ export default function ExtensionAuthPage() {
                 borderRadius: '8px', padding: '10px 20px', cursor: 'pointer', fontSize: '13px',
               }}
             >
-              다시 시도
+              Try again
             </button>
           </div>
         ) : (
           <div>
             <div style={{ color: '#a4a09c', fontSize: '13px', marginBottom: '24px', lineHeight: 1.6 }}>
-              쏙튜브 확장 프로그램에서<br />
-              유튜브 요약을 저장하고 관리하려면<br />
-              로그인이 필요합니다.
+              Sign in to save and manage<br />
+              YouTube summaries<br />
+              with the SSOKENG extension.
             </div>
             <button
               onClick={handleLogin}
@@ -143,7 +143,7 @@ export default function ExtensionAuthPage() {
                 fontSize: '14px', fontWeight: 700,
               }}
             >
-              {status === 'loading' ? '연결 중...' : 'Google로 로그인'}
+              {status === 'loading' ? 'Connecting...' : 'Sign in with Google'}
             </button>
           </div>
         )}

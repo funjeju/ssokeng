@@ -24,9 +24,9 @@ export default function MagazineBoardPage() {
 
         {/* 브레드크럼 */}
         <nav aria-label="breadcrumb" className="flex items-center gap-2 text-xs text-[var(--text-subtle)] pt-4 mb-6">
-          <a href="/" className="hover:text-orange-400 transition-colors">홈</a>
+          <a href="/" className="hover:text-orange-400 transition-colors">Home</a>
           <span>/</span>
-          <span className="text-[var(--text-muted)]">AI 매거진</span>
+          <span className="text-[var(--text-muted)]">AI Magazine</span>
         </nav>
 
         {/* 헤더 */}

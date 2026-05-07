@@ -62,7 +62,7 @@ function buildHtml(draft: BlogDraft): string {
   const tocItems = draft.sections.filter(s => s.heading)
   const tocHtml = tocItems.length > 0
     ? `<nav style="margin:0 0 32px;padding:16px 20px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;">
-  <p style="margin:0 0 10px;font-size:0.75em;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.08em;">📋 목차</p>
+  <p style="margin:0 0 10px;font-size:0.75em;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.08em;">📋 Table of Contents</p>
   <ol style="margin:0;padding:0 0 0 18px;">
 ${tocItems.map((s, i) => `    <li style="margin:0 0 6px;font-size:0.9em;color:#374151;">${i + 1}. ${s.heading}</li>`).join('\n')}
   </ol>
@@ -71,7 +71,7 @@ ${tocItems.map((s, i) => `    <li style="margin:0 0 6px;font-size:0.9em;color:#3
 
   const sectionsHtml = draft.sections.map(s => {
     const tsLink = s.timestamp
-      ? `\n<p style="margin:6px 0 16px;font-size:0.85em;color:#9ca3af;">▶ ${s.timestamp} 구간</p>`
+      ? `\n<p style="margin:6px 0 16px;font-size:0.85em;color:#9ca3af;">▶ Segment ${s.timestamp}</p>`
       : ''
     if (!s.heading) {
       return `<p style="margin:0 0 20px;line-height:1.8;font-size:1.05em;">${s.text}</p>`
@@ -86,7 +86,7 @@ ${tocItems.map((s, i) => `    <li style="margin:0 0 6px;font-size:0.9em;color:#3
   const checklistHtml = ''
 
   const faqHtml = faq.length > 0
-    ? `<h2 style="margin:32px 0 12px;font-weight:700;">자주 묻는 질문</h2>
+    ? `<h2 style="margin:32px 0 12px;font-weight:700;">FAQ</h2>
 ${faq.map(f => `<details style="margin:0 0 10px;border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px;">
   <summary style="font-weight:600;cursor:pointer;color:#111827;">${f.question}</summary>
   <p style="margin:10px 0 0;line-height:1.75;color:#374151;">${f.answer}</p>
@@ -145,7 +145,7 @@ ${schemas}
 
 <h1 style="font-size:1.6em;font-weight:800;margin:0 0 12px;line-height:1.4;">${draft.seo_title}</h1>
 <p style="font-size:1em;color:#374151;line-height:1.8;margin:0 0 16px;">${draft.meta_description}</p>
-<p style="font-size:0.85em;color:#6b7280;margin:0 0 20px;">📹 원본 영상: <a href="${ytBase}" target="_blank" rel="noopener">${draft.channel} — ${draft.title}</a> &nbsp;|&nbsp; 읽는 시간: 약 ${draft.reading_time}분 &nbsp;|&nbsp; ${today} 기준</p>
+<p style="font-size:0.85em;color:#6b7280;margin:0 0 20px;">📹 Source: <a href="${ytBase}" target="_blank" rel="noopener">${draft.channel} — ${draft.title}</a> &nbsp;|&nbsp; Reading time: ~${draft.reading_time} min &nbsp;|&nbsp; ${today}</p>
 
 <figure style="margin:0 0 28px;">
   <a href="${ytBase}" target="_blank" rel="noopener">
@@ -162,10 +162,10 @@ ${checklistHtml}
 ${faqHtml}
 
 ${draft.comments ? `<div style="margin:40px 0 0;">
-  <h2 style="margin:0 0 16px;font-weight:700;font-size:1.1em;">💬 시청자 반응</h2>
+  <h2 style="margin:0 0 16px;font-weight:700;font-size:1.1em;">💬 Viewer Reactions</h2>
 
   <div style="margin:0 0 24px;padding:16px;background:#fafafa;border-radius:10px;border:1px solid #e5e7eb;">
-    <p style="margin:0 0 10px;font-size:0.8em;font-weight:700;color:#f97316;">🔥 인기 댓글 경향</p>
+    <p style="margin:0 0 10px;font-size:0.8em;font-weight:700;color:#f97316;">🔥 Popular comment trends</p>
     <p style="margin:0 0 14px;line-height:1.75;color:#374151;font-size:0.9em;">${draft.comments.popular_summary}</p>
     ${draft.comments.popular_highlights.map(h =>
       `<blockquote style="margin:8px 0;padding:10px 14px;background:#fff;border-left:3px solid #f97316;border-radius:0 6px 6px 0;font-size:0.85em;color:#4b5563;">
@@ -176,7 +176,7 @@ ${draft.comments ? `<div style="margin:40px 0 0;">
   </div>
 
   <div style="padding:16px;background:#fafafa;border-radius:10px;border:1px solid #e5e7eb;">
-    <p style="margin:0 0 10px;font-size:0.8em;font-weight:700;color:#6366f1;">🕐 최신 댓글 경향</p>
+    <p style="margin:0 0 10px;font-size:0.8em;font-weight:700;color:#6366f1;">🕐 Recent comment trends</p>
     <p style="margin:0 0 14px;line-height:1.75;color:#374151;font-size:0.9em;">${draft.comments.recent_summary}</p>
     ${draft.comments.recent_highlights.map(h =>
       `<blockquote style="margin:8px 0;padding:10px 14px;background:#fff;border-left:3px solid #6366f1;border-radius:0 6px 6px 0;font-size:0.85em;color:#4b5563;">
@@ -188,7 +188,7 @@ ${draft.comments ? `<div style="margin:40px 0 0;">
 </div>` : ''}
 
 <div style="margin:32px 0 16px;padding:16px;background:#fff7ed;border-left:4px solid #f97316;border-radius:4px;">
-  <p style="margin:0;font-size:0.9em;color:#92400e;">이 글은 <a href="${appUrl}" target="_blank" rel="noopener" style="color:#f97316;font-weight:600;">SSOKTUBE AI</a>로 분석된 콘텐츠입니다. 원본 영상 전체 요약·타임스탬프 이동은 링크에서 확인하세요.</p>
+  <p style="margin:0;font-size:0.9em;color:#92400e;">This article was generated with <a href="${appUrl}" target="_blank" rel="noopener" style="color:#f97316;font-weight:600;">SSOKENG AI</a>. Visit the link for the full summary and timestamp navigation.</p>
 </div>
 
 <div style="margin:16px 0;">${tagsHtml}</div>
@@ -204,16 +204,16 @@ function buildPlainText(draft: BlogDraft): string {
     '',
     draft.meta_description,
     '',
-    `📹 원본: ${draft.channel} — ${draft.title}`,
+    `📹 Source: ${draft.channel} — ${draft.title}`,
     `🔗 ${ytBase}`,
     '',
-    `■ 태그`,
+    `■ Tags`,
     draft.tags.join(', '),
     '',
     '─'.repeat(40),
     '',
     ...(tocSections.length > 0 ? [
-      '📋 목차',
+      '📋 Table of Contents',
       ...tocSections.map((s, i) => `  ${i + 1}. ${s.heading}`),
       '',
       '─'.repeat(40),
@@ -224,21 +224,21 @@ function buildPlainText(draft: BlogDraft): string {
     if (s.heading) lines.push(`▌ ${s.heading}`, '')
     lines.push(s.text)
     if (s.timestamp) {
-      lines.push(`▶ ${s.timestamp} 구간`)
+      lines.push(`▶ Segment ${s.timestamp}`)
     }
     lines.push('')
   }
   if (draft.faq?.length) {
-    lines.push('─'.repeat(40), '', '■ 자주 묻는 질문', '')
+    lines.push('─'.repeat(40), '', '■ FAQ', '')
     draft.faq.forEach(f => {
       lines.push(`Q. ${f.question}`, `A. ${f.answer}`, '')
     })
   }
   if (draft.comments) {
-    lines.push('─'.repeat(40), '', '💬 시청자 반응', '')
-    lines.push('🔥 인기 댓글 경향', draft.comments.popular_summary, '')
+    lines.push('─'.repeat(40), '', '💬 Viewer Reactions', '')
+    lines.push('🔥 Popular comment trends', draft.comments.popular_summary, '')
     draft.comments.popular_highlights.forEach(h => lines.push(`  "  ${h.text}"  [👍${h.likes}]`, ''))
-    lines.push('🕐 최신 댓글 경향', draft.comments.recent_summary, '')
+    lines.push('🕐 Recent comment trends', draft.comments.recent_summary, '')
     draft.comments.recent_highlights.forEach(h => lines.push(`  "  ${h.text}"  [👍${h.likes}]`, ''))
   }
   return lines.join('\n')
@@ -387,16 +387,16 @@ export default function BlogDraftModal({ data, onClose }: Props) {
                   <span className="text-zinc-200">{draft.seo_title}</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="shrink-0 text-orange-400 font-bold w-20">메타 설명</span>
+                  <span className="shrink-0 text-orange-400 font-bold w-20">Meta desc</span>
                   <span className="text-zinc-400">{draft.meta_description}</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="shrink-0 text-orange-400 font-bold w-20">태그</span>
+                  <span className="shrink-0 text-orange-400 font-bold w-20">Tags</span>
                   <span className="text-zinc-400">{draft.tags.join(', ')}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="shrink-0 text-orange-400 font-bold w-20">읽는 시간</span>
-                  <span className="text-zinc-400">약 {draft.reading_time}분</span>
+                  <span className="shrink-0 text-orange-400 font-bold w-20">Read time</span>
+                  <span className="text-zinc-400">~{draft.reading_time} min</span>
                 </div>
               </div>
 
@@ -511,7 +511,7 @@ export default function BlogDraftModal({ data, onClose }: Props) {
               {/* HTML 탭 */}
               {tab === 'html' && (
                 <div className="space-y-2">
-                  <p className="text-xs text-zinc-500">티스토리·워드프레스 HTML 편집기에 그대로 붙여넣기 하세요.</p>
+                  <p className="text-xs text-zinc-500">Paste directly into WordPress or any HTML editor.</p>
                   <pre className="bg-zinc-900 border border-[var(--border-default)] rounded-2xl p-4 text-[10px] text-zinc-400 overflow-x-auto leading-relaxed max-h-64 whitespace-pre-wrap">
                     {buildHtml(draft)}
                   </pre>
@@ -521,7 +521,7 @@ export default function BlogDraftModal({ data, onClose }: Props) {
               {/* 텍스트 탭 */}
               {tab === 'text' && (
                 <div className="space-y-2">
-                  <p className="text-xs text-zinc-500">네이버 블로그·브런치·노션 등 일반 에디터에 붙여넣기 하세요.</p>
+                  <p className="text-xs text-zinc-500">Paste into Medium, Notion, or any plain-text editor.</p>
                   <pre className="bg-zinc-900 border border-[var(--border-default)] rounded-2xl p-4 text-[10px] text-zinc-400 overflow-x-auto leading-relaxed max-h-64 whitespace-pre-wrap">
                     {buildPlainText(draft)}
                   </pre>

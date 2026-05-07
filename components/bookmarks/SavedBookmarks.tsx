@@ -19,12 +19,12 @@ export default function SavedBookmarks({ userId }: { userId: string }) {
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
-    if (!confirm('이 북마크를 삭제할까요?')) return
+    if (!confirm('Delete this bookmark?')) return
     try {
       await deleteBookmark(id)
       setBookmarks(prev => prev.filter(b => b.id !== id))
     } catch {
-      alert('삭제에 실패했습니다.')
+      alert('Failed to delete.')
     }
   }
 
@@ -40,8 +40,8 @@ export default function SavedBookmarks({ userId }: { userId: string }) {
     return (
       <div className="text-center py-12 text-zinc-600">
         <p className="text-3xl mb-2">🔖</p>
-        <p className="text-sm">저장된 북마크가 없습니다.</p>
-        <p className="text-xs mt-1 text-zinc-700">영상 시청 중 🔖 버튼으로 중요한 부분을 저장하세요.</p>
+        <p className="text-sm">No saved bookmarks.</p>
+        <p className="text-xs mt-1 text-zinc-700">Use the 🔖 button while watching to save key moments.</p>
       </div>
     )
   }
@@ -103,7 +103,7 @@ export default function SavedBookmarks({ userId }: { userId: string }) {
                       {bm.timestampLabel}
                     </span>
                     <span className="text-zinc-400 text-xs truncate">
-                      {bm.memo || <span className="italic text-zinc-600">메모 없음</span>}
+                      {bm.memo || <span className="italic text-zinc-600">No note</span>}
                     </span>
                     <button
                       onClick={e => handleDelete(e, bm.id)}
@@ -115,7 +115,7 @@ export default function SavedBookmarks({ userId }: { userId: string }) {
                 ))}
                 {items.length > 2 && (
                   <p className="text-zinc-600 text-xs px-1.5">
-                    +{items.length - 2}개 더 보기 →
+                    +{items.length - 2} more →
                   </p>
                 )}
               </div>

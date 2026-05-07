@@ -32,7 +32,14 @@ const INTEREST_CATS = [
   { id: 'tips',    label: '💡 Tips',        desc: 'Life hacks & how-to' },
 ]
 
-type Step = 'role' | 'teacher_setup' | 'age' | 'gender' | 'interests' | 'done'
+type Step = 'role' | 'teacher_setup' | 'age' | 'gender' | 'interests' | 'language' | 'done'
+
+const LANG_OPTIONS: { value: 'en' | 'ja' | 'zh' | 'es'; flag: string; label: string; native: string }[] = [
+  { value: 'en', flag: '🇺🇸', label: 'English',  native: 'English'  },
+  { value: 'ja', flag: '🇯🇵', label: 'Japanese', native: '日本語'    },
+  { value: 'zh', flag: '🇨🇳', label: 'Chinese',  native: '中文'      },
+  { value: 'es', flag: '🇪🇸', label: 'Spanish',  native: 'Español'  },
+]
 
 function InviteParamReader({ onTeacherInvite }: { onTeacherInvite: () => void }) {
   const searchParams = useSearchParams()
@@ -53,6 +60,7 @@ function ProfileSetupModalInner() {
   const [ageGroup, setAgeGroup]   = useState<AgeGroup | null>(null)
   const [gender, setGender]       = useState<Gender | null>(null)
   const [interests, setInterests] = useState<string[]>([])
+  const [outputLang, setOutputLang] = useState<'en' | 'ja' | 'zh' | 'es'>('en')
 
   const [schoolName, setSchoolName]     = useState('')
   const [grade, setGrade]               = useState('')
@@ -67,8 +75,8 @@ function ProfileSetupModalInner() {
 
   const handleTeacherInvite = () => { setRole('teacher'); setStep('teacher_setup') }
 
-  const userStepIndex = step === 'age' ? 0 : step === 'gender' ? 1 : step === 'interests' ? 2 : 3
-  const totalUserSteps = 3
+  const userStepIndex = step === 'age' ? 0 : step === 'gender' ? 1 : step === 'interests' ? 2 : step === 'language' ? 3 : 4
+  const totalUserSteps = 4
 
   const toggleInterest = (id: string) => {
     setInterests(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
@@ -78,7 +86,7 @@ function ProfileSetupModalInner() {
     if (!ageGroup || !gender) return
     setSaving(true)
     try {
-      const { tokensAwarded } = await completeUserProfile(user.uid, { ageGroup, gender, interests })
+      const { tokensAwarded } = await completeUserProfile(user.uid, { ageGroup, gender, interests, outputLang })
       setTokensEarned(tokensAwarded)
       setStep('done')
       await refreshProfile()
@@ -378,6 +386,7 @@ function ProfileSetupModalInner() {
                 <p className="text-[var(--text-muted)] text-sm">Choose as many as you like · change anytime</p>
               </div>
 
+
               <div className="grid grid-cols-2 gap-2 mb-3">
                 {INTEREST_CATS.map(cat => {
                   const selected = interests.includes(cat.id)
@@ -412,6 +421,57 @@ function ProfileSetupModalInner() {
 
               <div className="flex flex-col gap-2">
                 <button
+                  onClick={() => setStep('language')}
+                  className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl transition-colors"
+                >
+                  Next
+                </button>
+                <button onClick={() => setStep('gender')} className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1">
+                  Back
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* Step 4: Output Language */}
+          {step === 'language' && (
+            <>
+              <div className="mb-6">
+                <p className="text-[var(--text-subtle)] text-xs font-medium mb-1">STEP 4 / {totalUserSteps}</p>
+                <h2 className="text-xl font-bold text-white mb-1">Summary language</h2>
+                <p className="text-[var(--text-muted)] text-sm">AI summaries will be written in this language.</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                {LANG_OPTIONS.map(lang => (
+                  <button
+                    key={lang.value}
+                    onClick={() => setOutputLang(lang.value)}
+                    className={`flex items-center gap-3 px-4 py-4 rounded-2xl border transition-all ${
+                      outputLang === lang.value
+                        ? 'border-orange-500 bg-orange-500/15 text-white'
+                        : 'border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:border-[var(--border-strong)] hover:text-white'
+                    }`}
+                  >
+                    <span className="text-2xl">{lang.flag}</span>
+                    <div className="text-left">
+                      <p className="text-sm font-bold leading-tight">{lang.label}</p>
+                      <p className="text-xs text-[var(--text-subtle)] leading-tight">{lang.native}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <div className="bg-gradient-to-r from-orange-500/10 to-pink-500/10 border border-orange-500/20 rounded-2xl px-4 py-3 mb-4 flex items-center gap-3">
+                <span className="text-2xl">🎁</span>
+                <div>
+                  <p className="text-white text-xs font-bold">Complete profile → earn {PROFILE_COMPLETE_TOKENS} tokens!</p>
+                  <p className="text-[var(--text-muted)] text-[10px]">Use for premium features</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <button
                   onClick={handleComplete}
                   disabled={saving}
                   className="w-full h-12 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-2xl hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
@@ -426,7 +486,7 @@ function ProfileSetupModalInner() {
                     </>
                   ) : 'Complete Profile'}
                 </button>
-                <button onClick={() => setStep('gender')} className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1">
+                <button onClick={() => setStep('interests')} className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1">
                   Back
                 </button>
               </div>

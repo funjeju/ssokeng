@@ -10,14 +10,14 @@ interface Props {
 }
 
 const CATEGORY_META: Record<string, { label: string; icon: string; color: string; bg: string; border: string }> = {
-  recipe:  { label: '요리',    icon: '🍳', color: '#ea580c', bg: '#fff7ed', border: '#fed7aa' },
-  english: { label: '영어학습', icon: '🔤', color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe' },
-  learning:{ label: '학습',    icon: '📐', color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe' },
-  news:    { label: '뉴스',    icon: '🗞️', color: '#374151', bg: '#f9fafb', border: '#e5e7eb' },
-  selfdev: { label: '자기계발', icon: '💪', color: '#059669', bg: '#ecfdf5', border: '#a7f3d0' },
-  travel:  { label: '여행',    icon: '🧳', color: '#0891b2', bg: '#ecfeff', border: '#a5f3fc' },
-  story:   { label: '스토리',  icon: '🍿', color: '#db2777', bg: '#fdf2f8', border: '#f9a8d4' },
-  tips:    { label: '팁',     icon: '💡', color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
+  recipe:  { label: 'Cooking',      icon: '🍳', color: '#ea580c', bg: '#fff7ed', border: '#fed7aa' },
+  english: { label: 'English',      icon: '🔤', color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe' },
+  learning:{ label: 'Learning',     icon: '📐', color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe' },
+  news:    { label: 'News',         icon: '🗞️', color: '#374151', bg: '#f9fafb', border: '#e5e7eb' },
+  selfdev: { label: 'Self-dev',     icon: '💪', color: '#059669', bg: '#ecfdf5', border: '#a7f3d0' },
+  travel:  { label: 'Travel',       icon: '🧳', color: '#0891b2', bg: '#ecfeff', border: '#a5f3fc' },
+  story:   { label: 'Story',        icon: '🍿', color: '#db2777', bg: '#fdf2f8', border: '#f9a8d4' },
+  tips:    { label: 'Tips',         icon: '💡', color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
 }
 
 // ─── 섹션 헤더 ───
@@ -91,11 +91,11 @@ function ReportSection({ markdown, color, bg, border }: { markdown: string; colo
 // ─────────────────────────────────────────
 
 function RecipeContent({ data, color, bg, border }: { data: RecipeSummary; color: string; bg: string; border: string }) {
-  const groups = data.ingredient_groups ?? (data.ingredients ? [{ group: '재료', items: data.ingredients }] : [])
+  const groups = data.ingredient_groups ?? (data.ingredients ? [{ group: 'Ingredients', items: data.ingredients }] : [])
   return (
     <>
       <div style={{ marginBottom: 20 }}>
-        <SectionHeader title="재료" color={color} bg={bg} border={border} />
+        <SectionHeader title="Ingredients" color={color} bg={bg} border={border} />
         <div style={{ display: 'grid', gridTemplateColumns: groups.length > 1 ? '1fr 1fr' : '1fr', gap: 10 }}>
           {groups.map((grp, gi) => (
             <div key={gi} style={{ background: '#f9fafb', borderRadius: 10, overflow: 'hidden', border: '1px solid #e5e7eb' }}>
@@ -115,7 +115,7 @@ function RecipeContent({ data, color, bg, border }: { data: RecipeSummary; color
         </div>
       </div>
       <div style={{ marginBottom: 20 }}>
-        <SectionHeader title="만드는 법" color={color} bg={bg} border={border} />
+        <SectionHeader title="Instructions" color={color} bg={bg} border={border} />
         {data.steps.map(step => (
           <div key={step.step} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 8 }}>
             <span style={{ width: 22, height: 22, borderRadius: '50%', background: color, color: '#fff', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{step.step}</span>
@@ -128,7 +128,7 @@ function RecipeContent({ data, color, bg, border }: { data: RecipeSummary; color
       </div>
       {data.key_tips.length > 0 && (
         <div>
-          <SectionHeader title="💡 핵심 팁" color={color} bg={bg} border={border} />
+          <SectionHeader title="💡 Key Tips" color={color} bg={bg} border={border} />
           {data.key_tips.map((tip, i) => (
             <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
               <span style={{ color, fontWeight: 700 }}>•</span>
@@ -150,7 +150,7 @@ function StructuredContent({ data, category, color, bg, border }: { data: any; c
       <>
         {d.expressions.length > 0 && (
           <div style={{ marginBottom: 20 }}>
-            <SectionHeader title="핵심 표현" color={color} bg={bg} border={border} />
+            <SectionHeader title="Key Expressions" color={color} bg={bg} border={border} />
             {d.expressions.map((e, i) => (
               <div key={i} style={{ background: bg, borderRadius: 8, padding: '8px 12px', marginBottom: 8, borderLeft: `3px solid ${color}` }}>
                 <p style={{ fontSize: 13, fontWeight: 700, color, margin: '0 0 3px' }}>{e.text}</p>
@@ -162,7 +162,7 @@ function StructuredContent({ data, category, color, bg, border }: { data: any; c
         )}
         {d.vocabulary.length > 0 && (
           <div>
-            <SectionHeader title="주요 단어" color={color} bg={bg} border={border} />
+            <SectionHeader title="Vocabulary" color={color} bg={bg} border={border} />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
               {d.vocabulary.map((v, i) => (
                 <div key={i} style={{ background: '#f9fafb', borderRadius: 8, padding: '8px 10px', border: '1px solid #e5e7eb' }}>
@@ -183,7 +183,7 @@ function StructuredContent({ data, category, color, bg, border }: { data: any; c
     return (
       <>
         <div style={{ marginBottom: 20 }}>
-          <SectionHeader title="핵심 개념" color={color} bg={bg} border={border} />
+          <SectionHeader title="Key Concepts" color={color} bg={bg} border={border} />
           {d.concepts.map((c, i) => (
             <div key={i} style={{ marginBottom: 10, paddingLeft: 10, borderLeft: `3px solid ${color}` }}>
               <p style={{ fontSize: 13, fontWeight: 700, color, margin: '0 0 3px' }}>{c.name}</p>
@@ -192,7 +192,7 @@ function StructuredContent({ data, category, color, bg, border }: { data: any; c
           ))}
         </div>
         <div>
-          <SectionHeader title="핵심 포인트" color={color} bg={bg} border={border} />
+          <SectionHeader title="Key Points" color={color} bg={bg} border={border} />
           {d.key_points.map((kp, i) => (
             <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
               <span style={{ color, fontWeight: 700 }}>✓</span>
@@ -213,9 +213,9 @@ function StructuredContent({ data, category, color, bg, border }: { data: any; c
           <p style={{ fontSize: 13, color: '#1f2937', margin: 0, lineHeight: 1.7 }}>{d.three_line_summary}</p>
         </div>
         <div style={{ marginBottom: 20 }}>
-          <SectionHeader title="육하원칙" color={color} bg={bg} border={border} />
+          <SectionHeader title="5W1H" color={color} bg={bg} border={border} />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-            {[{label:'누가',value:w.who},{label:'언제',value:w.when},{label:'어디서',value:w.where},{label:'무엇을',value:w.what},{label:'어떻게',value:w.how},{label:'왜',value:w.why}].map(item => (
+            {[{label:'Who',value:w.who},{label:'When',value:w.when},{label:'Where',value:w.where},{label:'What',value:w.what},{label:'How',value:w.how},{label:'Why',value:w.why}].map(item => (
               <div key={item.label} style={{ background: '#f9fafb', borderRadius: 8, padding: '8px 10px', border: '1px solid #e5e7eb' }}>
                 <div style={{ fontSize: 9, color: '#9ca3af', fontWeight: 600, marginBottom: 2 }}>{item.label}</div>
                 <div style={{ fontSize: 11, color: '#1f2937', lineHeight: 1.5 }}>{item.value}</div>
@@ -225,7 +225,7 @@ function StructuredContent({ data, category, color, bg, border }: { data: any; c
         </div>
         {d.implications.length > 0 && (
           <div>
-            <SectionHeader title="시사점" color={color} bg={bg} border={border} />
+            <SectionHeader title="Implications" color={color} bg={bg} border={border} />
             {d.implications.map((imp, i) => (
               <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
                 <span style={{ color, fontWeight: 700 }}>→</span>
@@ -243,11 +243,11 @@ function StructuredContent({ data, category, color, bg, border }: { data: any; c
     return (
       <>
         <div style={{ background: bg, borderRadius: 10, padding: '14px 16px', marginBottom: 20, border: `1px solid ${border}` }}>
-          <p style={{ fontSize: 11, color: '#6b7280', margin: '0 0 4px', fontWeight: 600 }}>핵심 메시지</p>
+          <p style={{ fontSize: 11, color: '#6b7280', margin: '0 0 4px', fontWeight: 600 }}>Core Message</p>
           <p style={{ fontSize: 14, fontWeight: 700, color, margin: 0, lineHeight: 1.6 }}>"{d.core_message.text}"</p>
         </div>
         <div style={{ marginBottom: 20 }}>
-          <SectionHeader title="주요 인사이트" color={color} bg={bg} border={border} />
+          <SectionHeader title="Key Insights" color={color} bg={bg} border={border} />
           {d.insights.map((ins, i) => (
             <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'flex-start' }}>
               <span style={{ width: 20, height: 20, borderRadius: '50%', background: color, color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</span>
@@ -257,7 +257,7 @@ function StructuredContent({ data, category, color, bg, border }: { data: any; c
         </div>
         {d.checklist.length > 0 && (
           <div>
-            <SectionHeader title="실천 체크리스트" color={color} bg={bg} border={border} />
+            <SectionHeader title="Action Checklist" color={color} bg={bg} border={border} />
             {d.checklist.map((item, i) => (
               <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, alignItems: 'flex-start' }}>
                 <span style={{ width: 14, height: 14, border: `1.5px solid ${color}`, borderRadius: 3, flexShrink: 0, marginTop: 1 }} />
@@ -275,7 +275,7 @@ function StructuredContent({ data, category, color, bg, border }: { data: any; c
     return (
       <>
         <div style={{ marginBottom: 20 }}>
-          <SectionHeader title="추천 장소" color={color} bg={bg} border={border} />
+          <SectionHeader title="Recommended Places" color={color} bg={bg} border={border} />
           {d.places.map((place, i) => (
             <div key={i} style={{ background: bg, borderRadius: 10, padding: '10px 12px', marginBottom: 8, border: `1px solid ${border}` }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
@@ -289,7 +289,7 @@ function StructuredContent({ data, category, color, bg, border }: { data: any; c
         </div>
         {d.route && (
           <div style={{ marginBottom: 16 }}>
-            <SectionHeader title="추천 동선" color={color} bg={bg} border={border} />
+            <SectionHeader title="Recommended Route" color={color} bg={bg} border={border} />
             <p style={{ fontSize: 12, color: '#374151', margin: 0, lineHeight: 1.6, background: '#f9fafb', padding: '10px 12px', borderRadius: 8 }}>{d.route}</p>
           </div>
         )}
@@ -303,7 +303,7 @@ function StructuredContent({ data, category, color, bg, border }: { data: any; c
       <>
         {d.characters.length > 0 && (
           <div style={{ marginBottom: 20 }}>
-            <SectionHeader title="주요 인물" color={color} bg={bg} border={border} />
+            <SectionHeader title="Key Characters" color={color} bg={bg} border={border} />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               {d.characters.map((char, i) => (
                 <div key={i} style={{ background: bg, borderRadius: 8, padding: '8px 10px', border: `1px solid ${border}` }}>
@@ -315,7 +315,7 @@ function StructuredContent({ data, category, color, bg, border }: { data: any; c
           </div>
         )}
         <div style={{ marginBottom: 20 }}>
-          <SectionHeader title="스토리 전개" color={color} bg={bg} border={border} />
+          <SectionHeader title="Story Timeline" color={color} bg={bg} border={border} />
           {d.timeline.map((item, i) => (
             <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 10, alignItems: 'flex-start' }}>
               <div style={{ width: 22, height: 22, borderRadius: '50%', background: color, color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</div>
@@ -325,7 +325,7 @@ function StructuredContent({ data, category, color, bg, border }: { data: any; c
         </div>
         {d.conclusion && (
           <div>
-            <SectionHeader title="🎬 결말 / 핵심 요약" color={color} bg={bg} border={border} />
+            <SectionHeader title="🎬 Ending / Key Summary" color={color} bg={bg} border={border} />
             <div style={{ background: bg, borderRadius: 10, padding: '12px 14px', border: `1px solid ${border}` }}>
               <p style={{ fontSize: 12, color: '#374151', margin: 0, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{d.conclusion}</p>
             </div>
@@ -340,11 +340,11 @@ function StructuredContent({ data, category, color, bg, border }: { data: any; c
     return (
       <>
         <div style={{ marginBottom: 16, background: '#fffbeb', borderRadius: 10, padding: '12px 14px', border: '1px solid #fde68a' }}>
-          <p style={{ fontSize: 11, color: '#92400e', fontWeight: 700, margin: '0 0 3px' }}>💬 핵심 메시지</p>
+          <p style={{ fontSize: 11, color: '#92400e', fontWeight: 700, margin: '0 0 3px' }}>💬 Key Message</p>
           <p style={{ fontSize: 13, color: '#374151', margin: 0, lineHeight: 1.7, fontWeight: 600 }}>&quot;{d.key_message}&quot;</p>
         </div>
         <div style={{ marginBottom: 20 }}>
-          <SectionHeader title={`팁 ${d.tips.length}가지`} color={color} bg={bg} border={border} />
+          <SectionHeader title={`${d.tips.length} Tip${d.tips.length !== 1 ? 's' : ''}`} color={color} bg={bg} border={border} />
           {d.tips.map((tip) => (
             <div key={tip.number} style={{ display: 'flex', gap: 10, marginBottom: 10, alignItems: 'flex-start' }}>
               <div style={{ width: 22, height: 22, borderRadius: '50%', background: color, color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{tip.number}</div>
@@ -357,7 +357,7 @@ function StructuredContent({ data, category, color, bg, border }: { data: any; c
         </div>
         {d.top3.length > 0 && (
           <div style={{ marginBottom: 16 }}>
-            <SectionHeader title="⭐ 바로 적용할 Top 3" color={color} bg={bg} border={border} />
+            <SectionHeader title="⭐ Top 3 to Apply Now" color={color} bg={bg} border={border} />
             {d.top3.map((item, i) => (
               <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, alignItems: 'flex-start' }}>
                 <span style={{ fontSize: 11, fontWeight: 700, color, minWidth: 14 }}>{i + 1}.</span>
@@ -368,7 +368,7 @@ function StructuredContent({ data, category, color, bg, border }: { data: any; c
         )}
         {d.tools.length > 0 && (
           <div>
-            <SectionHeader title="🛠️ 준비물 / 도구" color={color} bg={bg} border={border} />
+            <SectionHeader title="🛠️ Tools / Materials" color={color} bg={bg} border={border} />
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {d.tools.map((tool, i) => (
                 <span key={i} style={{ fontSize: 11, padding: '3px 10px', borderRadius: 99, background: bg, border: `1px solid ${border}`, color }}>{tool}</span>
@@ -394,7 +394,7 @@ export default function SummaryPdfTemplate({ data, qrDataUrl }: Props) {
 
   const formatDate = (iso?: string) => {
     if (!iso) return ''
-    return new Date(iso).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
+    return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   }
 
   return (
@@ -434,10 +434,10 @@ export default function SummaryPdfTemplate({ data, qrDataUrl }: Props) {
           {/* 날짜 */}
           <div style={{ display: 'flex', gap: 14, marginBottom: 10 }}>
             {data.videoPublishedAt && (
-              <span style={{ fontSize: 10, color: '#9ca3af' }}>📅 업로드 {formatDate(data.videoPublishedAt)}</span>
+              <span style={{ fontSize: 10, color: '#9ca3af' }}>📅 Uploaded {formatDate(data.videoPublishedAt)}</span>
             )}
             {data.summarizedAt && (
-              <span style={{ fontSize: 10, color: '#9ca3af' }}>🤖 요약 {formatDate(data.summarizedAt)}</span>
+              <span style={{ fontSize: 10, color: '#9ca3af' }}>🤖 Summarized {formatDate(data.summarizedAt)}</span>
             )}
           </div>
 
@@ -462,7 +462,7 @@ export default function SummaryPdfTemplate({ data, qrDataUrl }: Props) {
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
             <div style={{ width: 4, height: 20, background: cat.color, borderRadius: 99 }} />
-            <h2 style={{ fontSize: 15, fontWeight: 800, color: '#111827', margin: 0 }}>영상 분석 보고서</h2>
+            <h2 style={{ fontSize: 15, fontWeight: 800, color: '#111827', margin: 0 }}>Video Analysis Report</h2>
           </div>
           <ReportSection markdown={data.reportSummary} color={cat.color} bg={cat.bg} border={cat.border} />
         </div>
@@ -475,7 +475,7 @@ export default function SummaryPdfTemplate({ data, qrDataUrl }: Props) {
       <div style={{ marginBottom: 32 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
           <div style={{ width: 4, height: 20, background: cat.color, borderRadius: 99 }} />
-          <h2 style={{ fontSize: 15, fontWeight: 800, color: '#111827', margin: 0 }}>상세 정리</h2>
+          <h2 style={{ fontSize: 15, fontWeight: 800, color: '#111827', margin: 0 }}>Detailed Summary</h2>
         </div>
         <StructuredContent data={summary} category={data.category} color={cat.color} bg={cat.bg} border={cat.border} />
       </div>
@@ -491,7 +491,7 @@ export default function SummaryPdfTemplate({ data, qrDataUrl }: Props) {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={qrDataUrl} alt="QR" style={{ width: 72, height: 72, border: `1px solid ${cat.border}`, borderRadius: 8, padding: 4 }} />
-            <span style={{ fontSize: 9, color: '#9ca3af' }}>원본 영상 보기</span>
+            <span style={{ fontSize: 9, color: '#9ca3af' }}>View original video</span>
           </div>
         )}
       </div>

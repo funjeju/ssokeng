@@ -128,7 +128,7 @@ export default function ItineraryDiary({ result, regionName, regionEmoji, startD
             <h1 style={{ fontSize: 22, fontWeight: 900, marginBottom: 4 }}>{regionEmoji} {regionName}</h1>
             <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>{formatDate(startDate)} — {formatDate(endDate)}</p>
             <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-              <span style={{ padding: '4px 12px', background: 'rgba(255,255,255,0.2)', borderRadius: 999, fontSize: 11, fontWeight: 700 }}>{nights}박 {days}일</span>
+              <span style={{ padding: '4px 12px', background: 'rgba(255,255,255,0.2)', borderRadius: 999, fontSize: 11, fontWeight: 700 }}>{nights}N {days}D</span>
               {mode === 'with_recommendations' && (
                 <span style={{ padding: '4px 12px', background: 'rgba(255,255,255,0.2)', borderRadius: 999, fontSize: 11, fontWeight: 700 }}>✨ AI Curation</span>
               )}

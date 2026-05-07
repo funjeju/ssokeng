@@ -13,26 +13,26 @@ const TOPIC_META: Record<string, {
   color: string; textColor: string; borderColor: string; bgGradient: string
 }> = {
   'ai-news': {
-    label: 'AI 소식', emoji: '📰', slug: 'ai-news',
-    title: 'AI 소식 | SSOKTUBE AI 매거진 — 최신 AI 뉴스·발표',
-    description: 'OpenAI, Google, Anthropic 등 AI 업계 최신 뉴스와 발표를 깊이 있게 분석. ChatGPT, Claude, Gemini 업데이트 소식과 AI 시장 동향.',
-    keywords: ['AI 뉴스', 'AI 최신 소식', 'OpenAI', 'ChatGPT', 'Anthropic', 'Claude', 'Google Gemini', 'AI 발표', '인공지능 뉴스'],
+    label: 'AI News', emoji: '📰', slug: 'ai-news',
+    title: 'AI News | SSOKENG AI Magazine — Latest AI announcements',
+    description: 'In-depth analysis of the latest news and announcements from OpenAI, Google, Anthropic and more. ChatGPT, Claude, Gemini updates and AI market trends.',
+    keywords: ['AI news', 'OpenAI', 'ChatGPT', 'Anthropic', 'Claude', 'Google Gemini', 'AI announcements'],
     color: 'bg-blue-500/15', textColor: 'text-blue-400', borderColor: 'border-blue-500/30',
     bgGradient: 'from-blue-500/10 to-transparent',
   },
   'ai-tools': {
-    label: 'AI 도구', emoji: '🛠️', slug: 'ai-tools',
-    title: 'AI 도구 | SSOKTUBE AI 매거진 — 생산성 AI 앱·도구 리뷰',
-    description: '업무 생산성을 높이는 AI 도구와 앱을 실전 리뷰. Cursor, Perplexity, Notion AI 등 최신 AI 생산성 도구 심층 분석.',
-    keywords: ['AI 도구', 'AI 앱', 'AI 생산성', 'Cursor', 'Perplexity', 'Notion AI', 'AI 툴', 'AI 소프트웨어', '업무 자동화'],
+    label: 'AI Tools', emoji: '🛠️', slug: 'ai-tools',
+    title: 'AI Tools | SSOKENG AI Magazine — Productivity AI app reviews',
+    description: 'Hands-on reviews of AI tools and apps that boost productivity. Deep dives into Cursor, Perplexity, Notion AI, and the latest AI productivity software.',
+    keywords: ['AI tools', 'AI apps', 'AI productivity', 'Cursor', 'Perplexity', 'Notion AI', 'AI software'],
     color: 'bg-purple-500/15', textColor: 'text-purple-400', borderColor: 'border-purple-500/30',
     bgGradient: 'from-purple-500/10 to-transparent',
   },
   'ai-usecases': {
-    label: 'AI 활용', emoji: '🚀', slug: 'ai-usecases',
-    title: 'AI 활용 | SSOKTUBE AI 매거진 — 실전 AI 활용 사례·자동화',
-    description: 'AI를 실제 업무와 일상에 적용하는 구체적인 방법. 자동화, 프롬프트 엔지니어링, AI 워크플로우 구축 사례와 단계별 가이드.',
-    keywords: ['AI 활용법', 'AI 자동화', '프롬프트 엔지니어링', 'AI 워크플로우', 'AI 업무 활용', 'AI 실전', 'ChatGPT 활용', 'AI 생산성 팁'],
+    label: 'AI Use Cases', emoji: '🚀', slug: 'ai-usecases',
+    title: 'AI Use Cases | SSOKENG AI Magazine — Real-world AI applications',
+    description: 'Concrete ways to apply AI in your work and daily life. Automation, prompt engineering, AI workflow guides with step-by-step examples.',
+    keywords: ['AI use cases', 'AI automation', 'prompt engineering', 'AI workflow', 'ChatGPT tips', 'AI productivity'],
     color: 'bg-emerald-500/15', textColor: 'text-emerald-400', borderColor: 'border-emerald-500/30',
     bgGradient: 'from-emerald-500/10 to-transparent',
   },
@@ -43,14 +43,14 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { cluster } = await params
   const meta = TOPIC_META[cluster]
-  if (!meta) return { title: 'AI 매거진 | SSOKTUBE' }
+  if (!meta) return { title: 'AI Magazine | SSOKENG' }
   return {
     title: meta.title,
     description: meta.description,
     keywords: meta.keywords,
     alternates: { canonical: `https://ssoktube.com/magazine/topic/${cluster}` },
     openGraph: {
-      title: `${meta.emoji} ${meta.label} | SSOKTUBE AI 매거진`,
+      title: `${meta.emoji} ${meta.label} | SSOKENG AI Magazine`,
       description: meta.description,
       type: 'website',
       url: `https://ssoktube.com/magazine/topic/${cluster}`,
@@ -61,7 +61,7 @@ export async function generateMetadata(
 
 function formatDate(iso: string) {
   if (!iso) return ''
-  return new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric' }).format(new Date(iso))
+  return new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }).format(new Date(iso))
 }
 
 function PostCard({ post, meta }: { post: CuratedPost; meta: typeof TOPIC_META[string] }) {
@@ -96,7 +96,7 @@ function PostCard({ post, meta }: { post: CuratedPost; meta: typeof TOPIC_META[s
         <div className="flex items-center gap-2 text-[10px] text-[var(--text-subtle)] pt-1 border-t border-[var(--border-subtle)]">
           <span>{formatDate(post.publishedAt)}</span>
           <span>·</span>
-          <span>{post.readTime}분</span>
+          <span>{post.readTime} min</span>
           {post.viewCount > 0 && <><span>·</span><span>👁 {post.viewCount.toLocaleString()}</span></>}
         </div>
       </div>
@@ -121,7 +121,7 @@ export default async function TopicPage(
     {
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
-      name: `${meta.emoji} ${meta.label} | SSOKTUBE AI 매거진`,
+      name: `${meta.emoji} ${meta.label} | SSOKENG AI Magazine`,
       description: meta.description,
       url: `https://ssoktube.com/magazine/topic/${cluster}`,
       mainEntity: {
@@ -139,8 +139,8 @@ export default async function TopicPage(
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: '홈', item: 'https://ssoktube.com' },
-        { '@type': 'ListItem', position: 2, name: 'AI 매거진', item: 'https://ssoktube.com/magazine' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://ssoktube.com' },
+        { '@type': 'ListItem', position: 2, name: 'AI Magazine', item: 'https://ssoktube.com/magazine' },
         { '@type': 'ListItem', position: 3, name: meta.label, item: `https://ssoktube.com/magazine/topic/${cluster}` },
       ],
     },
@@ -158,9 +158,9 @@ export default async function TopicPage(
 
           {/* 브레드크럼 */}
           <nav aria-label="breadcrumb" className="flex items-center gap-2 text-xs text-[var(--text-subtle)] pt-4 mb-6">
-            <Link href="/" className="hover:text-orange-400 transition-colors">홈</Link>
+            <Link href="/" className="hover:text-orange-400 transition-colors">Home</Link>
             <span>/</span>
-            <Link href="/magazine" className="hover:text-orange-400 transition-colors">AI 매거진</Link>
+            <Link href="/magazine" className="hover:text-orange-400 transition-colors">AI Magazine</Link>
             <span>/</span>
             <span className={meta.textColor}>{meta.label}</span>
           </nav>
@@ -175,13 +175,13 @@ export default async function TopicPage(
               </div>
             </div>
             <p className="text-[var(--text-muted)] text-sm leading-relaxed max-w-xl">{meta.description}</p>
-            <p className={`text-[11px] font-bold mt-3 ${meta.textColor}`}>{posts.length}편의 기사</p>
+            <p className={`text-[11px] font-bold mt-3 ${meta.textColor}`}>{posts.length} article{posts.length !== 1 ? 's' : ''}</p>
           </div>
 
           {/* 다른 카테고리 이동 */}
           <nav className="flex items-center gap-2 mb-8 overflow-x-auto pb-1">
             <Link href="/magazine" className="shrink-0 px-3 py-1.5 rounded-xl bg-[var(--bg-elevated)] text-[var(--text-muted)] text-xs font-bold border border-[var(--border-default)] hover:border-[var(--border-strong)] transition-colors">
-              ← 전체 보기
+              ← All articles
             </Link>
             {Object.entries(TOPIC_META).filter(([k]) => k !== cluster).map(([k, m]) => (
               <Link
@@ -197,8 +197,8 @@ export default async function TopicPage(
           {posts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-32 text-center">
               <div className="text-5xl mb-4 opacity-30">{meta.emoji}</div>
-              <p className="text-[var(--text-subtle)] text-sm">{meta.label} 기사가 아직 없습니다.</p>
-              <p className="text-[var(--text-subtle)] text-xs mt-1">파이프라인이 실행되면 자동으로 채워집니다.</p>
+              <p className="text-[var(--text-subtle)] text-sm">No {meta.label} articles yet.</p>
+              <p className="text-[var(--text-subtle)] text-xs mt-1">Articles will appear here once the pipeline runs.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

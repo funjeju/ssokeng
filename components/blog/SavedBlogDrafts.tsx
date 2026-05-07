@@ -12,7 +12,7 @@ function buildHtml(draft: SavedBlogDraft): string {
   const tocItems = draft.sections.filter(s => s.heading)
   const tocHtml = tocItems.length > 0
     ? `<nav style="margin:0 0 32px;padding:16px 20px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;">
-  <p style="margin:0 0 10px;font-size:0.75em;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.08em;">📋 목차</p>
+  <p style="margin:0 0 10px;font-size:0.75em;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.08em;">📋 Table of Contents</p>
   <ol style="margin:0;padding:0 0 0 18px;">
 ${tocItems.map((s, i) => `    <li style="margin:0 0 6px;font-size:0.9em;color:#374151;">${i + 1}. ${s.heading}</li>`).join('\n')}
   </ol>
@@ -21,7 +21,7 @@ ${tocItems.map((s, i) => `    <li style="margin:0 0 6px;font-size:0.9em;color:#3
 
   const sectionsHtml = draft.sections.map(s => {
     const tsLink = s.seconds
-      ? `\n<p style="margin:6px 0 16px;"><a href="${ytBase}?t=${s.seconds}" target="_blank" rel="noopener" style="font-size:0.85em;color:#f97316;">▶ 영상 ${s.timestamp} 구간 바로보기</a></p>`
+      ? `\n<p style="margin:6px 0 16px;"><a href="${ytBase}?t=${s.seconds}" target="_blank" rel="noopener" style="font-size:0.85em;color:#f97316;">▶ Watch segment ${s.timestamp}</a></p>`
       : ''
     if (!s.heading) {
       return `<p style="margin:0 0 20px;line-height:1.8;font-size:1.05em;">${s.text}</p>`
@@ -32,7 +32,7 @@ ${tocItems.map((s, i) => `    <li style="margin:0 0 6px;font-size:0.9em;color:#3
 
   const faq = draft.faq ?? []
   const faqHtml = faq.length > 0
-    ? `<h2 style="margin:32px 0 12px;font-weight:700;">자주 묻는 질문</h2>
+    ? `<h2 style="margin:32px 0 12px;font-weight:700;">FAQ</h2>
 ${faq.map(f => `<details style="margin:0 0 10px;border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px;">
   <summary style="font-weight:600;cursor:pointer;color:#111827;">${f.question}</summary>
   <p style="margin:10px 0 0;line-height:1.75;color:#374151;">${f.answer}</p>
@@ -41,9 +41,9 @@ ${faq.map(f => `<details style="margin:0 0 10px;border:1px solid #e5e7eb;border-
 
   const commentsHtml = draft.comments
     ? `<div style="margin:40px 0 0;">
-  <h2 style="margin:0 0 16px;font-weight:700;font-size:1.1em;">💬 시청자 반응</h2>
+  <h2 style="margin:0 0 16px;font-weight:700;font-size:1.1em;">💬 Viewer Reactions</h2>
   <div style="margin:0 0 24px;padding:16px;background:#fafafa;border-radius:10px;border:1px solid #e5e7eb;">
-    <p style="margin:0 0 10px;font-size:0.8em;font-weight:700;color:#f97316;">🔥 인기 댓글 경향</p>
+    <p style="margin:0 0 10px;font-size:0.8em;font-weight:700;color:#f97316;">🔥 Popular comment trends</p>
     <p style="margin:0 0 14px;line-height:1.75;color:#374151;font-size:0.9em;">${draft.comments.popular_summary}</p>
     ${draft.comments.popular_highlights.map(h =>
       `<blockquote style="margin:8px 0;padding:10px 14px;background:#fff;border-left:3px solid #f97316;border-radius:0 6px 6px 0;font-size:0.85em;color:#4b5563;">
@@ -52,7 +52,7 @@ ${faq.map(f => `<details style="margin:0 0 10px;border:1px solid #e5e7eb;border-
     </blockquote>`).join('\n')}
   </div>
   <div style="padding:16px;background:#fafafa;border-radius:10px;border:1px solid #e5e7eb;">
-    <p style="margin:0 0 10px;font-size:0.8em;font-weight:700;color:#6366f1;">🕐 최신 댓글 경향</p>
+    <p style="margin:0 0 10px;font-size:0.8em;font-weight:700;color:#6366f1;">🕐 Recent comment trends</p>
     <p style="margin:0 0 14px;line-height:1.75;color:#374151;font-size:0.9em;">${draft.comments.recent_summary}</p>
     ${draft.comments.recent_highlights.map(h =>
       `<blockquote style="margin:8px 0;padding:10px 14px;background:#fff;border-left:3px solid #6366f1;border-radius:0 6px 6px 0;font-size:0.85em;color:#4b5563;">
@@ -71,7 +71,7 @@ ${faq.map(f => `<details style="margin:0 0 10px;border:1px solid #e5e7eb;border-
 
 <article>
 <h1 style="font-size:1.6em;font-weight:800;margin:0 0 12px;line-height:1.4;">${draft.seo_title}</h1>
-<p style="font-size:0.85em;color:#6b7280;margin:0 0 20px;">📹 원본 영상: <a href="${ytBase}" target="_blank" rel="noopener">${draft.channel} — ${draft.title}</a> &nbsp;|&nbsp; 읽는 시간: 약 ${draft.reading_time}분</p>
+<p style="font-size:0.85em;color:#6b7280;margin:0 0 20px;">📹 Source: <a href="${ytBase}" target="_blank" rel="noopener">${draft.channel} — ${draft.title}</a> &nbsp;|&nbsp; Reading time: ~${draft.reading_time} min</p>
 
 <figure style="margin:0 0 28px;">
   <a href="${ytBase}" target="_blank" rel="noopener">
@@ -88,7 +88,7 @@ ${faqHtml}
 ${commentsHtml}
 
 <div style="margin:32px 0 16px;padding:16px;background:#fff7ed;border-left:4px solid #f97316;border-radius:4px;">
-  <p style="margin:0;font-size:0.9em;color:#92400e;">이 글은 <a href="${appUrl}" target="_blank" rel="noopener" style="color:#f97316;font-weight:600;">SSOKTUBE AI</a>로 분석된 콘텐츠입니다.</p>
+  <p style="margin:0;font-size:0.9em;color:#92400e;">This article was generated with <a href="${appUrl}" target="_blank" rel="noopener" style="color:#f97316;font-weight:600;">SSOKENG AI</a>.</p>
 </div>
 
 <div style="margin:16px 0;">${tagsHtml}</div>
@@ -100,13 +100,13 @@ function buildPlainText(draft: SavedBlogDraft): string {
   const tocSections = draft.sections.filter(s => s.heading)
   const lines: string[] = [
     draft.seo_title, '',
-    `📹 원본: ${draft.channel} — ${draft.title}`,
+    `📹 Source: ${draft.channel} — ${draft.title}`,
     `🔗 ${ytBase}`, '',
-    `■ 메타 설명`, draft.meta_description, '',
-    `■ 태그`, draft.tags.join(', '), '',
+    `■ Meta description`, draft.meta_description, '',
+    `■ Tags`, draft.tags.join(', '), '',
     '─'.repeat(40), '',
     ...(tocSections.length > 0 ? [
-      '📋 목차',
+      '📋 Table of Contents',
       ...tocSections.map((s, i) => `  ${i + 1}. ${s.heading}`),
       '', '─'.repeat(40), '',
     ] : []),
@@ -118,16 +118,16 @@ function buildPlainText(draft: SavedBlogDraft): string {
     lines.push('')
   }
   if (draft.faq?.length) {
-    lines.push('─'.repeat(40), '', '■ 자주 묻는 질문', '')
+    lines.push('─'.repeat(40), '', '■ FAQ', '')
     draft.faq.forEach(f => {
       lines.push(`Q. ${f.question}`, `A. ${f.answer}`, '')
     })
   }
   if (draft.comments) {
-    lines.push('─'.repeat(40), '', '💬 시청자 반응', '')
-    lines.push('🔥 인기 댓글 경향', draft.comments.popular_summary, '')
+    lines.push('─'.repeat(40), '', '💬 Viewer Reactions', '')
+    lines.push('🔥 Popular comment trends', draft.comments.popular_summary, '')
     draft.comments.popular_highlights.forEach(h => lines.push(`  "${h.text}"  [👍${h.likes}]`, ''))
-    lines.push('🕐 최신 댓글 경향', draft.comments.recent_summary, '')
+    lines.push('🕐 Recent comment trends', draft.comments.recent_summary, '')
     draft.comments.recent_highlights.forEach(h => lines.push(`  "${h.text}"  [👍${h.likes}]`, ''))
   }
   return lines.join('\n')
@@ -155,7 +155,7 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
         <div className="shrink-0 flex items-center justify-between px-6 pt-6 pb-4 border-b border-[var(--border-subtle)]">
           <div>
             <h2 className="text-white font-bold text-base line-clamp-1">{draft.seo_title}</h2>
-            <p className="text-zinc-500 text-xs mt-0.5">{draft.channel} · 읽는 시간 약 {draft.reading_time}분</p>
+            <p className="text-zinc-500 text-xs mt-0.5">{draft.channel} · ~{draft.reading_time} min read</p>
           </div>
           <button onClick={onClose} className="text-zinc-500 hover:text-white text-xl ml-4">✕</button>
         </div>
@@ -164,9 +164,9 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
           {/* 탭 */}
           <div className="flex gap-1.5 p-1 bg-[var(--overlay-subtle)] rounded-xl">
             {([
-              { id: 'preview', label: '👁 미리보기' },
-              { id: 'html',    label: '🌐 HTML 복사' },
-              { id: 'text',    label: '📋 텍스트 복사' },
+              { id: 'preview', label: '👁 Preview' },
+              { id: 'html',    label: '🌐 Copy HTML' },
+              { id: 'text',    label: '📋 Copy text' },
             ] as const).map(t => (
               <button
                 key={t.id}
@@ -183,15 +183,15 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
           {/* SEO 메타 */}
           <div className="bg-white/3 border border-[var(--border-default)] rounded-2xl p-4 space-y-2 text-xs">
             <div className="flex items-start gap-2">
-              <span className="shrink-0 text-orange-400 font-bold w-20">SEO 제목</span>
+              <span className="shrink-0 text-orange-400 font-bold w-20">SEO title</span>
               <span className="text-zinc-200">{draft.seo_title}</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="shrink-0 text-orange-400 font-bold w-20">메타 설명</span>
+              <span className="shrink-0 text-orange-400 font-bold w-20">Meta desc</span>
               <span className="text-zinc-400">{draft.meta_description}</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="shrink-0 text-orange-400 font-bold w-20">태그</span>
+              <span className="shrink-0 text-orange-400 font-bold w-20">Tags</span>
               <span className="text-zinc-400">{draft.tags.join(', ')}</span>
             </div>
           </div>
@@ -200,7 +200,7 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
             <div className="bg-white rounded-2xl p-5 text-zinc-800 space-y-3">
               <img src={draft.thumbnail} alt="" className="w-full rounded-xl object-cover max-h-48" />
               <h1 className="text-lg font-bold leading-snug">{draft.seo_title}</h1>
-              <p className="text-xs text-zinc-400">📹 {draft.channel} | 약 {draft.reading_time}분</p>
+              <p className="text-xs text-zinc-400">📹 {draft.channel} | ~{draft.reading_time} min read</p>
 
               {/* 목차 */}
               {(() => {
@@ -208,7 +208,7 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
                 if (tocItems.length === 0) return null
                 return (
                   <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-200">
-                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">📋 목차</p>
+                    <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">📋 Table of Contents</p>
                     <ol className="space-y-1">
                       {tocItems.map((s, i) => (
                         <li key={s.id} className="flex items-start gap-2 text-xs">
@@ -225,14 +225,14 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
                 <div key={s.id}>
                   {s.heading && <h2 className="text-base font-bold mt-4 mb-1 text-zinc-700">{s.heading}</h2>}
                   <p className="text-sm leading-relaxed text-zinc-600">{s.text}</p>
-                  {s.timestamp && <p className="text-xs text-orange-500 mt-1">▶ {s.timestamp} 구간</p>}
+                  {s.timestamp && <p className="text-xs text-orange-500 mt-1">▶ {s.timestamp} segment</p>}
                 </div>
               ))}
 
               {/* FAQ */}
               {draft.faq && draft.faq.length > 0 && (
                 <div className="mt-4 space-y-2">
-                  <p className="text-xs font-bold text-zinc-500">💬 자주 묻는 질문</p>
+                  <p className="text-xs font-bold text-zinc-500">💬 FAQ</p>
                   {draft.faq.map((f, i) => (
                     <details key={i} className="border border-zinc-200 rounded-lg px-3 py-2 text-xs">
                       <summary className="font-semibold text-zinc-700 cursor-pointer">{f.question}</summary>
@@ -245,9 +245,9 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
               {/* 댓글 분석 */}
               {draft.comments && (
                 <div className="mt-4 space-y-3">
-                  <p className="text-xs font-bold text-zinc-500">💬 시청자 반응</p>
+                  <p className="text-xs font-bold text-zinc-500">💬 Viewer Reactions</p>
                   <div className="bg-orange-50 rounded-xl p-3 border border-orange-100">
-                    <p className="text-[10px] font-bold text-orange-600 mb-1.5">🔥 인기 댓글 경향</p>
+                    <p className="text-[10px] font-bold text-orange-600 mb-1.5">🔥 Popular comment trends</p>
                     <p className="text-xs text-zinc-600 leading-relaxed mb-2">{draft.comments.popular_summary}</p>
                     <div className="space-y-1.5">
                       {draft.comments.popular_highlights.map((h, i) => (
@@ -259,7 +259,7 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
                     </div>
                   </div>
                   <div className="bg-indigo-50 rounded-xl p-3 border border-indigo-100">
-                    <p className="text-[10px] font-bold text-indigo-600 mb-1.5">🕐 최신 댓글 경향</p>
+                    <p className="text-[10px] font-bold text-indigo-600 mb-1.5">🕐 Recent comment trends</p>
                     <p className="text-xs text-zinc-600 leading-relaxed mb-2">{draft.comments.recent_summary}</p>
                     <div className="space-y-1.5">
                       {draft.comments.recent_highlights.map((h, i) => (
@@ -297,7 +297,7 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
             href={`/result/${draft.sessionId}`}
             className="px-4 h-10 rounded-xl bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 text-xs flex items-center transition-colors"
           >
-            원본 영상 →
+            Source video →
           </Link>
           <div className="flex-1" />
           <button
@@ -306,7 +306,7 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
               copied === 'text' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-300'
             }`}
           >
-            {copied === 'text' ? '✓ 복사됨' : '📋 텍스트 복사'}
+            {copied === 'text' ? '✓ Copied' : '📋 Copy text'}
           </button>
           <button
             onClick={() => copy('html')}
@@ -314,7 +314,7 @@ function DetailModal({ draft, onClose }: DetailModalProps) {
               copied === 'html' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-orange-500 hover:bg-orange-600 text-white'
             }`}
           >
-            {copied === 'html' ? '✓ 복사됨' : '🌐 HTML 복사'}
+            {copied === 'html' ? '✓ Copied' : '🌐 Copy HTML'}
           </button>
         </div>
       </div>
@@ -336,13 +336,13 @@ export default function SavedBlogDrafts({ userId }: { userId: string }) {
   }, [userId])
 
   const handleDelete = async (id: string) => {
-    if (!confirm('이 블로그 초안을 삭제할까요?')) return
+    if (!confirm('Delete this blog draft?')) return
     setDeletingId(id)
     try {
       await deleteBlogDraft(id)
       setDrafts(prev => prev.filter(d => d.id !== id))
     } catch {
-      alert('삭제에 실패했습니다.')
+      alert('Failed to delete.')
     } finally {
       setDeletingId(null)
     }
@@ -360,8 +360,8 @@ export default function SavedBlogDrafts({ userId }: { userId: string }) {
     return (
       <div className="text-center py-16 text-[var(--text-subtle)]">
         <p className="text-4xl mb-3">✍️</p>
-        <p className="font-medium text-white mb-1">저장된 블로그 초안이 없습니다</p>
-        <p className="text-sm">요약 결과 페이지에서 블로그 초안을 생성하고 저장해보세요.</p>
+        <p className="font-medium text-white mb-1">No saved blog drafts</p>
+        <p className="text-sm">Generate and save a blog draft from a video summary page.</p>
       </div>
     )
   }
@@ -383,7 +383,7 @@ export default function SavedBlogDrafts({ userId }: { userId: string }) {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/60 text-[9px] font-bold text-orange-400 border border-orange-500/30">
-                블로그
+                Blog
               </div>
             </div>
             <div className="p-4">
@@ -402,7 +402,7 @@ export default function SavedBlogDrafts({ userId }: { userId: string }) {
                   onClick={e => { e.stopPropagation(); handleDelete(draft.id) }}
                   disabled={deletingId === draft.id}
                   className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-30"
-                  title="삭제"
+                  title="Delete"
                 >
                   {deletingId === draft.id ? (
                     <div className="w-3.5 h-3.5 rounded-full border border-zinc-500 border-t-transparent animate-spin" />

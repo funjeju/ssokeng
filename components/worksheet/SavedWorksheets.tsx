@@ -25,7 +25,7 @@ export default function SavedWorksheets({ userId }: { userId: string }) {
   }, [userId])
 
   const handleDelete = async (id: string) => {
-    if (!confirm('워크시트를 삭제할까요?')) return
+    if (!confirm('Delete this worksheet?')) return
     setDeleting(id)
     try {
       await deleteSavedWorksheet(id)
@@ -50,8 +50,8 @@ export default function SavedWorksheets({ userId }: { userId: string }) {
     return (
       <div className="flex flex-col items-center gap-3 py-20 text-center">
         <span className="text-4xl">📝</span>
-        <p className="text-[var(--text-subtle)] text-sm">저장된 워크시트가 없습니다.</p>
-        <p className="text-[var(--text-subtle)] text-xs">영어 영상 분석 후 워크시트를 생성하고 저장해보세요.</p>
+        <p className="text-[var(--text-subtle)] text-sm">No saved worksheets.</p>
+        <p className="text-[var(--text-subtle)] text-xs">Analyze an English video to generate and save a worksheet.</p>
       </div>
     )
   }
@@ -74,7 +74,7 @@ export default function SavedWorksheets({ userId }: { userId: string }) {
                 <p className="text-white text-sm font-semibold truncate">{item.title}</p>
                 {item.channel && <p className="text-[var(--text-subtle)] text-xs mt-0.5">{item.channel}</p>}
                 <p className="text-[var(--text-subtle)] text-xs mt-1">
-                  단어 {item.worksheet?.vocabulary?.length ?? 0}개 · 문제 {item.worksheet?.exercises?.reduce((s: number, e: any) => s + e.questions.length, 0) ?? 0}개
+                  {item.worksheet?.vocabulary?.length ?? 0} words · {item.worksheet?.exercises?.reduce((s: number, e: any) => s + e.questions.length, 0) ?? 0} questions
                 </p>
               </div>
             </div>
@@ -83,14 +83,14 @@ export default function SavedWorksheets({ userId }: { userId: string }) {
                 onClick={() => setViewing(item)}
                 className="flex-1 py-2.5 text-xs font-semibold text-orange-400 hover:bg-[var(--overlay-subtle)] transition-colors"
               >
-                📖 열기
+                📖 Open
               </button>
               {item.sessionId && (
                 <Link
                   href={`/result/${item.sessionId}`}
                   className="flex-1 py-2.5 text-xs font-semibold text-[var(--text-muted)] hover:text-blue-400 hover:bg-[var(--overlay-subtle)] transition-colors border-l border-[var(--border-subtle)] text-center"
                 >
-                  🎬 영상 보기
+                  🎬 View video
                 </Link>
               )}
               <button
@@ -98,7 +98,7 @@ export default function SavedWorksheets({ userId }: { userId: string }) {
                 disabled={deleting === item.id}
                 className="flex-1 py-2.5 text-xs font-semibold text-[var(--text-subtle)] hover:text-red-400 hover:bg-[var(--overlay-subtle)] transition-colors border-l border-[var(--border-subtle)] disabled:opacity-40"
               >
-                {deleting === item.id ? '삭제 중...' : '🗑️ 삭제'}
+                {deleting === item.id ? 'Deleting...' : '🗑️ Delete'}
               </button>
             </div>
           </div>

@@ -30,7 +30,7 @@ function extractTextContent(node: React.ReactNode): string {
 function parseToc(body: string): { title: string; anchor: string }[] {
   return [...body.matchAll(/^##\s+(.+)$/gm)]
     .map(m => ({ title: m[1].trim(), anchor: toAnchor(m[1]) }))
-    .filter(item => item.title !== '목차')
+    .filter(item => item.title !== 'Table of Contents' && item.title !== '목차')
 }
 
 function stripTocSection(body: string): string {
@@ -127,12 +127,12 @@ function CommentsSection({ postId }: { postId: string }) {
       const res = await fetch('/api/magazine/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId, author: author.trim() || '익명', text: text.trim() }),
+        body: JSON.stringify({ postId, author: author.trim() || 'Anonymous', text: text.trim() }),
       })
       if (res.ok) {
         const { id } = await res.json()
         setComments(prev => [{
-          id, postId, author: author.trim() || '익명', text: text.trim(),
+          id, postId, author: author.trim() || 'Anonymous', text: text.trim(),
           createdAt: new Date().toISOString(), likeCount: 0,
         }, ...prev])
         setText('')
@@ -168,14 +168,14 @@ function CommentsSection({ postId }: { postId: string }) {
       <form onSubmit={submit} className="mb-6 p-4 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-default)]">
         <input
           type="text"
-          placeholder="닉네임 (선택)"
+          placeholder="Nickname (optional)"
           value={author}
           onChange={e => setAuthor(e.target.value)}
           maxLength={30}
           className="w-full bg-transparent text-xs text-white placeholder-[#4a4845] outline-none mb-3 border-b border-[var(--border-default)] pb-2"
         />
         <textarea
-          placeholder="댓글을 남겨주세요..."
+          placeholder="Leave a comment..."
           value={text}
           onChange={e => setText(e.target.value)}
           maxLength={500}
@@ -189,14 +189,14 @@ function CommentsSection({ postId }: { postId: string }) {
             disabled={!text.trim() || submitting}
             className="px-4 py-1.5 rounded-lg text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
-            {submitting ? '등록 중...' : '등록'}
+            {submitting ? 'Posting...' : 'Post'}
           </button>
         </div>
       </form>
 
       {/* 댓글 목록 */}
       {comments.length === 0 ? (
-        <p className="text-center text-xs text-[var(--text-subtle)] py-8">첫 번째 댓글을 남겨보세요!</p>
+        <p className="text-center text-xs text-[var(--text-subtle)] py-8">Be the first to leave a comment!</p>
       ) : (
         <div className="space-y-3">
           {comments.map(c => (
@@ -231,7 +231,7 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
 
         {/* 브레드크럼 */}
         <nav aria-label="breadcrumb" className="flex items-center gap-2 text-xs text-[var(--text-subtle)] pt-4 mb-6">
-          <Link href="/" className="hover:text-orange-400 transition-colors">홈</Link>
+          <Link href="/" className="hover:text-orange-400 transition-colors">Home</Link>
           <span>/</span>
           <Link href="/magazine" className="hover:text-orange-400 transition-colors">AI 매거진</Link>
           {topic && (
@@ -296,7 +296,7 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
             <span>·</span>
             <span>{formatDate(post.publishedAt)}</span>
             <span>·</span>
-            <span>읽는 시간 {post.readTime}분</span>
+            <span>{post.readTime} min read</span>
             {post.viewCount > 0 && (
               <>
                 <span>·</span>
@@ -616,8 +616,8 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
         <div className="mt-12 grid sm:grid-cols-2 gap-4">
           <div className="p-6 rounded-2xl bg-gradient-to-br from-orange-500/10 to-amber-500/5 border border-orange-500/20">
             <p className="text-xs font-bold text-orange-400 mb-1">✦ AI 영상 분석</p>
-            <p className="text-white font-bold mb-1">유튜브 영상을 바로 요약해보세요</p>
-            <p className="text-[var(--text-muted)] text-sm mb-4">링크 하나로 핵심 내용을 AI가 정리해드립니다.</p>
+            <p className="text-white font-bold mb-1">Summarize a YouTube video instantly</p>
+            <p className="text-[var(--text-muted)] text-sm mb-4">Just paste a link and AI will extract the key points for you.</p>
             <Link
               href="/"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold transition-colors"
@@ -627,7 +627,7 @@ export default function MagazinePostClient({ post, relatedPosts = [] }: { post: 
           </div>
           <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/0 border border-[var(--border-default)]">
             <p className="text-xs font-bold text-[var(--text-muted)] mb-1">🤖 AI 매거진</p>
-            <p className="text-white font-bold mb-1">더 많은 AI 기사 보기</p>
+            <p className="text-white font-bold mb-1">Read more AI articles</p>
             <p className="text-[var(--text-muted)] text-sm mb-4">AI 소식, 도구, 활용 사례를 매일 3회 업데이트합니다.</p>
             <Link
               href="/magazine"

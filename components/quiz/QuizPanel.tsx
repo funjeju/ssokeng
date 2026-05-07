@@ -298,7 +298,7 @@ function MultipleChoice({ q, selected, onSelect, onNext, showMeta, onMetaSelect,
             <MetaRow pendingMeta={pendingMeta ?? null} onSelect={onMetaSelect} />
           ) : confirmed && !isCorrect ? (
             // 오답: 자동 전혀모름
-            <p className="text-center text-xs text-red-400/70 py-1">❓ 전혀모름으로 기록됩니다</p>
+            <p className="text-center text-xs text-red-400/70 py-1">❓ Marked as "No idea"</p>
           ) : null}
           <button
             onClick={() => {

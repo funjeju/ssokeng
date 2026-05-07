@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: '스퀘어 — 유튜브 요약 공유 커뮤니티 · 같은 영상 다른 시각 발견 | 쏙튜브',
-  description: '내가 요약한 유튜브 영상을 스퀘어에 공유하고 다른 시청자의 해석을 발견하세요. 유튜브 요약 커뮤니티에서 좋은 영상과 인사이트를 함께 나눕니다.',
-  keywords: ['유튜브 요약 공유', '유튜브 커뮤니티', '영상 요약 피드', '쏙튜브 스퀘어', '유튜브 인사이트 공유', '영상 요약 SNS', '유튜브 요약 피드', '유튜브 지식 공유', '영상 정보 공유 앱', '유튜브 스터디 커뮤니티', '유튜브 리뷰 공유', '영상 요약 소셜'],
+  title: 'Square — YouTube Summary Sharing Community · Discover Different Perspectives | SSOKENG',
+  description: 'Share your YouTube video summaries on Square and discover how others interpreted the same video. Exchange great videos and insights with the community.',
+  keywords: ['youtube summary sharing', 'youtube community', 'video summary feed', 'SSOKENG square', 'youtube insight sharing', 'video summary social', 'youtube knowledge sharing'],
 }
 
 export default function SquareGuidePage() {
@@ -12,24 +12,24 @@ export default function SquareGuidePage() {
     <article className="flex flex-col gap-10 max-w-2xl">
       <div>
         <div className="flex items-center gap-2 text-[var(--text-subtle)] text-xs mb-4">
-          <Link href="/guide" className="hover:text-white transition-colors">사용설명서</Link>
+          <Link href="/guide" className="hover:text-white transition-colors">User Guide</Link>
           <span>›</span>
-          <span className="text-white">스퀘어 활용법</span>
+          <span className="text-white">Square Guide</span>
         </div>
-        <h1 className="text-2xl font-black text-white mb-3">🌐 같은 영상, 다른 시청자의 해석까지 한눈에</h1>
+        <h1 className="text-2xl font-black text-white mb-3">🌐 Same Video — See How Others Interpreted It Too</h1>
         <p className="text-[var(--text-muted)] text-sm leading-relaxed">
-          유익한 유튜브 영상을 혼자만 보고 끝내기엔 아깝습니다. <strong className="text-white">스퀘어</strong>는 쏙튜브 유저들이 자신의 요약을 공개 피드에 올리고, 다른 시청자가 같은 영상을 어떻게 해석했는지 발견하는 공간입니다. 내가 놓친 관점, 더 깊은 분석, 다른 카테고리로 요약된 결과를 만날 수 있습니다. 유튜브 인사이트를 혼자 소비하지 말고 커뮤니티와 함께 나누세요.
+          Don&apos;t keep a great YouTube video to yourself. <strong className="text-white">Square</strong> is where SSOKENG users post their summaries to a public feed and discover how other viewers interpreted the same video. Find perspectives you missed, deeper analysis, or summaries from a completely different angle. Share insights with the community instead of consuming them alone.
         </p>
       </div>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-base font-bold text-white border-l-2 border-amber-500 pl-3">스퀘어에서 할 수 있는 것들</h2>
+        <h2 className="text-base font-bold text-white border-l-2 border-amber-500 pl-3">What you can do on Square</h2>
         <div className="grid grid-cols-2 gap-3">
           {[
-            { icon: '📤', title: '요약 공유', desc: '내 요약 결과를 스퀘어에 공개 게시해 다른 사람에게 유익한 정보를 나눕니다.' },
-            { icon: '🔎', title: '발견', desc: '다른 유저가 요약한 유익한 영상을 피드에서 탐색합니다. 관심 분야 영상을 새롭게 발견할 수 있습니다.' },
-            { icon: '📌', title: '저장', desc: '마음에 드는 요약을 내 라이브러리에 복사합니다. 직접 요약하지 않아도 좋은 요약을 내 것으로 가질 수 있습니다.' },
-            { icon: '💬', title: '소통', desc: '요약에 댓글·공감으로 반응하고, 같은 영상을 본 사람들과 의견을 나눕니다.' },
+            { icon: '📤', title: 'Share', desc: 'Post your summary to the Square public feed and share useful information with others.' },
+            { icon: '🔎', title: 'Discover', desc: 'Browse the feed for helpful videos summarized by other users. Find content in your areas of interest.' },
+            { icon: '📌', title: 'Save', desc: 'Copy a summary you like to your own library. You can have a great summary without summarizing the video yourself.' },
+            { icon: '💬', title: 'Connect', desc: 'React with comments or likes, and exchange opinions with others who watched the same video.' },
           ].map(item => (
             <div key={item.title} className="bg-[var(--bg-elevated)] rounded-2xl p-4">
               <span className="text-2xl">{item.icon}</span>
@@ -41,12 +41,12 @@ export default function SquareGuidePage() {
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2 className="text-base font-bold text-white border-l-2 border-amber-500 pl-3">스퀘어 활용 시나리오</h2>
+        <h2 className="text-base font-bold text-white border-l-2 border-amber-500 pl-3">Square use cases</h2>
         <div className="flex flex-col gap-3">
           {[
-            { icon: '📚', title: '스터디 그룹 요약 공유', desc: '같은 강의나 책 관련 유튜브를 스터디원끼리 공유해 각자의 요약을 비교합니다. 서로 다른 핵심 포인트를 발견할 수 있습니다.' },
-            { icon: '💡', title: '인사이트 피드로 활용', desc: '스퀘어 피드를 구독하면 내가 보지 않은 유익한 영상들의 요약을 매일 읽을 수 있습니다. 추천 알고리즘 대신 사람이 큐레이션한 콘텐츠.' },
-            { icon: '🤝', title: '비슷한 관심사 유저 발견', desc: '여행·요리·재테크·영어 등 같은 카테고리를 요약하는 유저를 팔로우하면 관심 분야 인사이트가 자동으로 쌓입니다.' },
+            { icon: '📚', title: 'Study group summary sharing', desc: 'Share YouTube videos related to the same lecture or book within a study group and compare each other\'s summaries. Discover different key points from each member.' },
+            { icon: '💡', title: 'Use as an insight feed', desc: 'Follow the Square feed to read daily summaries of useful videos you haven\'t watched yet. Human-curated content instead of recommendation algorithms.' },
+            { icon: '🤝', title: 'Discover users with similar interests', desc: 'Follow users who summarize in the same categories as you — travel, cooking, investing, English — and insights in your field accumulate automatically.' },
           ].map(item => (
             <div key={item.title} className="flex gap-3 bg-[var(--bg-elevated)] rounded-2xl p-4">
               <span className="text-xl shrink-0">{item.icon}</span>
@@ -60,15 +60,15 @@ export default function SquareGuidePage() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-base font-bold text-white border-l-2 border-amber-500 pl-3">공개 범위 설정</h2>
+        <h2 className="text-base font-bold text-white border-l-2 border-amber-500 pl-3">Visibility settings</h2>
         <div className="flex flex-col gap-2">
           {[
-            { label: '🔒 비공개', desc: '나만 볼 수 있습니다. 개인 메모·공부용으로 저장할 때 사용합니다. (기본값)' },
-            { label: '👥 친구 공개', desc: '서로 팔로우한 친구만 볼 수 있습니다. 소규모 스터디 그룹 공유에 적합합니다.' },
-            { label: '🌐 전체 공개', desc: '스퀘어 피드에 노출됩니다. 유익한 요약을 더 많은 사람과 나누고 싶을 때 선택하세요.' },
+            { label: '🔒 Private', desc: 'Only you can see it. Use when saving for personal notes or study. (Default)' },
+            { label: '👥 Friends only', desc: 'Only mutual followers can see it. Best for sharing within a small study group.' },
+            { label: '🌐 Public', desc: 'Shown in the Square feed. Choose this when you want to share a great summary with more people.' },
           ].map(item => (
             <div key={item.label} className="flex items-start gap-3 bg-[var(--bg-elevated)] rounded-xl px-4 py-3">
-              <span className="text-sm font-semibold text-white w-24 shrink-0">{item.label}</span>
+              <span className="text-sm font-semibold text-white w-28 shrink-0">{item.label}</span>
               <span className="text-[var(--text-subtle)] text-xs leading-relaxed">{item.desc}</span>
             </div>
           ))}
@@ -76,20 +76,20 @@ export default function SquareGuidePage() {
       </section>
 
       <section className="bg-[var(--bg-elevated)] rounded-2xl p-5 flex flex-col gap-3">
-        <h2 className="text-base font-bold text-white">스퀘어에서 인기 있는 요약 카테고리</h2>
+        <h2 className="text-base font-bold text-white">Popular summary categories on Square</h2>
         <div className="grid grid-cols-3 gap-2">
-          {['재테크·주식', '영어 학습', '여행 정보', '요리 레시피', '자기계발', '뉴스·시사', '건강·운동', '기술·IT', '역사·교양'].map(t => (
+          {['Investing & stocks', 'English learning', 'Travel info', 'Cooking recipes', 'Self-development', 'News & current events', 'Health & fitness', 'Tech & IT', 'History & culture'].map(t => (
             <div key={t} className="bg-[var(--bg-base)] rounded-xl px-3 py-2 text-[var(--text-muted)] text-xs text-center">{t}</div>
           ))}
         </div>
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-base font-bold text-white border-l-2 border-amber-500 pl-3">자주 묻는 질문</h2>
+        <h2 className="text-base font-bold text-white border-l-2 border-amber-500 pl-3">Frequently asked questions</h2>
         <div className="flex flex-col gap-2">
           {[
-            { q: '다른 사람의 요약을 내 라이브러리에 저장하면 원본 영상도 요약되나요?', a: '저장 시 해당 요약 내용이 내 라이브러리에 복사됩니다. 직접 영상을 다시 요약할 필요 없이 바로 활용할 수 있습니다.' },
-            { q: '공개 범위는 나중에 변경할 수 있나요?', a: '요약 결과 페이지에서 언제든지 공개 범위를 비공개·친구·전체로 변경할 수 있습니다.' },
+            { q: 'If I save someone else\'s summary to my library, does the original video get summarized?', a: 'The summary content is copied to your library. You can use it right away without re-summarizing the video yourself.' },
+            { q: 'Can I change the visibility later?', a: 'You can change the visibility to private, friends-only, or public at any time from the summary results page.' },
           ].map(item => (
             <div key={item.q} className="bg-[var(--bg-elevated)] rounded-xl p-4">
               <p className="text-white text-sm font-semibold mb-1">Q. {item.q}</p>
@@ -101,10 +101,10 @@ export default function SquareGuidePage() {
 
       <div className="flex items-center gap-3 pt-2 border-t border-[var(--border-subtle)]">
         <Link href="/square" className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-sm rounded-xl transition-colors">
-          스퀘어 둘러보기
+          Browse Square
         </Link>
         <Link href="/guide/classroom" className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors">
-          클래스룸 →
+          Classroom →
         </Link>
       </div>
     </article>

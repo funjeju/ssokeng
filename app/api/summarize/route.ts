@@ -251,6 +251,7 @@ export async function POST(req: NextRequest) {
     let userId = ''
     let userDisplayName = ''
     let isAdmin = false
+    let outputLang: 'en' | 'ja' | 'zh' | 'es' = 'en'
     const authHeader = req.headers.get('Authorization')
     if (authHeader?.startsWith('Bearer ')) {
       try {
@@ -260,6 +261,15 @@ export async function POST(req: NextRequest) {
         userDisplayName = (decoded as any).name || decoded.email || ''
         const adminEmail = process.env.ADMIN_EMAIL || process.env.NEXT_PUBLIC_ADMIN_EMAIL
         if (adminEmail && decoded.email === adminEmail) isAdmin = true
+        // fetch user's output language preference
+        try {
+          const userDocRes = await fetch(`${FIRESTORE_BASE}/users/${userId}?key=${API_KEY}`, { cache: 'no-store' })
+          if (userDocRes.ok) {
+            const userDoc = await userDocRes.json()
+            const lang = userDoc.fields?.outputLang?.stringValue
+            if (lang && ['en', 'ja', 'zh', 'es'].includes(lang)) outputLang = lang as typeof outputLang
+          }
+        } catch { /* use default */ }
       } catch { /* 토큰 만료/무효 — 익명으로 진행 */ }
     }
 
@@ -302,8 +312,8 @@ export async function POST(req: NextRequest) {
       const pageTitle = titleMatch?.[1]?.trim() || new URL(url).hostname
 
       const [summary, reportSummary] = await Promise.all([
-        generateSummary(category, pageText, 'web'),
-        generateReportSummary(category, pageTitle, pageText).catch(() => ''),
+        generateSummary(category, pageText, 'web', outputLang),
+        generateReportSummary(category, pageTitle, pageText, outputLang).catch(() => ''),
       ])
       const contextSummary = await generateContextSummary(pageTitle, category, summary).catch(() => '')
 
@@ -422,8 +432,8 @@ export async function POST(req: NextRequest) {
     }
 
     const [summary, reportSummary, ytCommentSummary] = await Promise.all([
-      generateSummary(category, fullContext, 'youtube'),
-      generateReportSummary(category, videoInfo.title, fullContext).catch(() => ''),
+      generateSummary(category, fullContext, 'youtube', outputLang),
+      generateReportSummary(category, videoInfo.title, fullContext, outputLang).catch(() => ''),
       generateYtCommentSummary(commentResult.popular),
     ])
     const contextSummary = await generateContextSummary(videoInfo.title, category, summary).catch(() => '')

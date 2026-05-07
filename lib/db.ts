@@ -70,6 +70,7 @@ export interface UserProfile {
   schoolName?: string            // 교사 전용
   grade?: number                 // 교사 전용
   classNum?: number              // 교사 전용
+  outputLang?: 'en' | 'ja' | 'zh' | 'es'  // summary output language
   updatedAt: any
 }
 
@@ -283,7 +284,7 @@ export const SIGNUP_BASE_TOKENS     = 10   // 기본 지급 (신규 가입)
 
 export async function completeUserProfile(
   uid: string,
-  data: { ageGroup: AgeGroup; gender: Gender; interests: string[] }
+  data: { ageGroup: AgeGroup; gender: Gender; interests: string[]; outputLang?: 'en' | 'ja' | 'zh' | 'es' }
 ): Promise<{ tokensAwarded: number }> {
   const existing = await getUserProfile(uid)
 

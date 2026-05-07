@@ -55,7 +55,7 @@ export default function ConversationPage() {
     } catch {
       setMessages(prev => prev.filter(m => m.id !== optimistic.id))
       setText(optimistic.text)
-      alert('전송에 실패했습니다.')
+      alert('Failed to send.')
     } finally {
       setSending(false)
     }
@@ -73,7 +73,7 @@ export default function ConversationPage() {
         ) : (
           <div className="w-8 h-8 rounded-full bg-[var(--bg-elevated)] flex items-center justify-center">👤</div>
         )}
-        <span className="text-white font-semibold text-sm">{other?.displayName || '익명'}</span>
+        <span className="text-white font-semibold text-sm">{other?.displayName || 'Anonymous'}</span>
       </div>
 
       {/* 메시지 목록 */}
@@ -83,7 +83,7 @@ export default function ConversationPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-orange-500" />
           </div>
         ) : messages.length === 0 ? (
-          <p className="text-center text-[var(--text-subtle)] text-sm py-10">첫 메시지를 보내보세요!</p>
+          <p className="text-center text-[var(--text-subtle)] text-sm py-10">Send the first message!</p>
         ) : (
           messages.map(msg => {
             const isMine = msg.senderId === user?.uid
@@ -109,7 +109,7 @@ export default function ConversationPage() {
           value={text}
           onChange={e => setText(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
-          placeholder="메시지 입력..."
+          placeholder="Type a message..."
           className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-full px-4 py-2.5 text-sm text-white placeholder:text-[var(--text-subtle)] outline-none focus:border-orange-500/50"
         />
         <button

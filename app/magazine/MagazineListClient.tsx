@@ -5,9 +5,9 @@ import Link from 'next/link'
 import type { CuratedPost } from '@/lib/magazine'
 
 const TOPIC_META: Record<string, { label: string; emoji: string; desc: string; color: string; textColor: string; borderColor: string }> = {
-  'ai-news':     { label: 'AI 소식',  emoji: '📰', desc: '최신 AI 업계 뉴스·발표',  color: 'bg-blue-500/15',   textColor: 'text-blue-400',   borderColor: 'border-blue-500/30'   },
-  'ai-tools':    { label: 'AI 도구',  emoji: '🛠️', desc: '생산성 AI 도구·앱 리뷰',  color: 'bg-purple-500/15', textColor: 'text-purple-400', borderColor: 'border-purple-500/30' },
-  'ai-usecases': { label: 'AI 활용',  emoji: '🚀', desc: '실전 AI 활용·자동화 사례', color: 'bg-emerald-500/15', textColor: 'text-emerald-400', borderColor: 'border-emerald-500/30' },
+  'ai-news':     { label: 'AI News',      emoji: '📰', desc: 'Latest AI industry news & announcements', color: 'bg-blue-500/15',   textColor: 'text-blue-400',   borderColor: 'border-blue-500/30'   },
+  'ai-tools':    { label: 'AI Tools',     emoji: '🛠️', desc: 'Productivity AI tools & app reviews',     color: 'bg-purple-500/15', textColor: 'text-purple-400', borderColor: 'border-purple-500/30' },
+  'ai-usecases': { label: 'AI Use Cases', emoji: '🚀', desc: 'Real-world AI applications & automation',  color: 'bg-emerald-500/15', textColor: 'text-emerald-400', borderColor: 'border-emerald-500/30' },
 }
 
 function getTopicMeta(topicCluster: string) {
@@ -16,7 +16,7 @@ function getTopicMeta(topicCluster: string) {
 
 function formatDate(iso: string) {
   if (!iso) return ''
-  return new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric' }).format(new Date(iso))
+  return new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }).format(new Date(iso))
 }
 
 function FeaturedCard({ post }: { post: CuratedPost }) {
@@ -143,13 +143,13 @@ export default function MagazineListClient() {
   return (
     <>
       {/* 카테고리 네비 */}
-      <nav aria-label="카테고리" className="flex items-stretch gap-3 mb-10 overflow-x-auto pb-1">
+      <nav aria-label="Category" className="flex items-stretch gap-3 mb-10 overflow-x-auto pb-1">
         <Link
           href="/magazine"
           className="shrink-0 flex flex-col justify-center px-5 py-3 rounded-2xl bg-orange-500/20 border border-orange-500/40 text-orange-400 text-sm font-black hover:bg-orange-500/30 transition-colors"
         >
-          <span>전체</span>
-          <span className="text-[10px] font-normal text-orange-400/70 mt-0.5">{loading ? '...' : `${posts.length}편`}</span>
+          <span>All</span>
+          <span className="text-[10px] font-normal text-orange-400/70 mt-0.5">{loading ? '...' : `${posts.length} posts`}</span>
         </Link>
         {Object.entries(TOPIC_META).map(([cluster, meta]) => {
           const count = posts.filter(p => p.topicCluster === cluster).length
@@ -160,7 +160,7 @@ export default function MagazineListClient() {
               className={`shrink-0 flex flex-col justify-center px-5 py-3 rounded-2xl border ${meta.color} ${meta.borderColor} ${meta.textColor} text-sm font-bold hover:opacity-80 transition-opacity`}
             >
               <span>{meta.emoji} {meta.label}</span>
-              <span className="text-[10px] font-normal opacity-70 mt-0.5">{loading ? '...' : `${count}편`} · {meta.desc}</span>
+              <span className="text-[10px] font-normal opacity-70 mt-0.5">{loading ? '...' : `${count} posts`} · {meta.desc}</span>
             </Link>
           )
         })}
@@ -171,7 +171,7 @@ export default function MagazineListClient() {
       ) : posts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-32 text-center">
           <div className="text-5xl mb-4 opacity-30">🤖</div>
-          <p className="text-[var(--text-subtle)] text-sm">아직 발행된 AI 매거진이 없습니다.</p>
+          <p className="text-[var(--text-subtle)] text-sm">No AI magazine articles published yet.</p>
         </div>
       ) : (
         <>
@@ -182,7 +182,7 @@ export default function MagazineListClient() {
           )}
           {rest.length > 0 && (
             <section>
-              <h2 className="text-xs font-black text-[var(--text-subtle)] uppercase tracking-widest mb-4">최신 기사</h2>
+              <h2 className="text-xs font-black text-[var(--text-subtle)] uppercase tracking-widest mb-4">Latest Articles</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {rest.map(post => <PostCard key={post.id} post={post} />)}
               </div>

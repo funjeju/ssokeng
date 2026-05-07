@@ -18,10 +18,10 @@ function wrongColor(rate: number): string {
 }
 
 function wrongLabel(rate: number): string {
-  if (rate === 0) return '모두 정답'
-  if (rate < 0.3)  return '양호'
-  if (rate < 0.6)  return '주의'
-  return '집중 복습 필요'
+  if (rate === 0) return 'All correct'
+  if (rate < 0.3)  return 'Good'
+  if (rate < 0.6)  return 'Watch out'
+  return 'Needs review'
 }
 
 // 단일 영상 히트맵
@@ -31,10 +31,10 @@ function VideoHeatmapCard({ video }: { video: VideoHeatmap }) {
   return (
     <div className="bg-[var(--bg-base)] rounded-2xl border border-[var(--border-subtle)] overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-subtle)]">
-        <p className="text-sm font-bold text-white truncate flex-1">{video.videoTitle || '(제목 없음)'}</p>
+        <p className="text-sm font-bold text-white truncate flex-1">{video.videoTitle || '(No title)'}</p>
         {video.sessionId && (
           <Link href={`/result/${video.sessionId}`} className="shrink-0 text-[10px] text-orange-400 hover:text-orange-300 ml-3">
-            영상 보기 →
+            View video →
           </Link>
         )}
       </div>
@@ -53,11 +53,11 @@ function VideoHeatmapCard({ video }: { video: VideoHeatmap }) {
                   style={{ width: `${Math.max(q.wrongRate * 100, 4)}%` }}
                 />
                 <span className="absolute right-2 top-0 text-[9px] text-gray-400 leading-5">
-                  {q.attempts}명 응시
+                  {q.attempts} attempts
                 </span>
               </div>
               <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border ${wrongColor(q.wrongRate)}`}>
-                오답 {Math.round(q.wrongRate * 100)}%
+                Wrong {Math.round(q.wrongRate * 100)}%
               </span>
             </div>
             {(q.question || q.wrongRate >= 0.3) && (
@@ -74,10 +74,10 @@ function VideoHeatmapCard({ video }: { video: VideoHeatmap }) {
         ))}
       </div>
       <div className="px-4 py-2 border-t border-[var(--border-subtle)] flex gap-4">
-        <span className="text-[10px] text-gray-500">총 {video.questions.length}문제 · {total}회 응시</span>
+        <span className="text-[10px] text-gray-500">{video.questions.length} questions · {total} attempts</span>
         {highWrong.length > 0 && (
           <span className="text-[10px] text-red-400 font-bold">
-            ⚠ 집중 복습 필요 {highWrong.length}문제 (Q{highWrong.map(q => q.questionIdx + 1).join(', Q')})
+            ⚠ Needs review: {highWrong.length} question{highWrong.length !== 1 ? 's' : ''} (Q{highWrong.map(q => q.questionIdx + 1).join(', Q')})
           </span>
         )}
       </div>
@@ -100,12 +100,12 @@ function HelpNeededView({ heatmaps }: { heatmaps: VideoHeatmap[] }) {
     })
 
   if (sorted.length === 0) return (
-    <div className="text-center py-10 text-gray-500 text-sm">아직 데이터가 없습니다.</div>
+    <div className="text-center py-10 text-gray-500 text-sm">No data yet.</div>
   )
 
   return (
     <div className="space-y-2">
-      <p className="text-xs text-gray-400 pb-1">오답률 + 이해도 미달 기준으로 가장 도움이 필요한 문제 순서입니다.</p>
+      <p className="text-xs text-gray-400 pb-1">Questions ranked by wrong rate + comprehension deficit — most in need of help first.</p>
       {sorted.map((q, i) => (
         <div key={`${q.videoId}-${q.questionIdx}`}
           className={`rounded-xl px-4 py-3 border text-xs ${q.wrongRate >= 0.6 ? 'bg-red-500/8 border-red-500/20' : q.wrongRate >= 0.3 ? 'bg-orange-500/8 border-orange-500/15' : 'bg-[var(--bg-base)] border-[var(--border-subtle)]'}`}
@@ -113,19 +113,19 @@ function HelpNeededView({ heatmaps }: { heatmaps: VideoHeatmap[] }) {
           <div className="flex items-center gap-2 mb-1.5">
             <span className="text-gray-500 font-mono w-5 shrink-0">#{i + 1}</span>
             <span className={`font-bold px-2 py-0.5 rounded-full border text-[10px] ${wrongColor(q.wrongRate)}`}>
-              오답 {Math.round(q.wrongRate * 100)}%
+              Wrong {Math.round(q.wrongRate * 100)}%
             </span>
             {(q.confusedCount + q.unknownCount) > 0 && (
-              <span className="text-[10px] text-yellow-400">🤔 {q.confusedCount + q.unknownCount}명 이해 부족</span>
+              <span className="text-[10px] text-yellow-400">🤔 {q.confusedCount + q.unknownCount} confused</span>
             )}
-            <span className="ml-auto text-[10px] text-gray-600">{q.attempts}명 응시</span>
+            <span className="ml-auto text-[10px] text-gray-600">{q.attempts} attempts</span>
           </div>
           {q.question && <p className="text-gray-200 font-medium mb-1 pl-7">{q.question}</p>}
           <div className="pl-7 flex items-center gap-2">
             <span className="text-gray-600 truncate flex-1">{q.videoTitle}</span>
             {q.sessionId && (
               <Link href={`/result/${q.sessionId}`} className="shrink-0 text-[10px] text-orange-400 hover:text-orange-300">
-                영상 →
+                Video →
               </Link>
             )}
           </div>
@@ -145,7 +145,7 @@ export default function QuizHeatmap({ heatmaps, folders = [], folderVideos = {} 
   if (!heatmaps.length) {
     return (
       <div className="text-center py-10 text-gray-500 text-sm">
-        아직 퀴즈 응시 데이터가 없습니다.
+        No quiz attempt data yet.
       </div>
     )
   }
@@ -175,13 +175,13 @@ export default function QuizHeatmap({ heatmaps, folders = [], folderVideos = {} 
           onClick={() => setView('folders')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors ${view === 'folders' ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
         >
-          📁 영상별 히트맵
+          📁 Heatmap by Video
         </button>
         <button
           onClick={() => setView('help')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${view === 'help' ? 'bg-red-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
         >
-          🆘 도움 필요
+          🆘 Needs Help
           {heatmaps.flatMap(h => h.questions).filter(q => q.wrongRate >= 0.6).length > 0 && (
             <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${view === 'help' ? 'bg-white/20 text-white' : 'bg-red-500/20 text-red-400'}`}>
               {heatmaps.flatMap(h => h.questions).filter(q => q.wrongRate >= 0.6).length}
@@ -205,7 +205,7 @@ export default function QuizHeatmap({ heatmaps, folders = [], folderVideos = {} 
                   selectedVideoId === h.videoId ? 'bg-orange-500 text-white font-bold' : 'bg-[var(--overlay-subtle)] text-gray-300 hover:bg-[var(--overlay-default)]'
                 }`}
               >
-                📊 {h.videoTitle || '(제목 없음)'}
+                📊 {h.videoTitle || '(No title)'}
               </button>
             ))}
 
@@ -285,7 +285,7 @@ export default function QuizHeatmap({ heatmaps, folders = [], folderVideos = {} 
                   selectedVideoId === h.videoId ? 'bg-orange-500 text-white font-bold' : 'bg-[var(--overlay-subtle)] text-gray-300 hover:bg-[var(--overlay-default)]'
                 }`}
               >
-                📊 {h.videoTitle || '(제목 없음)'}
+                📊 {h.videoTitle || '(No title)'}
               </button>
             ))}
           </div>
@@ -296,7 +296,7 @@ export default function QuizHeatmap({ heatmaps, folders = [], folderVideos = {} 
               <VideoHeatmapCard video={selectedHeatmap} />
             ) : (
               <div className="text-center py-16 text-gray-600 text-sm">
-                왼쪽에서 영상을 선택하세요
+                Select a video on the left
               </div>
             )}
           </div>

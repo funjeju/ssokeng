@@ -21,19 +21,19 @@ interface CategoryMeta {
 }
 
 const CATEGORY_META: Record<string, CategoryMeta> = {
-  recipe:  { label: '요리 & 주방',         emoji: '🍳', contextText: '요리 레시피 식재료 조리도구 주방용품 요리법 음식 쿠킹' },
-  travel:  { label: '여행 & 숙소',          emoji: '🧳', contextText: '여행 숙소 호텔 항공 관광 투어 여행지 예약 해외여행' },
-  selfdev: { label: '자기계발 & 도서',      emoji: '💪', contextText: '자기계발 도서 책 성장 동기부여 생산성 독서 습관 목표' },
-  english: { label: '영어학습 & 어학',      emoji: '🔤', contextText: '영어 어학 교재 영어공부 영어회화 토익 영어학습 문법' },
-  learning:{ label: '학습 & 교육',          emoji: '📐', contextText: '학습 교육 공부 교재 강의 인터넷강의 과외 수업 학원' },
-  news:    { label: '경제 & 시사',          emoji: '🗞️', contextText: '경제 주식 투자 부동산 시사 금융 재테크 주식투자' },
-  tips:    { label: '생활정보 & 리뷰',      emoji: '💡', contextText: '생활 꿀팁 리뷰 추천 제품 비교 소비 정보 구매' },
-  story:   { label: '영상 & 엔터테인먼트',  emoji: '🍿', contextText: '영화 드라마 OTT 넷플릭스 콘텐츠 스트리밍 애니' },
-  report:  { label: '비즈니스 & 분석',      emoji: '📋', contextText: '비즈니스 분석 보고서 마케팅 기업 전략 리서치' },
+  recipe:  { label: 'Cooking & Kitchen',      emoji: '🍳', contextText: 'cooking recipes ingredients kitchen tools cookware food cuisine' },
+  travel:  { label: 'Travel & Stays',         emoji: '🧳', contextText: 'travel accommodation hotel flights tourism tour destinations booking' },
+  selfdev: { label: 'Self-dev & Books',        emoji: '💪', contextText: 'self development books growth motivation productivity reading habits goals' },
+  english: { label: 'English Learning',        emoji: '🔤', contextText: 'English learning textbook conversation TOEIC grammar study language' },
+  learning:{ label: 'Study & Education',       emoji: '📐', contextText: 'study education learning textbook lecture tutoring class school' },
+  news:    { label: 'Economics & News',        emoji: '🗞️', contextText: 'economics stocks investment real estate news finance wealth management' },
+  tips:    { label: 'Life Tips & Reviews',     emoji: '💡', contextText: 'life tips reviews recommendations products comparison shopping information' },
+  story:   { label: 'Video & Entertainment',  emoji: '🍿', contextText: 'movies dramas OTT Netflix streaming anime entertainment content' },
+  report:  { label: 'Business & Analysis',    emoji: '📋', contextText: 'business analysis report marketing company strategy research' },
 }
 
 const DEFAULT_META: CategoryMeta = {
-  label: '관련 정보', emoji: '✨', contextText: 'AI 요약 유튜브 콘텐츠 정보',
+  label: 'Related Info', emoji: '✨', contextText: 'AI summary YouTube content information',
 }
 
 interface Props {

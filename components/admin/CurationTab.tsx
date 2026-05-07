@@ -36,9 +36,9 @@ interface PipelineSlots {
 }
 
 const SUBCATEGORY_META: Record<AiSubcategory, { label: string; emoji: string; color: string; border: string; bg: string }> = {
-  news:     { label: 'AI 소식',  emoji: '📰', color: 'text-blue-400',   border: 'border-blue-500/30',   bg: 'bg-blue-500/10'   },
-  tools:    { label: 'AI 도구',  emoji: '🛠️', color: 'text-purple-400', border: 'border-purple-500/30', bg: 'bg-purple-500/10' },
-  usecases: { label: 'AI 활용',  emoji: '🚀', color: 'text-emerald-400', border: 'border-emerald-500/30', bg: 'bg-emerald-500/10' },
+  news:     { label: 'AI News',      emoji: '📰', color: 'text-blue-400',   border: 'border-blue-500/30',   bg: 'bg-blue-500/10'   },
+  tools:    { label: 'AI Tools',     emoji: '🛠️', color: 'text-purple-400', border: 'border-purple-500/30', bg: 'bg-purple-500/10' },
+  usecases: { label: 'AI Use Cases', emoji: '🚀', color: 'text-emerald-400', border: 'border-emerald-500/30', bg: 'bg-emerald-500/10' },
 }
 
 const SLOT_STATUS_BADGE: Record<string, string> = {
@@ -69,7 +69,7 @@ function formatDate(iso: string) {
   try {
     const d = new Date(iso)
     if (isNaN(d.getTime())) return '—'
-    return new Intl.DateTimeFormat('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(d)
+    return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(d)
   } catch { return '—' }
 }
 
@@ -98,7 +98,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
     if (!log.startedAt) return '—'
     const d = new Date(typeof log.startedAt === 'object' && 'toMillis' in log.startedAt ? (log.startedAt as any).toMillis() : log.startedAt)
     if (isNaN(d.getTime())) return '—'
-    return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Seoul' }).format(d)
+    return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Seoul' }).format(d)
   })()
 
   const [currentLog, setCurrentLog] = useState<PipelineLog>(log)
@@ -117,7 +117,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
       })
       const data = await res.json()
       const ok = !!(data.success || data.ok)
-      const msg = data.error ?? data.message ?? data.reason ?? (ok ? `${stage} 완료` : '알 수 없는 오류')
+      const msg = data.error ?? data.message ?? data.reason ?? (ok ? `${stage} complete` : 'Unknown error')
       setStageResult({ stage, ok, msg, sessionId: data.sessionId, slug: data.slug, title: data.title })
       if (ok) {
         setCurrentLog(prev => ({
@@ -151,7 +151,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
     return 'bg-blue-500/20 text-blue-400 border-blue-500/30'
   }
 
-  const statusLabel: Record<string, string> = { done: '완료', failed: '실패', skipped: '스킵', running: '실행중' }
+  const statusLabel: Record<string, string> = { done: 'Done', failed: 'Failed', skipped: 'Skipped', running: 'Running' }
 
   return (
     <div
@@ -167,7 +167,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
           <div className="flex items-center gap-3">
             <span className="text-2xl">{meta.emoji}</span>
             <div>
-              <p className={`text-sm font-black ${meta.color}`}>{meta.label} 파이프라인 로그</p>
+              <p className={`text-sm font-black ${meta.color}`}>{meta.label} Pipeline Log</p>
               <p className="text-[11px] text-[var(--text-subtle)]">{kstDate} (KST) · ID: {log.id}</p>
             </div>
           </div>
@@ -183,12 +183,12 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
                 <span className="text-blue-400 font-black text-sm">① Scout</span>
                 {log.scout?.diag && (
                   <span className="text-[10px] text-[var(--text-subtle)]">
-                    쿼리 {log.scout.diag.queriesRun}개 → 원본 {log.scout.diag.rawFound}개 → 필터 후 {log.scout.diag.afterFilter}개
+                    {log.scout.diag.queriesRun} queries → {log.scout.diag.rawFound} raw → {log.scout.diag.afterFilter} after filter
                   </span>
                 )}
               </div>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${stageBadge(log.scout?.status)}`}>
-                {statusLabel[log.scout?.status ?? ''] ?? '미실행'}
+                {statusLabel[log.scout?.status ?? ''] ?? 'Not run'}
               </span>
             </div>
 
@@ -196,7 +196,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
               <div className="flex gap-3 px-4 py-2 border-b border-blue-500/10 flex-wrap">
                 {Object.entries(log.scout.diag.filteredReasons ?? {}).map(([k, v]) => v > 0 && (
                   <span key={k} className="text-[10px] text-red-400/70">
-                    {k === 'duration' ? '⏱길이제외' : k === 'old' ? '📅오래됨' : k === 'clickbait' ? '🚫클릭베이트' : k === 'noId' ? '❓ID없음' : k} {v}개
+                    {k === 'duration' ? '⏱Too long' : k === 'old' ? '📅Too old' : k === 'clickbait' ? '🚫Clickbait' : k === 'noId' ? '❓No ID' : k} ×{v}
                   </span>
                 ))}
               </div>
@@ -223,8 +223,8 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
                     <div className="flex-1 min-w-0">
                       <p className="text-[11px] text-white font-medium truncate">{c.title}</p>
                       <p className="text-[9px] text-[var(--text-subtle)]">
-                        {c.channelTitle} · {Math.floor(c.durationSec / 60)}분{c.durationSec % 60}초
-                        {(() => { if (!c.publishedAt) return ''; const d = new Date(c.publishedAt); return isNaN(d.getTime()) ? '' : ` · ${new Intl.DateTimeFormat('ko-KR', { month: 'short', day: 'numeric' }).format(d)}` })()}
+                        {c.channelTitle} · {Math.floor(c.durationSec / 60)}m{c.durationSec % 60}s
+                        {(() => { if (!c.publishedAt) return ''; const d = new Date(c.publishedAt); return isNaN(d.getTime()) ? '' : ` · ${new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(d)}` })()}
                       </p>
                     </div>
                   </div>
@@ -245,7 +245,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
                 )}
               </div>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${stageBadge(log.evaluate?.status)}`}>
-                {statusLabel[log.evaluate?.status ?? ''] ?? '미실행'}
+                {statusLabel[log.evaluate?.status ?? ''] ?? 'Not run'}
               </span>
             </div>
 
@@ -271,7 +271,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className={`text-[10px] font-black px-1.5 py-0.5 rounded border ${decisionBadge(r.decision)}`}>{r.decision}</span>
-                          <span className="text-[10px] text-[var(--text-muted)] font-bold">{r.compositeScore.toFixed(1)}점</span>
+                          <span className="text-[10px] text-[var(--text-muted)] font-bold">Score: {r.compositeScore.toFixed(1)}</span>
                           <span className="text-[9px] text-[var(--text-subtle)]">{r.channelTitle}</span>
                         </div>
                         <p className="text-[11px] text-white font-medium truncate">{r.title}</p>
@@ -280,12 +280,12 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
                     <div className="ml-8 grid grid-cols-2 gap-2">
                       <div className="bg-[var(--bg-base)] rounded-lg p-2 border border-[var(--border-subtle)]">
                         <p className="text-[9px] text-[var(--text-subtle)] font-bold mb-1">🤖 Gemini</p>
-                        <p className="text-[9px] text-[var(--text-muted)]">정보 {r.geminiInfo}/10 · 위험 {r.geminiRisk}/10</p>
+                        <p className="text-[9px] text-[var(--text-muted)]">Info {r.geminiInfo}/10 · Risk {r.geminiRisk}/10</p>
                         <p className="text-[9px] text-[var(--text-subtle)] mt-0.5 leading-snug">{r.geminiReason}</p>
                       </div>
                       <div className="bg-[var(--bg-base)] rounded-lg p-2 border border-[var(--border-subtle)]">
                         <p className="text-[9px] text-[var(--text-subtle)] font-bold mb-1">🧠 Claude</p>
-                        <p className="text-[9px] text-[var(--text-muted)]">정보 {r.claudeInfo}/10 · 위험 {r.claudeRisk}/10</p>
+                        <p className="text-[9px] text-[var(--text-muted)]">Info {r.claudeInfo}/10 · Risk {r.claudeRisk}/10</p>
                         <p className="text-[9px] text-[var(--text-subtle)] mt-0.5 leading-snug">{r.claudeReason}</p>
                       </div>
                     </div>
@@ -296,7 +296,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
 
             {log.evaluate?.winner && (
               <div className="px-4 py-3 bg-emerald-500/8 border-t border-emerald-500/15">
-                <p className="text-[10px] font-black text-emerald-400 mb-1">🏆 최종 선택</p>
+                <p className="text-[10px] font-black text-emerald-400 mb-1">🏆 Winner</p>
                 <div className="flex items-center gap-2">
                   <a
                     href={`https://www.youtube.com/watch?v=${log.evaluate.winner.videoId}`}
@@ -308,7 +308,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
                     ▶ YouTube
                   </a>
                   <p className="text-[11px] text-white font-bold flex-1 truncate">{log.evaluate.winner.title}</p>
-                  <span className="text-[10px] text-emerald-400 font-bold shrink-0">{log.evaluate.winner.compositeScore.toFixed(1)}점</span>
+                  <span className="text-[10px] text-emerald-400 font-bold shrink-0">Score: {log.evaluate.winner.compositeScore.toFixed(1)}</span>
                 </div>
               </div>
             )}
@@ -323,12 +323,12 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
                   <span className="text-[10px] text-[var(--text-subtle)] truncate max-w-xs">{currentLog.summarize.title}</span>
                 )}
                 {currentLog.summarize?.transcriptLength && (
-                  <span className="text-[10px] text-[var(--text-subtle)]">자막 {currentLog.summarize.transcriptLength}자</span>
+                  <span className="text-[10px] text-[var(--text-subtle)]">{currentLog.summarize.transcriptLength} chars</span>
                 )}
               </div>
               <div className="flex items-center gap-2">
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${stageBadge(currentLog.summarize?.status)}`}>
-                  {statusLabel[currentLog.summarize?.status ?? ''] ?? '미실행'}
+                  {statusLabel[currentLog.summarize?.status ?? ''] ?? 'Not run'}
                 </span>
                 {(!currentLog.summarize || currentLog.summarize.status === 'failed' || currentLog.summarize.status === 'skipped') && (
                   <button
@@ -336,7 +336,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
                     disabled={running !== null}
                     className="px-2.5 py-1 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 text-[10px] font-bold border border-orange-500/30 transition-colors disabled:opacity-40"
                   >
-                    {running === 'summarize' ? '실행 중...' : '▶ 실행'}
+                    {running === 'summarize' ? 'Running...' : '▶ Run'}
                   </button>
                 )}
               </div>
@@ -360,7 +360,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
                     className="inline-block text-[10px] text-orange-400 hover:text-orange-300 underline"
                     onClick={e => e.stopPropagation()}
                   >
-                    → 스퀘어에서 요약 보기
+                    → View summary
                   </a>
                 )}
               </div>
@@ -378,7 +378,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
               </div>
               <div className="flex items-center gap-2">
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${stageBadge(currentLog.publish?.status)}`}>
-                  {statusLabel[currentLog.publish?.status ?? ''] ?? '미실행'}
+                  {statusLabel[currentLog.publish?.status ?? ''] ?? 'Not run'}
                 </span>
                 {(!currentLog.publish || currentLog.publish.status === 'failed') && (
                   <button
@@ -386,7 +386,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
                     disabled={running !== null}
                     className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 text-[10px] font-bold border border-emerald-500/30 transition-colors disabled:opacity-40"
                   >
-                    {running === 'publish' ? '실행 중...' : '▶ 실행'}
+                    {running === 'publish' ? 'Running...' : '▶ Run'}
                   </button>
                 )}
               </div>
@@ -422,7 +422,7 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
                     className="inline-block text-[10px] text-emerald-400 hover:text-emerald-300 underline"
                     onClick={e => e.stopPropagation()}
                   >
-                    → 매거진에서 기사 보기
+                    → View in magazine
                   </a>
                 )}
               </div>
@@ -434,19 +434,19 @@ function PipelineLogModal({ log, onClose, onStageComplete, onDelete }: { log: Pi
         <div className="flex justify-between px-6 py-4 border-t border-[var(--border-default)] bg-[var(--bg-base)]">
           <button
             onClick={() => {
-              if (!confirm('이 파이프라인 로그를 삭제하시겠습니까?')) return
+              if (!confirm('Delete this pipeline log?')) return
               onDelete?.(log.id)
               onClose()
             }}
             className="px-4 py-2 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 text-sm font-bold border border-red-500/20 transition-colors"
           >
-            로그 삭제
+            Delete Log
           </button>
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-xl bg-[var(--bg-surface-2)] text-[var(--text-muted)] hover:text-white text-sm font-bold border border-[var(--border-default)] transition-colors"
           >
-            닫기
+            Close
           </button>
         </div>
       </div>
@@ -479,13 +479,13 @@ function PipelineTrigger({
       if (stage === 'scout') {
         const d = data.diag
         if (d) {
-          msg = `쿼리${d.queriesRun}개 검색 → 원본${d.rawFound}개 → 필터후${d.afterFilter}개 → 최종 ${data.found ?? 0}개 저장`
-          if (d.filteredReasons?.duration || d.filteredReasons?.old) msg += ` [제외: 길이${d.filteredReasons.duration} 오래됨${d.filteredReasons.old}]`
+          msg = `${d.queriesRun} queries → ${d.rawFound} raw → ${d.afterFilter} filtered → ${data.found ?? 0} saved`
+          if (d.filteredReasons?.duration || d.filteredReasons?.old) msg += ` [excluded: duration×${d.filteredReasons.duration} old×${d.filteredReasons.old}]`
         } else {
-          msg = data.error ?? data.message ?? (ok ? 'scout 완료' : '알 수 없는 오류')
+          msg = data.error ?? data.message ?? (ok ? 'Scout complete' : 'Unknown error')
         }
       } else {
-        msg = data.error ?? data.message ?? data.reason ?? (ok ? `${stage} 완료` : '알 수 없는 오류')
+        msg = data.error ?? data.message ?? data.reason ?? (ok ? `${stage} complete` : 'Unknown error')
       }
       setResult({ stage, ok, msg })
       if (ok) onDone()
@@ -505,7 +505,7 @@ function PipelineTrigger({
             disabled={running !== null}
             className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-colors disabled:opacity-40 ${STAGE_META[stage].color}`}
           >
-            {running === stage ? '실행 중...' : STAGE_META[stage].label}
+            {running === stage ? 'Running...' : STAGE_META[stage].label}
           </button>
         ))}
       </div>
@@ -614,16 +614,16 @@ export default function CurationTab({ getAuthHeader }: {
       })
       const data = await res.json()
       if (data.success) {
-        setUrlResult(`✅ 생성 완료: "${data.title}" (${data.status})`)
+        setUrlResult(`✅ Created: "${data.title}" (${data.status})`)
         setUrlInput('')
         const [updatedPosts, updatedLogs] = await Promise.all([callAdmin('listPosts'), callAdmin('getLogs')])
         if (Array.isArray(updatedPosts)) setPosts(updatedPosts)
         if (Array.isArray(updatedLogs)) setLogs(updatedLogs)
       } else {
-        setUrlResult(`⚠️ ${data.error ?? '알 수 없는 오류'}`)
+        setUrlResult(`⚠️ ${data.error ?? 'Unknown error'}`)
       }
     } catch (e) {
-      setUrlResult(`❌ 오류: ${String(e)}`)
+      setUrlResult(`❌ Error: ${String(e)}`)
     }
     setUrlTriggering(false)
   }
@@ -639,15 +639,15 @@ export default function CurationTab({ getAuthHeader }: {
       })
       const data = await res.json()
       if (data.success) {
-        setTriggerResult(`✅ 생성 완료: "${data.title}" (${data.status})`)
+        setTriggerResult(`✅ Created: "${data.title}" (${data.status})`)
         const [updatedPosts, updatedLogs] = await Promise.all([callAdmin('listPosts'), callAdmin('getLogs')])
         if (Array.isArray(updatedPosts)) setPosts(updatedPosts)
         if (Array.isArray(updatedLogs)) setLogs(updatedLogs)
       } else {
-        setTriggerResult(`⚠️ ${data.error ?? (data.skipped ? '스킵됨: ' + data.reason : '알 수 없는 오류')}`)
+        setTriggerResult(`⚠️ ${data.error ?? (data.skipped ? 'Skipped: ' + data.reason : 'Unknown error')}`)
       }
     } catch (e) {
-      setTriggerResult(`❌ 오류: ${String(e)}`)
+      setTriggerResult(`❌ Error: ${String(e)}`)
     }
     setTriggering(false)
   }
@@ -661,7 +661,7 @@ export default function CurationTab({ getAuthHeader }: {
   }
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`포스트를 삭제하시겠습니까?\n"${title}"`)) return
+    if (!confirm(`Delete this post?\n"${title}"`)) return
     setActionId(id)
     await callAdmin('delete', { id })
     setPosts(prev => prev.filter(p => p.id !== id))
@@ -682,13 +682,13 @@ export default function CurationTab({ getAuthHeader }: {
       <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] p-6">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-white font-black text-base">🤖 AI 파이프라인 설정</h2>
+            <h2 className="text-white font-black text-base">🤖 AI Pipeline Settings</h2>
             <p className="text-[11px] text-[var(--text-subtle)] mt-1">
-              KST 06:00 / 14:00 / 22:00 — Scout → Evaluate → Summarize → Publish (각 10분 간격)
+              KST 06:00 / 14:00 / 22:00 — Scout → Evaluate → Summarize → Publish (10 min intervals)
             </p>
           </div>
           <label className="flex items-center gap-2 cursor-pointer shrink-0 ml-4">
-            <span className="text-xs text-[var(--text-muted)]">{settings?.enabled ? '자동 ON' : '자동 OFF'}</span>
+            <span className="text-xs text-[var(--text-muted)]">{settings?.enabled ? 'Auto ON' : 'Auto OFF'}</span>
             <button
               onClick={async () => {
                 if (!settings) return
@@ -735,25 +735,25 @@ export default function CurationTab({ getAuthHeader }: {
               className="accent-orange-500 w-4 h-4"
             />
             <div>
-              <p className="text-sm text-white font-bold">생성 즉시 자동 발행</p>
-              <p className="text-[11px] text-[var(--text-subtle)]">미체크 시 초안으로 저장 후 수동 발행</p>
+              <p className="text-sm text-white font-bold">Auto-publish on creation</p>
+              <p className="text-[11px] text-[var(--text-subtle)]">If unchecked, saves as draft for manual publishing</p>
             </div>
           </label>
         )}
 
-        {saving && <p className="text-xs text-[var(--text-subtle)]">저장 중...</p>}
+        {saving && <p className="text-xs text-[var(--text-subtle)]">Saving...</p>}
       </div>
 
       {/* ── AI 파이프라인 슬롯 현황 ── */}
       <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-white font-black text-base">📡 파이프라인 슬롯 현황</h2>
+          <h2 className="text-white font-black text-base">📡 Pipeline Slot Status</h2>
           <button
             onClick={loadSlots}
             disabled={loadingSlots}
             className="px-3 py-1.5 rounded-lg bg-[var(--bg-base)] hover:bg-[var(--bg-page)] text-[var(--text-muted)] text-[11px] font-bold border border-[var(--border-default)] transition-colors disabled:opacity-50"
           >
-            {loadingSlots ? '로딩...' : '↻ 새로고침'}
+            {loadingSlots ? 'Loading...' : '↻ Refresh'}
           </button>
         </div>
 
@@ -778,7 +778,7 @@ export default function CurationTab({ getAuthHeader }: {
                   </div>
                   {slot ? (
                     <div className="space-y-1.5">
-                      <p className="text-xs text-white font-medium line-clamp-2 leading-snug">{slot.title ?? '제목 없음'}</p>
+                      <p className="text-xs text-white font-medium line-clamp-2 leading-snug">{slot.title ?? 'No title'}</p>
                       {slot.videoId && (
                         <a
                           href={`https://www.youtube.com/watch?v=${slot.videoId}`}
@@ -799,7 +799,7 @@ export default function CurationTab({ getAuthHeader }: {
                       <div>
                         <div className="flex items-center gap-1.5 mb-1">
                           <span className={`text-[10px] px-1.5 py-0.5 rounded border font-bold ${sq.status === 'scouted' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 'bg-[var(--bg-base)] text-[var(--text-subtle)] border-[var(--border-default)]'}`}>
-                            Scout {sq.status} · {sq.count}개
+                            Scout {sq.status} · {sq.count}
                           </span>
                         </div>
                         {sq.titles.map((t, i) => (
@@ -807,7 +807,7 @@ export default function CurationTab({ getAuthHeader }: {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-[11px] text-[var(--text-subtle)]">슬롯 비어있음</p>
+                      <p className="text-[11px] text-[var(--text-subtle)]">Slot empty</p>
                     )
                   })()}
                 </div>
@@ -819,8 +819,8 @@ export default function CurationTab({ getAuthHeader }: {
 
       {/* ── 파이프라인 수동 실행 ── */}
       <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] p-6">
-        <h2 className="text-white font-black text-base mb-1">⚙️ 파이프라인 수동 실행</h2>
-        <p className="text-[11px] text-[var(--text-subtle)] mb-4">각 단계를 순서대로 수동 실행합니다. Publish는 슬롯에 ready 상태 요약이 있어야 동작합니다.</p>
+        <h2 className="text-white font-black text-base mb-1">⚙️ Manual Pipeline Run</h2>
+        <p className="text-[11px] text-[var(--text-subtle)] mb-4">Run each stage manually in order. Publish requires a ready-state summary in the slot.</p>
         <div className="space-y-4">
           {(Object.keys(SUBCATEGORY_META) as AiSubcategory[]).map(sub => {
             const meta = SUBCATEGORY_META[sub]
@@ -838,15 +838,15 @@ export default function CurationTab({ getAuthHeader }: {
       <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-white font-black text-base">
-            🔬 파이프라인 실행 로그
-            <span className="text-[var(--text-subtle)] font-normal text-sm ml-2">({pipelineLogs.length}건)</span>
+            🔬 Pipeline Run Logs
+            <span className="text-[var(--text-subtle)] font-normal text-sm ml-2">({pipelineLogs.length})</span>
           </h2>
           <button
             onClick={loadPipelineLogs}
             disabled={loadingPipelineLogs}
             className="px-3 py-1.5 rounded-lg bg-[var(--bg-base)] hover:bg-[var(--bg-page)] text-[var(--text-muted)] text-[11px] font-bold border border-[var(--border-default)] transition-colors disabled:opacity-50"
           >
-            {loadingPipelineLogs ? '로딩...' : '↻ 새로고침'}
+            {loadingPipelineLogs ? 'Loading...' : '↻ Refresh'}
           </button>
         </div>
 
@@ -855,7 +855,7 @@ export default function CurationTab({ getAuthHeader }: {
             <div className="w-5 h-5 rounded-full border-2 border-orange-500/30 border-t-orange-500 animate-spin" />
           </div>
         ) : pipelineLogs.length === 0 ? (
-          <p className="text-[var(--text-subtle)] text-sm text-center py-6">아직 파이프라인 실행 기록이 없습니다.</p>
+          <p className="text-[var(--text-subtle)] text-sm text-center py-6">No pipeline runs yet.</p>
         ) : (
           <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
             {pipelineLogs.map(log => {
@@ -871,7 +871,7 @@ export default function CurationTab({ getAuthHeader }: {
                 if (!log.startedAt) return '—'
                 const d = new Date(typeof log.startedAt === 'object' && 'toMillis' in log.startedAt ? (log.startedAt as any).toMillis() : log.startedAt)
                 if (isNaN(d.getTime())) return '—'
-                return new Intl.DateTimeFormat('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Seoul' }).format(d)
+                return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Seoul' }).format(d)
               })()
               return (
                 <div
@@ -935,8 +935,8 @@ export default function CurationTab({ getAuthHeader }: {
 
       {/* ── 특정 요약으로 매거진 생성 ── */}
       <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] p-6">
-        <h2 className="text-white font-black text-base mb-1">⚡ 특정 요약으로 매거진 생성</h2>
-        <p className="text-[11px] text-[var(--text-subtle)] mb-4">스퀘어 요약 페이지 URL 또는 sessionId를 지정해서 매거진을 즉시 생성합니다.</p>
+        <h2 className="text-white font-black text-base mb-1">⚡ Generate Magazine from Summary</h2>
+        <p className="text-[11px] text-[var(--text-subtle)] mb-4">Enter a summary page URL or sessionId to generate a magazine post immediately.</p>
 
         <div className="flex flex-wrap gap-3 mb-4">
           <button
@@ -944,14 +944,14 @@ export default function CurationTab({ getAuthHeader }: {
             disabled={triggering}
             className="px-4 py-2.5 rounded-xl bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-white text-sm font-bold border border-[var(--border-default)] transition-colors disabled:opacity-50"
           >
-            {triggering ? '생성 중...' : '📝 최적 요약으로 초안 생성'}
+            {triggering ? 'Generating...' : '📝 Create draft from best summary'}
           </button>
           <button
             onClick={() => handleTrigger(true)}
             disabled={triggering}
             className="px-4 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 text-sm font-bold border border-emerald-500/30 transition-colors disabled:opacity-50"
           >
-            {triggering ? '생성 중...' : '🚀 최적 요약으로 즉시 발행'}
+            {triggering ? 'Generating...' : '🚀 Publish now from best summary'}
           </button>
         </div>
         {triggerResult && (
@@ -959,13 +959,13 @@ export default function CurationTab({ getAuthHeader }: {
         )}
 
         <div className="pt-4 border-t border-[var(--border-default)]">
-          <p className="text-[11px] text-[var(--text-subtle)] mb-2 font-bold uppercase tracking-wide">URL / SessionId 지정</p>
+          <p className="text-[11px] text-[var(--text-subtle)] mb-2 font-bold uppercase tracking-wide">URL / SessionId</p>
           <div className="flex gap-2">
             <input
               type="text"
               value={urlInput}
               onChange={e => { setUrlInput(e.target.value); setUrlResult('') }}
-              placeholder="https://ssoktube.com/result/abc123 또는 sessionId"
+              placeholder="https://ssokeng.com/result/abc123 or sessionId"
               className="flex-1 bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-white placeholder-[#4a4846] focus:outline-none focus:border-orange-500/50 min-w-0"
             />
           </div>
@@ -975,14 +975,14 @@ export default function CurationTab({ getAuthHeader }: {
               disabled={urlTriggering || !urlInput.trim()}
               className="px-4 py-2 rounded-xl bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-white text-sm font-bold border border-[var(--border-default)] transition-colors disabled:opacity-40"
             >
-              {urlTriggering ? '생성 중...' : '📝 초안으로 생성'}
+              {urlTriggering ? 'Generating...' : '📝 Create as draft'}
             </button>
             <button
               onClick={() => handleUrlTrigger(true)}
               disabled={urlTriggering || !urlInput.trim()}
               className="px-4 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 text-sm font-bold border border-emerald-500/30 transition-colors disabled:opacity-40"
             >
-              {urlTriggering ? '생성 중...' : '🚀 생성 + 즉시 발행'}
+              {urlTriggering ? 'Generating...' : '🚀 Create + publish now'}
             </button>
           </div>
           {urlResult && (
@@ -994,15 +994,15 @@ export default function CurationTab({ getAuthHeader }: {
       {/* ── 발행 로그 ── */}
       <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] p-6">
         <h2 className="text-white font-black text-base mb-4">
-          📋 발행 로그
-          <span className="text-[var(--text-subtle)] font-normal text-sm ml-2">({logs.length}건)</span>
+          📋 Publish Log
+          <span className="text-[var(--text-subtle)] font-normal text-sm ml-2">({logs.length})</span>
         </h2>
         {loadingLogs ? (
           <div className="flex justify-center py-6">
             <div className="w-5 h-5 rounded-full border-2 border-orange-500/30 border-t-orange-500 animate-spin" />
           </div>
         ) : logs.length === 0 ? (
-          <p className="text-[var(--text-subtle)] text-sm text-center py-6">아직 발행 기록이 없습니다.</p>
+          <p className="text-[var(--text-subtle)] text-sm text-center py-6">No publish history yet.</p>
         ) : (
           <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
             {logs.map(log => {
@@ -1012,7 +1012,7 @@ export default function CurationTab({ getAuthHeader }: {
                   <span className="text-sm mt-0.5 shrink-0">{s.icon}</span>
                   <div className="flex-1 min-w-0">
                     <p className={`text-xs font-bold ${s.color}`}>
-                      {log.status === 'success' ? log.postTitle : log.status === 'skipped' ? `스킵: ${log.reason}` : `오류: ${log.error}`}
+                      {log.status === 'success' ? log.postTitle : log.status === 'skipped' ? `Skipped: ${log.reason}` : `Error: ${log.error}`}
                     </p>
                     {log.videoTitle && (
                       <p className="text-[10px] text-[var(--text-subtle)] mt-0.5 truncate">📹 {log.videoTitle}</p>
@@ -1020,7 +1020,7 @@ export default function CurationTab({ getAuthHeader }: {
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-[10px] text-[var(--text-subtle)]">{formatDate(log.createdAt)}</p>
-                    <p className="text-[9px] text-[var(--text-subtle)] mt-0.5">{log.triggerType === 'cron' ? '자동' : '수동'}</p>
+                    <p className="text-[9px] text-[var(--text-subtle)] mt-0.5">{log.triggerType === 'cron' ? 'Auto' : 'Manual'}</p>
                   </div>
                 </div>
               )
@@ -1033,14 +1033,14 @@ export default function CurationTab({ getAuthHeader }: {
       <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-white font-black text-base">
-            📄 포스트 목록 <span className="text-[var(--text-subtle)] font-normal text-sm">({posts.length}개)</span>
+            📄 Posts <span className="text-[var(--text-subtle)] font-normal text-sm">({posts.length})</span>
           </h2>
           <Link
             href="/magazine"
             target="_blank"
             className="text-xs text-orange-400 hover:text-orange-300 border border-orange-500/30 px-3 py-1.5 rounded-lg transition-colors"
           >
-            매거진 게시판 →
+            Magazine Board →
           </Link>
         </div>
 
@@ -1049,7 +1049,7 @@ export default function CurationTab({ getAuthHeader }: {
             <div className="w-6 h-6 rounded-full border-2 border-orange-500/30 border-t-orange-500 animate-spin" />
           </div>
         ) : posts.length === 0 ? (
-          <p className="text-[var(--text-subtle)] text-sm text-center py-8">아직 생성된 포스트가 없습니다.</p>
+          <p className="text-[var(--text-subtle)] text-sm text-center py-8">No posts generated yet.</p>
         ) : (
           <div className="space-y-2">
             {posts.map(post => (
@@ -1065,10 +1065,10 @@ export default function CurationTab({ getAuthHeader }: {
                   <p className="text-white text-sm font-bold line-clamp-1 group-hover:text-orange-400 transition-colors">{post.title}</p>
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
                     <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold border ${STATUS_BADGE[post.status] ?? STATUS_BADGE.draft}`}>
-                      {post.status === 'published' ? '발행됨' : '초안'}
+                      {post.status === 'published' ? 'Published' : 'Draft'}
                     </span>
                     <span className="text-[10px] text-[var(--text-subtle)]">👁 {post.viewCount ?? 0}</span>
-                    <span className="text-[10px] text-[var(--text-subtle)]">{post.readTime}분 읽기</span>
+                    <span className="text-[10px] text-[var(--text-subtle)]">{post.readTime} min read</span>
                     <span className="text-[10px] text-[var(--text-subtle)]">{formatDate(post.createdAt)}</span>
                   </div>
                 </div>
@@ -1079,7 +1079,7 @@ export default function CurationTab({ getAuthHeader }: {
                       target="_blank"
                       className="px-2 py-1 rounded-lg bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-white text-[10px] font-bold border border-[var(--border-default)] transition-colors"
                     >
-                      보기
+                      View
                     </Link>
                   )}
                   {post.status === 'draft' && (
@@ -1088,7 +1088,7 @@ export default function CurationTab({ getAuthHeader }: {
                       disabled={actionId === post.id}
                       className="px-2 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 text-[10px] font-bold border border-emerald-500/30 transition-colors disabled:opacity-50"
                     >
-                      발행
+                      Publish
                     </button>
                   )}
                   <button
@@ -1096,7 +1096,7 @@ export default function CurationTab({ getAuthHeader }: {
                     disabled={actionId === post.id}
                     className="px-2 py-1 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-[10px] font-bold border border-red-500/20 transition-colors disabled:opacity-50"
                   >
-                    삭제
+                    Delete
                   </button>
                 </div>
               </div>
@@ -1118,7 +1118,7 @@ export default function CurationTab({ getAuthHeader }: {
             <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-default)]">
               <div className="flex items-center gap-2">
                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${STATUS_BADGE[previewPost.status] ?? STATUS_BADGE.draft}`}>
-                  {previewPost.status === 'published' ? '발행됨' : '초안'}
+                  {previewPost.status === 'published' ? 'Published' : 'Draft'}
                 </span>
                 <span className="text-xs text-[var(--text-subtle)]">{formatDate(previewPost.createdAt)}</span>
               </div>
@@ -1134,7 +1134,7 @@ export default function CurationTab({ getAuthHeader }: {
               {previewPost.subtitle && <p className="text-[var(--text-muted)] text-sm mb-4">{previewPost.subtitle}</p>}
               <div className="flex items-center gap-3 text-[10px] text-[var(--text-subtle)] mb-5 flex-wrap">
                 <span>👁 {previewPost.viewCount ?? 0}</span>
-                <span>{previewPost.readTime}분 읽기</span>
+                <span>{previewPost.readTime} min read</span>
                 {previewPost.tags?.slice(0, 3).map(t => (
                   <span key={t} className="px-1.5 py-0.5 bg-[var(--bg-surface-2)] rounded border border-[var(--border-default)]">{t}</span>
                 ))}
@@ -1144,7 +1144,7 @@ export default function CurationTab({ getAuthHeader }: {
 
               {previewPost.faq && previewPost.faq.length > 0 && (
                 <div className="mt-6">
-                  <h3 className="text-white font-bold text-sm mb-3">자주 묻는 질문</h3>
+                  <h3 className="text-white font-bold text-sm mb-3">FAQ</h3>
                   <div className="space-y-2">
                     {previewPost.faq.map((f, i) => (
                       <details key={i} className="bg-[var(--bg-surface-2)] rounded-xl border border-[var(--border-default)] px-4 py-3 group">
@@ -1161,7 +1161,7 @@ export default function CurationTab({ getAuthHeader }: {
 
               {previewPost.checklist && previewPost.checklist.length > 0 && (
                 <div className="mt-5">
-                  <h3 className="text-white font-bold text-sm mb-3">핵심 체크리스트</h3>
+                  <h3 className="text-white font-bold text-sm mb-3">Key Checklist</h3>
                   <ul className="space-y-1.5">
                     {previewPost.checklist.map((item, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-[var(--text-muted)]">
@@ -1175,9 +1175,9 @@ export default function CurationTab({ getAuthHeader }: {
 
               {(previewPost as any).comments && (
                 <div className="mt-5 space-y-3">
-                  <h3 className="text-white font-bold text-sm">💬 시청자 반응</h3>
+                  <h3 className="text-white font-bold text-sm">💬 Viewer Reactions</h3>
                   <div className="bg-orange-500/8 rounded-xl p-3 border border-orange-500/20">
-                    <p className="text-[10px] font-bold text-orange-400 mb-1.5">🔥 인기 댓글 경향</p>
+                    <p className="text-[10px] font-bold text-orange-400 mb-1.5">🔥 Popular comment trends</p>
                     <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-2">{(previewPost as any).comments.popular_summary}</p>
                     {(previewPost as any).comments.popular_highlights?.map((h: any, i: number) => (
                       <div key={i} className="bg-[var(--bg-base)] rounded-lg px-3 py-2 mb-1.5 border-l-2 border-orange-500">
@@ -1187,7 +1187,7 @@ export default function CurationTab({ getAuthHeader }: {
                     ))}
                   </div>
                   <div className="bg-indigo-500/8 rounded-xl p-3 border border-indigo-500/20">
-                    <p className="text-[10px] font-bold text-indigo-400 mb-1.5">🕐 최신 댓글 경향</p>
+                    <p className="text-[10px] font-bold text-indigo-400 mb-1.5">🕐 Recent comment trends</p>
                     <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-2">{(previewPost as any).comments.recent_summary}</p>
                     {(previewPost as any).comments.recent_highlights?.map((h: any, i: number) => (
                       <div key={i} className="bg-[var(--bg-base)] rounded-lg px-3 py-2 mb-1.5 border-l-2 border-indigo-500">
@@ -1201,7 +1201,7 @@ export default function CurationTab({ getAuthHeader }: {
               {(previewPost as any).platformReactions && (
                 <div className="mt-3">
                   <div className="bg-emerald-500/8 rounded-xl p-3 border border-emerald-500/20">
-                    <p className="text-[10px] font-bold text-emerald-400 mb-1.5">💡 SSOKTUBE 학습자 반응</p>
+                    <p className="text-[10px] font-bold text-emerald-400 mb-1.5">💡 SSOKENG Learner Reactions</p>
                     <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-2">{(previewPost as any).platformReactions.summary}</p>
                     {(previewPost as any).platformReactions.highlights?.map((h: any, i: number) => (
                       <div key={i} className="bg-[var(--bg-base)] rounded-lg px-3 py-2 mb-1.5 border-l-2 border-emerald-500">
@@ -1218,22 +1218,22 @@ export default function CurationTab({ getAuthHeader }: {
               {previewPost.status === 'published' && (
                 <Link href={`/magazine/${previewPost.slug}`} target="_blank"
                   className="px-4 py-2 rounded-xl bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-white text-sm font-bold border border-[var(--border-default)] transition-colors">
-                  발행 글 보기 →
+                  View published post →
                 </Link>
               )}
               {previewPost.status === 'draft' && (
                 <button onClick={() => handlePublish(previewPost.id)} disabled={actionId === previewPost.id}
                   className="px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 text-sm font-bold border border-emerald-500/30 transition-colors disabled:opacity-50">
-                  {actionId === previewPost.id ? '발행 중...' : '발행하기'}
+                  {actionId === previewPost.id ? 'Publishing...' : 'Publish'}
                 </button>
               )}
               <button onClick={() => handleDelete(previewPost.id, previewPost.title)} disabled={actionId === previewPost.id}
                 className="px-4 py-2 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 text-sm font-bold border border-red-500/20 transition-colors disabled:opacity-50">
-                삭제
+                Delete
               </button>
               <button onClick={() => setPreviewPost(null)}
                 className="ml-auto px-4 py-2 rounded-xl bg-[var(--bg-surface-2)] text-[var(--text-muted)] hover:text-white text-sm font-bold border border-[var(--border-default)] transition-colors">
-                닫기
+                Close
               </button>
             </div>
           </div>
