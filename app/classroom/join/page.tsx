@@ -24,7 +24,7 @@ function ClassroomJoinForm() {
     e.preventDefault()
     setError('')
     if (!classCode.trim() || !studentName.trim() || !password) {
-      setError('모든 항목을 입력해주세요.')
+      setError('Please fill in all fields.')
       return
     }
     setStep('loading')
@@ -50,7 +50,7 @@ function ClassroomJoinForm() {
       setStep('done')
       setTimeout(() => router.push('/mypage'), 2000)
     } catch (e: any) {
-      setError(e.message || '오류가 발생했습니다.')
+      setError(e.message || 'An error occurred.')
       setStep('form')
     }
   }
@@ -59,7 +59,7 @@ function ClassroomJoinForm() {
     return (
       <div className="min-h-screen bg-[var(--bg-base)] flex flex-col items-center justify-center gap-4">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500" />
-        <p className="text-gray-400 text-sm">계정을 만들고 있어요...</p>
+        <p className="text-gray-400 text-sm">Creating your account...</p>
       </div>
     )
   }
@@ -68,52 +68,52 @@ function ClassroomJoinForm() {
     return (
       <div className="min-h-screen bg-[var(--bg-base)] flex flex-col items-center justify-center gap-4 text-center px-4">
         <div className="text-5xl mb-2">🎉</div>
-        <h2 className="text-xl font-black text-white">가입 완료!</h2>
+        <h2 className="text-xl font-black text-white">You're in!</h2>
         <p className="text-gray-400 text-sm">
-          {teacherName ? `${teacherName} 선생님의 ` : ''}수업자료가 내 페이지에 추가됐어요.
+          {teacherName ? `${teacherName}'s ` : ''}class materials have been added to your page.
         </p>
-        <p className="text-gray-600 text-xs">잠시 후 이동합니다...</p>
+        <p className="text-gray-600 text-xs">Redirecting...</p>
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)] text-white">
-      <Header title="📖 클래스 참여하기" />
+      <Header title="Join a Class" />
       <main className="max-w-lg mx-auto px-4 py-12">
         <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] p-8">
-          <h1 className="text-2xl font-black mb-2">수업 참여</h1>
-          <p className="text-gray-400 text-sm mb-8">선생님께 받은 클래스 코드와 이름을 입력하세요.</p>
+          <h1 className="text-2xl font-black mb-2">Join Class</h1>
+          <p className="text-gray-400 text-sm mb-8">Enter the class code from your teacher and your name.</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-xs text-gray-400 mb-1.5">클래스 코드</label>
+              <label className="block text-xs text-gray-400 mb-1.5">Class Code</label>
               <input
                 type="text"
                 value={classCode}
                 onChange={e => setClassCode(e.target.value.toUpperCase())}
-                placeholder="예) AB1C23"
+                placeholder="e.g. AB1C23"
                 maxLength={6}
                 className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm font-mono tracking-widest focus:outline-none focus:border-orange-500 transition-colors uppercase"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1.5">이름</label>
+              <label className="block text-xs text-gray-400 mb-1.5">Name</label>
               <input
                 type="text"
                 value={studentName}
                 onChange={e => setStudentName(e.target.value)}
-                placeholder="본인 이름을 입력하세요"
+                placeholder="Your name"
                 className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-400 mb-1.5">비밀번호 설정</label>
+              <label className="block text-xs text-gray-400 mb-1.5">Set Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="6자 이상"
+                placeholder="6+ characters"
                 className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors"
               />
             </div>
@@ -124,14 +124,14 @@ function ClassroomJoinForm() {
               type="submit"
               className="w-full py-3.5 bg-orange-500 hover:bg-orange-600 rounded-xl font-bold text-sm transition-colors"
             >
-              수업 참여하기
+              Join Class
             </button>
           </form>
 
           <div className="mt-6 pt-6 border-t border-[var(--border-subtle)] text-center">
             <p className="text-xs text-gray-500">
-              이미 가입했나요?{' '}
-              <Link href="/classroom/login" className="text-orange-400 hover:underline">로그인</Link>
+              Already joined?{' '}
+              <Link href="/classroom/login" className="text-orange-400 hover:underline">Log In</Link>
             </p>
           </div>
         </div>

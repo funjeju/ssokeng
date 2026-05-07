@@ -53,7 +53,7 @@ function buildVideoRecords(logs: ActivityLog[]): VideoRecord[] {
     if (!byVideo[log.videoId]) {
       byVideo[log.videoId] = {
         videoId: log.videoId,
-        videoTitle: log.videoTitle || '(제목 없음)',
+        videoTitle: log.videoTitle || '(Untitled)',
         watchDurationSec: 0,
         percentWatched: 0,
         completed: false,
@@ -75,7 +75,6 @@ function buildVideoRecords(logs: ActivityLog[]): VideoRecord[] {
       vr.watchDurationSec += log.value.durationSec || 0
       vr.percentWatched = Math.max(vr.percentWatched, log.value.percentWatched || 0)
       if (log.value.completed) vr.completed = true
-      // 마지막 미완료 세션 업데이트 or 새 세션 추가
       const lastSession = vr.watchSessions[vr.watchSessions.length - 1]
       if (lastSession && !lastSession.stoppedAt) {
         lastSession.stoppedAt = log.value.stoppedAt
@@ -116,7 +115,7 @@ function fmtDuration(sec: number): string {
   if (!sec) return '-'
   const m = Math.floor(sec / 60)
   const s = sec % 60
-  return m > 0 ? `${m}분 ${s}초` : `${s}초`
+  return m > 0 ? `${m}m ${s}s` : `${s}s`
 }
 
 export default function ClassDashboard() {
@@ -150,7 +149,6 @@ export default function ClassDashboard() {
   const [loadingLibrary, setLoadingLibrary] = useState(false)
   const [movingVideo, setMovingVideo] = useState<string | null>(null)
 
-  // 비밀번호 초기화
   const [resetTarget, setResetTarget] = useState<StudentRow | null>(null)
   const [resetPassword, setResetPassword] = useState('')
   const [resetting, setResetting] = useState(false)
@@ -159,7 +157,7 @@ export default function ClassDashboard() {
   const handleResetPassword = async () => {
     if (!resetTarget || !resetPassword.trim() || !user) return
     if (resetPassword.trim().length < 4) {
-      alert('비밀번호는 4자 이상이어야 합니다.')
+      alert('Password must be at least 4 characters.')
       return
     }
     setResetting(true)
@@ -174,13 +172,12 @@ export default function ClassDashboard() {
       if (!res.ok) throw new Error(data.error)
       setResetDone(true)
     } catch (e: any) {
-      alert('비밀번호 변경 실패: ' + e.message)
+      alert('Failed to change password: ' + e.message)
     } finally {
       setResetting(false)
     }
   }
 
-  // 클립 배포 관련 상태
   const [expandedFolder, setExpandedFolder] = useState<string | null>(null)
   const [folderVideos, setFolderVideos] = useState<Record<string, any[]>>({})
   const [loadingVideos, setLoadingVideos] = useState<string | null>(null)
@@ -224,7 +221,6 @@ export default function ClassDashboard() {
       setClassroom(cls)
       setFolders(userFolders)
 
-
       const logs = await getClassLogs(classCode, 1000).catch(() => [])
       setClassLogs(logs)
       setHeatmaps(buildQuizHeatmap(logs))
@@ -234,8 +230,8 @@ export default function ClassDashboard() {
         const summary = summarizeStudentLogs(sLogs)
         return {
           uid: s.uid,
-          studentName: s.studentName || s.displayName || '미상',
-          displayName: s.displayName || s.studentName || '미상',
+          studentName: s.studentName || s.displayName || 'Unknown',
+          displayName: s.displayName || s.studentName || 'Unknown',
           ...summary,
         }
       })
@@ -276,7 +272,7 @@ export default function ClassDashboard() {
         : f
       ))
     } catch (e: any) {
-      alert('배포 중 오류: ' + e.message)
+      alert('Failed to distribute: ' + e.message)
     } finally {
       setDistributingFolder(null)
     }
@@ -284,11 +280,10 @@ export default function ClassDashboard() {
 
   const handleRecall = async (folderId: string) => {
     if (!user) return
-    const folder = folders.find(f => f.id === folderId)
     const childCount = folders.filter(f => f.parentId === folderId).length
     const msg = childCount > 0
-      ? `이 폴더와 하위폴더 ${childCount}개를 회수하면 학생 화면에서 즉시 사라집니다. 계속하시겠습니까?`
-      : '이 폴더를 회수하면 학생 화면에서 즉시 사라집니다. 계속하시겠습니까?'
+      ? `This folder and ${childCount} subfolder(s) will be removed from students immediately. Continue?`
+      : 'This folder will be removed from students immediately. Continue?'
     if (!confirm(msg)) return
     setDistributingFolder(folderId)
     try {
@@ -306,20 +301,19 @@ export default function ClassDashboard() {
         : f
       ))
     } catch (e: any) {
-      alert('회수 중 오류: ' + e.message)
+      alert('Failed to recall: ' + e.message)
     } finally {
       setDistributingFolder(null)
     }
   }
 
   const handleCreateSubfolder = async (parentFolder: any) => {
-    const name = prompt('하위폴더 이름을 입력하세요')
+    const name = prompt('Enter subfolder name')
     if (!name?.trim() || !user) return
     const { createFolder } = await import('@/lib/db')
     const newFolder = await createFolder(user.uid, name.trim(), parentFolder.id, (parentFolder.depth || 0) + 1)
     const withCodes = { ...newFolder, distributedClassCodes: [] }
     setFolders(prev => [...prev, withCodes])
-    // 부모가 이 클래스에 배포 중이면 새 하위폴더도 자동 배포
     if ((parentFolder.distributedClassCodes || []).includes(classCode)) {
       await handleDistribute(newFolder.id)
     }
@@ -349,7 +343,7 @@ export default function ClassDashboard() {
       setFolderVideos(prev => ({ ...prev, [targetFolderId]: updated }))
       setLibraryVideos(prev => prev.filter(v => v.id !== summaryId))
     } catch (e: any) {
-      alert('영상 추가 중 오류: ' + e.message)
+      alert('Failed to add video: ' + e.message)
     } finally {
       setMovingVideo(null)
     }
@@ -393,7 +387,7 @@ export default function ClassDashboard() {
 
   const handleDownloadPdf = async () => {
     if (!pdfRef || !reportFolder) return
-    const filename = `${classroom?.schoolName ?? ''}_${reportFolder.name}_수업보고서.pdf`
+    const filename = `${classroom?.schoolName ?? ''}_${reportFolder.name}_report.pdf`
     await downloadPdf(pdfRef, filename)
   }
 
@@ -404,7 +398,7 @@ export default function ClassDashboard() {
       const { getDoc, doc: fsDoc } = await import('firebase/firestore')
       const snap = await getDoc(fsDoc(db, 'class_reports', `${classCode}_${folder.id}`))
       if (snap.exists()) setReportNote(snap.data().note || '')
-    } catch { /* 없으면 빈 문자열 */ }
+    } catch { /* no note yet */ }
     if (!folderVideos[folder.id] && user) {
       setLoadingVideos(folder.id)
       try {
@@ -422,8 +416,7 @@ export default function ClassDashboard() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  // ── 클립 배포 헬퍼 ────────────────────────────────────────────────────────────
-  /** "M:SS" 또는 "H:MM:SS" 문자열 → 초 변환 */
+  /** "M:SS" or "H:MM:SS" string → seconds */
   const parseTime = (str: string): number => {
     const s = str.trim()
     if (!s) return 0
@@ -433,7 +426,7 @@ export default function ClassDashboard() {
     if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2]
     return 0
   }
-  /** 초 → "M:SS" */
+  /** seconds → "M:SS" */
   const fmtTimeSec = (sec: number) => `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`
 
   const handleExpandFolder = async (folderId: string) => {
@@ -445,7 +438,6 @@ export default function ClassDashboard() {
     try {
       const items = await getSavedSummariesByFolder(user.uid, folderId)
       setFolderVideos(prev => ({ ...prev, [folderId]: items }))
-      // 해당 영상들의 quiz_sets 로드
       const videoIds = items.map((v: any) => v.videoId).filter(Boolean)
       if (videoIds.length > 0) {
         const { getDoc, doc: fsDoc } = await import('firebase/firestore')
@@ -476,25 +468,25 @@ export default function ClassDashboard() {
       const start = parseTime(clipStartStr)
       const end   = parseTime(clipEndStr)
       if (end > 0 && end <= start) {
-        alert('종료 시간이 시작 시간보다 커야 합니다.')
+        alert('End time must be after start time.')
         return
       }
       await pushVideoToClass(
         classCode,
         clipModal.folderId,
         user.uid,
-        userProfile?.displayName || '선생님',
+        userProfile?.displayName || 'Teacher',
         clipModal.item,
         start > 0 ? start : undefined,
         end   > 0 ? end   : undefined,
       )
       const rangeText = start > 0 || end > 0
-        ? ` (${start > 0 ? fmtTimeSec(start) : '처음'} ~ ${end > 0 ? fmtTimeSec(end) : '끝'})`
+        ? ` (${start > 0 ? fmtTimeSec(start) : 'start'} ~ ${end > 0 ? fmtTimeSec(end) : 'end'})`
         : ''
-      alert(`"${clipModal.item.title}"${rangeText} 을(를) ${students.length}명에게 배포했습니다.`)
+      alert(`"${clipModal.item.title}"${rangeText} distributed to ${students.length} student(s).`)
       setClipModal(null)
     } catch (e: any) {
-      alert('배포 중 오류: ' + e.message)
+      alert('Failed to distribute: ' + e.message)
     } finally {
       setPushingClip(false)
     }
@@ -511,15 +503,14 @@ export default function ClassDashboard() {
   if (!classroom) return (
     <div className="min-h-screen bg-[var(--bg-base)] flex flex-col items-center justify-center gap-3 text-center px-4">
       <p className="text-4xl">🏫</p>
-      <p className="text-white font-bold">클래스를 불러올 수 없습니다.</p>
-      <p className="text-gray-500 text-sm">클래스 코드 <span className="font-mono text-orange-400">{classCode}</span>가 존재하지 않거나 접근 권한이 없습니다.</p>
-      <Link href="/mypage" className="mt-4 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-sm transition-colors">마이페이지로 이동</Link>
+      <p className="text-white font-bold">Could not load class.</p>
+      <p className="text-gray-500 text-sm">Class code <span className="font-mono text-orange-400">{classCode}</span> does not exist or you do not have access.</p>
+      <Link href="/mypage" className="mt-4 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-sm transition-colors">Go to My Page</Link>
     </div>
   )
 
   const videoRecords = buildVideoRecords(studentLogs)
 
-  // 로그인/로그아웃을 세션 쌍으로 묶기 (오래된 순 → 쌍 짓기 → 최신 순 정렬)
   const loginSessions = (() => {
     const sorted = [...studentLogs]
       .filter(l => l.type === 'login' || l.type === 'logout')
@@ -542,41 +533,41 @@ export default function ClassDashboard() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)] text-white">
-      <Header title="🏫 클래스 대시보드" />
+      <Header title="Class Dashboard" />
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* 클래스 헤더 */}
+        {/* Class header */}
         <div className="bg-gradient-to-br from-[var(--bg-surface-2)] to-[var(--bg-base)] rounded-[28px] border border-[var(--border-subtle)] p-6 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black">{classroom.schoolName} {classroom.grade}학년 {classroom.classNum}반</h1>
-            <p className="text-gray-400 text-sm mt-1">{students.length}명 등록</p>
+            <h1 className="text-2xl font-black">{classroom.schoolName} · Grade {classroom.grade} · Class {classroom.classNum}</h1>
+            <p className="text-gray-400 text-sm mt-1">{students.length} students enrolled</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="bg-[var(--bg-base)] rounded-2xl px-5 py-3 border border-[var(--border-default)]">
-              <p className="text-[10px] text-gray-500 mb-0.5">클래스 코드</p>
+              <p className="text-[10px] text-gray-500 mb-0.5">Class Code</p>
               <p className="text-xl font-black font-mono tracking-widest text-orange-400">{classCode}</p>
             </div>
             <button
               onClick={copyCode}
               className="px-4 py-3 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/20 rounded-2xl text-orange-400 text-sm font-bold transition-colors"
             >
-              {copied ? '복사됨 ✓' : '코드 복사'}
+              {copied ? 'Copied ✓' : 'Copy Code'}
             </button>
           </div>
         </div>
 
-        {/* 요약 통계 */}
+        {/* Summary stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <StatCard label="등록 학생" value={students.length} unit="명" color="text-white" />
-          <StatCard label="오늘 접속" value={students.filter(s => {
+          <StatCard label="Students" value={students.length} unit="" color="text-white" />
+          <StatCard label="Active Today" value={students.filter(s => {
             const t = s.lastActive?.toMillis?.()
             return t && (Date.now() - t) < 86400000
-          }).length} unit="명" color="text-emerald-400" />
-          <StatCard label="완전이해 응답" value={students.reduce((a, s) => a + s.metaComplete, 0)} unit="건" color="text-blue-400" />
-          <StatCard label="도움 필요" value={students.reduce((a, s) => a + s.metaUnknown, 0)} unit="건" color="text-red-400" />
+          }).length} unit="" color="text-emerald-400" />
+          <StatCard label="Understood" value={students.reduce((a, s) => a + s.metaComplete, 0)} unit="" color="text-blue-400" />
+          <StatCard label="Need Help" value={students.reduce((a, s) => a + s.metaUnknown, 0)} unit="" color="text-red-400" />
         </div>
 
-        {/* 탭 */}
+        {/* Tabs */}
         <div className="flex flex-wrap gap-2 mb-6">
           {(['students', 'folders', 'heatmap', 'setup'] as const).map(tab => (
             <button
@@ -584,36 +575,36 @@ export default function ClassDashboard() {
               onClick={() => setActiveTab(tab)}
               className={`px-5 py-2 rounded-xl text-sm font-bold transition-colors ${activeTab === tab ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
             >
-              {tab === 'students' ? '👥 학생 현황'
-                : tab === 'folders' ? '📁 수업자료 관리'
-                : tab === 'heatmap' ? '🔥 퀴즈 히트맵'
-                : '⚙️ 클래스 설정'}
+              {tab === 'students' ? '👥 Students'
+                : tab === 'folders' ? '📁 Lesson Materials'
+                : tab === 'heatmap' ? '🔥 Quiz Heatmap'
+                : '⚙️ Settings'}
             </button>
           ))}
         </div>
 
-        {/* 학생 현황 탭 */}
+        {/* Students tab */}
         {activeTab === 'students' && (
           <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] p-6">
             {students.length === 0 ? (
               <div className="py-16 text-center">
                 <p className="text-4xl mb-3">👥</p>
-                <p className="text-gray-400">아직 참여한 학생이 없습니다.</p>
-                <p className="text-gray-600 text-sm mt-1">클래스 코드 <span className="font-mono text-orange-400">{classCode}</span>를 학생들에게 공유하세요.</p>
+                <p className="text-gray-400">No students have joined yet.</p>
+                <p className="text-gray-600 text-sm mt-1">Share class code <span className="font-mono text-orange-400">{classCode}</span> with your students.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="text-gray-500 border-b border-[var(--border-subtle)]">
                     <tr>
-                      <th className="pb-3 font-medium">이름</th>
-                      <th className="pb-3 font-medium text-center">접속</th>
-                      <th className="pb-3 font-medium text-center">✅완전이해</th>
-                      <th className="pb-3 font-medium text-center">🤔알쏭달쏭</th>
-                      <th className="pb-3 font-medium text-center">❓전혀모름</th>
-                      <th className="pb-3 font-medium text-center">퀴즈정답률</th>
-                      <th className="pb-3 font-medium">마지막 활동</th>
-                      <th className="pb-3 font-medium text-right">관리</th>
+                      <th className="pb-3 font-medium">Name</th>
+                      <th className="pb-3 font-medium text-center">Logins</th>
+                      <th className="pb-3 font-medium text-center">✅ Got it</th>
+                      <th className="pb-3 font-medium text-center">🤔 Confused</th>
+                      <th className="pb-3 font-medium text-center">❓ Lost</th>
+                      <th className="pb-3 font-medium text-center">Quiz Score</th>
+                      <th className="pb-3 font-medium">Last Active</th>
+                      <th className="pb-3 font-medium text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
@@ -630,14 +621,14 @@ export default function ClassDashboard() {
                             : <span className="text-gray-600">-</span>}
                         </td>
                         <td className="py-3 text-gray-500">
-                          {s.lastActive ? formatRelativeDate(s.lastActive?.toDate?.() || s.lastActive) : '없음'}
+                          {s.lastActive ? formatRelativeDate(s.lastActive?.toDate?.() || s.lastActive) : '—'}
                         </td>
                         <td className="py-3 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => { setResetTarget(s); setResetPassword(''); setResetDone(false) }}
                               className="px-2.5 py-1 rounded-lg bg-[var(--overlay-subtle)] hover:bg-yellow-500/15 hover:text-yellow-400 transition-colors text-gray-500 text-xs"
-                              title="비밀번호 변경"
+                              title="Reset Password"
                             >
                               🔑
                             </button>
@@ -645,7 +636,7 @@ export default function ClassDashboard() {
                               onClick={() => openStudentDetail(s)}
                               className="px-3 py-1 rounded-lg bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] transition-colors text-gray-400 text-xs"
                             >
-                              상세보기
+                              Details
                             </button>
                           </div>
                         </td>
@@ -658,7 +649,7 @@ export default function ClassDashboard() {
           </div>
         )}
 
-        {/* 수업자료 관리 탭 */}
+        {/* Lesson materials tab */}
         {activeTab === 'folders' && (() => {
           const rootFolders = folders.filter(f => !f.parentId)
           const getChildren = (pid: string) => folders.filter(f => f.parentId === pid)
@@ -680,8 +671,8 @@ export default function ClassDashboard() {
                       <div className="min-w-0">
                         <p className="font-bold text-sm truncate">{folder.name}</p>
                         <div className="flex items-center gap-1 mt-0.5 flex-wrap">
-                          {isDistributed && <span className="text-[9px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-full">✓ 배포 중</span>}
-                          {children.length > 0 && <span className="text-[9px] text-gray-600">하위 {children.length}개</span>}
+                          {isDistributed && <span className="text-[9px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-full">✓ Shared</span>}
+                          {children.length > 0 && <span className="text-[9px] text-gray-600">{children.length} subfolder(s)</span>}
                         </div>
                       </div>
                       <span className="text-[9px] text-gray-600 shrink-0 ml-1">{isExpanded ? '▲' : '▼'}</span>
@@ -690,14 +681,14 @@ export default function ClassDashboard() {
                       <button
                         onClick={() => handleCreateSubfolder(folder)}
                         className="px-2 py-1.5 rounded-lg text-[11px] font-bold bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors"
-                        title="하위폴더 만들기"
+                        title="Create subfolder"
                       >
                         📁+
                       </button>
                       <button
                         onClick={() => openVideoPickerForFolder({ id: folder.id, name: folder.name })}
                         className="px-2 py-1.5 rounded-lg text-[11px] font-bold bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 transition-colors"
-                        title="영상 추가"
+                        title="Add video"
                       >
                         🎬+
                       </button>
@@ -710,24 +701,24 @@ export default function ClassDashboard() {
                       {isDistributed ? (
                         <button onClick={() => handleRecall(folder.id)} disabled={isBusy}
                           className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-red-500/10 text-red-400 hover:bg-red-500/20 disabled:opacity-50 transition-colors">
-                          {isBusy ? '...' : '회수'}
+                          {isBusy ? '...' : 'Recall'}
                         </button>
                       ) : (
                         <button onClick={() => handleDistribute(folder.id)} disabled={isBusy}
                           className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50 transition-colors">
-                          {isBusy ? '...' : '배포'}
+                          {isBusy ? '...' : 'Share'}
                         </button>
                       )}
                     </div>
                   </div>
 
-                  {/* 영상 목록 */}
+                  {/* Video list */}
                   {isExpanded && (
                     <div className="border-t border-[var(--border-subtle)] px-4 pb-3 pt-2 space-y-2">
                       {loadingVideos === folder.id ? (
-                        <p className="text-xs text-gray-500 py-2">불러오는 중...</p>
+                        <p className="text-xs text-gray-500 py-2">Loading...</p>
                       ) : videos.length === 0 ? (
-                        <p className="text-xs text-gray-500 py-2">영상이 없습니다. 🎬+ 버튼으로 추가하세요.</p>
+                        <p className="text-xs text-gray-500 py-2">No videos yet. Use 🎬+ to add one.</p>
                       ) : videos.map((item: any) => {
                         const hasQuiz = item.videoId && videoQuizSets[item.videoId]
                         return (
@@ -748,14 +739,14 @@ export default function ClassDashboard() {
                               <button
                                 onClick={() => setQuizViewModal({ videoTitle: item.title, quiz: videoQuizSets[item.videoId] })}
                                 className="shrink-0 px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 transition-colors"
-                                title="등록된 퀴즈 보기"
+                                title="View quiz"
                               >
-                                📝 퀴즈
+                                📝 Quiz
                               </button>
                             )}
                             <button onClick={() => openClipModal(item, folder.id)}
                               className="shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-colors">
-                              🎬 구간 배포
+                              🎬 Send Clip
                             </button>
                           </div>
                         )
@@ -764,7 +755,7 @@ export default function ClassDashboard() {
                   )}
                 </div>
 
-                {/* 하위폴더 */}
+                {/* Subfolders */}
                 {children.length > 0 && (
                   <div className="ml-5 mt-1.5 mb-2 border-l-2 border-[var(--border-default)] pl-3 space-y-1.5">
                     {children.map(child => renderFolder(child, depth + 1))}
@@ -778,12 +769,12 @@ export default function ClassDashboard() {
             <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] p-6">
               <div className="flex items-center justify-between mb-4">
                 <p className="text-sm text-gray-400">
-                  <span className="text-emerald-400 font-bold">배포</span>를 누르면 학생 화면에 폴더와 영상이 실시간으로 보입니다.
-                  <span className="text-red-400 font-bold ml-1">회수</span>하면 즉시 사라집니다.
+                  Press <span className="text-emerald-400 font-bold">Share</span> to show a folder to students in real time.
+                  Press <span className="text-red-400 font-bold">Recall</span> to hide it immediately.
                 </p>
                 <button
                   onClick={async () => {
-                    const name = prompt('새 수업 폴더 이름을 입력하세요')
+                    const name = prompt('Enter new lesson folder name')
                     if (!name?.trim() || !user) return
                     const { createFolder } = await import('@/lib/db')
                     const newFolder = await createFolder(user.uid, name.trim())
@@ -791,16 +782,16 @@ export default function ClassDashboard() {
                   }}
                   className="shrink-0 ml-4 flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors"
                 >
-                  ＋ 새 수업 만들기
+                  ＋ New Lesson
                 </button>
               </div>
               {distributedCount > 0 && (
                 <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl px-4 py-3 mb-4 text-xs text-emerald-300">
-                  현재 배포 중 <span className="font-bold text-emerald-400">{distributedCount}개</span> 폴더
+                  Currently sharing <span className="font-bold text-emerald-400">{distributedCount}</span> folder(s)
                 </div>
               )}
               {rootFolders.length === 0 ? (
-                <p className="text-gray-500 text-sm">폴더가 없습니다. 위의 "새 수업 만들기" 버튼으로 수업을 시작하세요.</p>
+                <p className="text-gray-500 text-sm">No folders yet. Click "New Lesson" to get started.</p>
               ) : (
                 <div className="space-y-2">
                   {rootFolders.map(folder => renderFolder(folder))}
@@ -810,14 +801,14 @@ export default function ClassDashboard() {
           )
         })()}
 
-        {/* 히트맵 탭 */}
+        {/* Heatmap tab */}
         {activeTab === 'heatmap' && (
           <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] p-6">
             <div className="mb-5">
-              <h2 className="font-black text-base">🔥 퀴즈 오답 히트맵</h2>
+              <h2 className="font-black text-base">🔥 Quiz Wrong-Answer Heatmap</h2>
               <p className="text-xs text-gray-400 mt-1">
-                오답률이 높은 구간을 한눈에 파악하고, 다음 수업에서 집중 보충하세요.
-                <span className="text-red-400 font-bold ml-1">빨간색</span> = 오답 60% 이상 → 수업 개입 필요
+                Spot sections with high error rates at a glance — focus your next lesson there.
+                <span className="text-red-400 font-bold ml-1">Red</span> = 60%+ wrong → intervention needed
               </p>
             </div>
             <QuizHeatmap
@@ -833,15 +824,15 @@ export default function ClassDashboard() {
           </div>
         )}
 
-        {/* 설정 탭 */}
+        {/* Settings tab */}
         {activeTab === 'setup' && (
           <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] p-6 space-y-4">
-            <InfoRow label="학교명" value={classroom.schoolName} />
-            <InfoRow label="학년/반" value={`${classroom.grade}학년 ${classroom.classNum}반`} />
-            <InfoRow label="클래스 코드" value={classCode} highlight />
-            <InfoRow label="학생 참여 링크" value={`ssoktube.com/classroom/join?code=${classCode}`} />
+            <InfoRow label="School" value={classroom.schoolName} />
+            <InfoRow label="Grade / Class" value={`Grade ${classroom.grade} · Class ${classroom.classNum}`} />
+            <InfoRow label="Class Code" value={classCode} highlight />
+            <InfoRow label="Join Link" value={`ssoktube.com/classroom/join?code=${classCode}`} />
             <div className="pt-4 space-y-2">
-              <p className="text-xs text-gray-500">아래 링크를 학생들에게 공유하면 클래스 코드가 자동으로 입력됩니다.</p>
+              <p className="text-xs text-gray-500">Share this link with students — the class code will be pre-filled.</p>
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(`https://ssoktube.com/classroom/join?code=${classCode}`)
@@ -850,25 +841,25 @@ export default function ClassDashboard() {
                 }}
                 className="px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 text-xs font-bold rounded-xl transition-colors"
               >
-                {copied ? '복사됨 ✓' : '🔗 참여 링크 복사'}
+                {copied ? 'Copied ✓' : '🔗 Copy Join Link'}
               </button>
             </div>
 
-            {/* 기본폴더 복사본 정리 */}
+            {/* Legacy folder cleanup */}
             <div className="pt-4 border-t border-[var(--border-subtle)]">
-              <p className="text-xs text-gray-400 font-bold mb-1">기본폴더 복사본 정리</p>
+              <p className="text-xs text-gray-400 font-bold mb-1">Legacy Folder Cleanup</p>
               <p className="text-xs text-gray-500 mb-3 leading-relaxed">
-                예전 '기본폴더' 기능으로 학생 라이브러리에 자동 복사된 폴더를 삭제합니다.<br/>
-                현재 배포/회수 시스템과는 무관합니다. 삭제 후 복구되지 않습니다.
+                Removes old "default folder" copies that were auto-added to students&apos; libraries.<br/>
+                Unrelated to the current share/recall system. Cannot be undone.
               </p>
               {cleanupResult && (
                 <p className="text-xs text-emerald-400 mb-2">
-                  ✓ {cleanupResult.deleted}개 폴더, {cleanupResult.deletedItems}개 영상 복사본 삭제 완료
+                  ✓ Deleted {cleanupResult.deleted} folder(s) and {cleanupResult.deletedItems} video copy(s)
                 </p>
               )}
               <button
                 onClick={async () => {
-                  if (!confirm('학생들 라이브러리에서 기본폴더 복사본을 전부 삭제합니다.\n복구할 수 없습니다. 계속할까요?')) return
+                  if (!confirm('This will delete all legacy folder copies from students\' libraries.\nThis cannot be undone. Continue?')) return
                   setCleaningUp(true)
                   setCleanupResult(null)
                   try {
@@ -882,7 +873,7 @@ export default function ClassDashboard() {
                     if (!res.ok) throw new Error(data.error)
                     setCleanupResult({ deleted: data.deleted, deletedItems: data.deletedItems })
                   } catch (e: any) {
-                    alert('오류: ' + e.message)
+                    alert('Error: ' + e.message)
                   } finally {
                     setCleaningUp(false)
                   }
@@ -890,27 +881,27 @@ export default function ClassDashboard() {
                 disabled={cleaningUp}
                 className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 text-xs font-bold rounded-xl transition-colors disabled:opacity-50"
               >
-                {cleaningUp ? '삭제 중...' : '🗑️ 기본폴더 복사본 전체 삭제'}
+                {cleaningUp ? 'Deleting...' : '🗑️ Delete All Legacy Copies'}
               </button>
             </div>
           </div>
         )}
       </main>
 
-      {/* 영상 추가 피커 모달 */}
+      {/* Video picker modal */}
       {videoPickerFolder && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setVideoPickerFolder(null)}>
           <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] w-full max-w-lg p-6 space-y-4 max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between shrink-0">
               <div>
-                <h3 className="text-base font-black">🎬 영상 추가</h3>
-                <p className="text-xs text-gray-400 mt-0.5">폴더: {videoPickerFolder.name}</p>
+                <h3 className="text-base font-black">🎬 Add Video</h3>
+                <p className="text-xs text-gray-400 mt-0.5">Folder: {videoPickerFolder.name}</p>
               </div>
               <button onClick={() => setVideoPickerFolder(null)} className="text-gray-400 hover:text-white text-xl">✕</button>
             </div>
             <input
               type="text"
-              placeholder="영상 제목 검색..."
+              placeholder="Search by title..."
               value={librarySearch}
               onChange={e => setLibrarySearch(e.target.value)}
               className="shrink-0 w-full px-4 py-2.5 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50"
@@ -924,7 +915,7 @@ export default function ClassDashboard() {
                   (v.title || '').toLowerCase().includes(librarySearch.toLowerCase())
                 )
                 return filtered.length === 0 ? (
-                  <p className="text-gray-600 text-sm text-center py-8">추가할 수 있는 영상이 없습니다.</p>
+                  <p className="text-gray-600 text-sm text-center py-8">No videos available to add.</p>
                 ) : filtered.map((v: any) => (
                   <div key={v.id} className="flex items-center gap-3 bg-[var(--bg-surface-2)] rounded-xl px-3 py-2.5">
                     {v.thumbnail && <img src={v.thumbnail} alt="" className="w-14 h-8 rounded object-cover shrink-0" />}
@@ -934,7 +925,7 @@ export default function ClassDashboard() {
                       disabled={movingVideo === v.id}
                       className="shrink-0 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50 transition-colors"
                     >
-                      {movingVideo === v.id ? '...' : '추가'}
+                      {movingVideo === v.id ? '...' : 'Add'}
                     </button>
                   </div>
                 ))
@@ -944,13 +935,13 @@ export default function ClassDashboard() {
         </div>
       )}
 
-      {/* 퀴즈 내용 보기 모달 */}
+      {/* Quiz view modal */}
       {quizViewModal && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setQuizViewModal(null)}>
           <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] w-full max-w-md p-6 space-y-4 max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
             <div className="flex items-start justify-between shrink-0">
               <div>
-                <h3 className="text-base font-black">📝 등록된 퀴즈</h3>
+                <h3 className="text-base font-black">📝 Quiz Questions</h3>
                 <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{quizViewModal.videoTitle}</p>
               </div>
               <button onClick={() => setQuizViewModal(null)} className="text-gray-400 hover:text-white text-xl ml-4 shrink-0">✕</button>
@@ -964,12 +955,12 @@ export default function ClassDashboard() {
                       {q.options.map((opt: string, j: number) => (
                         <p key={j} className={`text-xs px-3 py-1.5 rounded-lg ${opt === q.answer ? 'bg-emerald-500/15 text-emerald-300 font-bold' : 'text-gray-400'}`}>
                           {['A', 'B', 'C', 'D'][j]}. {opt}
-                          {opt === q.answer && <span className="ml-2">✓ 정답</span>}
+                          {opt === q.answer && <span className="ml-2">✓ Correct</span>}
                         </p>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-xs text-emerald-300 bg-emerald-500/10 px-3 py-1.5 rounded-lg">정답: {q.answer}</p>
+                    <p className="text-xs text-emerald-300 bg-emerald-500/10 px-3 py-1.5 rounded-lg">Answer: {q.answer}</p>
                   )}
                 </div>
               ))}
@@ -978,34 +969,34 @@ export default function ClassDashboard() {
         </div>
       )}
 
-      {/* 클립 배포 모달 */}
+      {/* Clip send modal */}
       {clipModal && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setClipModal(null)}>
           <div className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] w-full max-w-sm p-6 space-y-5" onClick={e => e.stopPropagation()}>
             <div>
-              <h3 className="text-base font-black">🎬 구간 배포 설정</h3>
+              <h3 className="text-base font-black">🎬 Send Clip</h3>
               <p className="text-xs text-gray-400 mt-1 truncate">"{clipModal.item.title}"</p>
             </div>
             <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl px-4 py-3 text-xs text-emerald-300 space-y-0.5">
-              <p className="font-bold">시간을 비워두면 전체 영상이 배포됩니다.</p>
-              <p className="text-emerald-400/70">시작 시간만 설정하면 그 지점부터 끝까지 재생됩니다.</p>
+              <p className="font-bold">Leave times blank to send the full video.</p>
+              <p className="text-emerald-400/70">Set only a start time to play from that point to the end.</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[11px] text-gray-400 mb-1 block">시작 시간 (M:SS)</label>
+                <label className="text-[11px] text-gray-400 mb-1 block">Start time (M:SS)</label>
                 <input
                   type="text"
-                  placeholder="예: 2:30"
+                  placeholder="e.g. 2:30"
                   value={clipStartStr}
                   onChange={e => setClipStartStr(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-emerald-500/50"
                 />
               </div>
               <div>
-                <label className="text-[11px] text-gray-400 mb-1 block">종료 시간 (M:SS)</label>
+                <label className="text-[11px] text-gray-400 mb-1 block">End time (M:SS)</label>
                 <input
                   type="text"
-                  placeholder="예: 5:45"
+                  placeholder="e.g. 5:45"
                   value={clipEndStr}
                   onChange={e => setClipEndStr(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-emerald-500/50"
@@ -1014,26 +1005,26 @@ export default function ClassDashboard() {
             </div>
             {clipStartStr && clipEndStr && parseTime(clipStartStr) > 0 && parseTime(clipEndStr) > 0 && (
               <p className="text-xs text-emerald-400 text-center">
-                {fmtTimeSec(parseTime(clipStartStr))} ~ {fmtTimeSec(parseTime(clipEndStr))} 구간 배포
+                Sending clip: {fmtTimeSec(parseTime(clipStartStr))} ~ {fmtTimeSec(parseTime(clipEndStr))}
               </p>
             )}
             <div className="flex gap-2 pt-1">
               <button onClick={() => setClipModal(null)} className="flex-1 px-4 py-2.5 rounded-xl bg-[var(--overlay-subtle)] text-gray-400 text-sm font-bold hover:bg-[var(--overlay-default)]">
-                취소
+                Cancel
               </button>
               <button
                 onClick={handleClipPush}
                 disabled={pushingClip}
                 className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold disabled:opacity-50 transition-colors"
               >
-                {pushingClip ? '배포 중...' : `${students.length}명에게 배포`}
+                {pushingClip ? 'Sending...' : `Send to ${students.length} student(s)`}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* 폴더별 보고서 모달 */}
+      {/* Lesson report modal */}
       {reportFolder && (() => {
         const folderVideoIds = new Set((folderVideos[reportFolder.id] || []).map((v: any) => v.videoId))
         const folderLogs = classLogs.filter(l => l.videoId && folderVideoIds.has(l.videoId))
@@ -1053,11 +1044,11 @@ export default function ClassDashboard() {
         return (
           <div className="fixed inset-0 bg-black/80 z-50 flex items-start justify-center p-4 overflow-y-auto" onClick={() => setReportFolder(null)}>
             <div className="bg-[var(--bg-base)] rounded-[28px] border border-[var(--border-default)] w-full max-w-4xl my-8" onClick={e => e.stopPropagation()}>
-              {/* 모달 헤더 */}
+              {/* Modal header */}
               <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-[var(--border-subtle)]">
                 <div>
-                  <h2 className="text-lg font-black">📋 수업 보고서</h2>
-                  <p className="text-xs text-gray-400 mt-0.5">{reportFolder.name} · {classroom?.schoolName} {classroom?.grade}학년 {classroom?.classNum}반</p>
+                  <h2 className="text-lg font-black">📋 Lesson Report</h2>
+                  <p className="text-xs text-gray-400 mt-0.5">{reportFolder.name} · {classroom?.schoolName} Grade {classroom?.grade} · Class {classroom?.classNum}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -1070,21 +1061,21 @@ export default function ClassDashboard() {
                 </div>
               </div>
 
-              {/* PDF 캡처 영역 */}
+              {/* PDF capture area */}
               <div ref={el => setPdfRef(el)} className="p-6 space-y-6" style={{ background: '#ffffff', color: '#111827', fontFamily: 'sans-serif' }}>
-                {/* 보고서 헤더 */}
+                {/* Report header */}
                 <div style={{ borderBottom: '2px solid #e5e7eb', paddingBottom: '16px' }}>
-                  <h1 style={{ fontSize: '20px', fontWeight: 900, marginBottom: '4px' }}>수업 활동 보고서 — {reportFolder.name}</h1>
-                  <p style={{ fontSize: '13px', color: '#6b7280', margin: 0 }}>{classroom?.schoolName} {classroom?.grade}학년 {classroom?.classNum}반 · {new Date().toLocaleDateString('ko-KR')}</p>
+                  <h1 style={{ fontSize: '20px', fontWeight: 900, marginBottom: '4px' }}>Lesson Activity Report — {reportFolder.name}</h1>
+                  <p style={{ fontSize: '13px', color: '#6b7280', margin: 0 }}>{classroom?.schoolName} Grade {classroom?.grade} · Class {classroom?.classNum} · {new Date().toLocaleDateString('en-US')}</p>
                 </div>
 
-                {/* 요약 통계 */}
+                {/* Summary stats */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '12px' }}>
                   {[
-                    { label: '등록 학생', value: totalStudents, unit: '명', color: '#111827' },
-                    { label: '완전이해', value: totalComplete, unit: '건', color: '#059669' },
-                    { label: '퀴즈 응시', value: totalQuizAttempts, unit: '회', color: '#2563eb' },
-                    { label: '도움 필요', value: totalUnknown, unit: '건', color: '#dc2626' },
+                    { label: 'Students', value: totalStudents, unit: '', color: '#111827' },
+                    { label: 'Understood', value: totalComplete, unit: '', color: '#059669' },
+                    { label: 'Quiz Attempts', value: totalQuizAttempts, unit: '', color: '#2563eb' },
+                    { label: 'Need Help', value: totalUnknown, unit: '', color: '#dc2626' },
                   ].map(stat => (
                     <div key={stat.label} style={{ background: '#f9fafb', borderRadius: '10px', padding: '12px', textAlign: 'center', border: '1px solid #e5e7eb' }}>
                       <p style={{ fontSize: '10px', color: '#6b7280', marginBottom: '4px' }}>{stat.label}</p>
@@ -1093,10 +1084,10 @@ export default function ClassDashboard() {
                   ))}
                 </div>
 
-                {/* 이 수업 영상 목록 */}
+                {/* Lesson videos */}
                 {(folderVideos[reportFolder.id] || []).length > 0 && (
                   <div>
-                    <h2 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px', color: '#111827' }}>📹 수업 영상</h2>
+                    <h2 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px', color: '#111827' }}>📹 Lesson Videos</h2>
                     {(folderVideos[reportFolder.id] || []).map((v: any) => {
                       const vLogs = folderLogs.filter(l => l.videoId === v.videoId)
                       const viewers = new Set(vLogs.filter(l => l.type === 'play').map(l => l.studentId)).size
@@ -1107,7 +1098,7 @@ export default function ClassDashboard() {
                           {v.thumbnail && <img src={v.thumbnail} alt="" style={{ width: '72px', height: '42px', borderRadius: '6px', objectFit: 'cover', flexShrink: 0 }} />}
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <p style={{ fontSize: '12px', fontWeight: 600, marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.title}</p>
-                            <p style={{ fontSize: '11px', color: '#6b7280', margin: 0 }}>시청 학생: {viewers}명 · 평균 시청률: {avgPct}%</p>
+                            <p style={{ fontSize: '11px', color: '#6b7280', margin: 0 }}>Viewers: {viewers} · Avg watched: {avgPct}%</p>
                           </div>
                         </div>
                       )
@@ -1115,13 +1106,13 @@ export default function ClassDashboard() {
                   </div>
                 )}
 
-                {/* 학생별 현황 */}
+                {/* Student breakdown */}
                 <div>
-                  <h2 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px', color: '#111827' }}>👥 학생별 참여 현황</h2>
+                  <h2 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px', color: '#111827' }}>👥 Student Participation</h2>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
                     <thead>
                       <tr style={{ background: '#f3f4f6' }}>
-                        {['이름', '완전이해', '알쏭달쏭', '전혀모름', '퀴즈 정답률'].map(h => (
+                        {['Name', 'Got It', 'Confused', 'Lost', 'Quiz Score'].map(h => (
                           <th key={h} style={{ padding: '7px 10px', textAlign: 'left', fontWeight: 600, color: '#374151', borderBottom: '1px solid #e5e7eb' }}>{h}</th>
                         ))}
                       </tr>
@@ -1142,10 +1133,10 @@ export default function ClassDashboard() {
                   </table>
                 </div>
 
-                {/* 퀴즈 오답 히트맵 */}
+                {/* Quiz wrong-answer heatmap */}
                 {folderHeatmaps.length > 0 && (
                   <div>
-                    <h2 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px', color: '#111827' }}>🔥 퀴즈 오답 현황</h2>
+                    <h2 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px', color: '#111827' }}>🔥 Quiz Wrong-Answer Summary</h2>
                     {folderHeatmaps.map(hm => (
                       <div key={hm.videoId} style={{ marginBottom: '10px' }}>
                         <p style={{ fontSize: '12px', fontWeight: 600, color: '#374151', marginBottom: '6px' }}>{hm.videoTitle}</p>
@@ -1157,7 +1148,7 @@ export default function ClassDashboard() {
                               color: q.wrongRate >= 0.6 ? '#dc2626' : q.wrongRate >= 0.3 ? '#d97706' : '#059669',
                               border: `1px solid ${q.wrongRate >= 0.6 ? '#fecaca' : q.wrongRate >= 0.3 ? '#fed7aa' : '#bbf7d0'}`,
                             }}>
-                              Q{q.questionIdx + 1} 오답률 {Math.round(q.wrongRate * 100)}%
+                              Q{q.questionIdx + 1} wrong {Math.round(q.wrongRate * 100)}%
                             </span>
                           ))}
                         </div>
@@ -1166,24 +1157,24 @@ export default function ClassDashboard() {
                   </div>
                 )}
 
-                {/* 선생님 코멘트 */}
+                {/* Teacher comment */}
                 <div>
-                  <h2 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px', color: '#111827' }}>📝 선생님 종합 코멘트</h2>
+                  <h2 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px', color: '#111827' }}>📝 Teacher&apos;s Notes</h2>
                   <div style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '14px', minHeight: '60px' }}>
                     <p style={{ fontSize: '12px', color: reportNote ? '#111827' : '#9ca3af', lineHeight: 1.6, whiteSpace: 'pre-wrap', margin: 0 }}>
-                      {reportNote || '(작성된 코멘트 없음)'}
+                      {reportNote || '(No notes added)'}
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* 코멘트 입력 (PDF 외부) */}
+              {/* Comment input (outside PDF) */}
               <div className="px-6 pb-6 pt-4 border-t border-[var(--border-subtle)] space-y-3">
-                <p className="text-xs text-gray-400">📝 선생님 코멘트를 입력하면 보고서에 포함됩니다.</p>
+                <p className="text-xs text-gray-400">📝 Teacher&apos;s notes will be included in the report.</p>
                 <textarea
                   value={reportNote}
                   onChange={e => setReportNote(e.target.value)}
-                  placeholder="수업 관찰, 학생 피드백 요약, 다음 수업 계획 등을 자유롭게 작성하세요."
+                  placeholder="Add observations, student feedback, or plans for the next lesson..."
                   rows={4}
                   className="w-full px-4 py-3 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-default)] text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-purple-500/50 resize-none"
                 />
@@ -1193,7 +1184,7 @@ export default function ClassDashboard() {
                     disabled={savingReportNote}
                     className="px-5 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white text-sm font-bold rounded-xl transition-colors"
                   >
-                    {savingReportNote ? '저장 중...' : '💾 저장'}
+                    {savingReportNote ? 'Saving...' : '💾 Save'}
                   </button>
                 </div>
               </div>
@@ -1202,59 +1193,59 @@ export default function ClassDashboard() {
         )
       })()}
 
-      {/* 학생 상세 모달 */}
+      {/* Student detail modal */}
       {selectedStudent && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setSelectedStudent(null)}>
           <div
             className="bg-[var(--bg-surface)] rounded-[28px] border border-[var(--border-default)] w-full max-w-2xl max-h-[90vh] flex flex-col"
             onClick={e => e.stopPropagation()}
           >
-            {/* 모달 헤더 */}
+            {/* Modal header */}
             <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-[var(--border-subtle)] shrink-0">
               <div>
                 <h2 className="text-lg font-black">{selectedStudent.studentName}</h2>
-                <p className="text-xs text-gray-500 mt-0.5">학생 활동 상세 기록</p>
+                <p className="text-xs text-gray-500 mt-0.5">Student activity detail</p>
               </div>
               <button onClick={() => setSelectedStudent(null)} className="text-gray-400 hover:text-white text-xl leading-none">✕</button>
             </div>
 
-            {/* 요약 카드 */}
+            {/* Summary cards */}
             <div className="grid grid-cols-4 gap-2 px-6 py-4 shrink-0">
-              <MiniStat label="접속 횟수" value={selectedStudent.loginCount} unit="회" color="text-white" />
-              <MiniStat label="✅ 완전이해" value={selectedStudent.metaComplete} unit="건" color="text-emerald-400" />
-              <MiniStat label="퀴즈 정답" value={selectedStudent.quizAttempts > 0 ? Math.round(selectedStudent.quizCorrect / selectedStudent.quizAttempts * 100) : 0} unit="%" color="text-blue-400" />
-              <MiniStat label="❓ 모름" value={selectedStudent.metaUnknown} unit="건" color="text-red-400" />
+              <MiniStat label="Logins" value={selectedStudent.loginCount} unit="" color="text-white" />
+              <MiniStat label="✅ Got It" value={selectedStudent.metaComplete} unit="" color="text-emerald-400" />
+              <MiniStat label="Quiz Score" value={selectedStudent.quizAttempts > 0 ? Math.round(selectedStudent.quizCorrect / selectedStudent.quizAttempts * 100) : 0} unit="%" color="text-blue-400" />
+              <MiniStat label="❓ Lost" value={selectedStudent.metaUnknown} unit="" color="text-red-400" />
             </div>
 
-            {/* 탭 */}
+            {/* Tabs */}
             <div className="flex gap-2 px-6 pb-3 shrink-0 flex-wrap">
               <button
                 onClick={() => setStudentDetailTab('videos')}
                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${studentDetailTab === 'videos' ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
               >
-                🎬 영상별 기록
+                🎬 Videos
               </button>
               <button
                 onClick={() => setStudentDetailTab('bookmarks')}
                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${studentDetailTab === 'bookmarks' ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
               >
-                🔖 북마크 {studentBookmarks.length > 0 && <span className="ml-1 bg-white/20 px-1.5 py-0.5 rounded-full text-[10px]">{studentBookmarks.length}</span>}
+                🔖 Bookmarks {studentBookmarks.length > 0 && <span className="ml-1 bg-white/20 px-1.5 py-0.5 rounded-full text-[10px]">{studentBookmarks.length}</span>}
               </button>
               <button
                 onClick={() => setStudentDetailTab('review')}
                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${studentDetailTab === 'review' ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
               >
-                🔁 복습 현황
+                🔁 Review
               </button>
               <button
                 onClick={() => setStudentDetailTab('access')}
                 className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${studentDetailTab === 'access' ? 'bg-orange-500 text-white' : 'bg-[var(--overlay-subtle)] text-gray-400 hover:bg-[var(--overlay-default)]'}`}
               >
-                🔐 접속 기록
+                🔐 Access Log
               </button>
             </div>
 
-            {/* 탭 콘텐츠 */}
+            {/* Tab content */}
             <div className="overflow-y-auto flex-1 px-6 pb-6">
               {loadingLogs ? (
                 <div className="flex items-center justify-center py-12">
@@ -1262,23 +1253,22 @@ export default function ClassDashboard() {
                 </div>
               ) : studentDetailTab === 'videos' ? (
                 videoRecords.length === 0 ? (
-                  <p className="text-gray-600 text-sm text-center py-12">영상 시청 기록이 없습니다.</p>
+                  <p className="text-gray-600 text-sm text-center py-12">No video watch history.</p>
                 ) : (
                   <div className="space-y-3">
                     {videoRecords.map(vr => (
                       <div key={vr.videoId} className="bg-[var(--bg-base)] rounded-2xl p-4 border border-[var(--border-subtle)]">
-                        {/* 영상 제목 + 완료 뱃지 */}
                         <div className="flex items-start justify-between gap-2 mb-3">
                           <p className="text-sm font-bold text-white leading-snug flex-1">{vr.videoTitle}</p>
                           {vr.completed && (
-                            <span className="shrink-0 text-[9px] bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full">완료</span>
+                            <span className="shrink-0 text-[9px] bg-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 rounded-full">Done</span>
                           )}
                         </div>
 
-                        {/* 시청 진행률 바 */}
+                        {/* Watch progress bar */}
                         <div className="mb-2">
                           <div className="flex items-center justify-between text-[10px] text-gray-500 mb-1">
-                            <span>시청률</span>
+                            <span>Watched</span>
                             <span className="text-white font-bold">{vr.percentWatched}% · {fmtDuration(vr.watchDurationSec)}</span>
                           </div>
                           <div className="h-1.5 bg-[var(--overlay-subtle)] rounded-full overflow-hidden">
@@ -1289,14 +1279,14 @@ export default function ClassDashboard() {
                           </div>
                         </div>
 
-                        {/* 시청 세션 타임라인 */}
+                        {/* Watch session timeline */}
                         {vr.watchSessions.length > 0 && (
                           <div className="mb-3 space-y-0.5">
                             {vr.watchSessions.slice(-4).map((s, si) => {
                               const fmt = (iso?: string) => {
                                 if (!iso) return '?'
                                 const d = new Date(iso)
-                                return d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+                                return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
                               }
                               return (
                                 <div key={si} className="flex items-center gap-1.5 text-[9px] text-gray-500">
@@ -1312,10 +1302,10 @@ export default function ClassDashboard() {
                           </div>
                         )}
 
-                        {/* 자기점검 + 퀴즈 */}
+                        {/* Self-check + Quiz */}
                         <div className="grid grid-cols-2 gap-2 mb-3">
                           <div className="bg-black/20 rounded-xl p-2.5">
-                            <p className="text-[9px] text-gray-500 mb-1.5">자기점검</p>
+                            <p className="text-[9px] text-gray-500 mb-1.5">Self-check</p>
                             <div className="flex gap-2 text-[10px]">
                               <span className="text-emerald-400">✅ {vr.meta.complete}</span>
                               <span className="text-yellow-400">🤔 {vr.meta.confused}</span>
@@ -1323,38 +1313,38 @@ export default function ClassDashboard() {
                             </div>
                           </div>
                           <div className="bg-black/20 rounded-xl p-2.5">
-                            <p className="text-[9px] text-gray-500 mb-1.5">퀴즈</p>
+                            <p className="text-[9px] text-gray-500 mb-1.5">Quiz</p>
                             {vr.quiz.attempts > 0 ? (
                               <div className="space-y-0.5">
                                 {Object.entries(vr.quizByAttempt)
                                   .sort(([a], [b]) => Number(a) - Number(b))
                                   .map(([att, res]) => (
                                     <p key={att} className="text-[10px]">
-                                      <span className="text-gray-500 mr-1">{att}차</span>
+                                      <span className="text-gray-500 mr-1">Try {att}</span>
                                       <span className="text-blue-400 font-bold">{Math.round(res.correct / res.total * 100)}%</span>
                                       <span className="text-gray-600 ml-1">({res.correct}/{res.total})</span>
                                     </p>
                                   ))}
                               </div>
                             ) : (
-                              <p className="text-[10px] text-gray-600">미응시</p>
+                              <p className="text-[10px] text-gray-600">Not attempted</p>
                             )}
                           </div>
                         </div>
 
-                        {/* 댓글 / 세그먼트 코멘트 */}
+                        {/* Segment / general comments */}
                         {(vr.comments.length > 0 || vr.segments.length > 0) && (
                           <div className="space-y-1 mt-1">
                             {vr.segments.map((seg, i) => (
                               <div key={i} className="bg-purple-500/5 border border-purple-500/15 rounded-xl px-3 py-2 text-[10px]">
-                                <span className="text-purple-400 font-bold mr-2">구간 코멘트</span>
+                                <span className="text-purple-400 font-bold mr-2">Segment Note</span>
                                 <span className="text-gray-300">{seg.value.text || ''}</span>
                                 {seg.value.timeLabel && <span className="text-gray-600 ml-2">[{seg.value.timeLabel}]</span>}
                               </div>
                             ))}
                             {vr.comments.map((c, i) => (
                               <div key={i} className="bg-blue-500/5 border border-blue-500/15 rounded-xl px-3 py-2 text-[10px]">
-                                <span className="text-blue-400 font-bold mr-2">댓글</span>
+                                <span className="text-blue-400 font-bold mr-2">Comment</span>
                                 <span className="text-gray-300">{c.value.text || ''}</span>
                               </div>
                             ))}
@@ -1366,7 +1356,7 @@ export default function ClassDashboard() {
                 )
               ) : studentDetailTab === 'bookmarks' ? (
                 studentBookmarks.length === 0 ? (
-                  <p className="text-gray-600 text-sm text-center py-12">북마크가 없습니다.</p>
+                  <p className="text-gray-600 text-sm text-center py-12">No bookmarks.</p>
                 ) : (
                   <div className="space-y-2">
                     {studentBookmarks.map(bm => (
@@ -1391,9 +1381,8 @@ export default function ClassDashboard() {
                   </div>
                 )
               ) : studentDetailTab === 'review' ? (
-                /* 복습 현황 탭 */
                 studentReviews.length === 0 ? (
-                  <p className="text-gray-600 text-sm text-center py-12">복습 대기 항목이 없습니다.<br/><span className="text-xs text-gray-700">퀴즈 오답 발생 시 자동으로 복습 일정이 등록됩니다.</span></p>
+                  <p className="text-gray-600 text-sm text-center py-12">No review items pending.<br/><span className="text-xs text-gray-700">Review schedules are created automatically when a student gets a quiz wrong.</span></p>
                 ) : (
                   <div className="space-y-2">
                     {studentReviews.map((item, i) => {
@@ -1402,27 +1391,26 @@ export default function ClassDashboard() {
                         <div key={i} className={`flex items-start gap-3 rounded-xl px-4 py-3 text-xs ${isOverdue ? 'bg-red-500/10 border border-red-500/20' : 'bg-[var(--bg-base)]'}`}>
                           <span className="text-lg">{isOverdue ? '🔴' : '🔵'}</span>
                           <div className="flex-1 min-w-0">
-                            <p className="text-gray-300 font-medium truncate">{item.videoTitle || '영상'}</p>
+                            <p className="text-gray-300 font-medium truncate">{item.videoTitle || 'Video'}</p>
                             {item.question && <p className="text-gray-500 truncate mt-0.5">Q{item.questionIdx + 1}. {item.question}</p>}
                             <p className={`mt-0.5 font-bold ${isOverdue ? 'text-red-400' : 'text-blue-400'}`}>
-                              {isOverdue ? `복습 필요 (${item.nextReviewDate})` : `다음 복습: ${item.nextReviewDate}`}
+                              {isOverdue ? `Review needed (${item.nextReviewDate})` : `Next review: ${item.nextReviewDate}`}
                             </p>
                           </div>
                           <span className="text-[10px] text-gray-600 shrink-0">
-                            {['1일', '3일', '7일', '14일', '30일', '60일'][item.repetition ?? 0] ?? ''} 주기
+                            {['1d', '3d', '7d', '14d', '30d', '60d'][item.repetition ?? 0] ?? ''} cycle
                           </span>
                         </div>
                       )
                     })}
                     <p className="text-[10px] text-gray-600 text-center pt-2">
-                      🔴 오늘 이전 = 복습 필요 · 🔵 미래 일정 = 예약됨
+                      🔴 Overdue · 🔵 Upcoming
                     </p>
                   </div>
                 )
               ) : (
-                /* 접속 기록 탭 */
                 loginSessions.length === 0 ? (
-                  <p className="text-gray-600 text-sm text-center py-12">접속 기록이 없습니다.</p>
+                  <p className="text-gray-600 text-sm text-center py-12">No access records.</p>
                 ) : (
                   <div className="space-y-2">
                     {loginSessions.map((session, i) => {
@@ -1432,7 +1420,7 @@ export default function ClassDashboard() {
                       const fmtTime = (ts: any) => {
                         if (!ts) return null
                         const d = ts?.toDate?.() || new Date(ts)
-                        return d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+                        return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
                       }
                       const fmtDate = (ts: any) => {
                         if (!ts) return null
@@ -1446,11 +1434,11 @@ export default function ClassDashboard() {
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-green-400 font-bold">
-                              🔐 {loginTs ? fmtTime(loginTs) : '기록 없음'}
+                              🔐 {loginTs ? fmtTime(loginTs) : 'No record'}
                             </span>
                             <span className="text-gray-600">→</span>
                             <span className={logoutTs ? 'text-gray-400' : 'text-yellow-600'}>
-                              🚪 {logoutTs ? fmtTime(logoutTs) : '로그아웃 미기록'}
+                              🚪 {logoutTs ? fmtTime(logoutTs) : 'No logout recorded'}
                             </span>
                           </div>
                         </div>
@@ -1464,7 +1452,7 @@ export default function ClassDashboard() {
         </div>
       )}
 
-      {/* 비밀번호 변경 모달 */}
+      {/* Password reset modal */}
       {resetTarget && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setResetTarget(null)}>
           <div
@@ -1475,19 +1463,19 @@ export default function ClassDashboard() {
               <>
                 <div className="flex items-center justify-between mb-5">
                   <div>
-                    <h2 className="text-base font-black text-white">비밀번호 변경</h2>
-                    <p className="text-xs text-gray-400 mt-0.5">{resetTarget.studentName} 학생</p>
+                    <h2 className="text-base font-black text-white">Reset Password</h2>
+                    <p className="text-xs text-gray-400 mt-0.5">{resetTarget.studentName}</p>
                   </div>
                   <button onClick={() => setResetTarget(null)} className="text-gray-500 hover:text-white text-lg leading-none">✕</button>
                 </div>
                 <p className="text-xs text-gray-400 mb-4 leading-relaxed">
-                  새 비밀번호를 입력하고 학생에게 직접 알려주세요.
+                  Enter a new password and share it with the student directly.
                 </p>
                 <input
                   type="text"
                   value={resetPassword}
                   onChange={e => setResetPassword(e.target.value)}
-                  placeholder="새 비밀번호 (4자 이상)"
+                  placeholder="New password (4+ characters)"
                   className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition-colors mb-4"
                   autoFocus
                 />
@@ -1496,24 +1484,24 @@ export default function ClassDashboard() {
                   disabled={resetting || !resetPassword.trim()}
                   className="w-full py-3 bg-orange-500 hover:bg-orange-600 rounded-xl font-bold text-sm transition-colors disabled:opacity-50"
                 >
-                  {resetting ? '변경 중...' : '비밀번호 변경'}
+                  {resetting ? 'Changing...' : 'Change Password'}
                 </button>
               </>
             ) : (
               <>
                 <div className="text-center py-4">
                   <div className="text-4xl mb-3">✅</div>
-                  <p className="font-black text-white mb-1">변경 완료</p>
+                  <p className="font-black text-white mb-1">Password Changed</p>
                   <p className="text-sm text-gray-400 mb-1">
-                    <span className="text-white font-bold">{resetTarget.studentName}</span> 학생의 비밀번호가
+                    New password for <span className="text-white font-bold">{resetTarget.studentName}</span>:
                   </p>
                   <p className="text-lg font-black text-orange-400 font-mono mb-4">{resetPassword}</p>
-                  <p className="text-xs text-gray-500 mb-5">위 비밀번호를 학생에게 알려주세요.</p>
+                  <p className="text-xs text-gray-500 mb-5">Share this password with the student.</p>
                   <button
                     onClick={() => setResetTarget(null)}
                     className="w-full py-3 bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] rounded-xl font-bold text-sm transition-colors"
                   >
-                    닫기
+                    Close
                   </button>
                 </div>
               </>
