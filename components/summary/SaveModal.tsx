@@ -11,7 +11,7 @@ function withTimeout<T>(promise: Promise<T>, ms = 8000): Promise<T> {
   return Promise.race([
     promise,
     new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error('시간 초과: DB 연결에 실패했습니다.')), ms)
+      setTimeout(() => reject(new Error('Timeout: Failed to connect to DB.')), ms)
     )
   ])
 }
@@ -31,7 +31,7 @@ function sortFolders(folders: Folder[], sort: SortKey): Folder[] {
       const bTime = b.createdAt?.toMillis?.() ?? b.createdAt?.getTime?.() ?? 0
       return sort === 'date_desc' ? bTime - aTime : aTime - bTime
     }
-    const cmp = a.name.localeCompare(b.name, 'ko', { numeric: true, sensitivity: 'base' })
+    const cmp = a.name.localeCompare(b.name, 'en', { numeric: true, sensitivity: 'base' })
     return sort === 'name_asc' ? cmp : -cmp
   })
 }
@@ -125,11 +125,11 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
         doEmbed(docId)
         savedId = docId
       }
-      alert(duplicateInfo ? '기존 항목이 업데이트되었습니다!' : '저장되었습니다!')
+      alert(duplicateInfo ? 'Updated!' : 'Saved!')
       onClose({ id: savedId, folderId, isPublic })
     } catch (e) {
       console.error('Save error:', e)
-      alert((e as Error).message || '저장에 실패했습니다. DB 연결을 확인해주세요.')
+      alert((e as Error).message || 'Failed to save. Please check your connection.')
     } finally {
       setSaving(false)
     }
@@ -181,11 +181,11 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
         doEmbed(docId2)
         savedId2 = docId2
       }
-      alert(duplicateInfo ? '기존 항목이 업데이트되었습니다!' : '저장되었습니다!')
+      alert(duplicateInfo ? 'Updated!' : 'Saved!')
       onClose({ id: savedId2, folderId: newFolder.id, isPublic })
     } catch (e) {
       console.error('Create and save error:', e)
-      alert((e as Error).message || '저장에 실패했습니다. DB 연결을 확인해주세요.')
+      alert((e as Error).message || 'Failed to save. Please check your connection.')
     } finally {
       setSaving(false)
     }
@@ -194,62 +194,62 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
   return (
     <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-3xl w-full max-w-md p-6 flex flex-col gap-5 shadow-2xl">
-        <h2 className="text-xl font-bold text-white text-center">라이브러리에 저장</h2>
+        <h2 className="text-xl font-bold text-white text-center">Save to Library</h2>
 
-        {/* 중복 영상 안내 */}
+        {/* Duplicate video notice */}
         {duplicateInfo && (
           <div className="flex items-start gap-2.5 bg-amber-500/10 border border-amber-500/25 rounded-2xl px-4 py-3">
             <span className="text-base shrink-0">🔄</span>
             <p className="text-amber-300 text-xs leading-relaxed">
-              이미 저장된 영상입니다. 저장하면 <span className="font-bold">기존 항목이 최신 분석 내용으로 업데이트</span>됩니다.
+              This video is already saved. Saving again will <span className="font-bold">update the existing entry with the latest analysis</span>.
             </p>
           </div>
         )}
 
-        {/* 비회원: 로그인 유도 */}
+        {/* Guest: prompt login */}
         {!user && (
           <div className="flex flex-col items-center gap-5 py-4">
             <div className="text-5xl">📚</div>
             <div className="text-center space-y-1.5">
-              <p className="text-white font-semibold">로그인 후 저장할 수 있어요</p>
-              <p className="text-[var(--text-muted)] text-sm leading-relaxed">라이브러리에 저장하면 언제든지<br />다시 꺼내볼 수 있습니다.</p>
+              <p className="text-white font-semibold">Sign in to save</p>
+              <p className="text-[var(--text-muted)] text-sm leading-relaxed">Save to your library and<br />access it anytime.</p>
             </div>
             <button
               onClick={() => { onClose(); openAuthModal('login') }}
               className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl transition-colors"
             >
-              로그인 / 회원가입
+              Log In / Sign Up
             </button>
             <Button variant="ghost" className="w-full text-zinc-500 hover:text-zinc-300 text-sm" onClick={() => onClose()}>
-              취소
+              Cancel
             </Button>
           </div>
         )}
 
         {user && (<>
 
-          {/* 공개 여부 */}
+          {/* Visibility */}
           <div className="flex bg-[var(--bg-elevated)] rounded-xl p-1 border border-[var(--border-subtle)]">
             <button
               onClick={() => setIsPublic(false)}
               className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${!isPublic ? 'bg-[var(--bg-surface)] text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'}`}
             >
-              🔒 비공개
+              🔒 Private
             </button>
             <button
               onClick={() => setIsPublic(true)}
               className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${isPublic ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow' : 'text-[var(--text-subtle)] hover:text-white'}`}
             >
-              🌍 광장에 공유
+              🌍 Share to Square
             </button>
           </div>
 
-          {/* 검색 + 정렬 */}
+          {/* Search + sort */}
           <div className="flex gap-2">
             <Input
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="🔍 폴더 검색"
+              placeholder="🔍 Search folders"
               className="bg-[var(--bg-elevated)] border-[var(--border-subtle)] text-white h-10 text-sm"
             />
             <select
@@ -257,17 +257,17 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
               onChange={e => setSort(e.target.value as SortKey)}
               className="bg-[var(--bg-elevated)] border border-[var(--border-subtle)] text-[var(--text-muted)] text-xs rounded-lg px-2 h-10 shrink-0 focus:outline-none"
             >
-              <option value="date_desc">최신순</option>
-              <option value="date_asc">오래된순</option>
-              <option value="name_asc">가나다 ↑</option>
-              <option value="name_desc">가나다 ↓</option>
+              <option value="date_desc">Newest</option>
+              <option value="date_asc">Oldest</option>
+              <option value="name_asc">A → Z</option>
+              <option value="name_desc">Z → A</option>
             </select>
           </div>
 
-          {/* 폴더 목록 */}
+          {/* Folder list */}
           <div className="max-h-52 overflow-y-auto space-y-1.5 pr-0.5">
             {loading ? (
-              <p className="text-center text-sm text-[var(--text-subtle)] py-4">폴더 불러오는 중...</p>
+              <p className="text-center text-sm text-[var(--text-subtle)] py-4">Loading folders...</p>
             ) : filteredFolders.length > 0 ? (
               filteredFolders.map(f => (
                 <Button
@@ -281,19 +281,19 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
                 </Button>
               ))
             ) : search.trim() ? (
-              <p className="text-center text-sm text-[var(--text-subtle)] py-4">"{search}"에 해당하는 폴더가 없습니다.</p>
+              <p className="text-center text-sm text-[var(--text-subtle)] py-4">No folders match &ldquo;{search}&rdquo;.</p>
             ) : (
-              <p className="text-center text-sm text-[var(--text-subtle)] py-4">생성된 폴더가 없습니다.</p>
+              <p className="text-center text-sm text-[var(--text-subtle)] py-4">No folders yet.</p>
             )}
           </div>
 
-          {/* 새 폴더 생성 + 저장 */}
+          {/* New folder + save */}
           <div className="flex gap-2 pt-1 border-t border-[var(--border-subtle)]">
             <Input
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && newFolderName.trim()) handleCreateAndSave() }}
-              placeholder="새 폴더 이름 입력"
+              placeholder="New folder name"
               className="bg-[var(--bg-elevated)] border-none text-white h-11"
             />
             <Button
@@ -301,12 +301,12 @@ export default function SaveModal({ data, onClose }: { data: any, onClose: (save
               onClick={handleCreateAndSave}
               disabled={saving || !newFolderName.trim()}
             >
-              만들고 저장
+              Create & Save
             </Button>
           </div>
 
           <Button variant="ghost" className="w-full text-zinc-500 hover:text-zinc-300" onClick={() => onClose()} disabled={saving}>
-            취소
+            Cancel
           </Button>
         </>)}
       </div>
