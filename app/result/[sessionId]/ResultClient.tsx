@@ -595,7 +595,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
       const isTranscriptSource = (data as any).sourceType === 'voice' || (data as any).sourceType === 'pdf'
 
       // 항상 기존 transcript 재사용 — YouTube도 재수집 없이 요약만 재생성
-      res = await fetch('/api/reanalyze-transcript', {
+      const res = await fetch('/api/reanalyze-transcript', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
