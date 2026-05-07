@@ -43,7 +43,7 @@ function formatDate(dateStr: string) {
 function formatDateShort(dateStr: string) {
   if (!dateStr) return ''
   const d = new Date(dateStr)
-  const days = ['일', '월', '화', '수', '목', '금', '토']
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
   return `${d.getMonth() + 1}/${d.getDate()} (${days[d.getDay()]})`
 }
 
@@ -87,10 +87,10 @@ export default function ItineraryDiary({ result, regionName, regionEmoji, startD
 
       const pdf = new jsPDF({ orientation: pdfH > pdfW ? 'p' : 'l', unit: 'mm', format: [pdfW, pdfH] })
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH)
-      pdf.save(`제주여행_${startDate}_${nights}박${days}일.pdf`)
+      pdf.save(`itinerary_${startDate}_${nights}N${days}D.pdf`)
     } catch (e) {
       console.error(e)
-      alert('PDF 저장에 실패했습니다.')
+      alert('Failed to save PDF.')
     } finally {
       setDownloading(false)
     }
@@ -106,9 +106,9 @@ export default function ItineraryDiary({ result, regionName, regionEmoji, startD
           className="flex items-center gap-2 px-4 py-2 bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] border border-[var(--border-default)] rounded-xl text-sm text-zinc-300 hover:text-white transition-all disabled:opacity-50"
         >
           {downloading ? (
-            <><span className="w-3.5 h-3.5 rounded-full border border-zinc-400 border-t-transparent animate-spin" /> 저장 중...</>
+            <><span className="w-3.5 h-3.5 rounded-full border border-zinc-400 border-t-transparent animate-spin" /> Saving...</>
           ) : (
-            <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> PDF 저장</>
+            <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> Save PDF</>
           )}
         </button>
       </div>
@@ -130,18 +130,18 @@ export default function ItineraryDiary({ result, regionName, regionEmoji, startD
             <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
               <span style={{ padding: '4px 12px', background: 'rgba(255,255,255,0.2)', borderRadius: 999, fontSize: 11, fontWeight: 700 }}>{nights}박 {days}일</span>
               {mode === 'with_recommendations' && (
-                <span style={{ padding: '4px 12px', background: 'rgba(255,255,255,0.2)', borderRadius: 999, fontSize: 11, fontWeight: 700 }}>✨ AI 큐레이션</span>
+                <span style={{ padding: '4px 12px', background: 'rgba(255,255,255,0.2)', borderRadius: 999, fontSize: 11, fontWeight: 700 }}>✨ AI Curation</span>
               )}
             </div>
           </div>
         </div>
 
-        {/* 숙소 추천 */}
+        {/* Accommodation */}
         {result.accommodation_suggestion && (
           <div style={{ margin: '20px 20px 0', background: 'rgba(245,158,11,0.10)', border: '1px solid rgba(245,158,11,0.20)', borderRadius: 16, padding: '12px 16px', display: 'flex', gap: 12 }}>
             <span style={{ fontSize: 20, flexShrink: 0 }}>🏨</span>
             <div>
-              <p style={{ color: '#fbbf24', fontSize: 11, fontWeight: 700, marginBottom: 2 }}>숙소 추천</p>
+              <p style={{ color: '#fbbf24', fontSize: 11, fontWeight: 700, marginBottom: 2 }}>Accommodation</p>
               <p style={{ color: '#d4d4d8', fontSize: 11, lineHeight: 1.6 }}>{result.accommodation_suggestion}</p>
             </div>
           </div>
@@ -194,7 +194,7 @@ export default function ItineraryDiary({ result, regionName, regionEmoji, startD
                             <span style={{ fontSize: 11, fontWeight: 700, color: c.text }}>{slot.time}</span>
                             <p style={{ color: '#fff', fontWeight: 600, fontSize: 13 }}>{slot.spotName}</p>
                             {slot.isRecommended && (
-                              <span style={{ fontSize: 9, padding: '2px 6px', borderRadius: 4, background: 'rgba(6,182,212,0.15)', color: '#22d3ee', fontWeight: 700, border: '1px solid rgba(6,182,212,0.20)' }}>AI추천</span>
+                              <span style={{ fontSize: 9, padding: '2px 6px', borderRadius: 4, background: 'rgba(6,182,212,0.15)', color: '#22d3ee', fontWeight: 700, border: '1px solid rgba(6,182,212,0.20)' }}>AI Pick</span>
                             )}
                           </div>
                           <p style={{ color: '#a1a1aa', fontSize: 11, lineHeight: 1.6 }}>{slot.activity}</p>
@@ -228,7 +228,7 @@ export default function ItineraryDiary({ result, regionName, regionEmoji, startD
             <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: 16, display: 'flex', gap: 12 }}>
               <span style={{ fontSize: 20, flexShrink: 0 }}>🚗</span>
               <div>
-                <p style={{ color: '#a1a1aa', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>이동 & 렌트카</p>
+                <p style={{ color: '#a1a1aa', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Transport & Car Rental</p>
                 <p style={{ color: '#d4d4d8', fontSize: 11, lineHeight: 1.6 }}>{result.transport_tips}</p>
               </div>
             </div>
@@ -237,7 +237,7 @@ export default function ItineraryDiary({ result, regionName, regionEmoji, startD
             <div style={{ background: 'linear-gradient(90deg, rgba(249,115,22,0.10), rgba(236,72,153,0.10))', border: '1px solid rgba(249,115,22,0.20)', borderRadius: 16, padding: 16, display: 'flex', gap: 12 }}>
               <span style={{ fontSize: 20, flexShrink: 0 }}>✨</span>
               <div>
-                <p style={{ color: '#fb923c', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>여행 꿀팁</p>
+                <p style={{ color: '#fb923c', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Travel Tips</p>
                 <p style={{ color: '#d4d4d8', fontSize: 11, lineHeight: 1.6 }}>{result.overall_tip}</p>
               </div>
             </div>

@@ -42,7 +42,7 @@ export default function WishSpotModal({ userId, spot, onClose, onAdded }: Props)
     const name = newName.trim()
     if (!name) return
     if (!userId || userId.startsWith('user_')) {
-      alert('로그인이 필요합니다. 새로고침 후 다시 시도해주세요.')
+      alert('Login required. Please refresh and try again.')
       return
     }
     try {
@@ -53,7 +53,7 @@ export default function WishSpotModal({ userId, spot, onClose, onAdded }: Props)
       setCreating(false)
       setNewName('')
     } catch (e: any) {
-      alert('지역 생성 실패: ' + (e.message || '알 수 없는 오류'))
+      alert('Failed to create region: ' + (e.message || 'Unknown error'))
     }
   }
 
@@ -65,7 +65,7 @@ export default function WishSpotModal({ userId, spot, onClose, onAdded }: Props)
       onAdded?.()
       onClose()
     } catch (e: any) {
-      alert('저장 실패: ' + e.message)
+      alert('Save failed: ' + e.message)
     } finally {
       setSaving(false)
     }
@@ -81,7 +81,7 @@ export default function WishSpotModal({ userId, spot, onClose, onAdded }: Props)
       >
         <div className="px-6 pt-6 pb-4 border-b border-[var(--border-subtle)] flex items-start justify-between">
           <div>
-            <h2 className="text-white font-bold text-base">🗺️ 여행 찜하기</h2>
+            <h2 className="text-white font-bold text-base">🗺️ Save to Wish List</h2>
             <p className="text-zinc-500 text-xs mt-0.5 truncate max-w-[200px]">{spot.name}</p>
           </div>
           <button onClick={onClose} className="text-zinc-500 hover:text-white text-xl leading-none ml-4">✕</button>
@@ -94,7 +94,7 @@ export default function WishSpotModal({ userId, spot, onClose, onAdded }: Props)
             </div>
           ) : (
             <>
-              <p className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">저장할 지역 폴더</p>
+              <p className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Select a region folder</p>
 
               {/* 지역 목록 */}
               <div className="space-y-1.5 max-h-48 overflow-y-auto">
@@ -110,19 +110,19 @@ export default function WishSpotModal({ userId, spot, onClose, onAdded }: Props)
                   >
                     <span className="text-xl">{r.emoji}</span>
                     <span className="flex-1 text-sm font-medium">{r.name}</span>
-                    <span className="text-xs text-zinc-500">{r.spotCount}개</span>
+                    <span className="text-xs text-zinc-500">{r.spotCount} spots</span>
                     {selectedId === r.id && <span className="text-cyan-400 text-xs">✓</span>}
                   </button>
                 ))}
                 {regions.length === 0 && !creating && (
-                  <p className="text-zinc-500 text-sm text-center py-4">지역 폴더가 없습니다.<br />아래에서 새 폴더를 만들어보세요.</p>
+                  <p className="text-zinc-500 text-sm text-center py-4">No region folders yet.<br />Create one below.</p>
                 )}
               </div>
 
               {/* 새 지역 만들기 */}
               {creating ? (
                 <div className="bg-[var(--overlay-subtle)] border border-cyan-500/30 rounded-2xl p-4 space-y-3">
-                  <p className="text-xs text-cyan-400 font-semibold">새 지역 만들기</p>
+                  <p className="text-xs text-cyan-400 font-semibold">Create new region</p>
                   {/* 이모지 선택 */}
                   <div className="flex gap-1.5 flex-wrap">
                     {EMOJI_OPTIONS.map(e => (
@@ -142,7 +142,7 @@ export default function WishSpotModal({ userId, spot, onClose, onAdded }: Props)
                     value={newName}
                     onChange={e => setNewName(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter') handleCreateRegion(); if (e.key === 'Escape') setCreating(false) }}
-                    placeholder="지역 이름 (예: 제주도, 도쿄)"
+                    placeholder="Region name (e.g. Tokyo, Paris)"
                     className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-500/40"
                   />
                   <div className="flex gap-2">
@@ -151,13 +151,13 @@ export default function WishSpotModal({ userId, spot, onClose, onAdded }: Props)
                       disabled={!newName.trim()}
                       className="flex-1 py-2 bg-cyan-500 hover:bg-cyan-600 disabled:bg-zinc-700 disabled:text-zinc-500 text-white text-xs font-bold rounded-xl transition-colors"
                     >
-                      만들기
+                      Create
                     </button>
                     <button
                       onClick={() => { setCreating(false); setNewName('') }}
                       className="px-4 py-2 bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 text-xs rounded-xl transition-colors"
                     >
-                      취소
+                      Cancel
                     </button>
                   </div>
                 </div>
@@ -166,7 +166,7 @@ export default function WishSpotModal({ userId, spot, onClose, onAdded }: Props)
                   onClick={() => setCreating(true)}
                   className="w-full py-2.5 border border-dashed border-[var(--border-strong)] hover:border-cyan-500/40 text-zinc-500 hover:text-cyan-400 text-xs rounded-2xl transition-all"
                 >
-                  + 새 지역 폴더 만들기
+                  + Create new region folder
                 </button>
               )}
             </>
@@ -175,7 +175,7 @@ export default function WishSpotModal({ userId, spot, onClose, onAdded }: Props)
 
         <div className="px-6 py-4 border-t border-[var(--border-subtle)] flex gap-2">
           <button onClick={onClose} className="flex-1 h-11 rounded-2xl bg-[var(--overlay-subtle)] text-zinc-400 text-sm hover:bg-[var(--overlay-default)] transition-colors">
-            취소
+            Cancel
           </button>
           <button
             onClick={handleSave}
@@ -184,7 +184,7 @@ export default function WishSpotModal({ userId, spot, onClose, onAdded }: Props)
           >
             {saving ? (
               <div className="w-4 h-4 rounded-full border-2 border-[var(--border-emphasis)] border-t-white animate-spin" />
-            ) : '찜 저장'}
+            ) : 'Save to wish list'}
           </button>
         </div>
       </div>

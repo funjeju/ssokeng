@@ -43,7 +43,7 @@ export default function FloatingChatWindow() {
       await sendMessage(chat.conversationId, user.uid, t, chat.otherUser.uid)
     } catch (e) {
       console.error(e)
-      alert('전송 실패')
+      alert('Failed to send message')
       setText(t)
     } finally {
       setSending(false)
@@ -87,7 +87,7 @@ export default function FloatingChatWindow() {
           {/* 메시지 영역 */}
           <div className="flex-1 h-[calc(450px-112px)] overflow-y-auto p-4 space-y-3 scrollbar-message">
             {messages.length === 0 ? (
-              <p className="text-center text-[var(--text-subtle)] text-[11px] py-10 opacity-50">첫 인사로 대화를 시작해보세요! 👋</p>
+              <p className="text-center text-[var(--text-subtle)] text-[11px] py-10 opacity-50">Say hello to start the conversation! 👋</p>
             ) : (
               messages.map(msg => {
                 const isMine = msg.senderId === user?.uid
@@ -115,7 +115,7 @@ export default function FloatingChatWindow() {
                 value={text}
                 onChange={e => setText(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                placeholder="메시지 입력..."
+                placeholder="Type a message..."
                 className="flex-1 bg-transparent border-none text-white text-sm outline-none placeholder:text-[var(--text-subtle)]"
               />
               <button 

@@ -83,8 +83,8 @@ export default function YouTubeImportTab() {
       { headers: { Authorization: `Bearer ${token}` } }
     )
     const data = await res.json()
-    if (!res.ok) throw new Error(data.error?.message ?? '재생목록을 불러오지 못했습니다.')
-    if (!data.items?.length) throw new Error('재생목록이 없거나 가져올 수 없습니다.')
+    if (!res.ok) throw new Error(data.error?.message ?? 'Failed to load playlists.')
+    if (!data.items?.length) throw new Error('No playlists found or unable to fetch them.')
 
     const fetchedPlaylists: YTCachedPlaylist[] = []
     const videosByPlaylist: Record<string, YTCachedVideo[]> = {}
@@ -143,7 +143,7 @@ export default function YouTubeImportTab() {
       scope: 'https://www.googleapis.com/auth/youtube.readonly',
       callback: async (resp) => {
         if (resp.error || !resp.access_token) {
-          setError('YouTube 연동에 실패했습니다.')
+          setError('Failed to connect to YouTube.')
           setSyncing(false)
           return
         }
@@ -191,7 +191,7 @@ export default function YouTubeImportTab() {
       {/* 상단: 연동 버튼 + 안내 */}
       <div className="flex items-center justify-between">
         <p className="text-[var(--text-subtle)] text-xs">
-          YouTube 정책상 보안 연결은 브라우저 세션마다 재인증이 필요합니다
+          Per YouTube policy, re-authentication is required each browser session
         </p>
         <button
           onClick={handleSync}
@@ -208,7 +208,7 @@ export default function YouTubeImportTab() {
               <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
             </svg>
           )}
-          {syncing ? '동기화 중...' : playlists.length > 0 ? '재동기화' : 'YouTube 연동하기'}
+          {syncing ? 'Syncing...' : playlists.length > 0 ? 'Re-sync' : 'Connect YouTube'}
         </button>
       </div>
 
@@ -217,13 +217,13 @@ export default function YouTubeImportTab() {
       {playlists.length === 0 && !syncing ? (
         <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
           <span className="text-4xl opacity-20">📋</span>
-          <p className="text-[var(--text-subtle)] text-sm">YouTube 연동하기를 눌러 재생목록을 가져오세요</p>
+          <p className="text-[var(--text-subtle)] text-sm">Press "Connect YouTube" to load your playlists</p>
         </div>
       ) : (
         <div className="flex flex-col md:flex-row gap-4">
           {/* 좌측: 재생목록 */}
           <aside className="w-full md:w-56 shrink-0">
-            <p className="text-[var(--text-subtle)] text-[10px] mb-2 uppercase tracking-wider">내 재생목록</p>
+            <p className="text-[var(--text-subtle)] text-[10px] mb-2 uppercase tracking-wider">My Playlists</p>
             <div className="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 scrollbar-none">
               {playlists.map(pl => (
                 <button
@@ -239,7 +239,7 @@ export default function YouTubeImportTab() {
                     <span className="absolute -top-1 -right-1 text-[9px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-full">NEW</span>
                   )}
                   <p className="text-sm font-medium truncate max-w-[170px]">{pl.title}</p>
-                  <p className="text-[10px] text-[var(--text-subtle)] mt-0.5">{pl.itemCount}개</p>
+                  <p className="text-[10px] text-[var(--text-subtle)] mt-0.5">{pl.itemCount} videos</p>
                 </button>
               ))}
             </div>
@@ -250,7 +250,7 @@ export default function YouTubeImportTab() {
             {!selectedPlaylist ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
                 <span className="text-3xl mb-2 opacity-20">👈</span>
-                <p className="text-[var(--text-subtle)] text-sm">재생목록을 선택하면 영상이 표시됩니다</p>
+                <p className="text-[var(--text-subtle)] text-sm">Select a playlist to see its videos</p>
               </div>
             ) : loadingVideos ? (
               <div className="flex justify-center py-16">
@@ -260,10 +260,10 @@ export default function YouTubeImportTab() {
               <>
                 <div className="flex items-center gap-2 mb-4">
                   <h3 className="text-white font-semibold text-sm truncate">{selectedPlaylist.title}</h3>
-                  <span className="text-[var(--text-subtle)] text-xs shrink-0">{videos.length}개</span>
+                  <span className="text-[var(--text-subtle)] text-xs shrink-0">{videos.length} videos</span>
                 </div>
                 {videos.length === 0 ? (
-                  <p className="text-center py-12 text-[var(--text-subtle)] text-sm">영상이 없습니다.</p>
+                  <p className="text-center py-12 text-[var(--text-subtle)] text-sm">No videos in this playlist.</p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {videos.map(video => {
@@ -289,14 +289,14 @@ export default function YouTubeImportTab() {
                                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                 </svg>
-                                요약완료
+                                Summarized
                               </div>
                             ) : (
                               <button
                                 onClick={() => router.push(`/?url=${encodeURIComponent(`https://www.youtube.com/watch?v=${video.videoId}`)}`)}
                                 className="w-full py-2 bg-orange-500/10 hover:bg-orange-500 text-orange-400 hover:text-white text-xs font-bold rounded-xl transition-all border border-orange-500/20 hover:border-transparent"
                               >
-                                AI 요약하기
+                                Summarize with AI
                               </button>
                             )}
                           </div>

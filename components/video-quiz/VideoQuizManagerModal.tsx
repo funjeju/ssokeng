@@ -22,15 +22,15 @@ interface Props {
 type View = 'list' | 'create' | 'edit'
 
 const TYPE_TABS: { id: VideoQuizType; label: string; emoji: string }[] = [
-  { id: 'ox', label: 'OX 퀴즈', emoji: '⭕' },
-  { id: 'multiple_choice', label: '객관식', emoji: '📋' },
-  { id: 'short_answer', label: '주관식', emoji: '✏️' },
+  { id: 'ox', label: 'OX Quiz', emoji: '⭕' },
+  { id: 'multiple_choice', label: 'Multiple choice', emoji: '📋' },
+  { id: 'short_answer', label: 'Short answer', emoji: '✏️' },
 ]
 
 const TYPE_LABEL: Record<VideoQuizType, string> = {
   ox: 'OX',
-  multiple_choice: '객관식',
-  short_answer: '주관식',
+  multiple_choice: 'Multiple choice',
+  short_answer: 'Short answer',
 }
 
 function QuizForm({
@@ -63,7 +63,7 @@ function QuizForm({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) { setLocalError('이미지는 5MB 이하만 가능합니다.'); return }
+    if (file.size > 5 * 1024 * 1024) { setLocalError('Image must be 5MB or smaller.'); return }
     setImageFile(file)
     setImagePreview(URL.createObjectURL(file))
     setLocalError('')
@@ -74,13 +74,13 @@ function QuizForm({
   }
 
   const validate = (): boolean => {
-    if (!question.trim()) { setLocalError('문제를 입력해주세요.'); return false }
-    if (quizType === 'ox' && !oxAnswer) { setLocalError('정답(O/X)을 선택해주세요.'); return false }
+    if (!question.trim()) { setLocalError('Please enter the question.'); return false }
+    if (quizType === 'ox' && !oxAnswer) { setLocalError('Please select the correct answer (O/X).'); return false }
     if (quizType === 'multiple_choice') {
       const filled = options.filter(o => o.trim())
-      if (filled.length < 2) { setLocalError('보기를 최소 2개 이상 입력해주세요.'); return false }
-      if (correctOptionIndex === null) { setLocalError('정답 번호를 선택해주세요.'); return false }
-      if (!options[correctOptionIndex]?.trim()) { setLocalError('선택한 정답 번호의 보기가 비어있습니다.'); return false }
+      if (filled.length < 2) { setLocalError('Please enter at least 2 options.'); return false }
+      if (correctOptionIndex === null) { setLocalError('Please select the correct option.'); return false }
+      if (!options[correctOptionIndex]?.trim()) { setLocalError('The selected correct option is empty.'); return false }
     }
     return true
   }
@@ -125,11 +125,11 @@ function QuizForm({
 
       {/* 문제 */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs text-[var(--text-subtle)] font-medium">문제</label>
+        <label className="text-xs text-[var(--text-subtle)] font-medium">Question</label>
         <textarea
           value={question}
           onChange={e => setQuestion(e.target.value)}
-          placeholder="문제를 입력하세요"
+          placeholder="Enter the question"
           rows={3}
           className="w-full bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-white text-sm placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 resize-none"
         />
@@ -137,10 +137,10 @@ function QuizForm({
 
       {/* 이미지 */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs text-[var(--text-subtle)] font-medium">이미지 첨부 (선택)</label>
+        <label className="text-xs text-[var(--text-subtle)] font-medium">Attach image (optional)</label>
         {imagePreview ? (
           <div className="relative">
-            <img src={imagePreview} alt="미리보기" className="w-full max-h-40 object-cover rounded-xl border border-[var(--border-default)]" />
+            <img src={imagePreview} alt="Preview" className="w-full max-h-40 object-cover rounded-xl border border-[var(--border-default)]" />
             <button
               onClick={() => { setImageFile(null); setImagePreview(null) }}
               className="absolute top-2 right-2 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-black/80 transition-colors"
@@ -151,7 +151,7 @@ function QuizForm({
             onClick={() => fileInputRef.current?.click()}
             className="w-full py-3 bg-[var(--bg-elevated)] border border-dashed border-[var(--border-strong)] rounded-xl text-[var(--text-subtle)] text-sm hover:border-orange-500/40 hover:text-orange-400 transition-colors"
           >
-            📷 이미지 선택
+            📷 Select image
           </button>
         )}
         <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleImageChange} />
@@ -161,7 +161,7 @@ function QuizForm({
       {quizType === 'ox' && (
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs text-[var(--text-subtle)] font-medium">정답</label>
+            <label className="text-xs text-[var(--text-subtle)] font-medium">Correct answer</label>
             <div className="flex gap-3">
               {(['O', 'X'] as const).map(v => (
                 <button
@@ -177,11 +177,11 @@ function QuizForm({
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs text-[var(--text-subtle)] font-medium">해설 (선택)</label>
+            <label className="text-xs text-[var(--text-subtle)] font-medium">Explanation (optional)</label>
             <textarea
               value={oxExplanation}
               onChange={e => setOxExplanation(e.target.value)}
-              placeholder="정답 해설을 입력하세요"
+              placeholder="Enter an explanation for the answer"
               rows={2}
               className="w-full bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-white text-sm placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 resize-none"
             />
@@ -192,7 +192,7 @@ function QuizForm({
       {/* 객관식 */}
       {quizType === 'multiple_choice' && (
         <div className="flex flex-col gap-3">
-          <label className="text-xs text-[var(--text-subtle)] font-medium">보기 입력 (최소 2개)</label>
+          <label className="text-xs text-[var(--text-subtle)] font-medium">Options (at least 2)</label>
           {options.map((opt, i) => (
             <div key={i} className="flex items-center gap-2">
               <button
@@ -206,13 +206,13 @@ function QuizForm({
               <input
                 value={opt}
                 onChange={e => handleOptionChange(i, e.target.value)}
-                placeholder={`보기 ${i + 1}${i < 2 ? ' (필수)' : ' (선택)'}`}
+                placeholder={`Option ${i + 1}${i < 2 ? ' (required)' : ' (optional)'}`}
                 className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50"
               />
             </div>
           ))}
           {correctOptionIndex !== null && (
-            <p className="text-xs text-orange-400">✓ {['①', '②', '③', '④'][correctOptionIndex]} 번이 정답으로 설정됨</p>
+            <p className="text-xs text-orange-400">✓ {['①', '②', '③', '④'][correctOptionIndex]} set as correct answer</p>
           )}
         </div>
       )}
@@ -220,11 +220,11 @@ function QuizForm({
       {/* 주관식 */}
       {quizType === 'short_answer' && (
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs text-[var(--text-subtle)] font-medium">모범 답안 (선택)</label>
+          <label className="text-xs text-[var(--text-subtle)] font-medium">Sample answer (optional)</label>
           <textarea
             value={sampleAnswer}
             onChange={e => setSampleAnswer(e.target.value)}
-            placeholder="모범 답안을 입력하면 학습자에게 참고로 보여집니다"
+            placeholder="Enter a sample answer to show learners as reference"
             rows={3}
             className="w-full bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-white text-sm placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 resize-none"
           />
@@ -238,14 +238,14 @@ function QuizForm({
           onClick={onCancel}
           className="flex-1 py-3 bg-[var(--bg-elevated)] hover:bg-[var(--overlay-default)] text-[var(--text-subtle)] hover:text-white font-bold rounded-2xl text-sm transition-colors border border-[var(--border-default)]"
         >
-          취소
+          Cancel
         </button>
         <button
           onClick={handleSubmit}
           disabled={saving}
           className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-bold rounded-2xl text-sm transition-colors"
         >
-          {saving ? '저장 중...' : initialData ? '수정 완료' : '퀴즈 저장하기'}
+          {saving ? 'Saving...' : initialData ? 'Save changes' : 'Save quiz'}
         </button>
       </div>
     </div>
@@ -284,30 +284,30 @@ export default function VideoQuizManagerModal({
       setView('list')
       setEditingQuiz(null)
     } catch (e) {
-      setError('저장에 실패했습니다. 다시 시도해주세요.')
+      setError('Failed to save. Please try again.')
     } finally {
       setSaving(false)
     }
   }
 
   const handleDelete = async (quiz: VideoQuiz) => {
-    if (!confirm(`"${quiz.question.slice(0, 30)}..." 퀴즈를 삭제하시겠습니까?`)) return
+    if (!confirm(`Delete quiz "${quiz.question.slice(0, 30)}..."?`)) return
     setDeletingId(quiz.id)
     try {
       await deleteVideoQuiz(quiz.id)
       onChanged()
     } catch {
-      alert('삭제에 실패했습니다.')
+      alert('Failed to delete.')
     } finally {
       setDeletingId(null)
     }
   }
 
   const headerTitle = view === 'create'
-    ? `퀴즈 추가 — ${secsToLabel(currentTimeSec)} 지점`
+    ? `Add quiz — at ${secsToLabel(currentTimeSec)}`
     : view === 'edit' && editingQuiz
-      ? `퀴즈 수정 — ${secsToLabel(editingQuiz.timestampSec)} 지점`
-      : '퀴즈 관리'
+      ? `Edit quiz — at ${secsToLabel(editingQuiz.timestampSec)}`
+      : 'Manage quizzes'
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -320,12 +320,12 @@ export default function VideoQuizManagerModal({
               <button
                 onClick={() => { setView('list'); setEditingQuiz(null); setError('') }}
                 className="text-[var(--text-subtle)] hover:text-white transition-colors text-sm mr-1"
-              >← 목록</button>
+              >← List</button>
             )}
             <div>
               <p className="text-white font-bold text-base">{headerTitle}</p>
               {view === 'list' && (
-                <p className="text-[var(--text-subtle)] text-xs mt-0.5">{quizzes.length}개의 퀴즈</p>
+                <p className="text-[var(--text-subtle)] text-xs mt-0.5">{quizzes.length} quizzes</p>
               )}
             </div>
           </div>
@@ -338,8 +338,8 @@ export default function VideoQuizManagerModal({
             <div className="overflow-y-auto flex-1 px-4 py-3 flex flex-col gap-2">
               {quizzes.length === 0 ? (
                 <div className="text-center text-[var(--text-subtle)] text-sm py-10">
-                  아직 등록된 퀴즈가 없습니다.<br />
-                  <span className="text-xs">아래 버튼으로 현재 시점에 추가해보세요.</span>
+                  No quizzes added yet.<br />
+                  <span className="text-xs">Use the button below to add one at the current timestamp.</span>
                 </div>
               ) : (
                 quizzes.map(q => (
@@ -358,12 +358,12 @@ export default function VideoQuizManagerModal({
                       <button
                         onClick={() => { setEditingQuiz(q); setView('edit'); setError('') }}
                         className="px-2.5 py-1.5 rounded-lg text-xs bg-[var(--overlay-subtle)] hover:bg-blue-500/15 border border-[var(--border-default)] hover:border-blue-500/30 text-[var(--text-subtle)] hover:text-blue-400 transition-colors"
-                      >수정</button>
+                      >Edit</button>
                       <button
                         onClick={() => handleDelete(q)}
                         disabled={deletingId === q.id}
                         className="px-2.5 py-1.5 rounded-lg text-xs bg-[var(--overlay-subtle)] hover:bg-red-500/15 border border-[var(--border-default)] hover:border-red-500/30 text-[var(--text-subtle)] hover:text-red-400 transition-colors disabled:opacity-40"
-                      >{deletingId === q.id ? '...' : '삭제'}</button>
+                      >{deletingId === q.id ? '...' : 'Delete'}</button>
                     </div>
                   </div>
                 ))
@@ -375,7 +375,7 @@ export default function VideoQuizManagerModal({
                 onClick={() => { setView('create'); setError('') }}
                 className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl text-sm transition-colors"
               >
-                📍 {secsToLabel(currentTimeSec)} 지점에 퀴즈 추가
+                📍 Add quiz at {secsToLabel(currentTimeSec)}
               </button>
             </div>
           </>

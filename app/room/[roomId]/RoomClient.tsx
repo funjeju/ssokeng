@@ -45,7 +45,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
   const router = useRouter()
   const { user } = useAuth()
   const uid = user?.uid || getLocalUserId()
-  const displayName = user?.displayName || '익명'
+  const displayName = user?.displayName || 'Anonymous'
   const photoURL = user?.photoURL || ''
 
   const [room, setRoom] = useState<WatchRoom | null>(null)
@@ -94,7 +94,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
   // ── 방 로드 ─────────────────────────────────────────────────────────────────
   useEffect(() => {
     getRoom(roomId).then(r => {
-      if (!r) { setError('방을 찾을 수 없습니다.'); setLoading(false); return }
+      if (!r) { setError('Room not found.'); setLoading(false); return }
       setRoom(r)
       // 비밀번호 없거나 방장이면 바로 인증
       if (!r.password || r.hostUid === uid) setPwVerified(true)
@@ -110,7 +110,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
   useEffect(() => {
     if (!joined) return
     const unsub1 = subscribeRoom(roomId, r => {
-      if (!r || (r as any).closed) { alert('방이 종료됐습니다.'); onClose ? onClose() : router.push('/'); return }
+      if (!r || (r as any).closed) { alert('The room has ended.'); onClose ? onClose() : router.push('/'); return }
       setRoom(r)
       // 참여자: 호스트가 보낸 플레이어 상태 동기화
       if (!isHost && playerRef.current && !isSyncing.current) {
@@ -150,14 +150,14 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
   // ── 입장 처리 ────────────────────────────────────────────────────────────────
   const handleJoin = async () => {
     if (!room) return
-    if (room.password && room.password !== pwInput) { setError('비밀번호가 틀렸습니다.'); return }
+    if (room.password && room.password !== pwInput) { setError('Incorrect password.'); return }
     try {
       if (!room.participants?.[uid]) {
         await joinRoom(roomId, { uid, displayName, photoURL })
       }
       setJoined(true)
       setError('')
-    } catch { setError('입장에 실패했습니다.') }
+    } catch { setError('Failed to join the room.') }
   }
 
   // ── 플레이어 콜백 ────────────────────────────────────────────────────────────
@@ -215,7 +215,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
       setVoiceActive(true)
       await updateDoc_voice(true)
     } catch (err) {
-      alert('마이크 접근 권한이 필요합니다.')
+      alert('Microphone access is required.')
     } finally {
       setVoiceLoading(false)
     }
@@ -257,7 +257,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
     setUploading(true)
     try {
       await uploadRoomFile(roomId, uid, displayName, photoURL, file)
-    } catch { alert('파일 업로드에 실패했습니다.') }
+    } catch { alert('Failed to upload file.') }
     finally { setUploading(false); if (fileInputRef.current) fileInputRef.current.value = '' }
   }
 
@@ -265,7 +265,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
   const handleCreatePoll = async () => {
     const opts = pollOptions.filter(o => o.trim())
     if (!pollQuestion.trim() || opts.length < 2) {
-      alert('질문과 2개 이상의 선택지를 입력해주세요.'); return
+      alert('Please enter a question and at least 2 options.'); return
     }
     await createPoll(roomId, pollQuestion.trim(), opts)
     setPollQuestion(''); setPollOptions(['', '']); setShowPollCreate(false)
@@ -307,13 +307,13 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
       })
       setNoteModal(false)
       setNoteText('')
-    } catch { alert('메모 저장에 실패했습니다.') }
+    } catch { alert('Failed to save note.') }
   }
 
   // ── 나가기 ───────────────────────────────────────────────────────────────────
   const handleLeave = async () => {
     if (isHost) {
-      if (!confirm('방을 종료하시겠습니까? 모든 참여자가 퇴장됩니다.')) return
+      if (!confirm('End the room? All participants will be removed.')) return
       await closeRoom(roomId)
     } else {
       await leaveRoom(roomId, uid, displayName)
@@ -333,7 +333,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
       <div className="text-center space-y-4">
         <p className="text-3xl">😢</p>
         <p>{error}</p>
-        <button onClick={() => router.push('/')} className="text-orange-400 underline text-sm">홈으로</button>
+        <button onClick={() => router.push('/')} className="text-orange-400 underline text-sm">Home</button>
       </div>
     </div>
   )
@@ -349,13 +349,13 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
         </div>
         {room.password && (
           <div className="space-y-2">
-            <label className="text-[var(--text-muted)] text-xs font-semibold">비밀번호</label>
+            <label className="text-[var(--text-muted)] text-xs font-semibold">Password</label>
             <input
               type="password"
               value={pwInput}
               onChange={e => setPwInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleJoin()}
-              placeholder="비밀번호를 입력하세요"
+              placeholder="Enter password"
               className="w-full h-10 px-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl text-white text-sm focus:outline-none focus:border-orange-500/50"
             />
           </div>
@@ -391,7 +391,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
           onClick={() => {
             const inviteUrl = `${window.location.origin}/room/${roomId}`
             navigator.clipboard.writeText(inviteUrl)
-            alert('초대 링크 복사됨!')
+            alert('Invite link copied!')
           }}
           className="shrink-0 px-3 h-8 rounded-lg bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-xs text-[var(--text-muted)] hover:text-white transition-colors flex items-center gap-1.5"
         >
@@ -403,7 +403,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
           onClick={handleLeave}
           className="shrink-0 px-3 h-8 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-400 text-xs font-semibold transition-colors"
         >
-          {isHost ? '방 종료' : '나가기'}
+          {isHost ? 'End room' : 'Leave'}
         </button>
       </div>
 
@@ -495,7 +495,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
               disabled={uploading}
               className="px-3 h-9 rounded-xl bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-xs text-[var(--text-muted)] hover:text-white transition-colors flex items-center gap-1.5 disabled:opacity-50"
             >
-              {uploading ? '업로드 중...' : '📎 파일'}
+              {uploading ? 'Uploading...' : '📎 File'}
             </button>
             <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileSelect} />
 
@@ -520,7 +520,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
                     : 'bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-[var(--text-muted)] hover:text-white'
                 } disabled:opacity-50`}
               >
-                🎙 {voiceLoading ? '연결 중...' : voiceActive ? '음성 OFF' : '음성 ON'}
+                🎙 {voiceLoading ? 'Connecting...' : voiceActive ? 'Voice OFF' : 'Voice ON'}
               </button>
             )}
 
@@ -541,7 +541,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
                   : 'bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] text-[var(--text-muted)] hover:text-white'
               }`}
             >
-              ✋ {myHandRaised ? '손 내리기' : '손들기'}
+              ✋ {myHandRaised ? 'Lower hand' : 'Raise hand'}
             </button>
           </div>
 
@@ -714,7 +714,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
                     value={chatInput}
                     onChange={e => setChatInput(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendChat() } }}
-                    placeholder="메시지 입력..."
+                    placeholder="Type a message..."
                     className="flex-1 h-9 px-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl text-xs text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50"
                   />
                   <button
@@ -736,7 +736,7 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
             <div className="flex-1 overflow-y-auto p-3 space-y-3">
               {polls.length === 0 && (
                 <p className="text-[var(--text-subtle)] text-xs text-center pt-4">
-                  {isHost ? '📊 아래 버튼으로 투표를 만들어보세요' : '아직 투표가 없습니다'}
+                  {isHost ? '📊 Create a poll using the button below' : 'No polls yet'}
                 </p>
               )}
               {polls.map(poll => {
@@ -818,17 +818,17 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
             <input
               value={pollQuestion}
               onChange={e => setPollQuestion(e.target.value)}
-              placeholder="투표 질문을 입력하세요"
+              placeholder="Enter poll question"
               className="w-full h-10 px-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50"
             />
             <div className="space-y-2">
-              <p className="text-[var(--text-subtle)] text-xs">선택지 (최소 2개)</p>
+              <p className="text-[var(--text-subtle)] text-xs">Options (at least 2)</p>
               {pollOptions.map((opt, i) => (
                 <div key={i} className="flex gap-2">
                   <input
                     value={opt}
                     onChange={e => setPollOptions(prev => prev.map((o, j) => j === i ? e.target.value : o))}
-                    placeholder={`선택지 ${i + 1}`}
+                    placeholder={`Option ${i + 1}`}
                     className="flex-1 h-9 px-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50"
                   />
                   {pollOptions.length > 2 && (
@@ -869,12 +869,12 @@ export default function RoomClient({ roomId, onClose }: { roomId: string; onClos
             </div>
             <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl px-3 py-2">
               <p className="text-orange-400 text-xs font-semibold">⏱ {noteTs} 시점</p>
-              <p className="text-[var(--text-subtle)] text-[10px] mt-0.5">내 마이페이지에도 저장됩니다</p>
+              <p className="text-[var(--text-subtle)] text-[10px] mt-0.5">Also saved to your profile page</p>
             </div>
             <textarea
               value={noteText}
               onChange={e => setNoteText(e.target.value)}
-              placeholder="이 구간에 대한 메모를 입력하세요..."
+              placeholder="Enter a note for this segment..."
               rows={4}
               className="w-full bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl p-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 resize-none"
             />

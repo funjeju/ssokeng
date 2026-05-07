@@ -89,23 +89,23 @@ export default function ProfilePage() {
   // 폴더 복제(Clone) 핸들러
   const handleCloneFolder = async () => {
     if (!user || !selectedFolder) return
-    const newName = prompt('복제할 폴더 이름을 입력해주세요:', `${selectedFolder.name} (from ${profile?.displayName})`)
+    const newName = prompt('Enter a name for the cloned folder:', `${selectedFolder.name} (from ${profile?.displayName})`)
     if (!newName) return
 
     setCloning(true)
     try {
       await cloneFolder(
         selectedFolder.id,
-        profile?.displayName || '익명',
+        profile?.displayName || 'Anonymous',
         actualUid,
         newName,
         user.uid,
-        { displayName: user.displayName || '익명', photoURL: user.photoURL || '' }
+        { displayName: user.displayName || 'Anonymous', photoURL: user.photoURL || '' }
       )
-      alert('폴더가 성공적으로 복제되었습니다! 마이페이지에서 확인해보세요.')
+      alert('Folder cloned successfully! Check your profile page.')
     } catch (e) {
       console.error(e)
-      alert('복제 중 오류가 발생했습니다.')
+      alert('An error occurred while cloning.')
     } finally {
       setCloning(false)
     }
@@ -113,30 +113,30 @@ export default function ProfilePage() {
 
   // 개별 영상 저장 핸들러
   const handleSaveItem = async (item: SavedSummary) => {
-    if (!user) { alert('로그인이 필요합니다.'); return }
+    if (!user) { alert('Login required.'); return }
     try {
       await saveSummary({
         ...item,
         userId: user.uid,
-        userDisplayName: user.displayName || '익명',
+        userDisplayName: user.displayName || 'Anonymous',
         userPhotoURL: user.photoURL || '',
         folderId: 'all', // 기본 폴더
         isPublic: false,
         createdAt: null, // 서버에서 재생성
       })
-      alert('나의 라이브러리에 저장되었습니다.')
+      alert('Saved to your library.')
     } catch (e) {
       console.error(e)
-      alert('저장 실패')
+      alert('Failed to save.')
     }
   }
 
   const handleFriendAction = async () => {
-    if (!user) { alert('로그인이 필요합니다.'); return }
+    if (!user) { alert('Login required.'); return }
     setFriendLoading(true)
     try {
       if (friendStatus === 'none') {
-        await sendFriendRequest(user.uid, user.displayName || '익명', user.photoURL || '', userId)
+        await sendFriendRequest(user.uid, user.displayName || 'Anonymous', user.photoURL || '', userId)
         setFriendStatus('pending_sent')
       } else if (friendStatus === 'pending_sent') {
         await cancelFriendRequest(user.uid, userId)
@@ -148,7 +148,7 @@ export default function ProfilePage() {
         const f = await getVisibleFolders(actualUid, true)
         setFolders(f)
       } else if (friendStatus === 'friends') {
-        if (!confirm('친구를 삭제하시겠습니까?')) return
+        if (!confirm('Remove this friend?')) return
         await removeFriend(user.uid, userId)
         setFriendStatus('none')
         // 폴더 목록 갱신 (공개 전용으로)
@@ -157,7 +157,7 @@ export default function ProfilePage() {
       }
     } catch (e: any) {
       console.error('[FriendAction Error]', e)
-      alert(`오류가 발생했습니다: ${e.message || '잠시 후 다시 시도해주세요.'}`)
+      alert(`An error occurred: ${e.message || 'Please try again.'}`)
     } finally { setFriendLoading(false) }
   }
 
@@ -169,36 +169,36 @@ export default function ProfilePage() {
       setFriendStatus('none')
     } catch (e: any) {
       console.error('[RejectFriend Error]', e)
-      alert('오류가 발생했습니다.')
+      alert('An error occurred.')
     } finally { setFriendLoading(false) }
   }
 
   const handleMessage = async () => {
-    if (!user) { alert('로그인이 필요합니다.'); return }
+    if (!user) { alert('Login required.'); return }
     setMessaging(true)
     try {
       const cid = await getOrCreateConversation(
         user.uid,
         { displayName: user.displayName || '', photoURL: user.photoURL || '' },
         userId,
-        { displayName: profile?.displayName || '익명', photoURL: profile?.photoURL || '' }
+        { displayName: profile?.displayName || 'Anonymous', photoURL: profile?.photoURL || '' }
       )
       openChat(cid, { 
         uid: userId, 
-        displayName: profile?.displayName || '익명', 
+        displayName: profile?.displayName || 'Anonymous', 
         photoURL: profile?.photoURL || '' 
       })
     } catch (e: any) {
       console.error('[MessageAction Error]', e)
-      alert('오류가 발생했습니다.')
+      alert('An error occurred.')
     } finally { setMessaging(false) }
   }
 
   const friendButtonConfig = {
-    none:             { label: '친구 추가', icon: '➕', style: 'bg-orange-500 hover:bg-orange-600 text-white' },
-    pending_sent:     { label: '요청됨', icon: '⏳', style: 'bg-[var(--bg-elevated)] border border-[var(--border-default)] text-[var(--text-muted)]' },
-    pending_received: { label: '수락하기', icon: '✅', style: 'bg-emerald-600 hover:bg-emerald-700 text-white' },
-    friends:          { label: '친구', icon: '✓', style: 'bg-[var(--bg-elevated)] border border-orange-500/40 text-orange-400' },
+    none:             { label: 'Add friend', icon: '➕', style: 'bg-orange-500 hover:bg-orange-600 text-white' },
+    pending_sent:     { label: 'Requested', icon: '⏳', style: 'bg-[var(--bg-elevated)] border border-[var(--border-default)] text-[var(--text-muted)]' },
+    pending_received: { label: 'Accept', icon: '✅', style: 'bg-emerald-600 hover:bg-emerald-700 text-white' },
+    friends:          { label: 'Friends', icon: '✓', style: 'bg-[var(--bg-elevated)] border border-orange-500/40 text-orange-400' },
   }[friendStatus]
 
   return (
@@ -221,7 +221,7 @@ export default function ProfilePage() {
               )}
 
               <div className="text-center">
-                <h1 className="text-xl font-bold text-white">{profile?.displayName || '익명'}</h1>
+                <h1 className="text-xl font-bold text-white">{profile?.displayName || 'Anonymous'}</h1>
                 <p className="text-[var(--text-subtle)] text-sm mt-1">
                   공개된 폴더 {folders.length}개
                 </p>
@@ -262,7 +262,7 @@ export default function ProfilePage() {
                     disabled={messaging}
                     className="flex items-center gap-1.5 px-4 py-2 bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] border border-[var(--border-default)] rounded-full text-sm text-white transition-all disabled:opacity-50"
                   >
-                    ✉️ {messaging ? '이동 중...' : '쪽지'}
+                    ✉️ {messaging ? 'Opening...' : 'Message'}
                   </button>
                 </div>
               )}
@@ -273,10 +273,10 @@ export default function ProfilePage() {
               <div className="mb-5 px-4 py-3 rounded-xl bg-[var(--bg-elevated)]/60 border border-[var(--border-subtle)] text-center">
                 <p className="text-[var(--text-subtle)] text-xs">
                   {friendStatus === 'none'
-                    ? '친구를 맺으면 이 유저의 전체 큐레이션을 볼 수 있어요'
+                    ? "Friend this user to see all of their curations"
                     : friendStatus === 'pending_sent'
-                    ? '친구 요청을 보냈습니다. 수락되면 전체 큐레이션을 볼 수 있어요'
-                    : '친구 요청을 수락하면 서로의 전체 큐레이션을 볼 수 있어요'}
+                    ? 'Friend request sent. You can see all curations once accepted.'
+                    : 'Accept the friend request to view each other\'s full curations.'}
                 </p>
               </div>
             )}
@@ -284,7 +284,7 @@ export default function ProfilePage() {
             {/* 폴더 목록 그리드 */}
             {folders.length === 0 ? (
               <div className="text-center py-20 text-[var(--text-subtle)]">
-                공개된 폴더가 없습니다.
+                No public folders.
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-4">
@@ -299,7 +299,7 @@ export default function ProfilePage() {
                     </div>
                     <div>
                       <h3 className="text-white font-bold truncate">{f.name}</h3>
-                      <p className="text-[var(--text-subtle)] text-xs mt-1">큐레이션 보기 →</p>
+                      <p className="text-[var(--text-subtle)] text-xs mt-1">View curations →</p>
                     </div>
                   </button>
                 ))}
@@ -324,7 +324,7 @@ export default function ProfilePage() {
                           disabled={cloning}
                           className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-full transition-all disabled:opacity-50"
                         >
-                          {cloning ? '복제 중...' : '✨ 폴더 전체 복제'}
+                          {cloning ? 'Cloning...' : '✨ Clone entire folder'}
                         </button>
                       )}
                       <button onClick={() => setSelectedFolder(null)} className="text-[var(--text-subtle)] hover:text-white p-1">✕</button>
@@ -338,7 +338,7 @@ export default function ProfilePage() {
                         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-orange-500" />
                       </div>
                     ) : folderItems.length === 0 ? (
-                      <p className="text-center text-[var(--text-subtle)] py-20">폴더가 비어있습니다.</p>
+                      <p className="text-center text-[var(--text-subtle)] py-20">This folder is empty.</p>
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {folderItems.map(item => (
@@ -346,7 +346,7 @@ export default function ProfilePage() {
                             <Link href={`/result/${item.sessionId}`} className="relative aspect-video overflow-hidden">
                               <img src={item.thumbnail} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
-                                <span className="text-white text-[10px] font-medium">내용 자세히 보기 →</span>
+                                <span className="text-white text-[10px] font-medium">View details →</span>
                               </div>
                             </Link>
                             <div className="p-3 space-y-2">

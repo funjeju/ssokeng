@@ -16,9 +16,9 @@ interface Props {
 }
 
 const TYPE_TABS: { id: VideoQuizType; label: string; emoji: string }[] = [
-  { id: 'ox', label: 'OX 퀴즈', emoji: '⭕' },
-  { id: 'multiple_choice', label: '객관식', emoji: '📋' },
-  { id: 'short_answer', label: '주관식', emoji: '✏️' },
+  { id: 'ox', label: 'OX Quiz', emoji: '⭕' },
+  { id: 'multiple_choice', label: 'Multiple choice', emoji: '📋' },
+  { id: 'short_answer', label: 'Short answer', emoji: '✏️' },
 ]
 
 export default function VideoQuizCreatorModal({
@@ -45,7 +45,7 @@ export default function VideoQuizCreatorModal({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) { setError('이미지는 5MB 이하만 가능합니다.'); return }
+    if (file.size > 5 * 1024 * 1024) { setError('Image must be 5MB or smaller.'); return }
     setImageFile(file)
     setImagePreview(URL.createObjectURL(file))
     setError('')
@@ -56,13 +56,13 @@ export default function VideoQuizCreatorModal({
   }
 
   const validate = (): boolean => {
-    if (!question.trim()) { setError('문제를 입력해주세요.'); return false }
-    if (quizType === 'ox' && !oxAnswer) { setError('정답(O/X)을 선택해주세요.'); return false }
+    if (!question.trim()) { setError('Please enter the question.'); return false }
+    if (quizType === 'ox' && !oxAnswer) { setError('Please select the correct answer (O/X).'); return false }
     if (quizType === 'multiple_choice') {
       const filled = options.filter(o => o.trim())
-      if (filled.length < 2) { setError('보기를 최소 2개 이상 입력해주세요.'); return false }
-      if (correctOptionIndex === null) { setError('정답 번호를 선택해주세요.'); return false }
-      if (!options[correctOptionIndex]?.trim()) { setError('선택한 정답 번호의 보기가 비어있습니다.'); return false }
+      if (filled.length < 2) { setError('Please enter at least 2 options.'); return false }
+      if (correctOptionIndex === null) { setError('Please select the correct option.'); return false }
+      if (!options[correctOptionIndex]?.trim()) { setError('The selected correct option is empty.'); return false }
     }
     return true
   }
@@ -114,7 +114,7 @@ export default function VideoQuizCreatorModal({
       onClose()
     } catch (e) {
       console.error('[QuizSave] 저장 실패:', e)
-      setError('저장에 실패했습니다. 다시 시도해주세요.')
+      setError('Failed to save. Please try again.')
     } finally {
       setSaving(false)
     }
@@ -127,8 +127,8 @@ export default function VideoQuizCreatorModal({
         {/* 헤더 */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-subtle)] shrink-0">
           <div>
-            <p className="text-white font-bold text-base">퀴즈 추가</p>
-            <p className="text-[var(--text-subtle)] text-xs mt-0.5">📍 {secsToLabel(timestampSec)} 지점</p>
+            <p className="text-white font-bold text-base">Add quiz</p>
+            <p className="text-[var(--text-subtle)] text-xs mt-0.5">📍 at {secsToLabel(timestampSec)}</p>
           </div>
           <button onClick={onClose} className="text-[var(--text-subtle)] hover:text-white transition-colors text-xl leading-none">✕</button>
         </div>
@@ -155,11 +155,11 @@ export default function VideoQuizCreatorModal({
 
           {/* 문제 입력 */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs text-[var(--text-subtle)] font-medium">문제</label>
+            <label className="text-xs text-[var(--text-subtle)] font-medium">Question</label>
             <textarea
               value={question}
               onChange={e => setQuestion(e.target.value)}
-              placeholder="문제를 입력하세요"
+              placeholder="Enter the question"
               rows={3}
               className="w-full bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-white text-sm placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 resize-none"
             />
@@ -167,10 +167,10 @@ export default function VideoQuizCreatorModal({
 
           {/* 이미지 첨부 */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs text-[var(--text-subtle)] font-medium">이미지 첨부 (선택)</label>
+            <label className="text-xs text-[var(--text-subtle)] font-medium">Attach image (optional)</label>
             {imagePreview ? (
               <div className="relative">
-                <img src={imagePreview} alt="미리보기" className="w-full max-h-40 object-cover rounded-xl border border-[var(--border-default)]" />
+                <img src={imagePreview} alt="Preview" className="w-full max-h-40 object-cover rounded-xl border border-[var(--border-default)]" />
                 <button
                   onClick={() => { setImageFile(null); setImagePreview(null) }}
                   className="absolute top-2 right-2 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-black/80 transition-colors"
@@ -181,7 +181,7 @@ export default function VideoQuizCreatorModal({
                 onClick={() => fileInputRef.current?.click()}
                 className="w-full py-3 bg-[var(--bg-elevated)] border border-dashed border-[var(--border-strong)] rounded-xl text-[var(--text-subtle)] text-sm hover:border-orange-500/40 hover:text-orange-400 transition-colors"
               >
-                📷 이미지 선택
+                📷 Select image
               </button>
             )}
             <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleImageChange} />
@@ -191,7 +191,7 @@ export default function VideoQuizCreatorModal({
           {quizType === 'ox' && (
             <div className="flex flex-col gap-3">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-[var(--text-subtle)] font-medium">정답</label>
+                <label className="text-xs text-[var(--text-subtle)] font-medium">Correct answer</label>
                 <div className="flex gap-3">
                   {(['O', 'X'] as const).map(v => (
                     <button
@@ -209,11 +209,11 @@ export default function VideoQuizCreatorModal({
                 </div>
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-[var(--text-subtle)] font-medium">해설 (선택)</label>
+                <label className="text-xs text-[var(--text-subtle)] font-medium">Explanation (optional)</label>
                 <textarea
                   value={oxExplanation}
                   onChange={e => setOxExplanation(e.target.value)}
-                  placeholder="정답 해설을 입력하세요"
+                  placeholder="Enter an explanation for the answer"
                   rows={2}
                   className="w-full bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-white text-sm placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 resize-none"
                 />
@@ -224,7 +224,7 @@ export default function VideoQuizCreatorModal({
           {/* 객관식 */}
           {quizType === 'multiple_choice' && (
             <div className="flex flex-col gap-3">
-              <label className="text-xs text-[var(--text-subtle)] font-medium">보기 입력 (최소 2개)</label>
+              <label className="text-xs text-[var(--text-subtle)] font-medium">Options (at least 2)</label>
               {options.map((opt, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <button
@@ -238,13 +238,13 @@ export default function VideoQuizCreatorModal({
                   <input
                     value={opt}
                     onChange={e => handleOptionChange(i, e.target.value)}
-                    placeholder={`보기 ${i + 1}${i < 2 ? ' (필수)' : ' (선택)'}`}
+                    placeholder={`Option ${i + 1}${i < 2 ? ' (required)' : ' (optional)'}`}
                     className="flex-1 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50"
                   />
                 </div>
               ))}
               {correctOptionIndex !== null && (
-                <p className="text-xs text-orange-400">✓ {['①', '②', '③', '④'][correctOptionIndex]} 번이 정답으로 설정됨</p>
+                <p className="text-xs text-orange-400">✓ {['①', '②', '③', '④'][correctOptionIndex]} set as correct answer</p>
               )}
             </div>
           )}
@@ -252,11 +252,11 @@ export default function VideoQuizCreatorModal({
           {/* 주관식 */}
           {quizType === 'short_answer' && (
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-[var(--text-subtle)] font-medium">모범 답안 (선택)</label>
+              <label className="text-xs text-[var(--text-subtle)] font-medium">Sample answer (optional)</label>
               <textarea
                 value={sampleAnswer}
                 onChange={e => setSampleAnswer(e.target.value)}
-                placeholder="모범 답안을 입력하면 학습자에게 참고로 보여집니다"
+                placeholder="Enter a sample answer to show learners as reference"
                 rows={3}
                 className="w-full bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-white text-sm placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 resize-none"
               />
@@ -273,7 +273,7 @@ export default function VideoQuizCreatorModal({
             disabled={saving}
             className="w-full py-3 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-bold rounded-2xl text-sm transition-colors"
           >
-            {saving ? '저장 중...' : '퀴즈 저장하기'}
+            {saving ? 'Saving...' : 'Save quiz'}
           </button>
         </div>
       </div>

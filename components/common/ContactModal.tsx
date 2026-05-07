@@ -7,9 +7,9 @@ interface ContactModalProps {
 }
 
 const TYPE_OPTIONS = [
-  { id: 'bug',        label: '🐛 버그 신고',  desc: '오류나 이상 동작을 알려주세요' },
-  { id: 'suggestion', label: '💡 제안',        desc: '기능 개선 아이디어가 있으신가요?' },
-  { id: 'partnership',label: '🤝 제휴 문의',  desc: '비즈니스 협업 제안' },
+  { id: 'bug',        label: '🐛 Bug report',  desc: 'Tell us about an error or unexpected behavior' },
+  { id: 'suggestion', label: '💡 Suggestion',  desc: 'Have an idea for a feature or improvement?' },
+  { id: 'partnership',label: '🤝 Partnership', desc: 'Business collaboration proposal' },
 ]
 
 export default function ContactModal({ onClose }: ContactModalProps) {
@@ -22,7 +22,7 @@ export default function ContactModal({ onClose }: ContactModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!type || !message.trim()) { setError('유형과 내용을 입력해주세요.'); return }
+    if (!type || !message.trim()) { setError('Please select a type and enter a message.'); return }
     setSending(true)
     setError('')
     try {
@@ -32,10 +32,10 @@ export default function ContactModal({ onClose }: ContactModalProps) {
         body: JSON.stringify({ type, email: email.trim(), message: message.trim() }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || '전송 실패')
+      if (!res.ok) throw new Error(data.error || 'Send failed')
       setDone(true)
     } catch (err: any) {
-      setError(err.message || '전송에 실패했습니다. 다시 시도해주세요.')
+      setError(err.message || 'Failed to send. Please try again.')
     } finally {
       setSending(false)
     }
@@ -54,22 +54,22 @@ export default function ContactModal({ onClose }: ContactModalProps) {
           /* 전송 완료 */
           <div className="text-center py-6">
             <div className="text-5xl mb-4">✅</div>
-            <h2 className="text-lg font-bold text-white mb-2">전송 완료!</h2>
+            <h2 className="text-lg font-bold text-white mb-2">Sent!</h2>
             <p className="text-[var(--text-muted)] text-sm leading-relaxed">
-              소중한 의견 감사합니다.<br/>확인 후 빠르게 답변드리겠습니다.
+              Thank you for your feedback.<br/>We'll get back to you as soon as possible.
             </p>
             <button
               onClick={onClose}
               className="mt-6 px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-xl transition-colors"
             >
-              닫기
+              Close
             </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
             <div className="mb-5">
-              <h2 className="text-lg font-bold text-white mb-0.5">문의하기</h2>
-              <p className="text-[var(--text-subtle)] text-xs">버그 신고, 제안, 제휴 문의를 보내주세요.</p>
+              <h2 className="text-lg font-bold text-white mb-0.5">Contact Us</h2>
+              <p className="text-[var(--text-subtle)] text-xs">Send us a bug report, suggestion, or partnership inquiry.</p>
             </div>
 
             {/* 유형 선택 */}
@@ -99,7 +99,7 @@ export default function ContactModal({ onClose }: ContactModalProps) {
             {/* 이메일 */}
             <div className="mb-3">
               <label className="block text-xs text-[var(--text-subtle)] mb-1.5">
-                이메일 <span className="text-[var(--text-subtle)]">(답변 받으실 경우 입력)</span>
+                Email <span className="text-[var(--text-subtle)]">(optional — enter if you'd like a reply)</span>
               </label>
               <input
                 type="email"
@@ -113,12 +113,12 @@ export default function ContactModal({ onClose }: ContactModalProps) {
             {/* 내용 */}
             <div className="mb-4">
               <label className="block text-xs text-[var(--text-subtle)] mb-1.5">
-                내용 <span className="text-orange-400">*</span>
+                Message <span className="text-orange-400">*</span>
               </label>
               <textarea
                 value={message}
                 onChange={e => setMessage(e.target.value)}
-                placeholder="자세히 적어주실수록 빠른 처리가 가능합니다."
+                placeholder="The more detail you provide, the faster we can help."
                 rows={4}
                 className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 transition-colors resize-none"
               />
@@ -137,9 +137,9 @@ export default function ContactModal({ onClose }: ContactModalProps) {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                   </svg>
-                  전송 중...
+                  Sending...
                 </>
-              ) : '보내기'}
+              ) : 'Send'}
             </button>
           </form>
         )}

@@ -43,17 +43,17 @@ export default function VideoQuizPopup({ quiz, onClose }: Props) {
         {/* 헤더 */}
         <div className="px-5 py-4 border-b border-[var(--border-subtle)]">
           <div className="flex items-center gap-2 mb-0.5">
-            <span className="text-orange-400 text-sm font-bold">🧩 퀴즈</span>
+            <span className="text-orange-400 text-sm font-bold">🧩 Quiz</span>
             <span className="text-[var(--text-subtle)] text-xs">📍 {secsToLabel(quiz.timestampSec)}</span>
           </div>
-          <p className="text-[10px] text-[var(--text-subtle)]">영상을 계속 보기 전에 퀴즈를 풀어보세요!</p>
+          <p className="text-[10px] text-[var(--text-subtle)]">Answer the quiz before continuing the video!</p>
         </div>
 
         <div className="px-5 py-4 flex flex-col gap-4">
 
           {/* 이미지 */}
           {quiz.imageUrl && (
-            <img src={quiz.imageUrl} alt="퀴즈 이미지" className="w-full max-h-48 object-cover rounded-xl border border-[var(--border-default)]" />
+            <img src={quiz.imageUrl} alt="Quiz image" className="w-full max-h-48 object-cover rounded-xl border border-[var(--border-default)]" />
           )}
 
           {/* 문제 */}
@@ -86,8 +86,8 @@ export default function VideoQuizPopup({ quiz, onClose }: Props) {
               </div>
               {answered && (
                 <div className={`rounded-2xl px-4 py-3 text-sm ${isCorrectOx ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300' : 'bg-red-500/10 border border-red-500/30 text-red-300'}`}>
-                  <p className="font-bold mb-1">{isCorrectOx ? '🎉 정답입니다!' : '😅 오답이에요'}</p>
-                  <p className="text-xs opacity-80">정답: <strong>{quiz.oxAnswer}</strong></p>
+                  <p className="font-bold mb-1">{isCorrectOx ? '🎉 Correct!' : '😅 Wrong answer'}</p>
+                  <p className="text-xs opacity-80">Answer: <strong>{quiz.oxAnswer}</strong></p>
                   {quiz.oxExplanation && <p className="text-xs opacity-80 mt-1">{quiz.oxExplanation}</p>}
                 </div>
               )}
@@ -123,7 +123,7 @@ export default function VideoQuizPopup({ quiz, onClose }: Props) {
               })}
               {answered && (
                 <div className={`rounded-2xl px-4 py-3 text-sm mt-1 ${isCorrectMc ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300' : 'bg-red-500/10 border border-red-500/30 text-red-300'}`}>
-                  <p className="font-bold">{isCorrectMc ? '🎉 정답입니다!' : `😅 오답이에요 — 정답: ${['A', 'B', 'C', 'D'][quiz.correctOptionIndex ?? 0]}`}</p>
+                  <p className="font-bold">{isCorrectMc ? '🎉 Correct!' : `😅 Wrong — Answer: ${['A', 'B', 'C', 'D'][quiz.correctOptionIndex ?? 0]}`}</p>
                 </div>
               )}
             </div>
@@ -137,7 +137,7 @@ export default function VideoQuizPopup({ quiz, onClose }: Props) {
                   <textarea
                     value={shortInput}
                     onChange={e => setShortInput(e.target.value)}
-                    placeholder="답변을 입력하세요"
+                    placeholder="Enter your answer"
                     rows={3}
                     className="w-full bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-white text-sm placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 resize-none"
                   />
@@ -146,18 +146,18 @@ export default function VideoQuizPopup({ quiz, onClose }: Props) {
                     disabled={!shortInput.trim()}
                     className="w-full py-3 bg-orange-500 hover:bg-orange-600 disabled:opacity-40 text-white font-bold rounded-2xl text-sm transition-colors"
                   >
-                    제출하기
+                    Submit
                   </button>
                 </>
               ) : (
                 <div className="bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-2xl p-4 flex flex-col gap-3">
                   <div>
-                    <p className="text-[10px] text-[var(--text-subtle)] uppercase tracking-wider mb-1">내 답변</p>
+                    <p className="text-[10px] text-[var(--text-subtle)] uppercase tracking-wider mb-1">Your answer</p>
                     <p className="text-white text-sm">{shortInput}</p>
                   </div>
                   {quiz.sampleAnswer && (
                     <div className="border-t border-[var(--border-subtle)] pt-3">
-                      <p className="text-[10px] text-orange-400/70 uppercase tracking-wider mb-1">모범 답안</p>
+                      <p className="text-[10px] text-orange-400/70 uppercase tracking-wider mb-1">Sample answer</p>
                       <p className="text-orange-100 text-sm leading-relaxed">{quiz.sampleAnswer}</p>
                     </div>
                   )}
@@ -174,11 +174,11 @@ export default function VideoQuizPopup({ quiz, onClose }: Props) {
             disabled={quiz.quizType === 'short_answer' ? !shortSubmitted : !answered}
             className="w-full py-3 bg-[var(--bg-elevated)] hover:bg-[var(--bg-elevated-2)] disabled:opacity-40 border border-[var(--border-default)] text-white font-bold rounded-2xl text-sm transition-colors"
           >
-            ▶ 계속 시청하기
+            ▶ Continue watching
           </button>
           {!answered && quiz.quizType !== 'short_answer' && (
             <button onClick={onClose} className="w-full py-2 text-[var(--text-subtle)] hover:text-white text-xs transition-colors mt-1">
-              건너뛰기
+              Skip
             </button>
           )}
         </div>

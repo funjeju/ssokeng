@@ -5,15 +5,15 @@ import { getSavedShortsScripts, deleteShortsScript, SavedShortsScript, SavedShor
 import { formatRelativeDate } from '@/lib/formatDate'
 
 const TYPE_META: Record<string, { label: string; color: string; bg: string }> = {
-  hook:      { label: '훅·반전',   color: 'text-pink-400',    bg: 'bg-pink-500/15 border-pink-500/30' },
-  tip:       { label: '실용 팁',   color: 'text-yellow-400',  bg: 'bg-yellow-500/15 border-yellow-500/30' },
-  highlight: { label: '핵심 장면', color: 'text-cyan-400',    bg: 'bg-cyan-500/15 border-cyan-500/30' },
-  emotion:   { label: '감동·웃음', color: 'text-emerald-400', bg: 'bg-emerald-500/15 border-emerald-500/30' },
+  hook:      { label: 'Hook',      color: 'text-pink-400',    bg: 'bg-pink-500/15 border-pink-500/30' },
+  tip:       { label: 'Tip',       color: 'text-yellow-400',  bg: 'bg-yellow-500/15 border-yellow-500/30' },
+  highlight: { label: 'Highlight', color: 'text-cyan-400',    bg: 'bg-cyan-500/15 border-cyan-500/30' },
+  emotion:   { label: 'Emotion',   color: 'text-emerald-400', bg: 'bg-emerald-500/15 border-emerald-500/30' },
 }
 
 function formatDuration(secs: number): string {
-  if (secs <= 0) return '?초'
-  return secs < 60 ? `${secs}초` : `${Math.floor(secs / 60)}분 ${secs % 60}초`
+  if (secs <= 0) return '?s'
+  return secs < 60 ? `${secs}s` : `${Math.floor(secs / 60)}m ${secs % 60}s`
 }
 
 function DetailModal({ script, onClose }: { script: SavedShortsScript; onClose: () => void }) {
@@ -29,7 +29,7 @@ function DetailModal({ script, onClose }: { script: SavedShortsScript; onClose: 
 
   const copyAll = async () => {
     const text = script.segments.map((seg, i) =>
-      `━━━ 클립 ${i + 1}: ${seg.title} ━━━\n⏱ ${seg.start_time} ~ ${seg.end_time} (${formatDuration(seg.duration_seconds)})\n\n${seg.script.replace(/\\n/g, '\n')}`
+      `━━━ Clip ${i + 1}: ${seg.title} ━━━\n⏱ ${seg.start_time} ~ ${seg.end_time} (${formatDuration(seg.duration_seconds)})\n\n${seg.script.replace(/\\n/g, '\n')}`
     ).join('\n\n')
     await navigator.clipboard.writeText(text)
     setCopiedAll(true)
@@ -47,7 +47,7 @@ function DetailModal({ script, onClose }: { script: SavedShortsScript; onClose: 
         <div className="shrink-0 flex items-center justify-between px-6 pt-6 pb-4 border-b border-[var(--border-subtle)]">
           <div className="min-w-0 flex-1">
             <h2 className="text-white font-bold text-base truncate">{script.videoTitle}</h2>
-            <p className="text-zinc-500 text-xs mt-0.5">{script.channel} · {script.segments.length}개 클립</p>
+            <p className="text-zinc-500 text-xs mt-0.5">{script.channel} · {script.segments.length} clips</p>
           </div>
           <button onClick={onClose} className="ml-4 text-zinc-500 hover:text-white text-xl leading-none shrink-0">✕</button>
         </div>
@@ -55,7 +55,7 @@ function DetailModal({ script, onClose }: { script: SavedShortsScript; onClose: 
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
           {script.edit_tips && (
             <div className="bg-[var(--overlay-subtle)] border border-[var(--border-default)] rounded-2xl px-4 py-3">
-              <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider mb-1">편집 총평</p>
+              <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider mb-1">Edit Notes</p>
               <p className="text-zinc-300 text-sm leading-relaxed">{script.edit_tips}</p>
             </div>
           )}
@@ -98,13 +98,13 @@ function DetailModal({ script, onClose }: { script: SavedShortsScript; onClose: 
                     rel="noopener noreferrer"
                     className="text-[10px] px-2.5 py-1.5 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 border border-red-500/20 transition-colors font-semibold"
                   >
-                    ▶ 구간 보기
+                    ▶ View clip
                   </a>
                 </div>
 
                 <div className="px-4 pb-4 pt-3">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">자막 대본</p>
+                    <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">Script</p>
                     <button
                       onClick={() => copyScript(seg)}
                       className={`text-[10px] px-2.5 py-1 rounded-lg font-bold transition-colors ${
@@ -113,7 +113,7 @@ function DetailModal({ script, onClose }: { script: SavedShortsScript; onClose: 
                           : 'bg-[var(--overlay-subtle)] text-zinc-400 hover:text-white border border-[var(--border-default)]'
                       }`}
                     >
-                      {copiedId === seg.id ? '✓ 복사됨' : '복사'}
+                      {copiedId === seg.id ? '✓ Copied' : 'Copy'}
                     </button>
                   </div>
                   <p className="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap bg-black/20 rounded-xl px-3 py-3">
@@ -135,7 +135,7 @@ function DetailModal({ script, onClose }: { script: SavedShortsScript; onClose: 
                 : 'bg-gradient-to-r from-pink-500 to-orange-500 text-white hover:opacity-90'
             }`}
           >
-            {copiedAll ? '✓ 전체 복사됨' : '📋 전체 스크립트 복사'}
+            {copiedAll ? '✓ All copied' : '📋 Copy all scripts'}
           </button>
         </div>
       </div>
@@ -157,7 +157,7 @@ export default function SavedShortsScripts({ userId }: { userId: string }) {
   }, [userId])
 
   const handleDelete = async (s: SavedShortsScript) => {
-    if (!confirm(`"${s.videoTitle}" 숏폼 스크립트를 삭제할까요?`)) return
+    if (!confirm(`Delete the Shorts script for "${s.videoTitle}"?`)) return
     await deleteShortsScript(s.id)
     setScripts(prev => prev.filter(x => x.id !== s.id))
   }
@@ -175,8 +175,8 @@ export default function SavedShortsScripts({ userId }: { userId: string }) {
       <div className="flex flex-col items-center gap-4 py-20 text-center">
         <span className="text-5xl">✂️</span>
         <div>
-          <p className="text-white font-semibold mb-1">저장된 숏폼 스크립트가 없습니다</p>
-          <p className="text-zinc-500 text-sm">영상 결과 페이지에서 ✂️ 버튼으로 스크립트를 생성하고 저장하세요.</p>
+          <p className="text-white font-semibold mb-1">No saved Shorts scripts yet</p>
+          <p className="text-zinc-500 text-sm">Generate and save scripts using the ✂️ button on a video result page.</p>
         </div>
       </div>
     )
@@ -222,7 +222,7 @@ export default function SavedShortsScripts({ userId }: { userId: string }) {
               <p className="text-zinc-500 text-xs mb-3">{s.channel}</p>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs text-zinc-500">
-                  <span>✂️ {s.segments.length}개 클립</span>
+                  <span>✂️ {s.segments.length} clips</span>
                   {s.createdAt && (
                     <span>· {formatRelativeDate(s.createdAt.toDate?.() ?? new Date(s.createdAt))}</span>
                   )}
@@ -231,7 +231,7 @@ export default function SavedShortsScripts({ userId }: { userId: string }) {
                   onClick={e => { e.stopPropagation(); handleDelete(s) }}
                   className="opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-red-400 transition-all text-xs px-2 py-1 rounded-lg hover:bg-red-500/10"
                 >
-                  삭제
+                  Delete
                 </button>
               </div>
             </div>

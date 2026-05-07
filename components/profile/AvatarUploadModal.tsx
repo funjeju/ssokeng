@@ -113,8 +113,8 @@ export default function AvatarUploadModal({
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 3 * 1024 * 1024) { setError('파일 크기는 3MB 이하여야 합니다.'); return }
-    if (!file.type.startsWith('image/')) { setError('이미지 파일만 업로드할 수 있습니다.'); return }
+    if (file.size > 3 * 1024 * 1024) { setError('File size must be 3 MB or less.'); return }
+    if (!file.type.startsWith('image/')) { setError('Only image files are allowed.'); return }
     setError('')
     const reader = new FileReader()
     reader.onload = ev => setImgSrc(ev.target?.result as string)
@@ -138,7 +138,7 @@ export default function AvatarUploadModal({
         img.naturalWidth * zoomRef.current, img.naturalHeight * zoomRef.current)
 
       const blob = await new Promise<Blob>((res, rej) =>
-        out.toBlob(b => b ? res(b) : rej(new Error('변환 실패')), 'image/jpeg', 0.92))
+        out.toBlob(b => b ? res(b) : rej(new Error('Conversion failed')), 'image/jpeg', 0.92))
 
       // Firebase Storage 업로드
       const sRef = storageRef(storage, `profile-images/${userId}`)
@@ -151,7 +151,7 @@ export default function AvatarUploadModal({
 
       onSuccess(url)
     } catch (e: any) {
-      setError('업로드 실패: ' + (e.message || '다시 시도해주세요.'))
+      setError('Upload failed: ' + (e.message || 'Please try again.'))
     } finally {
       setUploading(false)
     }
@@ -162,15 +162,15 @@ export default function AvatarUploadModal({
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-[var(--bg-base)] rounded-3xl border border-[var(--border-default)] shadow-2xl p-6 w-full max-w-sm">
         <button onClick={onClose} className="absolute top-4 right-4 text-[var(--text-subtle)] hover:text-white text-xl leading-none">✕</button>
-        <h2 className="text-lg font-bold text-white mb-5 text-center">📷 프로필 사진 변경</h2>
+        <h2 className="text-lg font-bold text-white mb-5 text-center">📷 Change Profile Photo</h2>
 
         {!imgSrc ? (
           <>
             <label className="block cursor-pointer">
               <div className="border-2 border-dashed border-[var(--border-strong)] hover:border-orange-500/50 rounded-2xl p-10 text-center transition-colors">
                 <p className="text-5xl mb-3">🖼️</p>
-                <p className="text-white font-semibold text-sm">이미지 클릭하여 선택</p>
-                <p className="text-[var(--text-subtle)] text-xs mt-1.5">JPG · PNG · GIF · 최대 3MB</p>
+                <p className="text-white font-semibold text-sm">Click to select an image</p>
+                <p className="text-[var(--text-subtle)] text-xs mt-1.5">JPG · PNG · GIF · Max 3 MB</p>
               </div>
               <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
             </label>
@@ -193,7 +193,7 @@ export default function AvatarUploadModal({
               onTouchMove={onTouchMove}
               onTouchEnd={onDragEnd}
             />
-            <p className="text-[var(--text-subtle)] text-xs">드래그로 위치 · 슬라이더로 크기 조정</p>
+            <p className="text-[var(--text-subtle)] text-xs">Drag to reposition · Slider to resize</p>
 
             {/* 줌 슬라이더 */}
             <div className="w-full flex items-center gap-3">
@@ -217,7 +217,7 @@ export default function AvatarUploadModal({
                 onClick={() => { setImgSrc(null); setError('') }}
                 className="flex-1 py-3 bg-[var(--bg-surface-2)] hover:bg-[var(--bg-elevated)] text-[var(--text-muted)] font-semibold rounded-2xl text-sm transition-colors"
               >
-                다시 선택
+                Choose again
               </button>
               <button
                 onClick={handleUpload}
@@ -230,9 +230,9 @@ export default function AvatarUploadModal({
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                     </svg>
-                    업로드 중...
+                    Uploading...
                   </>
-                ) : '완료'}
+                ) : 'Done'}
               </button>
             </div>
           </div>

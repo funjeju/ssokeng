@@ -26,15 +26,15 @@ interface ShortsResult {
 }
 
 const TYPE_META: Record<string, { label: string; color: string; bg: string }> = {
-  hook:      { label: '훅·반전',   color: 'text-pink-400',   bg: 'bg-pink-500/15 border-pink-500/30' },
-  tip:       { label: '실용 팁',   color: 'text-yellow-400', bg: 'bg-yellow-500/15 border-yellow-500/30' },
-  highlight: { label: '핵심 장면', color: 'text-cyan-400',   bg: 'bg-cyan-500/15 border-cyan-500/30' },
-  emotion:   { label: '감동·웃음', color: 'text-emerald-400', bg: 'bg-emerald-500/15 border-emerald-500/30' },
+  hook:      { label: 'Hook',      color: 'text-pink-400',   bg: 'bg-pink-500/15 border-pink-500/30' },
+  tip:       { label: 'Tip',       color: 'text-yellow-400', bg: 'bg-yellow-500/15 border-yellow-500/30' },
+  highlight: { label: 'Highlight', color: 'text-cyan-400',   bg: 'bg-cyan-500/15 border-cyan-500/30' },
+  emotion:   { label: 'Emotion',   color: 'text-emerald-400', bg: 'bg-emerald-500/15 border-emerald-500/30' },
 }
 
 function formatDuration(secs: number): string {
-  if (secs <= 0) return '?초'
-  return secs < 60 ? `${secs}초` : `${Math.floor(secs / 60)}분 ${secs % 60}초`
+  if (secs <= 0) return '?s'
+  return secs < 60 ? `${secs}s` : `${Math.floor(secs / 60)}m ${secs % 60}s`
 }
 
 function secsToSrtTime(secs: number): string {
@@ -106,7 +106,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
 
   const generate = async () => {
     if (!data.transcript || data.transcript.trim().length < 100) {
-      alert('자막 데이터가 없는 영상은 숏폼 스크립트를 생성할 수 없습니다.')
+      alert('This video has no transcript — cannot generate a Shorts script.')
       return
     }
     setLoading(true)
@@ -127,7 +127,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
       if (!res.ok) throw new Error((await res.json()).error)
       setResult(await res.json())
     } catch (e: any) {
-      alert('생성 실패: ' + e.message)
+      alert('Generation failed: ' + e.message)
     } finally {
       setLoading(false)
     }
@@ -143,7 +143,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
   const copyAll = async () => {
     if (!result) return
     const text = result.segments.map((seg, i) =>
-      `━━━ 클립 ${i + 1}: ${seg.title} ━━━\n⏱ ${seg.start_time} ~ ${seg.end_time} (${formatDuration(seg.duration_seconds)})\n\n${seg.script.replace(/\\n/g, '\n')}`
+      `━━━ Clip ${i + 1}: ${seg.title} ━━━\n⏱ ${seg.start_time} ~ ${seg.end_time} (${formatDuration(seg.duration_seconds)})\n\n${seg.script.replace(/\\n/g, '\n')}`
     ).join('\n\n')
     await navigator.clipboard.writeText(text)
     setCopiedAll(true)
@@ -166,7 +166,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
       })
       setSaved(true)
     } catch (e: any) {
-      alert('저장 실패: ' + e.message)
+      alert('Save failed: ' + e.message)
     } finally {
       setSaving(false)
     }
@@ -183,8 +183,8 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
         {/* 헤더 */}
         <div className="shrink-0 flex items-center justify-between px-6 pt-6 pb-4 border-b border-[var(--border-subtle)]">
           <div>
-            <h2 className="text-white font-bold text-lg">✂️ 숏폼 스크립트</h2>
-            <p className="text-zinc-500 text-xs mt-0.5">핵심 구간 추출 · 자막 대본 · 편집 타임코드</p>
+            <h2 className="text-white font-bold text-lg">✂️ Shorts Script</h2>
+            <p className="text-zinc-500 text-xs mt-0.5">Key segment extraction · subtitle draft · edit timecodes</p>
           </div>
           <button onClick={onClose} className="text-zinc-500 hover:text-white text-xl leading-none">✕</button>
         </div>
@@ -195,23 +195,23 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
             <div className="flex flex-col items-center gap-5 py-10 text-center">
               <span className="text-5xl">✂️</span>
               <div>
-                <p className="text-white font-semibold mb-1">롱폼 → 숏폼 구간 자동 추출</p>
+                <p className="text-white font-semibold mb-1">Long-form → Shorts: auto segment extraction</p>
                 <p className="text-zinc-500 text-sm leading-relaxed">
-                  자막을 분석해 Shorts·Reels·TikTok에 최적인<br />
-                  핵심 구간 3~5개를 뽑아드립니다.<br />
-                  <span className="text-zinc-600 text-xs">몇 초~몇 초 잘라쓰면 된다는 타임코드 포함</span>
+                  Analyzes the transcript and picks 3–5 key segments<br />
+                  optimized for Shorts · Reels · TikTok.<br />
+                  <span className="text-zinc-600 text-xs">Includes exact timecodes for editing</span>
                 </p>
               </div>
               {(!data.transcript || data.transcript.trim().length < 100) ? (
                 <div className="px-5 py-3 bg-zinc-800 rounded-2xl text-zinc-400 text-sm">
-                  ⚠️ 이 영상은 자막 데이터가 없어 구간 추출이 불가합니다.
+                  ⚠️ This video has no transcript — segment extraction is unavailable.
                 </div>
               ) : (
                 <button
                   onClick={generate}
                   className="px-8 py-3 bg-gradient-to-r from-pink-500 to-orange-500 text-white font-bold rounded-2xl text-sm transition-all hover:opacity-90 active:scale-95"
                 >
-                  핵심 구간 추출하기
+                  Extract key segments
                 </button>
               )}
             </div>
@@ -220,7 +220,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
           {loading && (
             <div className="flex flex-col items-center gap-4 py-16">
               <div className="w-10 h-10 rounded-full border-2 border-pink-500/30 border-t-pink-500 animate-spin" />
-              <p className="text-zinc-400 text-sm">자막 분석 중... 핵심 구간을 찾고 있습니다</p>
+              <p className="text-zinc-400 text-sm">Analyzing transcript... finding key segments</p>
             </div>
           )}
 
@@ -229,7 +229,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
               {/* 편집 총평 */}
               {result.edit_tips && (
                 <div className="bg-[var(--overlay-subtle)] border border-[var(--border-default)] rounded-2xl px-4 py-3">
-                  <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider mb-1">편집 총평</p>
+                  <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider mb-1">Edit Notes</p>
                   <p className="text-zinc-300 text-sm leading-relaxed">{result.edit_tips}</p>
                 </div>
               )}
@@ -275,14 +275,14 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
                         rel="noopener noreferrer"
                         className="text-[10px] px-2.5 py-1.5 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 border border-red-500/20 transition-colors font-semibold"
                       >
-                        ▶ 구간 보기
+                        ▶ View clip
                       </a>
                     </div>
 
                     {/* 스크립트 */}
                     <div className="px-4 pb-4 pt-3">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">자막 대본</p>
+                        <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">Script</p>
                         <button
                           onClick={() => copyScript(seg)}
                           className={`text-[10px] px-2.5 py-1 rounded-lg font-bold transition-colors ${
@@ -291,7 +291,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
                               : 'bg-[var(--overlay-subtle)] text-zinc-400 hover:text-white border border-[var(--border-default)]'
                           }`}
                         >
-                          {copiedId === seg.id ? '✓ 복사됨' : '복사'}
+                          {copiedId === seg.id ? '✓ Copied' : 'Copy'}
                         </button>
                       </div>
                       <p className="text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap bg-black/20 rounded-xl px-3 py-3">
@@ -313,24 +313,24 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
               <button
                 onClick={() => {
                   if (!data.transcript || data.transcript.trim().length < 100) {
-                    alert('전체 자막 데이터가 없습니다.')
+                    alert('No full transcript available.')
                     return
                   }
-                  const safe = (data.title ?? 'subtitle').replace(/[^\w가-힣]/g, '_').slice(0, 30)
-                  downloadSrt(buildFullSrt(data.transcript), `${safe}_전체자막.srt`)
+                  const safe = (data.title ?? 'subtitle').replace(/[^\w]/g, '_').slice(0, 30)
+                  downloadSrt(buildFullSrt(data.transcript), `${safe}_full.srt`)
                 }}
                 className="flex-1 h-9 rounded-xl bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 text-xs transition-colors border border-[var(--border-default)] font-semibold"
               >
-                📥 전체 SRT
+                📥 Full SRT
               </button>
               <button
                 onClick={() => {
-                  const safe = (data.title ?? 'clips').replace(/[^\w가-힣]/g, '_').slice(0, 30)
-                  downloadSrt(buildClipsSrt(result.segments), `${safe}_핵심클립.srt`)
+                  const safe = (data.title ?? 'clips').replace(/[^\w]/g, '_').slice(0, 30)
+                  downloadSrt(buildClipsSrt(result.segments), `${safe}_clips.srt`)
                 }}
                 className="flex-1 h-9 rounded-xl bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-400 text-xs transition-colors border border-indigo-500/20 font-semibold"
               >
-                ✂️ 핵심클립 SRT
+                ✂️ Clips SRT
               </button>
             </div>
             {/* 저장·복사 행 */}
@@ -339,7 +339,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
                 onClick={generate}
                 className="px-4 h-10 rounded-xl bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 text-xs transition-colors"
               >
-                🔄 다시 추출
+                🔄 Re-extract
               </button>
               <div className="flex-1" />
               <button
@@ -351,7 +351,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
                     : 'bg-[var(--overlay-subtle)] border border-[var(--border-default)] text-zinc-300 hover:bg-[var(--overlay-default)]'
                 }`}
               >
-                {saving ? '저장 중...' : saved ? '✓ 저장됨' : '💾 저장'}
+                {saving ? 'Saving...' : saved ? '✓ Saved' : '💾 Save'}
               </button>
               <button
                 onClick={copyAll}
@@ -361,7 +361,7 @@ export default function ShortsScriptModal({ data, onClose }: Props) {
                     : 'bg-gradient-to-r from-pink-500 to-orange-500 text-white hover:opacity-90'
                 }`}
               >
-                {copiedAll ? '✓ 전체 복사됨' : '📋 전체 스크립트 복사'}
+                {copiedAll ? '✓ All copied' : '📋 Copy all scripts'}
               </button>
             </div>
           </div>

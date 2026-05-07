@@ -1540,8 +1540,8 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           {activeTab === 'reanalyze' && (
             <div className="bg-[var(--bg-surface-2)] rounded-2xl p-6 border border-[var(--border-subtle)] space-y-4 shadow-lg">
               <div>
-                <h2 className="text-base font-bold text-white mb-1">다른 방식으로 다시 분석</h2>
-                <p className="text-xs text-[var(--text-subtle)]">같은 영상을 다른 카테고리 형식으로 새로 요약합니다.</p>
+                <h2 className="text-base font-bold text-white mb-1">Re-analyze with a different mode</h2>
+                <p className="text-xs text-[var(--text-subtle)]">Re-summarize the same video in a different category format.</p>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {RE_ANALYZE_CATEGORIES.map(cat => {
@@ -1562,14 +1562,14 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                     >
                       <span className="text-2xl">{isLoading ? '⏳' : cat.icon}</span>
                       <span>{cat.label}</span>
-                      {isCurrent && <span className="text-[9px] text-white/30">현재</span>}
+                      {isCurrent && <span className="text-[9px] text-white/30">current</span>}
                     </button>
                   )
                 })}
               </div>
               {reanalyzing && (
                 <p className="text-center text-sm text-orange-400 animate-pulse">
-                  {RE_ANALYZE_CATEGORIES.find(c => c.id === reanalyzeCategory)?.icon} {RE_ANALYZE_CATEGORIES.find(c => c.id === reanalyzeCategory)?.label} 방식으로 재분석 중...
+                  {RE_ANALYZE_CATEGORIES.find(c => c.id === reanalyzeCategory)?.icon} Re-analyzing in {RE_ANALYZE_CATEGORIES.find(c => c.id === reanalyzeCategory)?.label} mode...
                 </p>
               )}
             </div>
@@ -1590,7 +1590,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                     : 'bg-[var(--bg-elevated)] border-[var(--border-default)] text-[var(--text-muted)] hover:bg-green-500/10 hover:border-green-500/30 hover:text-green-400'
                 }`}
               >
-                {togglingVisibility ? '변경 중...' : savedItem.isPublic ? '🌍 공개 중' : '🔒 비공개'}
+                {togglingVisibility ? 'Updating...' : savedItem.isPublic ? '🌍 Public' : '🔒 Private'}
               </button>
             )
           ) : (
@@ -1599,7 +1599,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
               className="flex-1 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-bold h-12 text-sm border-none"
               onClick={() => setShowSaveModal(true)}
             >
-              {fromSquare || isClassView ? '📥 나도 저장' : '📚 저장하기'}
+              {fromSquare || isClassView ? '📥 Save this' : '📚 Save'}
             </Button>
           )}
 
@@ -1608,7 +1608,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
             <button
               onClick={() => user ? setShowRoomModal(true) : openAuthModal('login')}
               className="h-12 w-12 border border-[var(--border-default)] bg-[var(--bg-elevated)] text-white hover:bg-orange-500/15 hover:border-orange-500/30 hover:text-orange-400 transition-all rounded-xl flex items-center justify-center"
-              title={user ? '시청파티 만들기' : '로그인 후 이용 가능'}
+              title={user ? 'Create watch party' : 'Login required'}
             >
               <span className="text-lg leading-none">🎬</span>
             </button>
@@ -1618,7 +1618,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           <button
             onClick={() => setShowBlogModal(true)}
             className="h-12 w-12 border border-[var(--border-default)] bg-[var(--bg-elevated)] text-white hover:bg-orange-500/15 hover:border-orange-500/30 hover:text-orange-400 transition-all rounded-xl flex items-center justify-center"
-            title="블로그 초안 생성"
+            title="Generate blog draft"
           >
             <span className="text-lg leading-none">✍️</span>
           </button>
@@ -1628,7 +1628,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
             <button
               onClick={() => setShowShortsModal(true)}
               className="h-12 w-12 border border-[var(--border-default)] bg-[var(--bg-elevated)] text-white hover:bg-pink-500/15 hover:border-pink-500/30 hover:text-pink-400 transition-all rounded-xl flex items-center justify-center"
-              title="숏폼 스크립트 생성"
+              title="Generate short-form script"
             >
               <span className="text-lg leading-none">✂️</span>
             </button>
@@ -1644,7 +1644,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                     ? 'bg-yellow-500/20 border-yellow-500/40 text-yellow-400'
                     : 'border-[var(--border-default)] bg-[var(--bg-elevated)] text-white hover:bg-yellow-500/15 hover:border-yellow-500/30 hover:text-yellow-400'
                 }`}
-                title="북마크"
+                title="Bookmark"
               >
                 <span className="text-lg leading-none">🔖</span>
                 {videoBookmarks.length > 0 && (
@@ -1661,7 +1661,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
             onClick={handleDownloadPdf}
             disabled={downloading}
             className="h-12 w-12 border border-[var(--border-default)] bg-[var(--bg-elevated)] text-white hover:bg-[var(--bg-elevated-2)] hover:border-[var(--border-strong)] transition-all rounded-xl disabled:opacity-50 flex items-center justify-center"
-            title="PDF 다운로드"
+            title="Download PDF"
           >
             {downloading ? (
               <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -1684,7 +1684,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                 ? 'border-green-500/40 bg-green-500/10 text-green-400'
                 : 'border-[var(--border-default)] bg-[var(--bg-elevated)] text-white hover:bg-[var(--bg-elevated-2)] hover:border-[var(--border-strong)]'
             }`}
-            title={shareCopied ? '링크 복사됨!' : '링크 공유 / 복사'}
+            title={shareCopied ? 'Link copied!' : 'Share / Copy link'}
           >
             {shareCopied ? (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1708,7 +1708,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           <div className="rounded-2xl bg-[var(--bg-base)] border border-[var(--border-default)] p-4">
             <div className="flex items-center gap-2 mb-2.5">
               <span className="text-base">💬</span>
-              <span className="text-sm font-semibold text-[var(--text-primary)]">유튜브 시청자 반응</span>
+              <span className="text-sm font-semibold text-[var(--text-primary)]">YouTube viewer reactions</span>
             </div>
             {ytCommentSummaryLoading ? (
               <div className="flex items-center gap-2 text-[var(--text-muted)] text-sm">
@@ -1716,7 +1716,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
-                댓글 분석 중...
+                Analyzing comments...
               </div>
             ) : ytCommentSummary ? (
               <p className="text-[var(--text-secondary)] text-sm leading-relaxed">{ytCommentSummary}</p>
@@ -1740,7 +1740,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
         </div>
 
         <Button variant="ghost" className="text-zinc-500 mb-10" onClick={() => router.push('/')}>
-          ← 새 영상 요약하기
+          ← Summarize new video
         </Button>
       </div>
 
@@ -1889,10 +1889,10 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
             <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[var(--border-default)]">
               <div className="flex items-center gap-2">
                 <span className="text-lg">🔖</span>
-                <p className="text-white font-bold text-sm">북마크</p>
+                <p className="text-white font-bold text-sm">Bookmarks</p>
                 {videoBookmarks.length > 0 && (
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 font-bold border border-yellow-500/20">
-                    {videoBookmarks.length}개
+                    {videoBookmarks.length}
                   </span>
                 )}
               </div>
@@ -1901,17 +1901,17 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
 
             {/* 새 북마크 추가 */}
             <div className="px-5 py-4 border-b border-[var(--border-default)]">
-              <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">현재 위치에 추가</p>
+              <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">Add at current position</p>
               <div className="flex items-center gap-2 mb-3">
                 <span className="font-mono text-sm text-yellow-400 bg-yellow-500/10 px-2.5 py-1 rounded-lg border border-yellow-500/20 font-bold">
                   ▶ {secsToLabel(bookmarkSec)}
                 </span>
-                <span className="text-zinc-600 text-xs">현재 재생 위치</span>
+                <span className="text-zinc-600 text-xs">current playback position</span>
               </div>
               <textarea
                 value={bookmarkMemo}
                 onChange={e => setBookmarkMemo(e.target.value)}
-                placeholder="메모 추가 (선택)"
+                placeholder="Add a note (optional)"
                 rows={2}
                 className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-3 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-yellow-500/40 resize-none mb-3"
                 autoFocus
@@ -1925,14 +1925,14 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                     : 'bg-yellow-500 hover:bg-yellow-400 text-black disabled:opacity-50'
                 }`}
               >
-                {bookmarkSaved ? '✓ 저장됨!' : bookmarkSaving ? '저장 중...' : '저장'}
+                {bookmarkSaved ? '✓ Saved!' : bookmarkSaving ? 'Saving...' : 'Save'}
               </button>
             </div>
 
             {/* 저장된 북마크 목록 */}
             {videoBookmarks.length > 0 && (
               <div className="px-5 py-4 max-h-60 overflow-y-auto">
-                <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">저장된 북마크</p>
+                <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">Saved bookmarks</p>
                 <div className="space-y-2">
                   {videoBookmarks.map(bm => (
                     <div
@@ -1949,7 +1949,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                       <div className="flex-1 min-w-0">
                         {bm.memo
                           ? <p className="text-zinc-300 text-sm leading-relaxed">{bm.memo}</p>
-                          : <p className="text-zinc-600 text-xs italic">메모 없음</p>
+                          : <p className="text-zinc-600 text-xs italic">No note</p>
                         }
                       </div>
                       <button
@@ -1968,7 +1968,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
 
             {videoBookmarks.length === 0 && (
               <div className="px-5 py-4 text-center text-zinc-700 text-xs">
-                아직 저장된 북마크가 없어요
+                No bookmarks saved yet
               </div>
             )}
           </div>
@@ -2033,7 +2033,7 @@ function VideoTimeline({ summary, category, totalSec, onSeekAndScroll }: {
   return (
     <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] px-4 py-3 space-y-2">
       <p className="text-xs text-zinc-500 font-semibold">
-        📊 전체 <span className="text-zinc-300 font-bold">{fmtSec(totalSec)}</span> 분석 완료 — 핵심 {valid.length}개 지점
+        📊 Analyzed <span className="text-zinc-300 font-bold">{fmtSec(totalSec)}</span> total — {valid.length} key timestamps
       </p>
       <div className="relative h-6">
         {/* 베이스 바 */}
@@ -2084,14 +2084,14 @@ function MetaCheckButtons({
   onSelect: (level: 'complete' | 'confused' | 'unknown') => void
 }) {
   const buttons = [
-    { level: 'complete' as const, emoji: '✅', label: '완전이해', color: 'border-emerald-500/30 hover:bg-emerald-500/10 hover:border-emerald-500/60 text-emerald-400', activeColor: 'bg-emerald-500/20 border-emerald-500 text-emerald-300' },
-    { level: 'confused' as const, emoji: '🤔', label: '알쏭달쏭', color: 'border-yellow-500/30 hover:bg-yellow-500/10 hover:border-yellow-500/60 text-yellow-400', activeColor: 'bg-yellow-500/20 border-yellow-500 text-yellow-300' },
-    { level: 'unknown' as const,  emoji: '❓', label: '전혀모름',  color: 'border-red-500/30 hover:bg-red-500/10 hover:border-red-500/60 text-red-400',       activeColor: 'bg-red-500/20 border-red-500 text-red-300' },
+    { level: 'complete' as const, emoji: '✅', label: 'Got it', color: 'border-emerald-500/30 hover:bg-emerald-500/10 hover:border-emerald-500/60 text-emerald-400', activeColor: 'bg-emerald-500/20 border-emerald-500 text-emerald-300' },
+    { level: 'confused' as const, emoji: '🤔', label: 'Confused', color: 'border-yellow-500/30 hover:bg-yellow-500/10 hover:border-yellow-500/60 text-yellow-400', activeColor: 'bg-yellow-500/20 border-yellow-500 text-yellow-300' },
+    { level: 'unknown' as const,  emoji: '❓', label: 'Lost',     color: 'border-red-500/30 hover:bg-red-500/10 hover:border-red-500/60 text-red-400',       activeColor: 'bg-red-500/20 border-red-500 text-red-300' },
   ]
 
   return (
     <div className="mt-4 pt-4 border-t border-[var(--border-subtle)]">
-      <p className="text-xs text-gray-500 mb-3 text-center">이 영상을 얼마나 이해했나요?</p>
+      <p className="text-xs text-gray-500 mb-3 text-center">How well did you understand this video?</p>
       <div className="flex gap-2">
         {buttons.map(btn => (
           <button
@@ -2106,9 +2106,9 @@ function MetaCheckButtons({
       </div>
       {metaLevel && (
         <p className="text-center text-xs text-gray-600 mt-2">
-          {metaLevel === 'complete' ? '✓ 선생님께 완전이해로 기록됐어요' :
-           metaLevel === 'confused' ? '✓ 선생님께 알쏭달쏭으로 기록됐어요' :
-           '✓ 선생님께 전혀모름으로 기록됐어요'}
+          {metaLevel === 'complete' ? '✓ Recorded as "Got it" for the teacher' :
+           metaLevel === 'confused' ? '✓ Recorded as "Confused" for the teacher' :
+           '✓ Recorded as "Lost" for the teacher'}
         </p>
       )}
     </div>

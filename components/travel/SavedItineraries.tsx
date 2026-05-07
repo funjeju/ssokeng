@@ -23,18 +23,18 @@ function DetailModal({ item, onClose }: { item: SavedItinerary; onClose: () => v
         <div className="shrink-0 flex items-center justify-between px-6 pt-6 pb-4 border-b border-[var(--border-subtle)]">
           <div>
             <h2 className="text-white font-bold text-base">
-              {item.regionEmoji} {item.regionName} 여행 일정
+              {item.regionEmoji} {item.regionName} Itinerary
             </h2>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-xs px-2 py-0.5 rounded-lg bg-orange-500/15 text-orange-400 border border-orange-500/20 font-semibold">
-                {item.nights}박 {item.days}일
+                {item.nights}N {item.days}D
               </span>
               <span className="text-zinc-500 text-xs">
                 {formatDate(item.startDate)} → {formatDate(item.endDate)}
               </span>
               {item.mode === 'with_recommendations' && (
                 <span className="text-xs px-2 py-0.5 rounded-lg bg-cyan-500/15 text-cyan-400 border border-cyan-500/20 font-semibold">
-                  AI 추천 포함
+                  AI Recommended
                 </span>
               )}
             </div>
@@ -46,7 +46,7 @@ function DetailModal({ item, onClose }: { item: SavedItinerary; onClose: () => v
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
           {item.result.accommodation_suggestion && (
             <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl px-4 py-3">
-              <p className="text-amber-400 text-[10px] font-bold uppercase tracking-wider mb-1">🏨 숙소 추천</p>
+              <p className="text-amber-400 text-[10px] font-bold uppercase tracking-wider mb-1">🏨 Accommodation</p>
               <p className="text-zinc-300 text-sm leading-relaxed">{item.result.accommodation_suggestion}</p>
             </div>
           )}
@@ -79,7 +79,7 @@ function DetailModal({ item, onClose }: { item: SavedItinerary; onClose: () => v
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <p className="text-cyan-300 text-sm font-semibold">{slot.spotName}</p>
                         {slot.isRecommended && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-cyan-500/15 text-cyan-400 font-bold border border-cyan-500/20">AI 추천</span>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-cyan-500/15 text-cyan-400 font-bold border border-cyan-500/20">AI Pick</span>
                         )}
                       </div>
                       <p className="text-zinc-400 text-xs mt-0.5 leading-relaxed">{slot.activity}</p>
@@ -93,14 +93,14 @@ function DetailModal({ item, onClose }: { item: SavedItinerary; onClose: () => v
 
           {item.result.transport_tips && (
             <div className="bg-[var(--overlay-subtle)] border border-[var(--border-default)] rounded-2xl px-4 py-3">
-              <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider mb-1">🚗 이동 팁</p>
+              <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-wider mb-1">🚗 Transport Tips</p>
               <p className="text-zinc-300 text-sm leading-relaxed">{item.result.transport_tips}</p>
             </div>
           )}
 
           {item.result.overall_tip && (
             <div className="bg-orange-500/8 border border-orange-500/15 rounded-2xl px-4 py-3">
-              <p className="text-orange-400 text-[10px] font-bold uppercase tracking-wider mb-1">✨ 전체 꿀팁</p>
+              <p className="text-orange-400 text-[10px] font-bold uppercase tracking-wider mb-1">✨ Overall Tips</p>
               <p className="text-zinc-300 text-sm leading-relaxed">{item.result.overall_tip}</p>
             </div>
           )}
@@ -111,7 +111,7 @@ function DetailModal({ item, onClose }: { item: SavedItinerary; onClose: () => v
             onClick={onClose}
             className="px-6 h-10 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold transition-colors"
           >
-            닫기
+            Close
           </button>
         </div>
       </div>
@@ -134,12 +134,12 @@ export default function SavedItineraries({ userId }: { userId: string }) {
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
-    if (!confirm('이 일정을 삭제할까요?')) return
+    if (!confirm('Delete this itinerary?')) return
     try {
       await deleteItinerary(id)
       setItems(prev => prev.filter(x => x.id !== id))
     } catch {
-      alert('삭제에 실패했습니다.')
+      alert('Failed to delete.')
     }
   }
 
@@ -155,8 +155,8 @@ export default function SavedItineraries({ userId }: { userId: string }) {
     return (
       <div className="text-center py-12 text-zinc-600">
         <p className="text-3xl mb-2">🗓️</p>
-        <p className="text-sm">저장된 AI 여행 일정이 없습니다.</p>
-        <p className="text-xs mt-1 text-zinc-700">여행 찜 탭에서 AI 일정을 생성하고 저장해보세요.</p>
+        <p className="text-sm">No saved AI itineraries yet.</p>
+        <p className="text-xs mt-1 text-zinc-700">Generate and save an itinerary from the Wish List tab.</p>
       </div>
     )
   }
@@ -192,11 +192,11 @@ export default function SavedItineraries({ userId }: { userId: string }) {
             {/* 배지 */}
             <div className="flex items-center gap-1.5 flex-wrap mb-3">
               <span className="text-[10px] px-2 py-0.5 rounded-lg bg-orange-500/15 text-orange-400 border border-orange-500/20 font-semibold">
-                {item.nights}박 {item.days}일
+                {item.nights}N {item.days}D
               </span>
               {item.mode === 'with_recommendations' && (
                 <span className="text-[10px] px-2 py-0.5 rounded-lg bg-cyan-500/15 text-cyan-400 border border-cyan-500/20 font-semibold">
-                  AI 추천 포함
+                  AI Recommended
                 </span>
               )}
             </div>
@@ -210,7 +210,7 @@ export default function SavedItineraries({ userId }: { userId: string }) {
 
             {/* 총 스팟 수 */}
             <p className="text-zinc-600 text-[10px] mt-2">
-              총 {item.result.days.reduce((acc, d) => acc + d.slots.length, 0)}개 슬롯
+              {item.result.days.reduce((acc, d) => acc + d.slots.length, 0)} slots total
             </p>
           </button>
         ))}

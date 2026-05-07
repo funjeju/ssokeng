@@ -33,7 +33,7 @@ function VocabTab({ words }: { words: VocabItem[] }) {
 
   return (
     <div className="space-y-3">
-      <p className="text-[var(--text-subtle)] text-xs">카드를 탭하면 예문을 볼 수 있어요</p>
+      <p className="text-[var(--text-subtle)] text-xs">Tap a card to see example sentences</p>
       {words.map((w, i) => (
         <div
           key={i}
@@ -117,7 +117,7 @@ function ExerciseTab({ worksheet }: { worksheet: WorksheetData }) {
                       'border-[var(--border-default)] focus:border-orange-500/50'
                     }`}
                   >
-                    <option value="">선택하세요</option>
+                    <option value="">Select...</option>
                     {q.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                   </select>
                   {result === true  && <span className="text-green-400 text-sm shrink-0">✓</span>}
@@ -131,7 +131,7 @@ function ExerciseTab({ worksheet }: { worksheet: WorksheetData }) {
           {ex.type === 'fill_blank' && (
             <>
               <div className="flex flex-wrap gap-2 p-3 bg-[var(--bg-surface-2)] rounded-xl border border-[var(--border-subtle)]">
-                <span className="text-[var(--text-subtle)] text-xs w-full mb-1">단어 박스</span>
+                <span className="text-[var(--text-subtle)] text-xs w-full mb-1">Word box</span>
                 {ex.questions.flatMap(q => q.options ?? []).filter((v, i, a) => a.indexOf(v) === i).map(opt => (
                   <span key={opt} className="px-2.5 py-1 bg-[var(--bg-elevated-2)] rounded-lg text-xs text-white font-mono">{opt}</span>
                 ))}
@@ -149,15 +149,15 @@ function ExerciseTab({ worksheet }: { worksheet: WorksheetData }) {
                         value={answers[key] ?? ''}
                         onChange={e => setAnswer(key, e.target.value)}
                         disabled={checked}
-                        placeholder="답 입력..."
+                        placeholder="Enter answer..."
                         className={`w-full h-8 px-3 rounded-lg text-sm bg-[var(--bg-elevated)] border text-white focus:outline-none placeholder:text-[var(--text-subtle)] ${
                           result === true  ? 'border-green-500' :
                           result === false ? 'border-red-500' :
                           'border-[var(--border-default)] focus:border-orange-500/50'
                         }`}
                       />
-                      {result === false && <p className="text-red-400 text-xs">정답: {q.answer}</p>}
-                      {q.hint && !checked && <p className="text-[var(--text-subtle)] text-[10px]">힌트: {q.hint}</p>}
+                      {result === false && <p className="text-red-400 text-xs">Answer: {q.answer}</p>}
+                      {q.hint && !checked && <p className="text-[var(--text-subtle)] text-[10px]">Hint: {q.hint}</p>}
                     </div>
                   </div>
                 )
@@ -179,7 +179,7 @@ function ExerciseTab({ worksheet }: { worksheet: WorksheetData }) {
                   value={answers[key] ?? ''}
                   onChange={e => setAnswer(key, e.target.value)}
                   disabled={checked}
-                  placeholder="한국어로 해석하세요..."
+                  placeholder="Translate to Korean..."
                   rows={2}
                   className={`w-full px-3 py-2 rounded-xl text-sm bg-[var(--bg-elevated)] border text-white focus:outline-none placeholder:text-[var(--text-subtle)] resize-none ${
                     result === true  ? 'border-green-500' :
@@ -188,7 +188,7 @@ function ExerciseTab({ worksheet }: { worksheet: WorksheetData }) {
                   }`}
                 />
                 {(result === false || showAnswers) && (
-                  <p className="text-orange-300 text-xs ml-6">모범 답안: {q.answer}</p>
+                  <p className="text-orange-300 text-xs ml-6">Model answer: {q.answer}</p>
                 )}
               </div>
             )
@@ -203,13 +203,13 @@ function ExerciseTab({ worksheet }: { worksheet: WorksheetData }) {
             onClick={() => setChecked(true)}
             className="flex-1 h-11 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm transition-colors"
           >
-            채점하기
+            Check answers
           </button>
         ) : (
           <>
             <div className="flex-1 h-11 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)] flex items-center justify-center gap-2">
               <span className="text-white font-bold text-base">{correctCount}</span>
-              <span className="text-[var(--text-subtle)] text-sm">/ {totalQ} 정답</span>
+              <span className="text-[var(--text-subtle)] text-sm">/ {totalQ} correct</span>
               <span className="text-lg ml-1">
                 {correctCount === totalQ ? '🎉' : correctCount >= totalQ * 0.7 ? '👍' : '💪'}
               </span>
@@ -218,13 +218,13 @@ function ExerciseTab({ worksheet }: { worksheet: WorksheetData }) {
               onClick={() => { setChecked(false); setAnswers({}); setShowAnswers(false) }}
               className="h-11 px-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-white text-sm transition-colors"
             >
-              다시 풀기
+              Retry
             </button>
             <button
               onClick={() => setShowAnswers(v => !v)}
               className="h-11 px-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-white text-sm transition-colors"
             >
-              {showAnswers ? '답 숨기기' : '전체 답 보기'}
+              {showAnswers ? 'Hide answers' : 'Show all answers'}
             </button>
           </>
         )}
@@ -271,16 +271,16 @@ export default function WorksheetPanel({ worksheet, onClose, userId, sessionId, 
     setPrinting(true)
     try {
       const { downloadPdf } = await import('@/lib/downloadPdf')
-      await downloadPdf(printRef.current, `워크시트_${worksheet.title.slice(0, 30)}.pdf`)
+      await downloadPdf(printRef.current, `worksheet_${worksheet.title.slice(0, 30)}.pdf`)
     } finally {
       setPrinting(false)
     }
   }
 
   const tabs = [
-    { id: 'vocab',    label: '📖 단어장' },
-    { id: 'exercise', label: '✏️ 문제풀기' },
-    { id: 'print',    label: '🖨️ 인쇄' },
+    { id: 'vocab',    label: '📖 Vocabulary' },
+    { id: 'exercise', label: '✏️ Exercises' },
+    { id: 'print',    label: '🖨️ Print' },
   ] as const
 
   return (
@@ -297,7 +297,7 @@ export default function WorksheetPanel({ worksheet, onClose, userId, sessionId, 
                 {worksheet.levelLabel}
               </span>
             </div>
-            <p className="text-[var(--text-subtle)] text-xs mt-0.5">단어 {worksheet.vocabulary.length}개 · 문제 {worksheet.exercises.reduce((s, e) => s + e.questions.length, 0)}개</p>
+            <p className="text-[var(--text-subtle)] text-xs mt-0.5">{worksheet.vocabulary.length} words · {worksheet.exercises.reduce((s, e) => s + e.questions.length, 0)} questions</p>
           </div>
           {userId && (
             <button
@@ -309,7 +309,7 @@ export default function WorksheetPanel({ worksheet, onClose, userId, sessionId, 
                   : 'bg-orange-500/20 text-orange-400 border border-orange-500/30 hover:bg-orange-500/30'
               } disabled:opacity-50`}
             >
-              {saved ? '✓ 저장됨' : saving ? '저장 중...' : '저장'}
+              {saved ? '✓ Saved' : saving ? 'Saving...' : 'Save'}
             </button>
           )}
           <button onClick={onClose} className="w-7 h-7 rounded-full bg-[var(--bg-elevated)] text-[var(--text-subtle)] hover:text-white flex items-center justify-center text-sm transition-colors shrink-0">
@@ -346,12 +346,12 @@ export default function WorksheetPanel({ worksheet, onClose, userId, sessionId, 
                 className="w-full h-12 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {printing ? (
-                  <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>PDF 생성 중...</>
+                  <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Generating PDF...</>
                 ) : (
-                  <><span>🖨️</span> PDF 다운로드</>
+                  <><span>🖨️</span> Download PDF</>
                 )}
               </button>
-              <p className="text-[var(--text-subtle)] text-xs text-center">A4 사이즈로 출력하면 깔끔하게 인쇄돼요</p>
+              <p className="text-[var(--text-subtle)] text-xs text-center">Print at A4 size for best results</p>
 
               {/* PDF 미리보기 & 캡처 대상 */}
               <div ref={printRef} style={{ background: '#fff', padding: 32, fontFamily: 'sans-serif', color: '#111', width: 680 }}>
@@ -359,27 +359,27 @@ export default function WorksheetPanel({ worksheet, onClose, userId, sessionId, 
                 <div style={{ borderBottom: '2px solid #111', paddingBottom: 12, marginBottom: 20 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                     <div>
-                      <p style={{ fontSize: 11, color: '#666', marginBottom: 4 }}>Next Curator 영어 워크시트</p>
+                      <p style={{ fontSize: 11, color: '#666', marginBottom: 4 }}>Next Curator English Worksheet</p>
                       <h1 style={{ fontSize: 18, fontWeight: 900, margin: 0 }}>{worksheet.title}</h1>
                     </div>
                     <div style={{ textAlign: 'right', fontSize: 11, color: '#666' }}>
-                      <p>난이도: <strong>{worksheet.levelLabel}</strong></p>
-                      <p>이름: ________________________</p>
-                      <p>날짜: ________________________</p>
+                      <p>Level: <strong>{worksheet.levelLabel}</strong></p>
+                      <p>Name: ________________________</p>
+                      <p>Date: ________________________</p>
                     </div>
                   </div>
                 </div>
 
                 {/* 단어장 */}
                 <div style={{ marginBottom: 28 }}>
-                  <h2 style={{ fontSize: 14, fontWeight: 700, borderLeft: '4px solid #f97316', paddingLeft: 8, marginBottom: 12 }}>📖 단어장</h2>
+                  <h2 style={{ fontSize: 14, fontWeight: 700, borderLeft: '4px solid #f97316', paddingLeft: 8, marginBottom: 12 }}>📖 Vocabulary</h2>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11 }}>
                     <thead>
                       <tr style={{ background: '#f3f4f6' }}>
-                        <th style={{ border: '1px solid #d1d5db', padding: '6px 10px', textAlign: 'left', width: '18%' }}>단어</th>
-                        <th style={{ border: '1px solid #d1d5db', padding: '6px 10px', textAlign: 'left', width: '14%' }}>발음</th>
-                        <th style={{ border: '1px solid #d1d5db', padding: '6px 10px', textAlign: 'left', width: '14%' }}>뜻</th>
-                        <th style={{ border: '1px solid #d1d5db', padding: '6px 10px', textAlign: 'left' }}>예문</th>
+                        <th style={{ border: '1px solid #d1d5db', padding: '6px 10px', textAlign: 'left', width: '18%' }}>Word</th>
+                        <th style={{ border: '1px solid #d1d5db', padding: '6px 10px', textAlign: 'left', width: '14%' }}>Pronunciation</th>
+                        <th style={{ border: '1px solid #d1d5db', padding: '6px 10px', textAlign: 'left', width: '14%' }}>Meaning</th>
+                        <th style={{ border: '1px solid #d1d5db', padding: '6px 10px', textAlign: 'left' }}>Example</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -416,7 +416,7 @@ export default function WorksheetPanel({ worksheet, onClose, userId, sessionId, 
                     {ex.type === 'fill_blank' && (
                       <div style={{ marginBottom: 8 }}>
                         <div style={{ background: '#f3f4f6', border: '1px solid #d1d5db', borderRadius: 6, padding: '8px 12px', marginBottom: 12, fontSize: 11 }}>
-                          <strong>단어 박스: </strong>
+                          <strong>Word box: </strong>
                           {ex.questions.flatMap(q => q.options ?? []).filter((v, i, a) => a.indexOf(v) === i).join('  /  ')}
                         </div>
                         {ex.questions.map((q, qi) => (
