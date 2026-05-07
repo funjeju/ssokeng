@@ -448,7 +448,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
         if (filteredItems.length > 0) {
           setReviewItemsForQuiz(filteredItems)
           setReviewRounds(rounds)
-          setQuiz({ ...fullQuiz, title: `🔄 복습 · ${filteredItems.length}문제`, questions: filteredQuestions })
+          setQuiz({ ...fullQuiz, title: `🔄 Review · ${filteredItems.length} questions`, questions: filteredQuestions })
         } else {
           setQuiz(fullQuiz)
         }
@@ -581,7 +581,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
     try {
       await updateSummaryVisibility(savedItem.id, newPublic)
       setSavedItem(prev => prev ? { ...prev, isPublic: newPublic } : prev)
-    } catch { alert('변경에 실패했습니다.') }
+    } catch { alert('Failed to update.') }
     finally { setTogglingVisibility(false) }
   }
 
@@ -617,7 +617,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
       // fromSquare 임시 모드: URL에 ?temp=1 추가하여 저장 유도 배너 표시
       router.push(`/result/${newData.sessionId}${fromSquare ? '?temp=1' : ''}`)
     } catch (e) {
-      alert((e as Error).message || '재요약에 실패했습니다.')
+      alert((e as Error).message || 'Failed to re-analyze.')
     } finally {
       setReanalyzing(false)
       setReanalyzeCategory('')

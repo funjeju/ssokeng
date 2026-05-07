@@ -18,12 +18,12 @@ export interface QuizMetaLog {
 }
 
 const ROUND_BADGE: Record<number, { label: string; cls: string }> = {
-  0: { label: '1차 복습', cls: 'bg-red-500/20 text-red-300 border-red-500/40' },
-  1: { label: '2차 복습', cls: 'bg-orange-500/20 text-orange-300 border-orange-500/40' },
-  2: { label: '3차 복습', cls: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40' },
+  0: { label: 'Review 1', cls: 'bg-red-500/20 text-red-300 border-red-500/40' },
+  1: { label: 'Review 2', cls: 'bg-orange-500/20 text-orange-300 border-orange-500/40' },
+  2: { label: 'Review 3', cls: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40' },
 }
 function getRoundBadge(rep: number) {
-  return ROUND_BADGE[rep] ?? { label: `${rep + 1}차 복습`, cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' }
+  return ROUND_BADGE[rep] ?? { label: `Review ${rep + 1}`, cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' }
 }
 
 interface Props {
@@ -50,7 +50,7 @@ export default function QuizPanel({ quiz, onClose, onComplete, onAnswer, showMet
   const total = quiz.questions.length
 
   const next = (correct: boolean, chosenOption?: string, metaLevel?: 'complete' | 'confused' | 'unknown') => {
-    onAnswer?.({ questionIdx: idx, question: q.question, selected: chosenOption ?? (correct ? '알았어' : '몰랐어'), correct, metaLevel })
+    onAnswer?.({ questionIdx: idx, question: q.question, selected: chosenOption ?? (correct ? 'Got it' : 'Missed it'), correct, metaLevel })
     const newAnswers = [...answers, correct]
     setAnswers(newAnswers)
     if (correct) setScore(s => s + 1)
@@ -81,22 +81,22 @@ export default function QuizPanel({ quiz, onClose, onComplete, onAnswer, showMet
       <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div className="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-3xl w-full max-w-sm p-8 flex flex-col items-center gap-5 shadow-2xl">
           <span className="text-5xl">{pct >= 80 ? '🎉' : pct >= 50 ? '👍' : '💪'}</span>
-          <h2 className="text-xl font-bold text-white">{reviewMode ? '복습 완료!' : '퀴즈 완료!'}</h2>
+          <h2 className="text-xl font-bold text-white">{reviewMode ? 'Review done!' : 'Quiz done!'}</h2>
           <div className="text-center">
             <p className="text-4xl font-black text-orange-400">{score}/{total}</p>
-            <p className="text-[var(--text-subtle)] text-sm mt-1">{pct}% 정답</p>
+            <p className="text-[var(--text-subtle)] text-sm mt-1">{pct}% correct</p>
           </div>
           {reviewMode && (
             <p className="text-xs text-center text-[var(--text-subtle)]">
-              {pct >= 80 ? '잘 했어요! 다음 복습 일정이 업데이트됐어요.' : '틀린 문제는 더 짧은 간격으로 다시 복습돼요.'}
+              {pct >= 80 ? 'Great job! Your next review schedule has been updated.' : 'Missed questions will be reviewed again sooner.'}
             </p>
           )}
           <div className="flex gap-2 w-full mt-2">
             <button onClick={restart} className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl text-sm transition-colors">
-              다시 풀기
+              Retry
             </button>
             <button onClick={onClose} className="flex-1 py-3 bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-white font-bold rounded-2xl text-sm border border-[var(--border-default)] transition-colors">
-              닫기
+              Close
             </button>
           </div>
         </div>
@@ -112,7 +112,7 @@ export default function QuizPanel({ quiz, onClose, onComplete, onAnswer, showMet
         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-subtle)]">
           <div className="flex items-center gap-2">
             {reviewMode && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/40">🔄 복습 모드</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/40">🔄 Review Mode</span>
             )}
             <span className="text-sm font-bold text-white">{quiz.title}</span>
           </div>
@@ -162,9 +162,9 @@ export default function QuizPanel({ quiz, onClose, onComplete, onAnswer, showMet
 }
 
 const META_BUTTONS = [
-  { level: 'complete' as const, emoji: '✅', label: '완전이해', active: 'bg-emerald-500/20 border-emerald-500 text-emerald-300', idle: 'border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10' },
-  { level: 'confused' as const, emoji: '🤔', label: '알쏭달쏭', active: 'bg-yellow-500/20 border-yellow-500 text-yellow-300',   idle: 'border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10' },
-  { level: 'unknown'  as const, emoji: '❓', label: '전혀모름',  active: 'bg-red-500/20 border-red-500 text-red-300',            idle: 'border-red-500/30 text-red-400 hover:bg-red-500/10' },
+  { level: 'complete' as const, emoji: '✅', label: 'Got it',     active: 'bg-emerald-500/20 border-emerald-500 text-emerald-300', idle: 'border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10' },
+  { level: 'confused' as const, emoji: '🤔', label: 'Unsure',    active: 'bg-yellow-500/20 border-yellow-500 text-yellow-300',   idle: 'border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10' },
+  { level: 'unknown'  as const, emoji: '❓', label: 'No idea',   active: 'bg-red-500/20 border-red-500 text-red-300',            idle: 'border-red-500/30 text-red-400 hover:bg-red-500/10' },
 ]
 
 function MetaRow({ pendingMeta, onSelect }: {
@@ -173,7 +173,7 @@ function MetaRow({ pendingMeta, onSelect }: {
 }) {
   return (
     <div className="flex flex-col gap-1.5 mt-1">
-      <p className="text-center text-[10px] text-[var(--text-subtle)] uppercase tracking-wider">이 문제를 얼마나 이해했나요?</p>
+      <p className="text-center text-[10px] text-[var(--text-subtle)] uppercase tracking-wider">How well did you understand this?</p>
       <div className="flex gap-2">
         {META_BUTTONS.map(btn => (
           <button
@@ -187,7 +187,7 @@ function MetaRow({ pendingMeta, onSelect }: {
         ))}
       </div>
       {pendingMeta && (
-        <p className="text-center text-[10px] text-[var(--text-subtle)]">✓ 선생님께 전달됩니다</p>
+        <p className="text-center text-[10px] text-[var(--text-subtle)]">✓ Sent to your teacher</p>
       )}
     </div>
   )
@@ -212,13 +212,13 @@ function FlashCard({ q, flipped, onFlip, onNext, showMeta, onMetaSelect, pending
       >
         {!flipped ? (
           <>
-            <p className="text-[10px] text-[var(--text-subtle)] mb-3 uppercase tracking-wider">앞면 — 탭해서 뒤집기</p>
+            <p className="text-[10px] text-[var(--text-subtle)] mb-3 uppercase tracking-wider">Front — tap to flip</p>
             <p className="text-white text-xl font-bold leading-relaxed">{q.question}</p>
             {q.hint && <p className="text-[var(--text-subtle)] text-xs mt-3">💡 {q.hint}</p>}
           </>
         ) : (
           <>
-            <p className="text-[10px] text-orange-400/70 mb-3 uppercase tracking-wider">뒷면</p>
+            <p className="text-[10px] text-orange-400/70 mb-3 uppercase tracking-wider">Back</p>
             <p className="text-orange-100 text-base font-semibold leading-relaxed whitespace-pre-line">{q.answer}</p>
           </>
         )}
@@ -234,19 +234,19 @@ function FlashCard({ q, flipped, onFlip, onNext, showMeta, onMetaSelect, pending
               onClick={() => { onMetaSelect?.('unknown'); onNext(false) }}
               className="flex-1 py-3 bg-[var(--bg-elevated)] border border-red-500/30 text-red-400 hover:bg-red-500/10 font-bold rounded-2xl text-sm transition-colors"
             >
-              😅 몰랐어
+              😅 Missed it
             </button>
             <button
               onClick={() => { onMetaSelect?.('complete'); onNext(true) }}
               className="flex-1 py-3 bg-[var(--bg-elevated)] border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 font-bold rounded-2xl text-sm transition-colors"
             >
-              ✅ 알았어
+              ✅ Got it
             </button>
           </div>
         </div>
       )}
       {!flipped && (
-        <p className="text-center text-xs text-[var(--text-subtle)]">카드를 탭해서 정답 확인</p>
+        <p className="text-center text-xs text-[var(--text-subtle)]">Tap the card to reveal the answer</p>
       )}
     </div>
   )

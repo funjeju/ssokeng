@@ -13,13 +13,13 @@ interface HistoryItem {
 }
 
 const CATEGORY_LABEL: Record<string, string> = {
-  recipe: '🍳 요리',
-  english: '🔤 영어',
-  learning: '📐 학습',
-  news: '🗞️ 뉴스',
-  selfdev: '💪 자기계발',
-  travel: '🧳 여행',
-  story: '🍿 스토리',
+  recipe: '🍳 Recipe',
+  english: '🔤 Language',
+  learning: '📐 Learning',
+  news: '🗞️ News',
+  selfdev: '💪 Self-Dev',
+  travel: '🧳 Travel',
+  story: '🍿 Story',
 }
 
 export default function HistoryPage() {
@@ -48,23 +48,23 @@ export default function HistoryPage() {
           <Link href="/" className="text-xl font-bold tracking-tight text-white hover:opacity-80 transition-opacity">
             🎬 Next Curator
           </Link>
-          <span className="text-[var(--text-muted)] text-sm font-medium">나의 요약 기록</span>
+          <span className="text-[var(--text-muted)] text-sm font-medium">My Summary History</span>
         </div>
       </div>
 
       <div className="max-w-5xl mx-auto px-6 pb-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">History</h1>
-          <p className="text-[var(--text-muted)]">그동안 분석했던 영상들을 한눈에 모아보세요.</p>
+          <p className="text-[var(--text-muted)]">All your analyzed videos in one place.</p>
         </div>
 
         {history.length === 0 ? (
           <div className="bg-[var(--bg-elevated)]/50 rounded-[32px] p-12 text-center border border-[var(--border-subtle)]">
             <span className="text-4xl mb-4 block">📭</span>
-            <h2 className="text-xl text-white font-medium mb-2">기록이 없습니다</h2>
-            <p className="text-[var(--text-subtle)] text-sm mb-6">첫 번째 영상을 요약해 보세요!</p>
+            <h2 className="text-xl text-white font-medium mb-2">No history yet</h2>
+            <p className="text-[var(--text-subtle)] text-sm mb-6">Summarize your first video!</p>
             <Link href="/" className="inline-block px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-zinc-200 transition-colors">
-              새 영상 분석하기
+              Analyze a video
             </Link>
           </div>
         ) : (
@@ -83,7 +83,7 @@ export default function HistoryPage() {
                   />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
                   <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs font-medium text-white border border-[var(--border-default)]">
-                    {CATEGORY_LABEL[item.category] || '분석됨'}
+                    {CATEGORY_LABEL[item.category] || 'Analyzed'}
                   </div>
                 </div>
                 <div className="p-5 flex flex-col gap-2 flex-1">

@@ -27,14 +27,14 @@ export default function MessagesPage() {
     <div className="min-h-screen bg-[var(--bg-page)] font-sans">
       <Header title="🎬 Next Curator" />
       <div className="max-w-lg mx-auto px-4 pb-16">
-        <h1 className="text-xl font-bold text-white mb-6">✉️ 쪽지함</h1>
+        <h1 className="text-xl font-bold text-white mb-6">✉️ Messages</h1>
 
         {loading ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-orange-500" />
           </div>
         ) : conversations.length === 0 ? (
-          <div className="text-center py-20 text-[var(--text-subtle)]">쪽지가 없습니다.</div>
+          <div className="text-center py-20 text-[var(--text-subtle)]">No messages.</div>
         ) : (
           <div className="flex flex-col gap-2">
             {conversations.map(convo => {
@@ -53,8 +53,8 @@ export default function MessagesPage() {
                     <div className="w-10 h-10 rounded-full bg-[var(--bg-elevated-2)] shrink-0 flex items-center justify-center text-lg">👤</div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-white text-sm font-semibold">{other?.displayName || '익명'}</p>
-                    <p className="text-[var(--text-subtle)] text-xs truncate">{convo.lastMessage || '대화를 시작해보세요'}</p>
+                    <p className="text-white text-sm font-semibold">{other?.displayName || 'Anonymous'}</p>
+                    <p className="text-[var(--text-subtle)] text-xs truncate">{convo.lastMessage || 'Start a conversation'}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1 shrink-0">
                     {convo.lastAt && <span className="text-[9px] text-[var(--text-subtle)]">{formatRelativeDate(convo.lastAt)}</span>}

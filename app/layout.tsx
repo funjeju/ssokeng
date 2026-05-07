@@ -10,28 +10,28 @@ import ThemeProvider from '@/components/common/ThemeProvider'
 const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://ssoktube.com'),
+  metadataBase: new URL('https://ssokeng.vercel.app'),
   title: {
-    default: '유튜브 AI 요약 | SSOKTUBE — 영상 핵심만 내 라이브러리에',
-    template: '%s | SSOKTUBE 유튜브 AI 요약',
+    default: 'YouTube AI Summary | SSOKENG — Save key insights to your library',
+    template: '%s | SSOKENG YouTube AI Summary',
   },
-  description: 'AI가 유튜브 영상을 자동 요약·분석해 핵심만 저장해드립니다. 요리 레시피, 영어 학습, 경제·재테크, 뉴스 등 모든 영상을 내 라이브러리에 쏙.',
-  keywords: ['유튜브 요약', '유튜브 AI 요약', '영상 요약 저장', 'AI 영상 분석', '유튜브 정리', '유튜브 라이브러리', '유튜브 핵심 정리', '요리 레시피 요약', '영어 학습 유튜브', '경제 유튜브 요약'],
-  authors: [{ name: 'SSOKTUBE' }],
-  creator: 'SSOKTUBE',
+  description: 'AI automatically summarizes and analyzes YouTube videos, saving just the key points to your library. Recipes, language learning, news, and more.',
+  keywords: ['youtube summary', 'AI youtube summary', 'video summary', 'AI video analysis', 'youtube library', 'recipe summary', 'english learning youtube'],
+  authors: [{ name: 'SSOKENG' }],
+  creator: 'SSOKENG',
   openGraph: {
     type: 'website',
-    locale: 'ko_KR',
-    url: 'https://ssoktube.com',
-    siteName: 'SSOKTUBE',
-    title: '유튜브 AI 요약 | SSOKTUBE — 영상 핵심만 내 라이브러리에',
-    description: 'AI가 유튜브 영상을 자동 요약·분석해 핵심만 저장해드립니다. 요리 레시피, 영어 학습, 경제·재테크, 뉴스 등 모든 영상을 내 라이브러리에 쏙.',
+    locale: 'en_US',
+    url: 'https://ssokeng.vercel.app',
+    siteName: 'SSOKENG',
+    title: 'YouTube AI Summary | SSOKENG — Save key insights to your library',
+    description: 'AI automatically summarizes and analyzes YouTube videos, saving just the key points to your library.',
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@ssoktube',
-    title: '유튜브 AI 요약 | SSOKTUBE — 영상 핵심만 내 라이브러리에',
-    description: 'AI가 유튜브 영상을 자동 요약·분석해 핵심만 저장해드립니다. 요리 레시피, 영어 학습, 경제·재테크, 뉴스 등 모든 영상을 내 라이브러리에 쏙.',
+    site: '@ssokeng',
+    title: 'YouTube AI Summary | SSOKENG — Save key insights to your library',
+    description: 'AI automatically summarizes and analyzes YouTube videos, saving just the key points to your library.',
   },
   robots: {
     index: true,
