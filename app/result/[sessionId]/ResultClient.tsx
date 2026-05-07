@@ -36,28 +36,28 @@ import VideoQuizManagerModal from '@/components/video-quiz/VideoQuizManagerModal
 import VideoQuizPopup from '@/components/video-quiz/VideoQuizPopup'
 
 const CATEGORY_INFO: Record<string, { label: string; icon: string; color: string }> = {
-  recipe:  { label: '요리',    icon: '🍳', color: 'text-orange-400 border-orange-400' },
-  english: { label: '영어학습', icon: '🔤', color: 'text-blue-400 border-blue-400' },
-  learning:{ label: '학습',    icon: '📐', color: 'text-violet-400 border-violet-400' },
-  news:    { label: '뉴스',    icon: '🗞️', color: 'text-zinc-400 border-zinc-400' },
-  selfdev: { label: '자기계발', icon: '💪', color: 'text-emerald-400 border-emerald-400' },
-  travel:  { label: '여행',    icon: '🧳', color: 'text-cyan-400 border-cyan-400' },
-  story:   { label: '스토리',  icon: '🍿', color: 'text-pink-400 border-pink-400' },
-  tips:    { label: '팁',      icon: '💡', color: 'text-yellow-400 border-yellow-400' },
-  report:  { label: '보고서',  icon: '📋', color: 'text-indigo-400 border-indigo-400' },
+  recipe:  { label: 'Recipe',   icon: '🍳', color: 'text-orange-400 border-orange-400' },
+  english: { label: 'Language', icon: '🔤', color: 'text-blue-400 border-blue-400' },
+  learning:{ label: 'Learning', icon: '📐', color: 'text-violet-400 border-violet-400' },
+  news:    { label: 'News',     icon: '🗞️', color: 'text-zinc-400 border-zinc-400' },
+  selfdev: { label: 'Self-Dev', icon: '💪', color: 'text-emerald-400 border-emerald-400' },
+  travel:  { label: 'Travel',   icon: '🧳', color: 'text-cyan-400 border-cyan-400' },
+  story:   { label: 'Story',    icon: '🍿', color: 'text-pink-400 border-pink-400' },
+  tips:    { label: 'Tips',     icon: '💡', color: 'text-yellow-400 border-yellow-400' },
+  report:  { label: 'Report',   icon: '📋', color: 'text-indigo-400 border-indigo-400' },
 }
-const DEFAULT_CATEGORY_INFO = { label: '분석됨', icon: '✨', color: 'text-zinc-400 border-zinc-400' }
+const DEFAULT_CATEGORY_INFO = { label: 'Analyzed', icon: '✨', color: 'text-zinc-400 border-zinc-400' }
 
 const RE_ANALYZE_CATEGORIES = [
-  { id: 'recipe',  icon: '🍳', label: '요리' },
-  { id: 'english', icon: '🔤', label: '영어' },
-  { id: 'learning',icon: '📐', label: '학습' },
-  { id: 'news',    icon: '🗞️', label: '뉴스' },
-  { id: 'selfdev', icon: '💪', label: '자기계발' },
-  { id: 'travel',  icon: '🧳', label: '여행' },
-  { id: 'story',   icon: '🍿', label: '스토리' },
-  { id: 'tips',    icon: '💡', label: '팁' },
-  { id: 'report',  icon: '📋', label: '보고서' },
+  { id: 'recipe',  icon: '🍳', label: 'Recipe' },
+  { id: 'english', icon: '🔤', label: 'Language' },
+  { id: 'learning',icon: '📐', label: 'Learning' },
+  { id: 'news',    icon: '🗞️', label: 'News' },
+  { id: 'selfdev', icon: '💪', label: 'Self-Dev' },
+  { id: 'travel',  icon: '🧳', label: 'Travel' },
+  { id: 'story',   icon: '🍿', label: 'Story' },
+  { id: 'tips',    icon: '💡', label: 'Tips' },
+  { id: 'report',  icon: '📋', label: 'Report' },
 ]
 
 function timestampToSeconds(ts: string): number {
@@ -198,11 +198,11 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
     setDownloading(true)
     try {
       const { downloadPdf } = await import('@/lib/downloadPdf')
-      const safeName = data.title.replace(/[^\w\s가-힣]/g, '').trim().slice(0, 40) || 'summary'
+      const safeName = data.title.replace(/[^\w\s]/g, '').trim().slice(0, 40) || 'summary'
       await downloadPdf(pdfRef.current, `${safeName}.pdf`)
     } catch (e) {
-      console.error('PDF 생성 실패:', e)
-      alert('PDF 다운로드에 실패했습니다.')
+      console.error('PDF generation failed:', e)
+      alert('PDF download failed.')
     } finally {
       setDownloading(false)
     }
@@ -472,14 +472,14 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
 
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault()
-      e.returnValue = '저장하지 않고 이동하시겠습니까? 분석 내용은 사라집니다.'
+      e.returnValue = 'Leave without saving? Your analysis will be lost.'
       return e.returnValue
     }
 
     // 뒤로가기(popstate) 감지 로직 추가
     const handlePopState = (e: PopStateEvent) => {
       if (isUnsaved) {
-        if (!confirm('이 영상을 라이브러리에 저장하셨나요?\n저장하지 않으면 분석 내용이 사라집니다.\n\n계속 이동하려면 확인, 머물려면 취소를 누르세요.')) {
+        if (!confirm('Have you saved this video to your library?\nIf not, your analysis will be lost.\n\nClick OK to leave, or Cancel to stay.')) {
           // 이동 취소: 현재 URL 유지
           window.history.pushState(null, '', window.location.href)
         }
@@ -641,10 +641,10 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           force,
         }),
       })
-      if (!res.ok) throw new Error('퀴즈 생성 실패')
+      if (!res.ok) throw new Error('Quiz generation failed')
       setQuiz(await res.json())
     } catch (e) {
-      alert('퀴즈 생성에 실패했습니다.')
+      alert('Failed to generate quiz.')
     } finally {
       setQuizLoading(false)
     }
@@ -664,10 +664,10 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           level: worksheetLevel,
         }),
       })
-      if (!res.ok) throw new Error('워크시트 생성 실패')
+      if (!res.ok) throw new Error('Worksheet generation failed')
       setWorksheet(await res.json())
     } catch {
-      alert('워크시트 생성에 실패했습니다.')
+      alert('Failed to generate worksheet.')
     } finally {
       setWorksheetLoading(false)
     }
@@ -801,7 +801,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
         setShowBookmarkPanelTop(false)
       }, 800)
     } catch {
-      alert('북마크 저장에 실패했습니다.')
+      alert('Failed to save bookmark.')
     } finally {
       setBookmarkSaving(false)
     }
@@ -822,7 +822,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
       })
       setExtractedItems(await res.json())
     } catch {
-      alert('추출에 실패했습니다.')
+      alert('Extraction failed.')
     } finally {
       setExtractingItems(false)
     }
@@ -840,15 +840,15 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
       if (!res.ok) {
         const err = await res.json()
         if (err.error === 'too_short_for_segments') {
-          alert('구간 분석을 하기엔 영상이 너무 짧습니다.')
+          alert('This video is too short for segment analysis.')
           return
         }
-        throw new Error(err.error || '구간 분석 실패')
+        throw new Error(err.error || 'Segment analysis failed')
       }
       const { segments: segs } = await res.json()
       setSegments(segs)
     } catch (e) {
-      alert('구간 분석에 실패했습니다.')
+      alert('Segment analysis failed.')
     } finally {
       setSegmentsLoading(false)
     }
@@ -905,23 +905,23 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
     return (
       <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center gap-6 px-4">
         <span className="text-5xl">😵</span>
-        <h1 className="text-xl font-bold text-white">요약을 불러오지 못했습니다</h1>
+        <h1 className="text-xl font-bold text-white">Could not load summary</h1>
         <p className="text-zinc-400 text-sm text-center max-w-xs">
-          요약 데이터가 만료됐거나 존재하지 않습니다.<br/>
-          저장된 항목은 마이페이지에서, 공개 항목은 스퀘어에서 확인하세요.
+          The summary data has expired or does not exist.<br/>
+          Check saved items in My Page, or public items in Square.
         </p>
         <div className="flex gap-3">
           <button
             onClick={() => router.push('/')}
             className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-sm transition-colors"
           >
-            새 영상 요약하기
+            Summarize New Video
           </button>
           <button
             onClick={() => router.push('/mypage')}
             className="px-5 py-2.5 bg-[var(--bg-elevated)] border border-[var(--border-default)] text-white rounded-xl text-sm hover:bg-[var(--bg-elevated-2)] transition-colors"
           >
-            마이페이지
+            My Page
           </button>
         </div>
       </div>
@@ -957,9 +957,9 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                 <button
                   onClick={openQuizCreator}
                   className="flex items-center gap-1 px-3 h-7 rounded-lg text-xs transition-colors border bg-[var(--overlay-subtle)] hover:bg-orange-500/15 border-[var(--border-subtle)] hover:border-orange-500/30 text-zinc-400 hover:text-orange-400"
-                  title="현재 시점에 퀴즈 추가"
+                  title="Add quiz at current timestamp"
                 >
-                  🧩 <span>퀴즈 추가</span>
+                  🧩 <span>Add Quiz</span>
                   {videoQuizzes.length > 0 && (
                     <span className="ml-0.5 bg-orange-500 text-white text-[9px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center">
                       {videoQuizzes.length}
@@ -976,9 +976,9 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                       ? 'bg-yellow-500/20 border-yellow-500/40 text-yellow-400'
                       : 'bg-[var(--overlay-subtle)] hover:bg-yellow-500/15 border-[var(--border-subtle)] hover:border-yellow-500/30 text-zinc-400 hover:text-yellow-400'
                   }`}
-                  title="현재 시점 북마크"
+                  title="Bookmark current timestamp"
                 >
-                  🔖 <span>북마크</span>
+                  🔖 <span>Bookmark</span>
                 </button>
               </div>
               <div className="relative">
@@ -1022,7 +1022,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
               <img src={data.thumbnail} alt="" className="w-20 h-[45px] rounded-lg object-cover shrink-0" />
             )}
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-[var(--text-subtle)] mb-0.5">🎙 음성 녹음</p>
+              <p className="text-xs text-[var(--text-subtle)] mb-0.5">🎙 Voice Recording</p>
               <p className="text-white text-sm font-semibold truncate">{data.title}</p>
             </div>
           </div>
@@ -1042,7 +1042,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                 <span>📄 {data.title}</span>
                 <span className="ml-auto">p.{pdfViewerPage}</span>
                 <a href={pdfSrc} target="_blank" rel="noopener noreferrer"
-                  className="text-orange-400 hover:text-orange-300">원본 열기 ↗</a>
+                  className="text-orange-400 hover:text-orange-300">Open Original ↗</a>
               </div>
             </div>
           )
@@ -1052,7 +1052,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
               <img src={data.thumbnail} alt="" className="w-20 h-[45px] rounded-lg object-cover shrink-0" />
             )}
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-[var(--text-subtle)] mb-0.5">🌐 웹페이지</p>
+              <p className="text-xs text-[var(--text-subtle)] mb-0.5">🌐 Web Page</p>
               <p className="text-white text-sm font-semibold truncate">{data.title}</p>
               <a href={(data as any).sourceUrl} target="_blank" rel="noopener noreferrer"
                 className="text-xs text-orange-400 hover:underline truncate block mt-0.5">
@@ -1067,14 +1067,14 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           <div className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl px-4 py-3">
             <span className="text-amber-400 text-base shrink-0">🔍</span>
             <div className="flex-1 min-w-0">
-              <p className="text-amber-300 text-sm font-semibold">임시 분석 결과</p>
-              <p className="text-amber-400/70 text-xs">이 분석은 나만 볼 수 있습니다. 원본 데이터는 변경되지 않았습니다.</p>
+              <p className="text-amber-300 text-sm font-semibold">Temporary Analysis</p>
+              <p className="text-amber-400/70 text-xs">Only you can see this. The original data has not been changed.</p>
             </div>
             <button
               onClick={() => setShowSaveModal(true)}
               className="shrink-0 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-full transition-colors"
             >
-              내 라이브러리에 저장
+              Save to My Library
             </button>
           </div>
         )}
@@ -1084,7 +1084,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           <div className="flex items-start gap-3 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl px-4 py-3">
             <span className="text-yellow-400 text-base shrink-0 mt-0.5">⚠️</span>
             <div className="flex-1 min-w-0">
-              <p className="text-yellow-300 text-sm font-semibold">자막 추출 실패</p>
+              <p className="text-yellow-300 text-sm font-semibold">Caption Extraction Failed</p>
               <p className="text-yellow-400/70 text-xs leading-relaxed mt-0.5">{(data as any).transcriptWarning}</p>
             </div>
           </div>
@@ -1103,10 +1103,10 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
             <button
               onClick={handleCommentIconClick}
               className="shrink-0 flex items-center gap-1.5 px-2.5 h-7 rounded-lg bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 hover:text-white transition-colors text-xs relative"
-              title="댓글 보기"
+              title="View Comments"
             >
               <span>💬</span>
-              <span>{commentCount > 0 ? `${commentCount}` : '댓글'}</span>
+              <span>{commentCount > 0 ? `${commentCount}` : 'Comments'}</span>
               {commentCount > 0 && (
                 <span className="absolute -top-1 -right-1 min-w-[14px] h-3.5 px-0.5 rounded-full bg-orange-500 text-white text-[8px] font-bold flex items-center justify-center leading-none">
                   {commentCount}
@@ -1118,12 +1118,12 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5">
             {data.videoPublishedAt && (
               <span className="text-xs text-zinc-600">
-                📅 업로드 {new Date(data.videoPublishedAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                📅 {new Date(data.videoPublishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
               </span>
             )}
             {data.summarizedAt && (
               <span className="text-xs text-zinc-600">
-                🤖 요약 {new Date(data.summarizedAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                🤖 {new Date(data.summarizedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
               </span>
             )}
           </div>
@@ -1143,10 +1143,10 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
         <div className="flex bg-[var(--bg-elevated)] rounded-xl p-1 border border-[var(--border-subtle)] w-full mt-2">
           {(['summary', 'transcript', ...(isLongVideo ? ['segments'] : []), 'reanalyze'] as const).map(tab => {
             const labels: Record<string, string> = {
-              summary: '기본 요약',
-              transcript: '전체 자막',
-              segments: '🗂 구간 분석',
-              reanalyze: '🔄 다시 분석',
+              summary: 'Summary',
+              transcript: 'Full Transcript',
+              segments: '🗂 Segments',
+              reanalyze: '🔄 Re-Analyze',
             }
             return (
               <button
@@ -1175,12 +1175,12 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
               {data.transcriptSource === 'none' && (
                 <div className="flex items-start gap-2.5 px-4 py-3 rounded-2xl bg-yellow-500/8 border border-yellow-500/20 text-yellow-300 text-sm">
                   <span className="shrink-0 mt-0.5">⚠️</span>
-                  <span>이 영상은 자막을 가져오지 못했습니다. 제목·채널 정보·영상 설명을 기반으로 요약했으며, 내용이 부정확할 수 있습니다.</span>
+                  <span>Captions could not be retrieved for this video. The summary is based on title, channel info, and description — content may be inaccurate.</span>
                 </div>
               )}
               {user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL && (
                 <div className="text-[11px] text-zinc-600 px-1">
-                  📡 자막 출처: <span className="text-zinc-400 font-medium">{data.transcriptSource || '(미기록)'}</span>
+                  📡 Caption source: <span className="text-zinc-400 font-medium">{data.transcriptSource || '(none)'}</span>
                 </div>
               )}
               <SummaryShell
@@ -1212,21 +1212,21 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                         </svg>
-                        퀴즈 불러오는 중...
+                        Loading Quiz...
                       </>
                     ) : quizAttemptCount === 0 ? (
                       userProfile?.role === 'student' || isClassView
-                        ? <>🧠 퀴즈 풀기</>
-                        : <>🧠 퀴즈 생성하기</>
+                        ? <>🧠 Take Quiz</>
+                        : <>🧠 Generate Quiz</>
                     ) : (
-                      <>🔁 퀴즈 재도전 <span className="text-[11px] opacity-60">({quizAttemptCount}회 완료)</span></>
+                      <>🔁 Retry Quiz <span className="text-[11px] opacity-60">({quizAttemptCount} completed)</span></>
                     )}
                   </button>
                   {userProfile?.role === 'teacher' && data.videoId && (
                     <button
-                      onClick={() => { if (confirm('기존 퀴즈를 새로 생성하시겠습니까?')) handleGenerateQuiz(true) }}
+                      onClick={() => { if (confirm('Regenerate the quiz?')) handleGenerateQuiz(true) }}
                       disabled={quizLoading}
-                      title="퀴즈 재생성 (선생님 전용)"
+                      title="Regenerate Quiz (Teacher only)"
                       className="px-3 py-3.5 rounded-2xl border border-[var(--border-default)] bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-[var(--text-subtle)] hover:text-white text-xs font-bold transition-all disabled:opacity-50"
                     >
                       🔄
@@ -1245,7 +1245,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                       className="w-full py-3.5 rounded-2xl border border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 text-blue-400 hover:text-blue-300 font-semibold text-sm transition-all flex items-center justify-center gap-2"
                     >
                       <span>📋</span>
-                      <span>워크시트 불러오기</span>
+                      <span>Load Worksheet</span>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full border font-bold ml-1 ${
                         cachedWorksheet.level === 'elementary' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
                         cachedWorksheet.level === 'middle'     ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' :
@@ -1257,9 +1257,9 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                     <>
                       <div className="flex gap-1.5">
                         {([
-                          { id: 'elementary', label: '초등' },
-                          { id: 'middle',     label: '중등' },
-                          { id: 'advanced',   label: '고급' },
+                          { id: 'elementary', label: 'Elementary' },
+                          { id: 'middle',     label: 'Middle' },
+                          { id: 'advanced',   label: 'Advanced' },
                         ] as const).map(lv => (
                           <button
                             key={lv.id}
@@ -1285,10 +1285,10 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                             </svg>
-                            워크시트 생성 중...
+                            Creating Worksheet...
                           </>
                         ) : (
-                          <>📝 워크시트 만들기</>
+                          <>📝 Create Worksheet</>
                         )}
                       </button>
                     </>
@@ -1311,10 +1311,10 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                 <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/5 p-6 flex flex-col items-center gap-4 text-center">
                   <span className="text-4xl">🗂</span>
                   <div>
-                    <p className="text-white font-semibold mb-1">구간별 심층 분석</p>
+                    <p className="text-white font-semibold mb-1">Segment-by-Segment Analysis</p>
                     <p className="text-[var(--text-muted)] text-sm leading-relaxed">
-                      30분 이상 영상입니다.<br />
-                      10분 단위로 나눠 각 구간을 분석하고 퀴즈를 풀 수 있어요.
+                      This video is over 30 minutes.<br />
+                      Analyze each 10-minute segment and take quizzes.
                     </p>
                   </div>
                   <button
@@ -1328,9 +1328,9 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                         </svg>
-                        분석 중...
+                        Analyzing...
                       </>
-                    ) : '구간 분석 시작하기'}
+                    ) : 'Start Segment Analysis'}
                   </button>
                 </div>
               )}
@@ -1352,24 +1352,24 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                       </svg>
-                      추출 중...
+                      Extracting...
                     </>
-                  ) : '🛍️ 언급된 상품 & 장소 추출'}
+                  ) : '🛍️ Extract Mentioned Products & Places'}
                 </button>
               ) : (
                 <div className="bg-[var(--bg-surface-2)] rounded-2xl border border-[var(--border-default)] p-4 space-y-4">
                   <div className="flex items-center justify-between">
-                    <p className="text-amber-400 font-bold text-sm">🛍️ 언급된 상품 & 장소</p>
+                    <p className="text-amber-400 font-bold text-sm">🛍️ Mentioned Products & Places</p>
                     <button
                       onClick={() => setExtractedItems(null)}
                       className="text-zinc-600 hover:text-zinc-400 text-xs"
-                    >닫기</button>
+                    >Close</button>
                   </div>
 
-                  {/* 상품 */}
+                  {/* Products */}
                   {(extractedItems?.products.length ?? 0) > 0 && (
                     <div>
-                      <p className="text-zinc-400 text-xs font-semibold mb-2">📦 상품 / 브랜드</p>
+                      <p className="text-zinc-400 text-xs font-semibold mb-2">📦 Products / Brands</p>
                       <div className="space-y-2">
                         {extractedItems?.products.map((p: any, i: number) => (
                           <a
@@ -1401,7 +1401,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                             {/* 구매하러가기 버튼 */}
                             <div className="shrink-0">
                               <span className="text-[10px] px-2.5 py-1.5 rounded-lg bg-[#e4003a] text-white font-bold whitespace-nowrap group-hover:bg-[#c8002f] transition-colors">
-                                구매하러가기
+                                Buy Now
                               </span>
                             </div>
                           </a>
@@ -1410,10 +1410,10 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                     </div>
                   )}
 
-                  {/* 장소 */}
+                  {/* Places */}
                   {(extractedItems?.places.length ?? 0) > 0 && (
                     <div>
-                      <p className="text-zinc-400 text-xs font-semibold mb-2">📍 장소</p>
+                      <p className="text-zinc-400 text-xs font-semibold mb-2">📍 Places</p>
                       <div className="space-y-2">
                         {extractedItems?.places.map((pl: any, i: number) => (
                           <div key={i} className="flex items-start gap-3 bg-[var(--bg-elevated)] rounded-xl p-3">
@@ -1423,12 +1423,12 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                               <p className="text-zinc-500 text-xs mt-0.5 leading-relaxed">{pl.context}</p>
                             </div>
                             <a
-                              href={`https://map.kakao.com/?q=${encodeURIComponent(pl.name)}`}
+                              href={`https://www.google.com/maps/search/${encodeURIComponent(pl.name)}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="shrink-0 text-[10px] px-2 py-1 rounded-lg bg-yellow-500/15 text-yellow-400 hover:bg-yellow-500/25 font-bold transition-colors"
                             >
-                              지도
+                              Map
                             </a>
                           </div>
                         ))}
@@ -1437,7 +1437,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                   )}
 
                   {(extractedItems?.products.length === 0) && (extractedItems?.places.length === 0) && (
-                    <p className="text-zinc-600 text-sm text-center py-4">추출된 상품 및 장소가 없습니다.</p>
+                    <p className="text-zinc-600 text-sm text-center py-4">No products or places found.</p>
                   )}
                 </div>
               )}
@@ -1452,7 +1452,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
           {activeTab === 'transcript' && (
             <div className="bg-[var(--bg-surface-2)] rounded-2xl p-6 border border-[var(--border-subtle)] shadow-lg h-[500px] overflow-y-auto">
               <div className="flex items-center justify-between border-b border-[var(--border-default)] pb-4 mb-4">
-                <h2 className="text-xl font-bold">전체 자막</h2>
+                <h2 className="text-xl font-bold">Full Transcript</h2>
                 <div className="flex items-center gap-2">
                   {data.transcriptOriginal && (
                     <div className="flex gap-1 bg-[var(--overlay-subtle)] rounded-lg p-1">
@@ -1460,7 +1460,7 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                         onClick={() => setTranscriptDisplayLang('ko')}
                         className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${transcriptDisplayLang === 'ko' ? 'bg-orange-500 text-white' : 'text-zinc-400 hover:text-white'}`}
                       >
-                        한글
+                        Korean
                       </button>
                       <button
                         onClick={() => setTranscriptDisplayLang('en')}
@@ -1482,20 +1482,20 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
                     }}
                     className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[var(--overlay-subtle)] hover:bg-[var(--overlay-default)] text-zinc-400 hover:text-white transition-all"
                   >
-                    {transcriptCopied ? '✓ 복사됨' : '📋 복사'}
+                    {transcriptCopied ? '✓ Copied' : '📋 Copy'}
                   </button>
                 </div>
               </div>
               {data.transcriptSource === 'none' ? (
                 <div className="flex flex-col items-center gap-3 py-14 text-center">
                   <span className="text-3xl">🙈</span>
-                  <p className="text-zinc-400 text-sm">자막을 가져올 수 없는 영상입니다.<br />자막이 비활성화되어 있거나 처리 중 오류가 발생했을 수 있습니다.</p>
+                  <p className="text-zinc-400 text-sm">Captions are unavailable for this video.<br />Captions may be disabled or an error occurred during processing.</p>
                 </div>
               ) : (() => {
                 const rawTranscript = (transcriptDisplayLang === 'en' && data.transcriptOriginal)
                   ? data.transcriptOriginal
                   : data.transcript
-                if (!rawTranscript) return <p className="text-zinc-500 text-center py-10">자막 데이터가 없습니다.</p>
+                if (!rawTranscript) return <p className="text-zinc-500 text-center py-10">No transcript data available.</p>
 
                 const lines = rawTranscript.split('\n')
                 const parsed: { ts: string; text: string }[] = []

@@ -11,16 +11,16 @@ import { useAuth } from '@/providers/AuthProvider'
 import { saveSummary } from '@/lib/db'
 
 const CATEGORIES = [
-  { id: 'auto',    icon: '✨', label: '자동 분류' },
-  { id: 'recipe',  icon: '🍳', label: '요리' },
-  { id: 'english', icon: '🔤', label: '영어' },
-  { id: 'learning',icon: '📐', label: '학습' },
-  { id: 'news',    icon: '🗞️', label: '뉴스' },
-  { id: 'selfdev', icon: '💪', label: '자기계발' },
-  { id: 'travel',  icon: '🧳', label: '여행' },
-  { id: 'story',   icon: '🍿', label: '스토리' },
-  { id: 'tips',    icon: '💡', label: '팁' },
-  { id: 'report',  icon: '📋', label: '보고서' },
+  { id: 'auto',    icon: '✨', label: 'Auto' },
+  { id: 'recipe',  icon: '🍳', label: 'Recipe' },
+  { id: 'english', icon: '🔤', label: 'Language' },
+  { id: 'learning',icon: '📐', label: 'Learning' },
+  { id: 'news',    icon: '🗞️', label: 'News' },
+  { id: 'selfdev', icon: '💪', label: 'Self-Dev' },
+  { id: 'travel',  icon: '🧳', label: 'Travel' },
+  { id: 'story',   icon: '🍿', label: 'Story' },
+  { id: 'tips',    icon: '💡', label: 'Tips' },
+  { id: 'report',  icon: '📋', label: 'Report' },
 ]
 
 const GUEST_STORAGE_KEY = 'nextcurator_guest_usage'
@@ -58,16 +58,16 @@ interface LangChoiceData {
 function toUserMessage(err: unknown): string {
   const msg = err instanceof Error ? err.message : String(err)
   if (/bad control character|json parse|unexpected token|json at position/i.test(msg))
-    return 'AI 요약 생성 중 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+    return 'A temporary AI error occurred. Please try again in a moment.'
   if (/VIDEO_NOT_FOUND/i.test(msg))
-    return '영상 정보를 가져올 수 없습니다. URL을 다시 확인해주세요.'
+    return 'Could not fetch video info. Please check the URL and try again.'
   if (/fetch|network|econnrefused|timeout/i.test(msg))
-    return '네트워크 오류가 발생했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.'
+    return 'Network error. Please check your internet connection and try again.'
   if (/quota|rate.?limit|resource.?exhausted/i.test(msg))
-    return 'AI 서비스가 일시적으로 혼잡합니다. 잠시 후 다시 시도해주세요.'
+    return 'AI service is temporarily busy. Please try again in a moment.'
   if (msg === 'STT_VIP_REQUIRED')
-    return '자막이 없는 10분 초과 영상은 추후 VIP 회원에게 제공될 예정입니다. 현재는 10분 이하 영상만 지원됩니다.'
-  if (msg.length > 80) return '요약 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+    return 'Videos over 10 minutes without captions will be available to VIP members. Currently only videos under 10 minutes are supported.'
+  if (msg.length > 80) return 'An error occurred while processing. Please try again in a moment.'
   return msg
 }
 
@@ -119,12 +119,12 @@ export default function UrlInput() {
     const isPdf = file.type === 'application/pdf' || file.name.endsWith('.pdf')
 
     if (!isAudio && !isPdf) {
-      setError('PDF 문서 또는 음성 파일(MP3, WAV, M4A 등)만 지원합니다.')
+      setError('Only PDF documents or audio files (MP3, WAV, M4A, etc.) are supported.')
       return
     }
     const isAdmin = user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL
     if (!isAdmin && file.size > 30 * 1024 * 1024) {
-      setError('30MB 이하 파일만 업로드할 수 있습니다.')
+      setError('File size must be 30MB or less.')
       return
     }
 
@@ -156,7 +156,7 @@ export default function UrlInput() {
       const endpoint = isAudio ? '/api/summarize-voice' : '/api/summarize-pdf'
       const res = await fetch(endpoint, { method: 'POST', body: formData, headers, signal: controller.signal })
       setStep(4)
-      if (!res.ok) { const d = await res.json(); throw new Error(d.error || '처리 실패') }
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'Processing failed') }
       const data = await res.json()
       setStep(5)
 
@@ -236,7 +236,7 @@ export default function UrlInput() {
       recordingTimerRef.current = setInterval(() =>
         setRecordingSeconds(s => s + 1), 1000)
     } catch {
-      setError('마이크 접근 권한이 필요합니다.')
+      setError('Microphone access is required.')
     }
   }
 
@@ -277,7 +277,7 @@ export default function UrlInput() {
         body: JSON.stringify({ url, category: selectedCategory === 'auto' ? undefined : selectedCategory }),
         signal: controller.signal,
       })
-      if (!res.ok) { const d = await res.json(); throw new Error(d.error || '오류가 발생했습니다.') }
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'An error occurred.') }
       const data = await res.json()
 
       // 비한국어 자막 감지 → 언어 선택 모달 표시
@@ -327,7 +327,7 @@ export default function UrlInput() {
         }),
         signal: controller.signal,
       })
-      if (!res.ok) { const d = await res.json(); throw new Error(d.error || '오류가 발생했습니다.') }
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'An error occurred.') }
       setStep(5)
       const data = await res.json()
       finalizeSummary(data)
@@ -378,12 +378,12 @@ export default function UrlInput() {
         {/* URL 입력 */}
         <div className="flex flex-col gap-4 w-full">
           <label className="text-[var(--text-primary)] text-[15px] font-semibold tracking-wide flex items-center gap-2">
-            영상 주소 입력 <span className="text-orange-400">⚡</span>
+            Enter Video URL <span className="text-orange-400">⚡</span>
           </label>
           <div className="relative group flex flex-col md:flex-row gap-3">
             <div className="flex flex-1 gap-2">
               <Input
-                placeholder="YouTube URL을 붙여넣으세요..."
+                placeholder="Paste a YouTube URL..."
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
@@ -393,7 +393,7 @@ export default function UrlInput() {
               <div className="relative group/upload">
                 <label
                   className="shrink-0 h-[56px] w-[56px] flex items-center justify-center rounded-[20px] bg-[var(--bg-surface)] hover:bg-[var(--bg-page)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] cursor-pointer transition-all text-[var(--text-subtle)] hover:text-white"
-                  title="파일 업로드 (PDF · 음성)"
+                  title="Upload file (PDF · Audio)"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -407,10 +407,10 @@ export default function UrlInput() {
                 </label>
                 {/* 호버 툴팁 */}
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/upload:flex flex-col gap-1 bg-[var(--bg-base)] border border-[var(--border-default)] rounded-2xl px-3 py-2.5 shadow-xl w-44 text-left z-20 pointer-events-none">
-                  <p className="text-white text-[11px] font-semibold mb-0.5">파일 업로드</p>
-                  <p className="text-[var(--text-muted)] text-[10px]">📄 PDF 문서</p>
-                  <p className="text-[var(--text-muted)] text-[10px]">🎙 MP3 · WAV · M4A · 등</p>
-                  <p className="text-[var(--text-subtle)] text-[9px] mt-0.5">최대 30MB</p>
+                  <p className="text-white text-[11px] font-semibold mb-0.5">Upload File</p>
+                  <p className="text-[var(--text-muted)] text-[10px]">📄 PDF document</p>
+                  <p className="text-[var(--text-muted)] text-[10px]">🎙 MP3 · WAV · M4A · etc.</p>
+                  <p className="text-[var(--text-subtle)] text-[9px] mt-0.5">Max 30MB</p>
                 </div>
               </div>
 
@@ -422,7 +422,7 @@ export default function UrlInput() {
                     ? 'bg-red-500/20 border-red-500/40 text-red-400 animate-pulse'
                     : 'bg-[var(--bg-surface)] hover:bg-[var(--bg-page)] border-[var(--border-subtle)] hover:border-[var(--border-strong)] text-[var(--text-subtle)] hover:text-white'
                 }`}
-                title={recording ? '녹음 중지 후 분석' : '바로 녹음하기'}
+                title={recording ? 'Stop recording & analyze' : 'Record audio'}
               >
                 {recording ? (
                   <div className="flex flex-col items-center gap-0.5">
@@ -447,7 +447,7 @@ export default function UrlInput() {
                          bg-orange-500 text-white hover:bg-orange-600 hover:scale-[1.02] active:scale-[0.94] active:bg-orange-700
                          disabled:bg-[var(--bg-elevated)] disabled:text-[var(--text-muted)] disabled:border disabled:border-[var(--border-strong)] disabled:cursor-not-allowed disabled:transform-none select-none"
             >
-              {checkingDuration ? '확인 중...' : 'Start Now'}
+              {checkingDuration ? 'Checking...' : 'Start Now'}
             </Button>
           </div>
           {error && (
@@ -460,7 +460,7 @@ export default function UrlInput() {
         {/* 카테고리 선택 */}
         <div className="flex flex-col gap-3 w-full">
           <div className="flex items-center justify-between w-full">
-            <p className="text-[var(--text-subtle)] text-sm font-medium">분석 모드 선택</p>
+            <p className="text-[var(--text-subtle)] text-sm font-medium">Analysis Mode</p>
             {(() => {
               const auto = CATEGORIES[0]
               const isSelected = selectedCategory === auto.id
@@ -506,32 +506,32 @@ export default function UrlInput() {
               <>
                 <div className="text-center">
                   <div className="text-4xl mb-3">🎬</div>
-                  <h2 className="text-lg font-bold text-white mb-2">비회원 무료 체험</h2>
+                  <h2 className="text-lg font-bold text-white mb-2">Free Trial</h2>
                   <p className="text-[var(--text-muted)] text-sm leading-relaxed">
-                    비회원은 <span className="text-white font-semibold">10분 미만</span> 영상 <span className="text-white font-semibold">1개</span>를 무료로 요약할 수 있습니다.
+                    Guests can summarize <span className="text-white font-semibold">1 video</span> under <span className="text-white font-semibold">10 minutes</span> for free.
                   </p>
                 </div>
                 <div className="bg-[var(--bg-elevated)] rounded-2xl p-4 text-xs text-[var(--text-subtle)] space-y-1.5">
-                  <p>✅ 10분 미만 영상 1개 무료</p>
-                  <p>✅ 모든 카테고리 분석 가능</p>
-                  <p>🔒 추가 요약은 회원가입 필요</p>
-                  <p>🔒 라이브러리 저장은 회원가입 필요</p>
+                  <p>✅ 1 video under 10 min — free</p>
+                  <p>✅ All categories available</p>
+                  <p>🔒 More summaries require sign up</p>
+                  <p>🔒 Library saving requires sign up</p>
                 </div>
                 <div className="flex flex-col gap-2">
                   <Button
                     className="w-full h-12 bg-white text-black font-bold rounded-2xl hover:bg-zinc-200"
                     onClick={() => { setModal(null); runSummarize() }}
                   >
-                    무료로 요약하기
+                    Summarize for Free
                   </Button>
                   <button
                     onClick={() => { setModal(null); signInWithGoogle() }}
                     className="w-full h-12 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-2xl text-sm hover:opacity-90 active:scale-95 active:opacity-75 transition-all select-none"
                   >
-                    Google로 회원가입 (무제한)
+                    Sign up with Google (Unlimited)
                   </button>
                   <button onClick={() => setModal(null)} className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1">
-                    닫기
+                    Close
                   </button>
                 </div>
               </>
@@ -542,10 +542,10 @@ export default function UrlInput() {
               <>
                 <div className="text-center">
                   <div className="text-4xl mb-3">⏱️</div>
-                  <h2 className="text-lg font-bold text-white mb-2">10분 이상 영상</h2>
+                  <h2 className="text-lg font-bold text-white mb-2">Video Over 10 Minutes</h2>
                   <p className="text-[var(--text-muted)] text-sm leading-relaxed">
-                    비회원은 <span className="text-white font-semibold">10분 미만</span> 영상만 요약할 수 있습니다.<br />
-                    회원가입하면 길이 제한 없이 이용 가능합니다.
+                    Guests can only summarize videos <span className="text-white font-semibold">under 10 minutes</span>.<br />
+                    Sign up for unlimited access.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -553,10 +553,10 @@ export default function UrlInput() {
                     onClick={() => { setModal(null); signInWithGoogle() }}
                     className="w-full h-12 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-2xl text-sm hover:opacity-90 active:scale-95 active:opacity-75 transition-all select-none"
                   >
-                    Google로 회원가입하기
+                    Sign up with Google
                   </button>
                   <button onClick={() => setModal(null)} className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1">
-                    닫기
+                    Close
                   </button>
                 </div>
               </>
@@ -569,33 +569,33 @@ export default function UrlInput() {
                   <div className="text-4xl mb-3">
                     {langChoiceData.detectedLang === 'en' ? '🇺🇸' : '🌐'}
                   </div>
-                  <h2 className="text-lg font-bold text-white mb-2">원본 언어 감지됨</h2>
+                  <h2 className="text-lg font-bold text-white mb-2">Source Language Detected</h2>
                   <p className="text-[var(--text-muted)] text-sm leading-relaxed">
-                    이 영상의 자막은&nbsp;
+                    This video's captions are in&nbsp;
                     <span className="text-white font-semibold">
-                      {langChoiceData.detectedLang === 'en' ? '영어(English)' : '외국어'}
+                      {langChoiceData.detectedLang === 'en' ? 'English' : 'a foreign language'}
                     </span>
-                    입니다.<br />어떤 언어로 요약할까요?
+                    .<br />How would you like to summarize it?
                   </p>
                 </div>
                 <div className="flex flex-col gap-2">
                   <button
-                    onClick={() => runSummarizeWithLang('ko')}
+                    onClick={() => runSummarizeWithLang('original')}
                     className="w-full h-12 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-2xl text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
                   >
-                    🇰🇷 한국어로 번역하여 요약
+                    🇺🇸 Summarize in English
                   </button>
                   <button
-                    onClick={() => runSummarizeWithLang('original')}
+                    onClick={() => runSummarizeWithLang('ko')}
                     className="w-full h-12 bg-[var(--bg-elevated)] border border-[var(--border-default)] text-white font-bold rounded-2xl text-sm hover:bg-[var(--bg-elevated-2)] transition-colors flex items-center justify-center gap-2"
                   >
-                    {langChoiceData.detectedLang === 'en' ? '🇺🇸' : '🌐'}&nbsp;원문 언어로 바로 요약
+                    🇰🇷 Translate to Korean
                   </button>
                   <button
                     onClick={() => { setModal(null); setLangChoiceData(null) }}
                     className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1"
                   >
-                    취소
+                    Cancel
                   </button>
                 </div>
               </>
@@ -606,27 +606,27 @@ export default function UrlInput() {
               <>
                 <div className="text-center">
                   <div className="text-4xl mb-3">🔒</div>
-                  <h2 className="text-lg font-bold text-white mb-2">오늘 무료 체험 완료</h2>
+                  <h2 className="text-lg font-bold text-white mb-2">Daily Free Limit Reached</h2>
                   <p className="text-[var(--text-muted)] text-sm leading-relaxed">
-                    비회원은 하루 2회까지 무료로 이용할 수 있습니다.<br />
-                    회원가입하면 <span className="text-white font-semibold">무제한</span>으로 이용할 수 있습니다.
+                    Guests can use up to 2 free summaries per day.<br />
+                    Sign up for <span className="text-white font-semibold">unlimited</span> access.
                   </p>
                 </div>
                 <div className="bg-[var(--bg-elevated)] rounded-2xl p-4 text-xs text-[var(--text-subtle)] space-y-1.5">
-                  <p>🎬 영상 길이 제한 없음</p>
-                  <p>📚 라이브러리 무제한 저장</p>
-                  <p>🌍 광장에 요약 공유</p>
-                  <p>✉️ 다른 사용자와 쪽지</p>
+                  <p>🎬 No video length limit</p>
+                  <p>📚 Unlimited library saves</p>
+                  <p>🌍 Share to the Square</p>
+                  <p>✉️ Message other users</p>
                 </div>
                 <div className="flex flex-col gap-2">
                   <button
                     onClick={() => { setModal(null); signInWithGoogle() }}
                     className="w-full h-12 bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold rounded-2xl text-sm hover:opacity-90 active:scale-95 active:opacity-75 transition-all select-none"
                   >
-                    Google로 무료 회원가입
+                    Sign up with Google — Free
                   </button>
                   <button onClick={() => setModal(null)} className="text-[var(--text-subtle)] text-sm hover:text-white transition-colors py-1">
-                    닫기
+                    Close
                   </button>
                 </div>
               </>

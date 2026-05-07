@@ -25,20 +25,20 @@ export default function Home() {
             />
             <div className="flex flex-col gap-1 text-left">
               <p className="text-xl font-bold text-[var(--text-primary)] tracking-wide">
-                유튜브를 <span className="text-orange-400">SSOK</span>쏙, 내 지식을 <span className="text-emerald-400">SSUK</span>쑥
+                Watch smarter. <span className="text-orange-400">Save</span> better. <span className="text-emerald-400">Learn</span> faster.
               </p>
               <p className="text-sm font-medium text-[var(--text-muted)] tracking-wide">
-                가장 스마트한 유튜브 저장소
+                The smartest way to save & understand YouTube
               </p>
             </div>
           </div>
           {/* 모바일: 슬로건만 */}
           <div className="md:hidden flex flex-col items-center gap-1">
             <p className="text-base font-bold text-[var(--text-primary)] tracking-wide">
-              유튜브를 <span className="text-orange-400">SSOK</span>쏙, 내 지식을 <span className="text-emerald-400">SSUK</span>쑥
+              Watch smarter. <span className="text-orange-400">Save</span> better. <span className="text-emerald-400">Learn</span> faster.
             </p>
             <p className="text-xs font-medium text-[var(--text-muted)] tracking-wide">
-              가장 스마트한 유튜브 저장소
+              The smartest way to save & understand YouTube
             </p>
           </div>
         </div>

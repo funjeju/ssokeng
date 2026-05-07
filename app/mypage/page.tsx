@@ -30,16 +30,16 @@ import YouTubeImportTab from '@/components/youtube-import/YouTubeImportTab'
 
 
 const CATEGORY_LABEL: Record<string, string> = {
-  recipe: '🍳 요리',
-  english: '🔤 영어',
-  learning: '📐 학습',
-  news: '🗞️ 뉴스',
-  selfdev: '💪 자기계발',
-  travel: '🧳 여행',
-  story: '🍿 스토리',
-  tips: '💡 팁',
-  voice: '🎙 녹음 메모',
-  report: '📋 보고서',
+  recipe: '🍳 Recipe',
+  english: '🔤 Language',
+  learning: '📐 Learning',
+  news: '🗞️ News',
+  selfdev: '💪 Self-Dev',
+  travel: '🧳 Travel',
+  story: '🍿 Story',
+  tips: '💡 Tips',
+  voice: '🎙 Voice Memo',
+  report: '📋 Report',
 }
 
 const CATEGORY_ORDER = ['recipe', 'english', 'learning', 'news', 'selfdev', 'travel', 'story', 'tips', 'voice', 'report']
@@ -95,7 +95,7 @@ function FolderMoveDropdown({
       onMoved(summaryId, folderId)
       onClose()
     } catch {
-      alert('폴더 이동에 실패했습니다.')
+      alert('Failed to move to folder.')
     } finally {
       setMoving(null)
     }
@@ -107,7 +107,7 @@ function FolderMoveDropdown({
       className="absolute top-10 left-0 z-50 w-48 bg-[var(--bg-surface)] border border-[var(--border-strong)] rounded-2xl shadow-2xl py-1.5 overflow-hidden"
       onClick={e => e.stopPropagation()}
     >
-      <p className="px-3 py-1.5 text-[10px] text-[var(--text-subtle)] font-semibold uppercase tracking-wider">폴더 이동</p>
+      <p className="px-3 py-1.5 text-[10px] text-[var(--text-subtle)] font-semibold uppercase tracking-wider">Move to Folder</p>
       <div className="max-h-48 overflow-y-auto">
         {folders.map(f => {
           const isCurrent = f.id === currentFolderId
@@ -127,12 +127,12 @@ function FolderMoveDropdown({
             >
               <span>{isMoving ? '⏳' : isCurrent ? '📂' : (f.depth ?? 0) > 0 ? '📂' : '📁'}</span>
               <span className="truncate">{f.name}</span>
-              {isCurrent && <span className="ml-auto text-[10px] text-orange-400/70">현재</span>}
+              {isCurrent && <span className="ml-auto text-[10px] text-orange-400/70">Current</span>}
             </button>
           )
         })}
         {folders.length === 0 && (
-          <p className="px-3 py-2 text-xs text-[var(--text-subtle)]">폴더가 없습니다.</p>
+          <p className="px-3 py-2 text-xs text-[var(--text-subtle)]">No folders available.</p>
         )}
       </div>
     </div>
@@ -268,7 +268,7 @@ function FolderTreeItem({
                   : folder.visibility === 'friends' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
                   : 'bg-[var(--bg-elevated-2)] text-[var(--text-subtle)] border border-[var(--border-subtle)]'
                 }`}
-                title={folder.visibility === 'public' ? '전체공개' : folder.visibility === 'friends' ? '친구만' : '나만 보기'}
+                title={folder.visibility === 'public' ? 'Public' : folder.visibility === 'friends' ? 'Friends only' : 'Only me'}
               >
                 {folder.visibility === 'public' ? '🌐' : folder.visibility === 'friends' ? '👥' : '🔒'}
               </button>
@@ -291,25 +291,24 @@ function FolderTreeItem({
             <button
               onClick={() => { onRenameStart(folder.id, folder.name) }}
               className="w-full text-left px-4 py-2.5 text-sm text-[var(--text-muted)] hover:text-white hover:bg-[var(--overlay-subtle)] transition-colors"
-            >✏️ 이름 변경</button>
+            >✏️ Rename</button>
 
             {depth < 2 && (
               <button
                 onClick={() => onCreateSubFolder(folder.id)}
                 className="w-full text-left px-4 py-2.5 text-sm text-[var(--text-muted)] hover:text-white hover:bg-[var(--overlay-subtle)] transition-colors"
-              >📁 하위폴더 추가</button>
+              >📁 Add Subfolder</button>
             )}
 
-            {/* 폴더 이동 */}
             {folderMoveOpenId === folder.id ? (
               <div className="border-t border-[var(--border-subtle)]">
-                <p className="px-4 pt-2 pb-1 text-[10px] text-[var(--text-subtle)] font-semibold uppercase tracking-wider">이동할 위치 선택</p>
+                <p className="px-4 pt-2 pb-1 text-[10px] text-[var(--text-subtle)] font-semibold uppercase tracking-wider">Select Destination</p>
                 <div className="max-h-44 overflow-y-auto">
                   <button
                     onClick={() => onFolderMoveSelect(folder.id, null)}
                     disabled={!folder.parentId}
                     className="w-full text-left px-4 py-2 text-sm text-blue-400 hover:text-blue-300 hover:bg-[var(--overlay-subtle)] transition-colors disabled:opacity-30 disabled:cursor-default"
-                  >↖ 최상위로 이동</button>
+                  >↖ Move to Top Level</button>
                   {moveTargets.map(f => (
                     <button
                       key={f.id}
@@ -320,11 +319,11 @@ function FolderTreeItem({
                     >
                       <span>{(f.depth ?? 0) > 0 ? '📂' : '📁'}</span>
                       <span className="truncate">{f.name}</span>
-                      {(f.depth ?? 0) >= 2 && <span className="ml-auto text-[10px] text-[var(--text-subtle)] shrink-0">최대 깊이</span>}
+                      {(f.depth ?? 0) >= 2 && <span className="ml-auto text-[10px] text-[var(--text-subtle)] shrink-0">Max depth</span>}
                     </button>
                   ))}
                   {moveTargets.length === 0 && (
-                    <p className="px-4 py-2 text-xs text-[var(--text-subtle)]">이동 가능한 폴더가 없습니다.</p>
+                    <p className="px-4 py-2 text-xs text-[var(--text-subtle)]">No folders available to move to.</p>
                   )}
                 </div>
               </div>
@@ -332,35 +331,34 @@ function FolderTreeItem({
               <button
                 onClick={() => onFolderMoveOpen(folder.id)}
                 className="w-full text-left px-4 py-2.5 text-sm text-[var(--text-muted)] hover:text-white hover:bg-[var(--overlay-subtle)] transition-colors"
-              >🚚 폴더 이동</button>
+              >🚚 Move Folder</button>
             )}
 
-            {/* 공유 — 범위 선택 */}
             {shareOptionsId === folder.id ? (
               <div className="border-t border-[var(--border-subtle)]">
-                <p className="px-4 pt-2 pb-1 text-[10px] text-[var(--text-subtle)] font-semibold uppercase tracking-wider">공유 범위 선택</p>
+                <p className="px-4 pt-2 pb-1 text-[10px] text-[var(--text-subtle)] font-semibold uppercase tracking-wider">Share Scope</p>
                 <button
                   onClick={() => onShare(folder.id, folder.name, false)}
                   className="w-full text-left px-4 py-2 text-sm text-[var(--text-muted)] hover:text-white hover:bg-[var(--overlay-subtle)] transition-colors"
-                >📄 이 폴더만</button>
+                >📄 This folder only</button>
                 {hasChildren && (
                   <button
                     onClick={() => onShare(folder.id, folder.name, true)}
                     className="w-full text-left px-4 py-2 text-sm text-[var(--text-muted)] hover:text-white hover:bg-[var(--overlay-subtle)] transition-colors"
-                  >🗂️ 하위폴더 포함 전체</button>
+                  >🗂️ Include subfolders</button>
                 )}
               </div>
             ) : (
               <button
                 onClick={() => onShareOptions(folder.id)}
                 className="w-full text-left px-4 py-2.5 text-sm text-[var(--text-muted)] hover:text-white hover:bg-[var(--overlay-subtle)] transition-colors"
-              >🔗 공유 링크 복사</button>
+              >🔗 Copy Share Link</button>
             )}
 
             <button
               onClick={() => onDelete(folder.id, folder.name)}
               className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
-            >🗑️ 삭제</button>
+            >🗑️ Delete</button>
           </div>
         )}
       </div>
@@ -373,7 +371,7 @@ function FolderTreeItem({
             value={newSubFolderName}
             onChange={e => onSubFolderNameChange(e.target.value)}
             onKeyDown={e => onSubFolderKeyDown(e, folder.id)}
-            placeholder="하위폴더 이름..."
+            placeholder="Subfolder name..."
             className="flex-1 bg-[var(--bg-base)] border border-orange-500/50 rounded-lg px-2 py-1 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none min-w-0"
           />
           <button onClick={() => onSubFolderConfirm(folder.id)} disabled={!newSubFolderName.trim()} className="text-orange-400 text-xs px-1.5 py-1 rounded-lg hover:bg-orange-500/10 disabled:opacity-40">✓</button>
@@ -430,7 +428,7 @@ function TravelTab({ userId }: { userId: string }) {
   return (
     <div className="max-w-7xl mx-auto px-6 pb-12">
       <div className="mb-5">
-        <h2 className="text-white font-bold text-lg mb-3">🧳 여행</h2>
+        <h2 className="text-white font-bold text-lg mb-3">🧳 Travel</h2>
         <div className="flex gap-1 bg-[var(--bg-elevated)]/60 rounded-xl p-1 w-fit">
           <button
             onClick={() => setSubTab('wishlist')}
@@ -438,7 +436,7 @@ function TravelTab({ userId }: { userId: string }) {
               subTab === 'wishlist' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
             }`}
           >
-            📍 여행 찜
+            📍 Wishlist
           </button>
           <button
             onClick={() => setSubTab('itineraries')}
@@ -446,7 +444,7 @@ function TravelTab({ userId }: { userId: string }) {
               subTab === 'itineraries' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
             }`}
           >
-            🗓️ 저장된 일정
+            🗓️ Saved Itineraries
           </button>
         </div>
       </div>
@@ -480,7 +478,7 @@ function FriendsTab({ myUid }: { myUid: string }) {
       await acceptFriendRequest(req.fromUid, myUid)
       setRequests(prev => prev.filter(r => r.id !== req.id))
       setFriends(prev => [...prev, { uid: req.fromUid, displayName: req.fromDisplayName, photoURL: req.fromPhotoURL }])
-    } catch { alert('오류가 발생했습니다.') }
+    } catch { alert('An error occurred.') }
     finally { setActingId(null) }
   }
 
@@ -489,7 +487,7 @@ function FriendsTab({ myUid }: { myUid: string }) {
     try {
       await rejectFriendRequest(req.fromUid, myUid)
       setRequests(prev => prev.filter(r => r.id !== req.id))
-    } catch { alert('오류가 발생했습니다.') }
+    } catch { alert('An error occurred.') }
     finally { setActingId(null) }
   }
 
@@ -504,13 +502,13 @@ function FriendsTab({ myUid }: { myUid: string }) {
       {/* 받은 친구 요청 */}
       <section>
         <h3 className="text-white font-bold mb-3 flex items-center gap-2">
-          친구 요청
+          Friend Requests
           {requests.length > 0 && (
             <span className="px-2 py-0.5 rounded-full bg-orange-500 text-white text-xs font-bold">{requests.length}</span>
           )}
         </h3>
         {requests.length === 0 ? (
-          <p className="text-[var(--text-subtle)] text-sm bg-[var(--bg-elevated)]/50 rounded-2xl px-5 py-4">받은 친구 요청이 없습니다.</p>
+          <p className="text-[var(--text-subtle)] text-sm bg-[var(--bg-elevated)]/50 rounded-2xl px-5 py-4">No pending friend requests.</p>
         ) : (
           <div className="flex flex-col gap-2">
             {requests.map(req => (
@@ -521,8 +519,8 @@ function FriendsTab({ myUid }: { myUid: string }) {
                   <div className="w-10 h-10 rounded-full bg-[var(--bg-elevated-2)] flex items-center justify-center text-lg shrink-0">👤</div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-white font-semibold text-sm truncate">{req.fromDisplayName || '익명'}</p>
-                  <p className="text-[var(--text-subtle)] text-xs mt-0.5">친구 요청을 보냈어요</p>
+                  <p className="text-white font-semibold text-sm truncate">{req.fromDisplayName || 'Anonymous'}</p>
+                  <p className="text-[var(--text-subtle)] text-xs mt-0.5">Sent you a friend request</p>
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <button
@@ -530,14 +528,14 @@ function FriendsTab({ myUid }: { myUid: string }) {
                     disabled={actingId === req.id}
                     className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-full transition-colors disabled:opacity-50"
                   >
-                    수락
+                    Accept
                   </button>
                   <button
                     onClick={() => handleReject(req)}
                     disabled={actingId === req.id}
                     className="px-3 py-1.5 bg-[var(--bg-elevated-2)] hover:bg-[var(--bg-elevated-2)] text-[var(--text-muted)] text-xs font-bold rounded-full transition-colors disabled:opacity-50"
                   >
-                    거절
+                    Decline
                   </button>
                 </div>
               </div>
@@ -546,11 +544,10 @@ function FriendsTab({ myUid }: { myUid: string }) {
         )}
       </section>
 
-      {/* 친구 목록 */}
       <section>
-        <h3 className="text-white font-bold mb-3">친구 목록 <span className="text-[var(--text-subtle)] font-normal text-sm">{friends.length}명</span></h3>
+        <h3 className="text-white font-bold mb-3">Friends <span className="text-[var(--text-subtle)] font-normal text-sm">{friends.length}</span></h3>
         {friends.length === 0 ? (
-          <p className="text-[var(--text-subtle)] text-sm bg-[var(--bg-elevated)]/50 rounded-2xl px-5 py-4">아직 친구가 없습니다. 스퀘어에서 마음에 드는 유저에게 친구 요청을 보내보세요.</p>
+          <p className="text-[var(--text-subtle)] text-sm bg-[var(--bg-elevated)]/50 rounded-2xl px-5 py-4">No friends yet. Send a friend request to someone you like on Square.</p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {friends.map(f => (
@@ -564,7 +561,7 @@ function FriendsTab({ myUid }: { myUid: string }) {
                 ) : (
                   <div className="w-9 h-9 rounded-full bg-[var(--bg-elevated-2)] flex items-center justify-center shrink-0">👤</div>
                 )}
-                <span className="text-[var(--text-primary)] text-sm font-medium truncate group-hover:text-white transition-colors">{f.displayName || '익명'}</span>
+                <span className="text-[var(--text-primary)] text-sm font-medium truncate group-hover:text-white transition-colors">{f.displayName || 'Anonymous'}</span>
               </Link>
             ))}
           </div>
@@ -589,17 +586,17 @@ function InviteButton({ isTeacher }: { isTeacher?: boolean }) {
     return (
       <div className="flex items-center gap-1.5">
         <button onClick={() => copy('https://ssoktube.com?invite=teacher', 'teacher')} className={PILL_EMERALD}>
-          {copied === 'teacher' ? '✅ 복사됨!' : '🏫 선생님 초대'}
+          {copied === 'teacher' ? '✅ Copied!' : '🏫 Invite Teacher'}
         </button>
         <button onClick={() => copy('https://ssoktube.com', 'normal')} className={PILL_ORANGE}>
-          {copied === 'normal' ? '✅ 복사됨!' : '🔗 일반 초대'}
+          {copied === 'normal' ? '✅ Copied!' : '🔗 Invite Friend'}
         </button>
       </div>
     )
   }
   return (
     <button onClick={() => copy('https://ssoktube.com', 'normal')} className={PILL_ORANGE}>
-      {copied === 'normal' ? '✅ 복사됨!' : '🔗 친구 초대'}
+      {copied === 'normal' ? '✅ Copied!' : '🔗 Invite Friend'}
     </button>
   )
 }
@@ -745,7 +742,7 @@ export default function MyPage() {
       setCurrentAvatar(emoji)
       setShowAvatarPicker(false)
     } catch {
-      alert('아바타 변경에 실패했습니다.')
+      alert('Failed to update avatar.')
     } finally {
       setSavingAvatar(false)
     }
@@ -807,7 +804,7 @@ export default function MyPage() {
       // 탈퇴 완료 → 홈으로 이동
       window.location.href = '/'
     } catch (err: any) {
-      setWithdrawError(err.message || '탈퇴 처리 중 오류가 발생했습니다.')
+      setWithdrawError(err.message || 'An error occurred during account deletion.')
       setWithdrawing(false)
     }
   }
@@ -893,14 +890,14 @@ export default function MyPage() {
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.preventDefault()
     e.stopPropagation()
-    if (!confirm('이 항목을 삭제하시겠습니까?')) return
+    if (!confirm('Delete this item?')) return
     setDeletingId(id)
     try {
       await deleteSavedSummary(id)
       setSummaries(prev => prev.filter(s => s.id !== id))
       setAllSummaries(prev => prev.filter(s => s.id !== id))
     } catch {
-      alert('삭제에 실패했습니다.')
+      alert('Failed to delete.')
     } finally {
       setDeletingId(null)
     }
@@ -953,7 +950,7 @@ export default function MyPage() {
       setNewFolderName('')
       setCreatingFolder(false)
     } catch {
-      alert('폴더 생성에 실패했습니다.')
+      alert('Failed to create folder.')
     }
   }
 
@@ -972,7 +969,7 @@ export default function MyPage() {
       setCreatingSubFolderIn(null)
       setFolderMenuId(null)
     } catch {
-      alert('하위폴더 생성에 실패했습니다.')
+      alert('Failed to create subfolder.')
     }
   }
 
@@ -993,7 +990,7 @@ export default function MyPage() {
     try {
       const shareId = await createSharedFolderWithTree(
         uid,
-        user?.displayName || '익명',
+        user?.displayName || 'Anonymous',
         user?.photoURL || '',
         folderId,
         folderName,
@@ -1002,9 +999,9 @@ export default function MyPage() {
       )
       const link = `${window.location.origin}/share/${shareId}`
       await navigator.clipboard.writeText(link)
-      alert(`공유 링크가 클립보드에 복사됐습니다!${includeChildren ? '\n(하위폴더 포함)' : ''}`)
+      alert(`Share link copied to clipboard!${includeChildren ? '\n(including subfolders)' : ''}`)
     } catch {
-      alert('공유 링크 생성에 실패했습니다.')
+      alert('Failed to create share link.')
     } finally {
       setFolderMenuId(null)
       setShareOptionsId(null)
@@ -1019,7 +1016,7 @@ export default function MyPage() {
     }
     const descendants = getAllDescendants(folderId)
     const subCount = descendants.length
-    if (!confirm(`"${folderName}" 폴더${subCount > 0 ? `와 하위폴더 ${subCount}개` : ''}를 삭제하시겠어요?\n폴더 안 항목들은 모든 저장 항목에서 계속 확인할 수 있습니다.`)) return
+    if (!confirm(`Delete "${folderName}"${subCount > 0 ? ` and ${subCount} subfolder(s)` : ''}?\nItems inside will still be accessible from All Items.`)) return
     try {
       await Promise.all([folderId, ...descendants].map(id => deleteFolder(id)))
       const deletedIds = new Set([folderId, ...descendants])
@@ -1031,7 +1028,7 @@ export default function MyPage() {
         setAllSummaries(allItems)
         setSummaries(allItems)
       }
-    } catch { alert('폴더 삭제에 실패했습니다.') }
+    } catch { alert('Failed to delete folder.') }
     finally { setFolderMenuId(null); setShareOptionsId(null) }
   }
 
@@ -1055,7 +1052,7 @@ export default function MyPage() {
     try {
       await updateFolderParent(folderId, targetId, newDepth)
     } catch {
-      alert('폴더 이동에 실패했습니다.')
+      alert('Failed to move to folder.')
       setFolders(prev => prev.map(f =>
         f.id === folderId ? { ...f, parentId: currentParent, depth: dragged.depth ?? 0 } : f
       ))
@@ -1101,13 +1098,13 @@ export default function MyPage() {
     return (
       <div className="min-h-screen bg-[var(--bg-page)] flex flex-col items-center justify-center gap-5 px-4">
         <p className="text-5xl">🔐</p>
-        <p className="text-white font-bold text-lg">로그인이 필요합니다</p>
-        <p className="text-[var(--text-subtle)] text-sm text-center">마이페이지는 로그인 후 이용할 수 있습니다.</p>
+        <p className="text-white font-bold text-lg">Login required</p>
+        <p className="text-[var(--text-subtle)] text-sm text-center">Please log in to access My Page.</p>
         <button
           onClick={() => openAuthModal('login')}
           className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl text-sm transition-colors"
         >
-          로그인하기
+          Log In
         </button>
       </div>
     )
@@ -1115,7 +1112,7 @@ export default function MyPage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-page)] font-sans">
-      <Header title="나의 요약 갤러리" />
+      <Header title="My Summary Gallery" />
 
       {/* 프로필 + 토큰 카드 */}
       {user && (
@@ -1141,7 +1138,7 @@ export default function MyPage() {
               <button
                   onClick={() => setShowAvatarMenu(v => !v)}
                   className="absolute -bottom-1 -right-1 w-5 h-5 bg-[var(--bg-elevated-2)] hover:bg-orange-500 border border-[var(--border-strong)] rounded-full flex items-center justify-center transition-colors"
-                  title="아바타 변경"
+                  title="Change Avatar"
                 >
                   <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
                     <path d="M9 1.5L10.5 3 4.5 9H3v-1.5L9 1.5z"/>
@@ -1154,26 +1151,26 @@ export default function MyPage() {
                     onClick={() => { setShowAvatarMenu(false); setShowAvatarPicker(true) }}
                     className="w-full text-left px-4 py-2.5 text-sm text-[var(--text-muted)] hover:bg-[var(--bg-elevated)] hover:text-white transition-colors flex items-center gap-2"
                   >
-                    <span>😊</span> 이모지 아바타
+                    <span>😊</span> Emoji Avatar
                   </button>
                   <button
                     onClick={() => { setShowAvatarMenu(false); setShowPhotoUpload(true) }}
                     className="w-full text-left px-4 py-2.5 text-sm text-[var(--text-muted)] hover:bg-[var(--bg-elevated)] hover:text-white transition-colors flex items-center gap-2"
                   >
-                    <span>📷</span> 사진 업로드
+                    <span>📷</span> Upload Photo
                   </button>
                   <button
                     onClick={() => setShowAvatarMenu(false)}
                     className="w-full text-left px-4 py-2.5 text-xs text-[var(--text-subtle)] hover:text-white transition-colors"
                   >
-                    닫기
+                    Close
                   </button>
                 </div>
               )}
               {/* 이모지 픽커 */}
               {showAvatarPicker && (
                 <div className="absolute top-14 left-0 z-50 bg-[var(--bg-surface)] border border-[var(--border-strong)] rounded-2xl p-3 shadow-2xl w-52">
-                  <p className="text-[var(--text-subtle)] text-[10px] font-semibold mb-2 uppercase tracking-wider">아바타 선택</p>
+                  <p className="text-[var(--text-subtle)] text-[10px] font-semibold mb-2 uppercase tracking-wider">Choose Avatar</p>
                   <div className="grid grid-cols-4 gap-1.5">
                     {AVATARS.map(a => (
                       <button
@@ -1195,36 +1192,36 @@ export default function MyPage() {
                     onClick={() => setShowAvatarPicker(false)}
                     className="w-full mt-2 text-[var(--text-subtle)] text-xs hover:text-white transition-colors py-1"
                   >
-                    닫기
+                    Close
                   </button>
                 </div>
               )}
             </div>
-            {/* 이름 + 정보 */}
+            {/* Name + info */}
             <div className="flex-1 min-w-0">
               <p className="text-white font-bold text-sm truncate flex items-center gap-2">
-                {user.displayName || '사용자'}
+                {user.displayName || 'User'}
                 {userProfile?.role === 'teacher' && (
-                  <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/15 text-emerald-400 rounded-full border border-emerald-500/20 font-bold">선생님</span>
+                  <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/15 text-emerald-400 rounded-full border border-emerald-500/20 font-bold">Teacher</span>
                 )}
                 {userProfile?.role === 'student' && (
-                  <span className="text-[10px] px-1.5 py-0.5 bg-blue-500/15 text-blue-400 rounded-full border border-blue-500/20 font-bold">학생</span>
+                  <span className="text-[10px] px-1.5 py-0.5 bg-blue-500/15 text-blue-400 rounded-full border border-blue-500/20 font-bold">Student</span>
                 )}
               </p>
               {userProfile?.role === 'student' && userProfile.schoolName ? (
                 <p className="text-[var(--text-subtle)] text-xs truncate">
-                  {userProfile.schoolName} {userProfile.grade}학년 {userProfile.classNum}반
+                  {userProfile.schoolName} · Grade {userProfile.grade} · Class {userProfile.classNum}
                 </p>
               ) : (
                 <p className="text-[var(--text-subtle)] text-xs truncate">{user.email}</p>
               )}
             </div>
-            {/* 토큰 잔액 (아바타 우측, 모바일에서도 한 줄) */}
+            {/* Token balance */}
             <div className="flex items-center gap-2 shrink-0 ml-auto">
               <div className="flex items-center gap-1.5 bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl px-3 py-2">
                 <span className="text-base">🪙</span>
                 <span className="text-[var(--text-primary)] font-bold text-sm">{userProfile?.tokens ?? 0}</span>
-                <span className="text-[var(--text-muted)] text-xs hidden sm:inline">토큰</span>
+                <span className="text-[var(--text-muted)] text-xs hidden sm:inline">Tokens</span>
               </div>
               {needsProfile && (
                 <div className="flex items-center gap-1 bg-orange-500/10 border border-orange-500/30 rounded-xl px-2 py-2">
@@ -1241,12 +1238,12 @@ export default function MyPage() {
                 onClick={() => { setShowTeacherModal(true); setTeacherDoneCode(''); setTeacherError('') }}
                 className={PILL_EMERALD}
               >
-                🏫 선생님으로 전환
+                🏫 Switch to Teacher
               </button>
             )}
             {userProfile?.role === 'teacher' && userProfile.classCode && (
               <Link href={`/classroom/${userProfile.classCode}`} className={PILL_EMERALD}>
-                🏫 내 클래스 대시보드 →
+                🏫 My Class Dashboard →
               </Link>
             )}
             <InviteButton isTeacher={userProfile?.role === 'teacher'} />
@@ -1256,9 +1253,9 @@ export default function MyPage() {
             <button
               onClick={() => { setShowWithdrawModal(true); setWithdrawConfirm(''); setWithdrawError('') }}
               className="text-[var(--text-subtle)] hover:text-red-400 text-[10px] transition-colors px-1"
-              title="회원탈퇴"
+              title="Delete Account"
             >
-              탈퇴
+              Delete Account
             </button>
           </div>
           </div>
@@ -1275,7 +1272,7 @@ export default function MyPage() {
                 activeTab === 'library' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
-              📚 <span className="hidden xs:inline">내 </span>라이브러리
+              📚 Library
             </button>
             <button
               onClick={() => setActiveTab('friends')}
@@ -1283,7 +1280,7 @@ export default function MyPage() {
                 activeTab === 'friends' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
-              👥 친구
+              👥 Friends
               {pendingCount > 0 && (
                 <span className="w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center">
                   {pendingCount}
@@ -1296,7 +1293,7 @@ export default function MyPage() {
                 activeTab === 'travel' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
-              🧳 여행
+              🧳 Travel
             </button>
             <button
               onClick={() => setActiveTab('blog')}
@@ -1304,7 +1301,7 @@ export default function MyPage() {
                 activeTab === 'blog' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
-              ✍️ 블로그
+              ✍️ Blog
             </button>
             <button
               onClick={() => setActiveTab('shorts')}
@@ -1312,13 +1309,13 @@ export default function MyPage() {
                 activeTab === 'shorts' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
-              ✂️ 숏폼
+              ✂️ Shorts
             </button>
             <Link
               href="/report"
               className="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap text-[var(--text-subtle)] hover:text-[var(--text-primary)]"
             >
-              📊 멀티 리포트
+              📊 Multi Report
             </Link>
             <button
               onClick={() => setActiveTab('bookmarks')}
@@ -1326,7 +1323,7 @@ export default function MyPage() {
                 activeTab === 'bookmarks' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
-              🔖 북마크
+              🔖 Bookmarks
             </button>
             <button
               onClick={() => setActiveTab('quizzes')}
@@ -1334,7 +1331,7 @@ export default function MyPage() {
                 activeTab === 'quizzes' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
-              🧩 퀴즈
+              🧩 Quizzes
             </button>
             <button
               onClick={() => setActiveTab('worksheets')}
@@ -1342,7 +1339,7 @@ export default function MyPage() {
                 activeTab === 'worksheets' ? 'bg-[var(--bg-elevated-2)] text-[var(--text-primary)] shadow' : 'text-[var(--text-subtle)] hover:text-[var(--text-primary)]'
               }`}
             >
-              📝 워크시트
+              📝 Worksheets
             </button>
             <button
               onClick={() => setActiveTab('youtube')}
@@ -1353,7 +1350,7 @@ export default function MyPage() {
               <svg className="w-3.5 h-3.5 text-red-500 shrink-0" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
               </svg>
-              가져오기
+              Import
             </button>
           </div>
         </div>
@@ -1367,7 +1364,7 @@ export default function MyPage() {
       )}
       {activeTab === 'friends' && !user && (
         <div className="max-w-7xl mx-auto px-6 pb-12 text-center py-20 text-[var(--text-subtle)]">
-          로그인 후 이용할 수 있습니다.
+          Please log in to use this feature.
         </div>
       )}
 
@@ -1378,8 +1375,8 @@ export default function MyPage() {
       {activeTab === 'blog' && (
         <div className="max-w-7xl mx-auto px-6 pb-12">
           <div className="mb-4">
-            <h2 className="text-white font-bold text-lg">✍️ 저장된 블로그 초안</h2>
-            <p className="text-[var(--text-subtle)] text-sm mt-0.5">요약 결과에서 생성한 SEO 블로그 초안을 저장하고 관리하세요.</p>
+            <h2 className="text-white font-bold text-lg">✍️ Saved Blog Drafts</h2>
+            <p className="text-[var(--text-subtle)] text-sm mt-0.5">Manage SEO blog drafts generated from your summaries.</p>
           </div>
           <SavedBlogDrafts userId={user?.uid ?? getLocalUserId()} />
         </div>
@@ -1388,8 +1385,8 @@ export default function MyPage() {
       {activeTab === 'shorts' && (
         <div className="max-w-7xl mx-auto px-6 pb-12">
           <div className="mb-4">
-            <h2 className="text-white font-bold text-lg">✂️ 저장된 숏폼 스크립트</h2>
-            <p className="text-[var(--text-subtle)] text-sm mt-0.5">롱폼 영상에서 추출한 숏폼 구간 스크립트를 저장하고 관리하세요.</p>
+            <h2 className="text-white font-bold text-lg">✂️ Saved Shorts Scripts</h2>
+            <p className="text-[var(--text-subtle)] text-sm mt-0.5">Manage short-form scripts extracted from long-form videos.</p>
           </div>
           <SavedShortsScripts userId={user?.uid ?? getLocalUserId()} />
         </div>
@@ -1432,14 +1429,14 @@ export default function MyPage() {
               <svg className="w-5 h-5 text-red-500" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
               </svg>
-              YouTube 재생목록 가져오기
+              YouTube Playlist Import
             </h2>
-            <p className="text-[var(--text-subtle)] text-sm mt-0.5">저장해둔 재생목록 영상을 선택하고 AI로 요약하세요.</p>
+            <p className="text-[var(--text-subtle)] text-sm mt-0.5">Select videos from your saved playlists and summarize with AI.</p>
           </div>
           {user ? (
             <YouTubeImportTab />
           ) : (
-            <div className="text-center py-20 text-[var(--text-subtle)] text-sm">로그인 후 이용할 수 있습니다.</div>
+            <div className="text-center py-20 text-[var(--text-subtle)] text-sm">Please log in to use this feature.</div>
           )}
         </div>
       )}
@@ -1452,13 +1449,13 @@ export default function MyPage() {
         {/* Sidebar: Folders */}
         <aside className="w-full md:w-64 shrink-0 flex flex-col gap-4">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-bold text-white">폴더 목록</h2>
+            <h2 className="text-lg font-bold text-white">Folders</h2>
             <button
               onClick={() => { setCreatingFolder(true); setNewFolderName('') }}
               className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-orange-500/15 text-orange-400 hover:bg-orange-500/25 text-xs font-bold transition-colors"
-              title="새 폴더 만들기"
+              title="Create New Folder"
             >
-              + 새 폴더
+              + New Folder
             </button>
           </div>
 
@@ -1473,7 +1470,7 @@ export default function MyPage() {
                   if (e.key === 'Enter') handleCreateFolder()
                   if (e.key === 'Escape') { setCreatingFolder(false); setNewFolderName('') }
                 }}
-                placeholder="폴더 이름..."
+                placeholder="Folder name..."
                 className="flex-1 bg-[var(--bg-base)] border border-orange-500/50 rounded-lg px-3 py-1.5 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none min-w-0"
               />
               <button
@@ -1489,12 +1486,12 @@ export default function MyPage() {
           )}
           {/* 공개 설정 범례 */}
           <div className="flex items-center gap-2 mb-3 text-[10px] text-[var(--text-subtle)] bg-[var(--bg-elevated)]/50 rounded-lg px-3 py-2 whitespace-nowrap overflow-hidden">
-            <span className="flex items-center gap-0.5 shrink-0"><span>🔒</span><span>나만</span></span>
+            <span className="flex items-center gap-0.5 shrink-0"><span>🔒</span><span>Only me</span></span>
             <span className="text-white/10 shrink-0">·</span>
-            <span className="flex items-center gap-0.5 shrink-0"><span>👥</span><span>친구</span></span>
+            <span className="flex items-center gap-0.5 shrink-0"><span>👥</span><span>Friends</span></span>
             <span className="text-white/10 shrink-0">·</span>
-            <span className="flex items-center gap-0.5 shrink-0"><span>🌐</span><span>공개</span></span>
-            <span className="ml-auto text-[9px] text-white/20 shrink-0">탭으로 변경</span>
+            <span className="flex items-center gap-0.5 shrink-0"><span>🌐</span><span>Public</span></span>
+            <span className="ml-auto text-[9px] text-white/20 shrink-0">Click to toggle</span>
           </div>
           <div className="flex flex-col gap-1 overflow-x-auto md:overflow-visible pb-2 scrollbar-none">
             <button
@@ -1503,7 +1500,7 @@ export default function MyPage() {
                 activeFolder === 'all' && !activeDistFolder ? 'bg-orange-500 text-white font-bold' : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:bg-[var(--bg-elevated-2)]'
               }`}
             >
-              🌐 모든 저장 항목
+              🌐 All Items
             </button>
 
             {/* 수업자료 섹션 (학생 전용) */}
@@ -1529,7 +1526,7 @@ export default function MyPage() {
               )
               return (
                 <div className="mt-1">
-                  <p className="text-sm font-extrabold text-emerald-400 px-2 py-2 tracking-wide">📖 수업자료</p>
+                  <p className="text-sm font-extrabold text-emerald-400 px-2 py-2 tracking-wide">📖 Class Materials</p>
                   {rootDist.map((f: any) => renderDistFolder(f))}
                   <div className="h-px bg-[var(--overlay-subtle)] my-2" />
                 </div>
@@ -1589,9 +1586,9 @@ export default function MyPage() {
             return (
               <div>
                 <nav className="flex items-center gap-1 text-xs text-[var(--text-subtle)] mb-4 overflow-x-auto scrollbar-none">
-                  <button onClick={() => handleFolderClick('all')} className="hover:text-white whitespace-nowrap transition-colors">모든 저장 항목</button>
+                  <button onClick={() => handleFolderClick('all')} className="hover:text-white whitespace-nowrap transition-colors">All Items</button>
                   <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                  <span className="text-emerald-400 font-semibold whitespace-nowrap">📖 수업자료</span>
+                  <span className="text-emerald-400 font-semibold whitespace-nowrap">📖 Class Materials</span>
                   <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                   <span className="text-white font-semibold whitespace-nowrap">{folder?.name}</span>
                 </nav>
@@ -1602,7 +1599,7 @@ export default function MyPage() {
                 ) : videos.length === 0 ? (
                   <div className="bg-[var(--bg-elevated)]/50 rounded-[28px] p-12 text-center border border-[var(--border-subtle)]">
                     <span className="text-3xl block mb-3">📭</span>
-                    <p className="text-white font-medium">이 폴더에 영상이 없습니다</p>
+                    <p className="text-white font-medium">No videos in this folder</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -1635,7 +1632,7 @@ export default function MyPage() {
             const path = getFolderPath(folders, activeFolder)
             return (
               <nav className="flex items-center gap-1 text-xs text-[var(--text-subtle)] mb-3 overflow-x-auto scrollbar-none flex-wrap">
-                <button onClick={() => handleFolderClick('all')} className="hover:text-white whitespace-nowrap transition-colors">모든 저장 항목</button>
+                <button onClick={() => handleFolderClick('all')} className="hover:text-white whitespace-nowrap transition-colors">All Items</button>
                 {path.map(f => (
                   <span key={f.id} className="flex items-center gap-1">
                     <svg className="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1654,8 +1651,8 @@ export default function MyPage() {
           {/* 검색창 + 카테고리 드롭다운 */}
           {committedQuery && (
             <div className="flex items-center gap-2 mb-2 text-[11px] text-orange-400/80">
-              <span>"{committedQuery}" 검색 결과 {filteredSummaries.length}개</span>
-              <button onClick={clearSearch} className="text-[var(--text-subtle)] hover:text-white">전체 보기</button>
+              <span>{filteredSummaries.length} result(s) for "{committedQuery}"</span>
+              <button onClick={clearSearch} className="text-[var(--text-subtle)] hover:text-white">View all</button>
             </div>
           )}
           <div className="flex items-center gap-2 mb-5">
@@ -1665,7 +1662,7 @@ export default function MyPage() {
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') handleSearch() }}
-                placeholder="검색어 입력 후 검색 버튼을 누르세요"
+                placeholder="Enter keyword and press Search"
                 className={`w-full h-10 pl-9 pr-8 bg-[var(--bg-elevated)] border rounded-xl text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none transition-colors ${
                   committedQuery ? 'border-orange-500/50' : 'border-[var(--border-default)] focus:border-orange-500/50'
                 }`}
@@ -1681,7 +1678,7 @@ export default function MyPage() {
               onClick={handleSearch}
               className="h-10 px-4 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-xl transition-colors shrink-0"
             >
-              검색
+              Search
             </button>
 
             {/* 카테고리 드롭다운 */}
@@ -1696,7 +1693,7 @@ export default function MyPage() {
               >
                 <span>{selectedCategory === 'all' ? '🏷' : CATEGORY_LABEL[selectedCategory]?.split(' ')[0]}</span>
                 <span className="hidden sm:inline">
-                  {selectedCategory === 'all' ? '전체 카테고리' : CATEGORY_LABEL[selectedCategory]?.split(' ').slice(1).join(' ')}
+                  {selectedCategory === 'all' ? 'All Categories' : CATEGORY_LABEL[selectedCategory]?.split(' ').slice(1).join(' ')}
                 </span>
                 <svg className={`w-3.5 h-3.5 transition-transform ${catDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -1715,7 +1712,7 @@ export default function MyPage() {
                     }`}
                   >
                     <span>🌐</span>
-                    <span>전체 카테고리</span>
+                    <span>All Categories</span>
                     {selectedCategory === 'all' && <span className="ml-auto text-[10px]">✓</span>}
                   </button>
                   <div className="h-px bg-[var(--overlay-subtle)] mx-3 my-1" />
@@ -1739,7 +1736,7 @@ export default function MyPage() {
                     </button>
                   ))}
                   {availableCategories.length === 0 && (
-                    <p className="px-4 py-2 text-xs text-[var(--text-subtle)]">항목이 없습니다</p>
+                    <p className="px-4 py-2 text-xs text-[var(--text-subtle)]">No items</p>
                   )}
                 </div>
               )}
@@ -1753,7 +1750,7 @@ export default function MyPage() {
             if (subFolders.length === 0) return null
             return (
               <div className="mb-6">
-                <p className="text-[10px] text-[var(--text-subtle)] font-semibold uppercase tracking-wider mb-2">하위 폴더</p>
+                <p className="text-[10px] text-[var(--text-subtle)] font-semibold uppercase tracking-wider mb-2">Subfolders</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {subFolders.map(sf => {
                     const grandChildren = buildFolderTree(folders, sf.id)
@@ -1767,7 +1764,7 @@ export default function MyPage() {
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-[var(--text-primary)] group-hover:text-white truncate">{sf.name}</p>
                           {grandChildren.length > 0 && (
-                            <p className="text-[10px] text-[var(--text-subtle)]">{grandChildren.length}개 하위폴더</p>
+                            <p className="text-[10px] text-[var(--text-subtle)]">{grandChildren.length} subfolder(s)</p>
                           )}
                         </div>
                         <svg className="w-3.5 h-3.5 text-[var(--text-subtle)] group-hover:text-orange-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1788,14 +1785,14 @@ export default function MyPage() {
           ) : allSummaries.length === 0 ? (
             <div className="bg-[var(--bg-elevated)]/50 rounded-[32px] p-12 text-center border border-[var(--border-subtle)]">
               <span className="text-4xl mb-4 block">📭</span>
-              <h2 className="text-xl text-white font-medium mb-2">저장된 영상이 없습니다</h2>
-              <p className="text-[var(--text-subtle)] text-sm">영상을 요약하면 자동으로 라이브러리에 저장됩니다.</p>
+              <h2 className="text-xl text-white font-medium mb-2">No saved videos yet</h2>
+              <p className="text-[var(--text-subtle)] text-sm">Summarize a video and it will be automatically saved to your library.</p>
             </div>
           ) : summaries.length === 0 && buildFolderTree(folders, activeFolder === 'all' ? null : activeFolder).length === 0 ? (
             <div className="bg-[var(--bg-elevated)]/50 rounded-[32px] p-12 text-center border border-[var(--border-subtle)]">
               <span className="text-4xl mb-4 block">📂</span>
-              <h2 className="text-xl text-white font-medium mb-2">이 폴더는 비어있습니다</h2>
-              <p className="text-[var(--text-subtle)] text-sm">카드의 📁 아이콘으로 항목을 폴더에 추가하세요.</p>
+              <h2 className="text-xl text-white font-medium mb-2">This folder is empty</h2>
+              <p className="text-[var(--text-subtle)] text-sm">Use the 📁 icon on a card to add items to this folder.</p>
             </div>
           ) : summaries.length === 0 ? null : (
             <>
@@ -1804,8 +1801,8 @@ export default function MyPage() {
                 <p className="text-[var(--text-subtle)] text-xs flex items-center gap-1.5">
                   {canDrag && (
                     <>
-                      <span className="hidden md:inline">⠿ 드래그로 순서를 변경할 수 있어요</span>
-                      <span className="md:hidden">↑↓ 버튼으로 순서를 변경할 수 있어요</span>
+                      <span className="hidden md:inline">⠿ Drag to reorder</span>
+                      <span className="md:hidden">↑↓ Tap buttons to reorder</span>
                     </>
                   )}
                   {(selectedCategory !== 'all' || searchQuery) && (
@@ -1822,18 +1819,18 @@ export default function MyPage() {
                           <button onClick={clearSearch} className="hover:text-white ml-0.5">✕</button>
                         </span>
                       )}
-                      <span className="text-[var(--text-subtle)]">· {filteredSummaries.length}개</span>
+                      <span className="text-[var(--text-subtle)]">· {filteredSummaries.length}</span>
                     </span>
                   )}
                 </p>
-                {savingOrder && <p className="text-[var(--text-subtle)] text-xs animate-pulse">저장 중...</p>}
+                {savingOrder && <p className="text-[var(--text-subtle)] text-xs animate-pulse">Saving...</p>}
               </div>
 
               {filteredSummaries.length === 0 ? (
                 <div className="bg-[var(--bg-elevated)]/50 rounded-[32px] p-12 text-center border border-[var(--border-subtle)]">
                   <span className="text-3xl mb-3 block">🔍</span>
-                  <p className="text-white font-medium mb-1">결과가 없습니다</p>
-                  <p className="text-[var(--text-subtle)] text-sm">다른 카테고리나 검색어를 시도해보세요</p>
+                  <p className="text-white font-medium mb-1">No results</p>
+                  <p className="text-[var(--text-subtle)] text-sm">Try a different category or search term</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1853,7 +1850,7 @@ export default function MyPage() {
                       {canDrag && (
                         <div
                           className="absolute left-2 top-1/2 -translate-y-1/2 z-10 hidden md:flex items-center justify-center w-6 h-10 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing text-[var(--text-subtle)] hover:text-white"
-                          title="드래그해서 순서 변경"
+                          title="Drag to reorder"
                         >
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                             <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/>
@@ -1876,7 +1873,7 @@ export default function MyPage() {
                           />
                           <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
                           <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-xs font-medium text-white border border-[var(--border-default)]">
-                            {CATEGORY_LABEL[item.category] || '분석됨'}
+                            {CATEGORY_LABEL[item.category] || 'Analyzed'}
                           </div>
                         </div>
                         <div className="p-5 flex flex-col gap-3">
@@ -1910,7 +1907,7 @@ export default function MyPage() {
                           <button
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpenMoveId(openMoveId === item.id ? null : item.id) }}
                             className="p-1.5 rounded-full bg-black/60 backdrop-blur-md border border-[var(--border-default)] text-white/70 hover:text-orange-400 hover:border-orange-400/50 transition-colors"
-                            title="폴더 이동"
+                            title="Move to Folder"
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
@@ -1930,7 +1927,7 @@ export default function MyPage() {
                           onClick={(e) => handleDelete(e, item.id)}
                           disabled={deletingId === item.id}
                           className="p-1.5 rounded-full bg-black/60 backdrop-blur-md border border-[var(--border-default)] text-white/70 hover:text-red-400 hover:border-red-400/50 disabled:opacity-50 transition-colors"
-                          title="삭제"
+                          title="Delete"
                         >
                           {deletingId === item.id ? (
                             <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -1949,7 +1946,7 @@ export default function MyPage() {
                               onClick={(e) => { e.preventDefault(); e.stopPropagation(); moveItem(item.id, 'up') }}
                               disabled={idx === 0 || savingOrder}
                               className="p-1.5 rounded-full bg-black/60 backdrop-blur-md border border-[var(--border-default)] text-white/70 hover:text-orange-400 hover:border-orange-400/50 disabled:opacity-30 transition-colors"
-                              title="위로 이동"
+                              title="Move Up"
                             >
                               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
@@ -1959,7 +1956,7 @@ export default function MyPage() {
                               onClick={(e) => { e.preventDefault(); e.stopPropagation(); moveItem(item.id, 'down') }}
                               disabled={idx === summaries.length - 1 || savingOrder}
                               className="p-1.5 rounded-full bg-black/60 backdrop-blur-md border border-[var(--border-default)] text-white/70 hover:text-orange-400 hover:border-orange-400/50 disabled:opacity-30 transition-colors"
-                              title="아래로 이동"
+                              title="Move Down"
                             >
                               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
@@ -2008,19 +2005,19 @@ export default function MyPage() {
             >✕</button>
             <div className="text-center mb-5">
               <div className="text-4xl mb-3">⚠️</div>
-              <h2 className="text-lg font-bold text-white mb-2">회원 탈퇴</h2>
+              <h2 className="text-lg font-bold text-white mb-2">Delete Account</h2>
               <p className="text-[var(--text-muted)] text-sm leading-relaxed">
-                탈퇴하면 저장된 모든 영상, 폴더, 친구 관계가 <span className="text-red-400 font-bold">영구 삭제</span>됩니다.
-                이 작업은 되돌릴 수 없습니다.
+                All saved videos, folders, and friends will be <span className="text-red-400 font-bold">permanently deleted</span>.
+                This action cannot be undone.
               </p>
             </div>
             <div className="bg-[var(--bg-surface-2)] rounded-2xl p-4 mb-5">
-              <p className="text-[var(--text-subtle)] text-xs mb-2">탈퇴를 진행하려면 아래에 <span className="text-white font-bold">탈퇴합니다</span>를 입력하세요</p>
+              <p className="text-[var(--text-subtle)] text-xs mb-2">Type <span className="text-white font-bold">DELETE</span> below to confirm</p>
               <input
                 type="text"
                 value={withdrawConfirm}
                 onChange={e => setWithdrawConfirm(e.target.value)}
-                placeholder="탈퇴합니다"
+                placeholder="DELETE"
                 disabled={withdrawing}
                 className="w-full bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-red-500/50 transition-colors"
               />
@@ -2039,9 +2036,9 @@ export default function MyPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                   </svg>
-                  탈퇴 처리 중...
+                  Deleting account...
                 </>
-              ) : '탈퇴하기'}
+              ) : 'Delete Account'}
             </button>
           </div>
         </div>
@@ -2199,8 +2196,8 @@ function ClassMaterialsTab({ user }: { user: any }) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-12">
       <div className="mb-5">
-        <h2 className="text-white font-bold text-lg">📖 선생님 수업자료</h2>
-        <p className="text-[var(--text-subtle)] text-sm mt-0.5">선생님이 배포한 폴더와 영상을 확인하세요.</p>
+        <h2 className="text-white font-bold text-lg">📖 Teacher Class Materials</h2>
+        <p className="text-[var(--text-subtle)] text-sm mt-0.5">View folders and videos shared by your teacher.</p>
       </div>
 
       {(() => {
@@ -2220,16 +2217,16 @@ function ClassMaterialsTab({ user }: { user: any }) {
                 >
                   <span className="text-base shrink-0">{isExpanded ? '📂' : '📁'}</span>
                   <span className="flex-1 font-bold text-sm text-white truncate">{folder.name}</span>
-                  {depth === 0 && <span className="text-[9px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-full shrink-0">수업자료</span>}
+                  {depth === 0 && <span className="text-[9px] text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-full shrink-0">Class</span>}
                   <span className="text-[9px] text-gray-500 ml-1 shrink-0">{isExpanded ? '▲' : '▼'}</span>
                 </button>
 
                 {isExpanded && (
                   <div className="border-t border-[var(--border-subtle)] px-4 pb-3 pt-2">
                     {loadingVideos === folder.id ? (
-                      <p className="text-xs text-gray-500 py-2">불러오는 중...</p>
+                      <p className="text-xs text-gray-500 py-2">Loading...</p>
                     ) : videos.length === 0 ? (
-                      <p className="text-xs text-gray-500 py-2">이 폴더에 영상이 없습니다.</p>
+                      <p className="text-xs text-gray-500 py-2">No videos in this folder.</p>
                     ) : (
                       <div className="space-y-2">
                         {videos.map((item: any) => (
@@ -2243,7 +2240,7 @@ function ClassMaterialsTab({ user }: { user: any }) {
                               <p className="text-xs text-gray-200 truncate font-medium">{item.title}</p>
                               {item.channel && <p className="text-[10px] text-gray-500 truncate mt-0.5">{item.channel}</p>}
                             </div>
-                            <span className="text-[10px] text-orange-400 shrink-0">보기 →</span>
+                            <span className="text-[10px] text-orange-400 shrink-0">View →</span>
                           </Link>
                         ))}
                       </div>
@@ -2264,8 +2261,8 @@ function ClassMaterialsTab({ user }: { user: any }) {
         return rootFolders.length === 0 ? (
           <div className="bg-[var(--bg-elevated)]/50 rounded-[28px] p-12 text-center border border-[var(--border-subtle)]">
             <span className="text-3xl mb-3 block">📚</span>
-            <p className="text-white font-medium mb-1">아직 배포된 수업자료가 없습니다</p>
-            <p className="text-[var(--text-subtle)] text-sm">선생님이 폴더를 배포하면 여기에 나타납니다.</p>
+            <p className="text-white font-medium mb-1">No class materials shared yet</p>
+            <p className="text-[var(--text-subtle)] text-sm">Materials will appear here once your teacher shares a folder.</p>
           </div>
         ) : (
           <div className="space-y-3">
