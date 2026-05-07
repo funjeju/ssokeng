@@ -32,7 +32,7 @@ export default function AuthModal() {
   const [selectedSchool, setSelectedSchool] = useState('')
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null)
   const [studentHint, setStudentHint] = useState('')
-  const [helpMessage, setHelpMessage] = useState('이름 또는 비밀번호를 잊어버렸습니다.')
+  const [helpMessage, setHelpMessage] = useState('I forgot my name or password.')
 
   // 모달이 열릴 때마다 view와 폼 상태를 authModalView로 리셋
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function AuthModal() {
       setView(authModalView)
       setEmail(''); setPassword(''); setPasswordConfirm(''); setDisplayName(''); setError(''); setResetSent(false)
       setStudentName(''); setStudentPassword(''); setSchools([]); setTeachers([]); setSelectedSchool(''); setSelectedTeacher(null)
-      setStudentHint(''); setHelpMessage('이름 또는 비밀번호를 잊어버렸습니다.')
+      setStudentHint(''); setHelpMessage('I forgot my name or password.')
     }
   }, [authModalOpen, authModalView])
 
@@ -54,7 +54,7 @@ export default function AuthModal() {
     resetForm()
     if (!v.startsWith('student')) {
       setStudentName(''); setStudentPassword(''); setSchools([]); setTeachers([]); setSelectedSchool(''); setSelectedTeacher(null)
-      setStudentHint(''); setHelpMessage('이름 또는 비밀번호를 잊어버렸습니다.')
+      setStudentHint(''); setHelpMessage('I forgot my name or password.')
     }
     setView(v)
   }
@@ -68,7 +68,7 @@ export default function AuthModal() {
       setSchools(data.schools ?? [])
       setView('student')
     } catch {
-      setError('학교 목록을 불러오지 못했습니다.')
+      setError('Failed to load school list.')
     } finally { setLoading(false) }
   }
 
@@ -82,7 +82,7 @@ export default function AuthModal() {
       setTeachers(data.teachers ?? [])
       setView('student_teacher')
     } catch {
-      setError('선생님 목록을 불러오지 못했습니다.')
+      setError('Failed to load teacher list.')
     } finally { setLoading(false) }
   }
 
@@ -94,7 +94,7 @@ export default function AuthModal() {
 
   const handleStudentLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!studentName.trim() || !studentPassword) { setError('이름과 비밀번호를 입력해주세요.'); return }
+    if (!studentName.trim() || !studentPassword) { setError('Please enter your name and password.'); return }
     if (!selectedTeacher) return
     setLoading(true); setError('')
     try {
@@ -104,10 +104,10 @@ export default function AuthModal() {
       const code = e.code
       setError(
         code === 'auth/invalid-credential' || code === 'auth/wrong-password'
-          ? '비밀번호가 올바르지 않습니다.'
+          ? 'Incorrect password.'
           : code === 'auth/user-not-found'
-          ? '등록되지 않은 이름입니다. 선생님께 확인하세요.'
-          : e.message || '로그인에 실패했습니다.'
+          ? 'Name not registered. Please check with your teacher.'
+          : e.message || 'Login failed.'
       )
     } finally { setLoading(false) }
   }
@@ -124,66 +124,66 @@ export default function AuthModal() {
       })
       setView('student_forgot_sent')
     } catch {
-      setError('요청 전송 중 오류가 발생했습니다.')
+      setError('Failed to send request.')
     } finally { setLoading(false) }
   }
 
   const handleGoogleLogin = async () => {
     setLoading(true)
-    try { await signInWithGoogle() } catch { setError('Google 로그인 중 오류가 발생했습니다.') }
+    try { await signInWithGoogle() } catch { setError('Google sign-in failed. Please try again.') }
     finally { setLoading(false) }
   }
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email || !password) { setError('이메일과 비밀번호를 입력해주세요.'); return }
+    if (!email || !password) { setError('Please enter your email and password.'); return }
     setLoading(true); setError('')
     try {
       await signInWithEmail(email, password)
     } catch (err: any) {
       if (err.message === 'EMAIL_NOT_VERIFIED') {
-        setError('이메일 인증이 완료되지 않았습니다. 받은 메일함을 확인해주세요.')
+        setError('Email not verified. Please check your inbox.')
       } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-        setError('이메일 또는 비밀번호가 올바르지 않습니다.')
+        setError('Incorrect email or password.')
       } else {
-        setError('로그인 중 오류가 발생했습니다.')
+        setError('Login failed. Please try again.')
       }
     } finally { setLoading(false) }
   }
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!displayName.trim()) { setError('이름(닉네임)을 입력해주세요.'); return }
-    if (!email) { setError('이메일을 입력해주세요.'); return }
-    if (password.length < 6) { setError('비밀번호는 6자 이상이어야 합니다.'); return }
-    if (password !== passwordConfirm) { setError('비밀번호가 일치하지 않습니다.'); return }
+    if (!displayName.trim()) { setError('Please enter your name.'); return }
+    if (!email) { setError('Please enter your email.'); return }
+    if (password.length < 6) { setError('Password must be at least 6 characters.'); return }
+    if (password !== passwordConfirm) { setError('Passwords do not match.'); return }
     setLoading(true); setError('')
     try {
       await signUpWithEmail(email, password, displayName.trim())
       setView('verify_sent')
     } catch (err: any) {
       if (err.code === 'auth/email-already-in-use') {
-        setError('이미 사용 중인 이메일입니다.')
+        setError('This email is already in use.')
       } else if (err.code === 'auth/invalid-email') {
-        setError('올바른 이메일 형식이 아닙니다.')
+        setError('Please enter a valid email address.')
       } else {
-        setError('회원가입 중 오류가 발생했습니다.')
+        setError('Sign up failed. Please try again.')
       }
     } finally { setLoading(false) }
   }
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) { setError('이메일을 입력해주세요.'); return }
+    if (!email) { setError('Please enter your email.'); return }
     setLoading(true); setError('')
     try {
       await sendPasswordReset(email)
       setResetSent(true)
     } catch (err: any) {
       if (err.code === 'auth/user-not-found') {
-        setError('등록되지 않은 이메일입니다.')
+        setError('No account found with this email.')
       } else {
-        setError('오류가 발생했습니다. 다시 시도해주세요.')
+        setError('An error occurred. Please try again.')
       }
     } finally { setLoading(false) }
   }
@@ -211,7 +211,7 @@ export default function AuthModal() {
           {/* ── 로그인 ── */}
           {view === 'login' && (
             <>
-              <h2 className="text-lg font-bold text-white text-center mb-6">로그인</h2>
+              <h2 className="text-lg font-bold text-white text-center mb-6">Log In</h2>
 
               {/* Google */}
               <button
@@ -225,12 +225,12 @@ export default function AuthModal() {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
-                Google로 로그인
+                Continue with Google
               </button>
 
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex-1 h-px bg-[var(--overlay-default)]" />
-                <span className="text-[11px] text-[var(--text-subtle)]">또는</span>
+                <span className="text-[11px] text-[var(--text-subtle)]">or</span>
                 <div className="flex-1 h-px bg-[var(--overlay-default)]" />
               </div>
 
@@ -239,14 +239,14 @@ export default function AuthModal() {
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="이메일"
+                  placeholder="Email"
                   className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 transition-colors"
                 />
                 <input
                   type="password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="비밀번호"
+                  placeholder="Password"
                   className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 transition-colors"
                 />
                 {error && <p className="text-red-400 text-xs text-center">{error}</p>}
@@ -255,7 +255,7 @@ export default function AuthModal() {
                   disabled={loading}
                   className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl text-sm transition-colors disabled:opacity-50 mt-1"
                 >
-                  {loading ? '로그인 중...' : '로그인'}
+                  {loading ? 'Logging in...' : 'Log In'}
                 </button>
               </form>
 
@@ -263,19 +263,19 @@ export default function AuthModal() {
                 onClick={() => switchView('forgot')}
                 className="w-full text-center text-xs text-[var(--text-subtle)] hover:text-white mt-3 transition-colors"
               >
-                비밀번호를 잊으셨나요?
+                Forgot your password?
               </button>
 
               <p className="text-center text-xs text-[var(--text-subtle)] mt-4">
-                계정이 없으신가요?{' '}
+                Don't have an account?{' '}
                 <button onClick={() => switchView('signup')} className="text-orange-400 hover:text-orange-300 font-semibold transition-colors">
-                  회원가입
+                  Sign Up
                 </button>
               </p>
 
               <div className="flex items-center gap-3 mt-5">
                 <div className="flex-1 h-px bg-[var(--overlay-default)]" />
-                <span className="text-[11px] text-[var(--text-subtle)]">학생이라면</span>
+                <span className="text-[11px] text-[var(--text-subtle)]">Are you a student?</span>
                 <div className="flex-1 h-px bg-[var(--overlay-default)]" />
               </div>
               <button
@@ -283,7 +283,7 @@ export default function AuthModal() {
                 disabled={loading}
                 className="w-full mt-3 py-3 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 hover:border-blue-500/60 text-blue-300 font-semibold text-sm rounded-2xl transition-all disabled:opacity-50"
               >
-                {loading ? '불러오는 중...' : '학생 로그인'}
+                {loading ? 'Loading...' : 'Student Login'}
               </button>
             </>
           )}
@@ -295,12 +295,12 @@ export default function AuthModal() {
                 onClick={() => switchView('login')}
                 className="flex items-center gap-1 text-xs text-[var(--text-subtle)] hover:text-white mb-5 transition-colors"
               >
-                ← 일반 로그인
+                ← Back to Login
               </button>
-              <h2 className="text-lg font-bold text-white text-center mb-1">학생 로그인</h2>
-              <p className="text-[var(--text-subtle)] text-xs text-center mb-5">먼저 학교를 선택해주세요.</p>
+              <h2 className="text-lg font-bold text-white text-center mb-1">Student Login</h2>
+              <p className="text-[var(--text-subtle)] text-xs text-center mb-5">Select your school to continue.</p>
               {schools.length === 0 ? (
-                <p className="text-[var(--text-subtle)] text-xs text-center py-4">등록된 학교가 없습니다.</p>
+                <p className="text-[var(--text-subtle)] text-xs text-center py-4">No registered schools found.</p>
               ) : (
                 <div className="flex flex-col gap-2">
                   {schools.map(school => (
@@ -326,11 +326,11 @@ export default function AuthModal() {
                 onClick={() => { setView('student'); setError('') }}
                 className="flex items-center gap-1 text-xs text-[var(--text-subtle)] hover:text-white mb-5 transition-colors"
               >
-                ← 학교 다시 선택
+                ← Change School
               </button>
-              <h2 className="text-lg font-bold text-white text-center mb-1">선생님을 선택해주세요</h2>
+              <h2 className="text-lg font-bold text-white text-center mb-1">Select Your Teacher</h2>
               <p className="text-[var(--text-subtle)] text-xs text-center mb-5">
-                <span className="text-white font-semibold">{selectedSchool}</span>의 담임 선생님
+                Teachers at <span className="text-white font-semibold">{selectedSchool}</span>
               </p>
               <div className="flex flex-col gap-2">
                 {teachers.map(t => (
@@ -339,8 +339,8 @@ export default function AuthModal() {
                     onClick={() => handleTeacherSelect(t)}
                     className="w-full text-left px-4 py-3.5 rounded-xl border border-[var(--border-default)] hover:border-blue-500/50 hover:bg-blue-500/5 transition-all"
                   >
-                    <span className="font-semibold text-white text-sm">{t.teacherName} 선생님</span>
-                    <span className="ml-2 text-xs text-[var(--text-subtle)]">{t.grade}학년 {t.classNum}반</span>
+                    <span className="font-semibold text-white text-sm">{t.teacherName}</span>
+                    <span className="ml-2 text-xs text-[var(--text-subtle)]">Grade {t.grade} · Class {t.classNum}</span>
                   </button>
                 ))}
               </div>
@@ -355,26 +355,26 @@ export default function AuthModal() {
                 onClick={() => { setView('student_teacher'); setError('') }}
                 className="flex items-center gap-1 text-xs text-[var(--text-subtle)] hover:text-white mb-5 transition-colors"
               >
-                ← 선생님 다시 선택
+                ← Change Teacher
               </button>
               <div className="mb-5 text-center">
                 <p className="text-xs text-[var(--text-subtle)]">{selectedSchool}</p>
-                <h2 className="text-base font-bold text-white">{selectedTeacher?.teacherName} 선생님 반</h2>
-                <p className="text-xs text-[var(--text-subtle)]">{selectedTeacher?.grade}학년 {selectedTeacher?.classNum}반</p>
+                <h2 className="text-base font-bold text-white">{selectedTeacher?.teacherName}'s Class</h2>
+                <p className="text-xs text-[var(--text-subtle)]">Grade {selectedTeacher?.grade} · Class {selectedTeacher?.classNum}</p>
               </div>
               <form onSubmit={handleStudentLogin} className="flex flex-col gap-3">
                 <input
                   type="text"
                   value={studentName}
                   onChange={e => setStudentName(e.target.value)}
-                  placeholder="본인 이름"
+                  placeholder="Your name"
                   className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-blue-500/50 transition-colors"
                 />
                 <input
                   type="password"
                   value={studentPassword}
                   onChange={e => setStudentPassword(e.target.value)}
-                  placeholder="비밀번호"
+                  placeholder="Password"
                   className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-blue-500/50 transition-colors"
                 />
                 {error && <p className="text-red-400 text-xs text-center">{error}</p>}
@@ -383,7 +383,7 @@ export default function AuthModal() {
                   disabled={loading}
                   className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl text-sm transition-colors disabled:opacity-50 mt-1"
                 >
-                  {loading ? '로그인 중...' : '로그인'}
+                  {loading ? 'Logging in...' : 'Log In'}
                 </button>
               </form>
               <div className="mt-4 text-center">
@@ -391,7 +391,7 @@ export default function AuthModal() {
                   onClick={() => { setView('student_forgot'); setError('') }}
                   className="text-xs text-blue-400 hover:text-blue-300 hover:underline transition-colors"
                 >
-                  {selectedTeacher?.teacherName} 선생님께 도움 요청하기 →
+                  Ask {selectedTeacher?.teacherName} for help →
                 </button>
               </div>
             </>
@@ -404,18 +404,18 @@ export default function AuthModal() {
                 onClick={() => { setView('student_credentials'); setError('') }}
                 className="flex items-center gap-1 text-xs text-[var(--text-subtle)] hover:text-white mb-5 transition-colors"
               >
-                ← 돌아가기
+                ← Go Back
               </button>
-              <h2 className="text-base font-bold text-white text-center mb-1">선생님께 도움 요청</h2>
+              <h2 className="text-base font-bold text-white text-center mb-1">Ask Your Teacher for Help</h2>
               <p className="text-[var(--text-subtle)] text-xs text-center mb-5">
-                <span className="text-white font-semibold">{selectedTeacher?.teacherName} 선생님</span>께 전달됩니다.
+                Your message will be sent to <span className="text-white font-semibold">{selectedTeacher?.teacherName}</span>.
               </p>
               <form onSubmit={handleHelpRequest} className="flex flex-col gap-3">
                 <input
                   type="text"
                   value={studentHint}
                   onChange={e => setStudentHint(e.target.value)}
-                  placeholder="이름 (기억나는 경우, 선택사항)"
+                  placeholder="Your name (optional, if you remember)"
                   className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-blue-500/50 transition-colors"
                 />
                 <select
@@ -423,9 +423,9 @@ export default function AuthModal() {
                   onChange={e => setHelpMessage(e.target.value)}
                   className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-colors"
                 >
-                  <option value="이름 또는 비밀번호를 잊어버렸습니다.">이름 또는 비밀번호를 잊어버렸습니다.</option>
-                  <option value="비밀번호를 잊어버렸습니다.">비밀번호를 잊어버렸습니다.</option>
-                  <option value="등록된 이름을 잊어버렸습니다.">등록된 이름을 잊어버렸습니다.</option>
+                  <option value="I forgot my name or password.">I forgot my name or password.</option>
+                  <option value="I forgot my password.">I forgot my password.</option>
+                  <option value="I forgot my registered name.">I forgot my registered name.</option>
                 </select>
                 {error && <p className="text-red-400 text-xs text-center">{error}</p>}
                 <button
@@ -433,7 +433,7 @@ export default function AuthModal() {
                   disabled={loading}
                   className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl text-sm transition-colors disabled:opacity-50 mt-1"
                 >
-                  {loading ? '전송 중...' : '선생님께 요청 보내기'}
+                  {loading ? 'Sending...' : 'Send Request to Teacher'}
                 </button>
               </form>
             </>
@@ -443,16 +443,16 @@ export default function AuthModal() {
           {view === 'student_forgot_sent' && (
             <div className="flex flex-col items-center gap-3 py-4 text-center">
               <div className="text-4xl">📩</div>
-              <h2 className="text-base font-bold text-white">요청이 전달됐어요!</h2>
+              <h2 className="text-base font-bold text-white">Request Sent!</h2>
               <p className="text-[var(--text-subtle)] text-xs leading-relaxed">
-                <span className="text-white font-semibold">{selectedTeacher?.teacherName} 선생님</span>께<br/>
-                도움 요청이 전송됐습니다.
+                Your help request has been sent to<br/>
+                <span className="text-white font-semibold">{selectedTeacher?.teacherName}</span>.
               </p>
               <button
                 onClick={() => setView('student_credentials')}
                 className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl text-sm transition-colors mt-2"
               >
-                다시 로그인하기
+                Back to Login
               </button>
             </div>
           )}
@@ -460,7 +460,7 @@ export default function AuthModal() {
           {/* ── 회원가입 ── */}
           {view === 'signup' && (
             <>
-              <h2 className="text-lg font-bold text-white text-center mb-6">회원가입</h2>
+              <h2 className="text-lg font-bold text-white text-center mb-6">Sign Up</h2>
 
               <button
                 onClick={handleGoogleLogin}
@@ -473,12 +473,12 @@ export default function AuthModal() {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
-                Google로 가입하기
+                Sign up with Google
               </button>
 
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex-1 h-px bg-[var(--overlay-default)]" />
-                <span className="text-[11px] text-[var(--text-subtle)]">또는 이메일로 가입</span>
+                <span className="text-[11px] text-[var(--text-subtle)]">or sign up with email</span>
                 <div className="flex-1 h-px bg-[var(--overlay-default)]" />
               </div>
 
@@ -487,28 +487,28 @@ export default function AuthModal() {
                   type="text"
                   value={displayName}
                   onChange={e => setDisplayName(e.target.value)}
-                  placeholder="이름 (닉네임)"
+                  placeholder="Display name"
                   className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 transition-colors"
                 />
                 <input
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="이메일"
+                  placeholder="Email"
                   className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 transition-colors"
                 />
                 <input
                   type="password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="비밀번호 (6자 이상)"
+                  placeholder="Password (min. 6 characters)"
                   className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 transition-colors"
                 />
                 <input
                   type="password"
                   value={passwordConfirm}
                   onChange={e => setPasswordConfirm(e.target.value)}
-                  placeholder="비밀번호 확인"
+                  placeholder="Confirm password"
                   className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 transition-colors"
                 />
                 {error && <p className="text-red-400 text-xs text-center">{error}</p>}
@@ -517,14 +517,14 @@ export default function AuthModal() {
                   disabled={loading}
                   className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl text-sm transition-colors disabled:opacity-50 mt-1"
                 >
-                  {loading ? '처리 중...' : '가입 완료'}
+                  {loading ? 'Creating account...' : 'Create Account'}
                 </button>
               </form>
 
               <p className="text-center text-xs text-[var(--text-subtle)] mt-4">
-                이미 계정이 있으신가요?{' '}
+                Already have an account?{' '}
                 <button onClick={() => switchView('login')} className="text-orange-400 hover:text-orange-300 font-semibold transition-colors">
-                  로그인
+                  Log In
                 </button>
               </p>
             </>
@@ -534,18 +534,18 @@ export default function AuthModal() {
           {view === 'verify_sent' && (
             <div className="flex flex-col items-center gap-4 py-4">
               <div className="text-5xl">📧</div>
-              <h2 className="text-lg font-bold text-white text-center">이메일을 확인해주세요</h2>
+              <h2 className="text-lg font-bold text-white text-center">Check your email</h2>
               <p className="text-[var(--text-muted)] text-sm text-center leading-relaxed">
-                <span className="text-orange-400 font-semibold">{email}</span>로<br/>
-                인증 메일을 보냈습니다.<br/>
-                메일의 링크를 클릭하면 가입이 완료됩니다.
+                We sent a verification link to<br/>
+                <span className="text-orange-400 font-semibold">{email}</span>.<br/>
+                Click the link to complete your sign-up.
               </p>
-              <p className="text-[var(--text-subtle)] text-xs text-center">스팸 폴더도 확인해보세요</p>
+              <p className="text-[var(--text-subtle)] text-xs text-center">Don't forget to check your spam folder</p>
               <button
                 onClick={() => switchView('login')}
                 className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl text-sm transition-colors mt-2"
               >
-                로그인 하러 가기
+                Go to Login
               </button>
             </div>
           )}
@@ -553,23 +553,23 @@ export default function AuthModal() {
           {/* ── 비밀번호 찾기 ── */}
           {view === 'forgot' && (
             <>
-              <h2 className="text-lg font-bold text-white text-center mb-2">비밀번호 재설정</h2>
+              <h2 className="text-lg font-bold text-white text-center mb-2">Reset Password</h2>
               <p className="text-[var(--text-muted)] text-xs text-center mb-6">
-                가입한 이메일을 입력하면 재설정 링크를 보내드립니다.
+                Enter your email and we'll send you a reset link.
               </p>
 
               {resetSent ? (
                 <div className="flex flex-col items-center gap-4 py-2">
                   <div className="text-4xl">✉️</div>
                   <p className="text-white text-sm text-center">
-                    <span className="text-orange-400 font-semibold">{email}</span>로<br/>
-                    재설정 링크를 보냈습니다.
+                    We sent a reset link to<br/>
+                    <span className="text-orange-400 font-semibold">{email}</span>.
                   </p>
                   <button
                     onClick={() => { setResetSent(false); switchView('login') }}
                     className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl text-sm transition-colors mt-2"
                   >
-                    로그인으로 돌아가기
+                    Back to Login
                   </button>
                 </div>
               ) : (
@@ -578,7 +578,7 @@ export default function AuthModal() {
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    placeholder="가입한 이메일"
+                    placeholder="Your email address"
                     className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 transition-colors"
                   />
                   {error && <p className="text-red-400 text-xs text-center">{error}</p>}
@@ -587,14 +587,14 @@ export default function AuthModal() {
                     disabled={loading}
                     className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl text-sm transition-colors disabled:opacity-50 mt-1"
                   >
-                    {loading ? '발송 중...' : '재설정 링크 보내기'}
+                    {loading ? 'Sending...' : 'Send Reset Link'}
                   </button>
                   <button
                     type="button"
                     onClick={() => switchView('login')}
                     className="w-full text-center text-xs text-[var(--text-subtle)] hover:text-white transition-colors"
                   >
-                    로그인으로 돌아가기
+                    Back to Login
                   </button>
                 </form>
               )}
