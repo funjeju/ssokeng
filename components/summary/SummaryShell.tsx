@@ -35,7 +35,7 @@ interface Props {
 
 export default function SummaryShell({ category, summary, onSeek, sessionId, commentCounts, onComment, transcriptSource, videoId, thumbnail }: Props) {
   const hideTimestamp = transcriptSource === 'web'
-  const showTranslate = isLikelyForeign(summary)
+  const showTranslate = false
   const sharedProps = { sessionId, commentCounts, onComment, hideTimestamp, showTranslate }
   switch (category) {
     case 'recipe':

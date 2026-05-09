@@ -10,81 +10,80 @@ interface ChatMsg {
   relatedIds?: string[]
 }
 
+interface SummaryMeta {
+  id: string
+  sessionId: string
+  title: string
+  category: string
+  channel?: string
+  tags: string[]
+  shortText?: string
+  createdAt?: string
+}
+
 interface FloatingChatProps {
   summaries: SavedSummary[]
   source: 'mypage' | 'square'
-  userId?: string  // mypage: 유저 ID (서버사이드 검색용), square: 불필요
+  userId?: string
 }
 
-// 카테고리별 summary 객체에서 핵심 텍스트 200자 추출
+const CAT_SYNONYMS: Record<string, string[]> = {
+  recipe:   ['recipe', 'cooking', 'food', 'cook', 'dish', 'meal', 'ingredient', 'bake', 'chef', 'kitchen'],
+  english:  ['english', 'language', 'grammar', 'pronunciation', 'vocabulary', 'listening', 'speaking', 'esl'],
+  learning: ['learning', 'study', 'lecture', 'education', 'course', 'tutorial', 'lesson', 'math', 'science', 'school'],
+  news:     ['news', 'current events', 'politics', 'economy', 'world', 'breaking', 'report', 'media'],
+  selfdev:  ['self-dev', 'motivation', 'productivity', 'habit', 'mindset', 'growth', 'self improvement', 'goal'],
+  travel:   ['travel', 'trip', 'destination', 'tour', 'vacation', 'place', 'country', 'city', 'explore'],
+  story:    ['story', 'drama', 'movie', 'film', 'series', 'plot', 'character', 'entertainment', 'fiction'],
+  tips:     ['tips', 'hacks', 'trick', 'how-to', 'advice', 'guide', 'life hack', 'diy'],
+}
+
+function stripKoreanParticles(word: string): string {
+  return word.replace(/(에서|에게|이라고|부터|까지|으로|에는|과는|와는|이나|거나|고는|은|는|이|가|을|를|의|로|와|과|도|만|나|에|서|께)$/u, '')
+}
+
+function formatSavedDate(createdAt: any): string {
+  if (!createdAt) return ''
+  try {
+    const d = createdAt?.toDate?.() ?? (createdAt?.seconds ? new Date(createdAt.seconds * 1000) : new Date(createdAt))
+    return d.toISOString().slice(0, 10).replace(/-/g, '.')
+  } catch { return '' }
+}
+
 function extractShortText(category: string, summary: any): string {
   if (!summary) return ''
   try {
     let parts: string[] = []
     switch (category) {
       case 'recipe':
-        parts = [
-          summary.dish_name,
-          summary.key_tips?.slice(0, 2).join(' '),
-          summary.steps?.slice(0, 2).map((s: any) => s.desc).join(' '),
-        ]
+        parts = [summary.dish_name, summary.key_tips?.slice(0, 2).join(' '), summary.steps?.slice(0, 2).map((s: any) => s.desc).join(' ')]
         break
       case 'english':
-        parts = [
-          summary.song_or_title,
-          summary.expressions?.slice(0, 3).map((e: any) => e.text).join(' '),
-          summary.patterns?.slice(0, 2).join(' '),
-        ]
+        parts = [summary.song_or_title, summary.expressions?.slice(0, 3).map((e: any) => e.text).join(' '), summary.patterns?.slice(0, 2).join(' ')]
         break
       case 'learning':
-        parts = [
-          summary.subject,
-          summary.concepts?.slice(0, 2).map((c: any) => c.name + ' ' + c.desc).join(' '),
-          summary.key_points?.slice(0, 2).map((k: any) => k.point).join(' '),
-        ]
+        parts = [summary.subject, summary.concepts?.slice(0, 2).map((c: any) => c.name + ' ' + c.desc).join(' '), summary.key_points?.slice(0, 2).map((k: any) => k.point).join(' ')]
         break
       case 'news':
-        parts = [
-          summary.headline,
-          summary.three_line_summary,
-          summary.five_w?.what,
-        ]
+        parts = [summary.headline, summary.three_line_summary, summary.five_w?.what]
         break
       case 'selfdev':
-        parts = [
-          summary.core_message?.text,
-          summary.insights?.slice(0, 2).map((i: any) => i.point).join(' '),
-          summary.checklist?.slice(0, 2).join(' '),
-        ]
+        parts = [summary.core_message?.text, summary.insights?.slice(0, 2).map((i: any) => i.point).join(' '), summary.checklist?.slice(0, 2).join(' ')]
         break
       case 'travel':
-        parts = [
-          summary.destination,
-          summary.places?.slice(0, 2).map((p: any) => p.name + ' ' + p.desc).join(' '),
-          summary.route,
-        ]
+        parts = [summary.destination, summary.places?.slice(0, 2).map((p: any) => p.name + ' ' + p.desc).join(' '), summary.route]
         break
       case 'story':
-        parts = [
-          summary.title,
-          summary.genre,
-          summary.conclusion,
-        ]
+        parts = [summary.title, summary.genre, summary.conclusion]
         break
       case 'tips':
-        parts = [
-          summary.topic,
-          summary.key_message,
-          summary.top3?.join(' '),
-        ]
+        parts = [summary.topic, summary.key_message, summary.top3?.join(' ')]
         break
       default:
         parts = [JSON.stringify(summary).slice(0, 200)]
     }
     return parts.filter(Boolean).join(' ').slice(0, 200)
-  } catch {
-    return ''
-  }
+  } catch { return '' }
 }
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -97,6 +96,60 @@ const QUICK_QUESTIONS: Record<'mypage' | 'square', string[]> = {
   square: ['Recommend English content for beginners', 'Any new tips videos lately?', 'What cooking videos are popular?'],
 }
 
+function buildCandidates(summaries: SavedSummary[], query: string, limit = 50): SummaryMeta[] {
+  const tokens = query.toLowerCase().split(/\s+/).map(stripKoreanParticles).filter(w => w.length >= 2)
+
+  const sorted = [...summaries].sort((a, b) => {
+    const aT = a.createdAt?.toMillis?.() ?? (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0)
+    const bT = b.createdAt?.toMillis?.() ?? (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0)
+    return bT - aT
+  })
+
+  const scored = sorted.map(s => {
+    const title = s.title.toLowerCase()
+    const channel = (s.channel ?? '').toLowerCase()
+    const tags = (s.square_meta?.tags ?? []).join(' ').toLowerCase()
+    const shortText = (s.contextSummary || extractShortText(s.category, s.summary)).toLowerCase()
+    const catSynonyms = (CAT_SYNONYMS[s.category] ?? []).join(' ').toLowerCase()
+    const catLabel = (CATEGORY_LABEL[s.category] ?? s.category).toLowerCase()
+
+    let score = 0
+    for (const token of tokens) {
+      if (title.includes(token)) score += 3
+      if (catSynonyms.includes(token) || catLabel.includes(token) || s.category.includes(token)) score += 2
+      if (tags.includes(token)) score += 2
+      if (channel.includes(token)) score += 1
+      if (shortText.includes(token)) score += 1
+    }
+    return { s, score }
+  })
+
+  const withScore = scored.filter(x => x.score > 0).sort((a, b) => b.score - a.score)
+  const toMeta = (x: { s: SavedSummary }): SummaryMeta => ({
+    id: x.s.id,
+    sessionId: x.s.sessionId,
+    title: x.s.title,
+    category: x.s.category,
+    channel: x.s.channel,
+    tags: x.s.square_meta?.tags ?? [],
+    shortText: x.s.contextSummary || extractShortText(x.s.category, x.s.summary),
+    createdAt: formatSavedDate(x.s.createdAt),
+  })
+
+  const result = withScore.slice(0, limit).map(toMeta)
+
+  if (result.length < limit) {
+    const resultIds = new Set(result.map(r => r.id))
+    const fill = scored
+      .filter(x => x.score === 0 && !resultIds.has(x.s.id))
+      .slice(0, limit - result.length)
+      .map(toMeta)
+    result.push(...fill)
+  }
+
+  return result
+}
+
 export default function FloatingChat({ summaries, source, userId }: FloatingChatProps) {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMsg[]>([])
@@ -104,6 +157,7 @@ export default function FloatingChat({ summaries, source, userId }: FloatingChat
   const [loading, setLoading] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const lastCandidatesRef = useRef<SummaryMeta[]>([])
 
   const contextLabel = source === 'mypage' ? 'My Library' : 'Square'
 
@@ -134,15 +188,16 @@ export default function FloatingChat({ summaries, source, userId }: FloatingChat
     setLoading(true)
 
     try {
-      const summaryMeta = summaries.map(s => ({
-        id: s.id,
-        sessionId: s.sessionId,
-        title: s.title,
-        category: s.category,
-        tags: s.square_meta?.tags ?? [],
-        // contextSummary 우선, 없으면 기존 필드 추출로 폴백
-        shortText: s.contextSummary || extractShortText(s.category, s.summary),
-      }))
+      const fresh = buildCandidates(summaries, query, 50)
+      let summaryMeta = fresh
+      if (messages.length > 0 && lastCandidatesRef.current.length > 0) {
+        const freshIds = new Set(fresh.map(m => m.id))
+        summaryMeta = [
+          ...fresh,
+          ...lastCandidatesRef.current.filter(m => !freshIds.has(m.id)),
+        ].slice(0, 50)
+      }
+      lastCandidatesRef.current = summaryMeta
 
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -173,7 +228,7 @@ export default function FloatingChat({ summaries, source, userId }: FloatingChat
 
   return (
     <>
-      {/* 플로팅 버튼 — 모바일: 원형 아이콘 / PC: 아이콘 + 텍스트 pill */}
+      {/* 플로팅 버튼 */}
       <button
         onClick={() => setOpen(v => !v)}
         className={`fixed bottom-6 right-6 z-50 shadow-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${
@@ -181,13 +236,13 @@ export default function FloatingChat({ summaries, source, userId }: FloatingChat
             ? 'w-14 h-14 rounded-full bg-[var(--bg-elevated-2)] text-white text-xl'
             : 'h-12 rounded-full bg-orange-500 hover:bg-orange-600 text-white px-4 gap-2'
         }`}
-        title={`${contextLabel} AI Assistant`}
+        title={`${contextLabel} AI Search`}
       >
         {open ? (
           <span className="text-xl">✕</span>
         ) : (
           <>
-            <span className="text-lg leading-none">💬</span>
+            <span className="text-lg leading-none">🔍</span>
             <span className="hidden md:inline text-sm font-bold whitespace-nowrap">AI Search</span>
           </>
         )}
@@ -199,14 +254,14 @@ export default function FloatingChat({ summaries, source, userId }: FloatingChat
 
           {/* 헤더 */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border-default)] bg-[var(--bg-surface)] shrink-0">
-            <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center text-sm">💬</div>
+            <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center text-sm">🔍</div>
             <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-semibold">AI Assistant</p>
+              <p className="text-white text-sm font-semibold">AI Search Assistant</p>
               <p className="text-[var(--text-subtle)] text-[11px]">{contextLabel} · {summaries.length} items</p>
             </div>
             {messages.length > 0 && (
               <button
-                onClick={() => setMessages([])}
+                onClick={() => { setMessages([]); lastCandidatesRef.current = [] }}
                 className="text-[var(--text-subtle)] hover:text-white text-xs px-2 py-1 rounded-lg hover:bg-[var(--overlay-subtle)] transition-colors"
               >
                 Reset
@@ -219,7 +274,7 @@ export default function FloatingChat({ summaries, source, userId }: FloatingChat
             {messages.length === 0 && (
               <div className="space-y-3">
                 <p className="text-[var(--text-subtle)] text-sm text-center pt-2">
-                  Ask anything about {contextLabel}.
+                  Search {contextLabel} with natural language.
                 </p>
                 <div className="space-y-1.5">
                   {QUICK_QUESTIONS[source].map(q => (
@@ -246,7 +301,6 @@ export default function FloatingChat({ summaries, source, userId }: FloatingChat
                     {msg.content}
                   </div>
 
-                  {/* 관련 콘텐츠 카드 */}
                   {msg.relatedIds && msg.relatedIds.length > 0 && (
                     <div className="space-y-1">
                       {msg.relatedIds.map(id => {
@@ -259,11 +313,7 @@ export default function FloatingChat({ summaries, source, userId }: FloatingChat
                             className="flex items-center gap-2 px-2.5 py-2 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] hover:border-orange-500/40 transition-colors group"
                           >
                             {item.thumbnail ? (
-                              <img
-                                src={item.thumbnail}
-                                alt=""
-                                className="w-12 h-8 object-cover rounded-md shrink-0 bg-[var(--bg-elevated)]"
-                              />
+                              <img src={item.thumbnail} alt="" className="w-12 h-8 object-cover rounded-md shrink-0 bg-[var(--bg-elevated)]" />
                             ) : (
                               <div className="w-12 h-8 rounded-md bg-[var(--bg-elevated)] shrink-0 flex items-center justify-center text-base">
                                 {item.category === 'pdf' ? '📄' : '🌐'}
@@ -310,7 +360,7 @@ export default function FloatingChat({ summaries, source, userId }: FloatingChat
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
-                placeholder={`Search in ${contextLabel}...`}
+                placeholder="Search videos in natural language..."
                 disabled={loading}
                 className="flex-1 h-9 px-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-orange-500/50 transition-colors disabled:opacity-60"
               />
