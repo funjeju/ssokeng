@@ -36,7 +36,6 @@ import VideoQuizManagerModal from '@/components/video-quiz/VideoQuizManagerModal
 import VideoQuizPopup from '@/components/video-quiz/VideoQuizPopup'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import type { QuizData } from '@/types/summary'
 
 const CATEGORY_INFO: Record<string, { label: string; icon: string; color: string }> = {
   recipe:  { label: 'Recipe',   icon: '🍳', color: 'text-orange-400 border-orange-400' },
