@@ -34,6 +34,9 @@ import { addBookmark, getBookmarks, deleteBookmark, secsToLabel, VideoBookmark }
 import { getVideoQuizzesBySession, getVideoQuizzesBySessionPublic, VideoQuiz } from '@/lib/videoQuiz'
 import VideoQuizManagerModal from '@/components/video-quiz/VideoQuizManagerModal'
 import VideoQuizPopup from '@/components/video-quiz/VideoQuizPopup'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
+import type { QuizData } from '@/types/summary'
 
 const CATEGORY_INFO: Record<string, { label: string; icon: string; color: string }> = {
   recipe:  { label: 'Recipe',   icon: '🍳', color: 'text-orange-400 border-orange-400' },
@@ -47,6 +50,13 @@ const CATEGORY_INFO: Record<string, { label: string; icon: string; color: string
   report:  { label: 'Report',   icon: '📋', color: 'text-indigo-400 border-indigo-400' },
 }
 const DEFAULT_CATEGORY_INFO = { label: 'Analyzed', icon: '✨', color: 'text-zinc-400 border-zinc-400' }
+
+function tsToSec(ts: string): number {
+  const parts = ts.split(':').map(Number)
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2]
+  if (parts.length === 2) return parts[0] * 60 + parts[1]
+  return 0
+}
 
 const RE_ANALYZE_CATEGORIES = [
   { id: 'recipe',  icon: '🍳', label: 'Recipe' },
@@ -380,15 +390,58 @@ export default function ResultClient({ sessionId }: { sessionId: string }) {
     }).catch(() => {})
   }, [user?.uid, sessionId, bookmarkSaved])
 
-  // 이 영상의 타임스탬프 퀴즈 로드 (선생님은 본인 퀴즈, 학생/일반 유저는 sessionId 기준 전체 조회)
+  // 이 영상의 타임스탬프 퀴즈 로드 + ClassWall quiz_sets 병합
   useEffect(() => {
     if (!sessionId) return
-    if (userProfile?.role === 'teacher' && user?.uid) {
-      getVideoQuizzesBySession(user.uid, sessionId).then(setVideoQuizzes).catch(() => {})
-    } else if (user?.uid) {
-      getVideoQuizzesBySessionPublic(sessionId).then(setVideoQuizzes).catch(() => {})
+    const loadQuizzes = async () => {
+      try {
+        let base: VideoQuiz[] = []
+        if (userProfile?.role === 'teacher' && user?.uid) {
+          base = await getVideoQuizzesBySession(user.uid, sessionId)
+        } else if (user?.uid) {
+          base = await getVideoQuizzesBySessionPublic(sessionId)
+        }
+
+        // quiz_sets (ClassWall AI 생성) — timestamp 있는 multiple_choice를 VideoQuiz 포맷으로 변환
+        const cacheKey = data?.videoId || sessionId
+        if (cacheKey) {
+          const snap = await getDoc(doc(db, 'quiz_sets', cacheKey))
+          if (snap.exists()) {
+            const quizData = snap.data() as QuizData
+            const existingIds = new Set(base.map(q => q.id))
+            const cwQuizzes: VideoQuiz[] = quizData.questions
+              .filter(q => q.type === 'multiple_choice' && q.timestamp && q.options)
+              .map((q, i) => {
+                const synthId = `cw_${cacheKey}_${i}`
+                if (existingIds.has(synthId)) return null
+                const correctIdx = q.options!.indexOf(q.answer)
+                return {
+                  id: synthId,
+                  userId: 'classwall',
+                  videoId: data?.videoId || '',
+                  sessionId,
+                  videoTitle: data?.title || '',
+                  thumbnail: data?.thumbnail || '',
+                  channel: data?.channel || '',
+                  timestampSec: tsToSec(q.timestamp!),
+                  timestampLabel: q.timestamp!,
+                  quizType: 'multiple_choice' as const,
+                  question: q.question,
+                  options: q.options,
+                  correctOptionIndex: correctIdx >= 0 ? correctIdx : 0,
+                  createdAt: null,
+                } as VideoQuiz
+              })
+              .filter((q): q is VideoQuiz => q !== null)
+            base = [...base, ...cwQuizzes].sort((a, b) => a.timestampSec - b.timestampSec)
+          }
+        }
+
+        setVideoQuizzes(base)
+      } catch {}
     }
-  }, [user?.uid, sessionId, userProfile?.role])
+    loadQuizzes()
+  }, [user?.uid, sessionId, userProfile?.role, data?.videoId])
 
   // 저장 여부 확인
   useEffect(() => {

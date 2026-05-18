@@ -3,8 +3,11 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/providers/AuthProvider'
 import { buildStudentEmail } from '@/lib/classroom'
+import { signInAnonymously } from 'firebase/auth'
+import { auth, db } from '@/lib/firebase'
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 
-type View = 'login' | 'signup' | 'forgot' | 'verify_sent' | 'student' | 'student_teacher' | 'student_credentials' | 'student_forgot' | 'student_forgot_sent'
+type View = 'login' | 'signup' | 'forgot' | 'verify_sent' | 'student' | 'student_teacher' | 'student_credentials' | 'student_forgot' | 'student_forgot_sent' | 'pin' | 'pin_name'
 
 interface Teacher {
   classCode: string
@@ -34,6 +37,12 @@ export default function AuthModal() {
   const [studentHint, setStudentHint] = useState('')
   const [helpMessage, setHelpMessage] = useState('I forgot my name or password.')
 
+  // PIN 로그인 전용 state
+  const [pinCode, setPinCode] = useState('')
+  const [pinClassCode, setPinClassCode] = useState('')
+  const [pinTeacherName, setPinTeacherName] = useState('')
+  const [pinDisplayName, setPinDisplayName] = useState('')
+
   // 모달이 열릴 때마다 view와 폼 상태를 authModalView로 리셋
   useEffect(() => {
     if (authModalOpen) {
@@ -41,6 +50,7 @@ export default function AuthModal() {
       setEmail(''); setPassword(''); setPasswordConfirm(''); setDisplayName(''); setError(''); setResetSent(false)
       setStudentName(''); setStudentPassword(''); setSchools([]); setTeachers([]); setSelectedSchool(''); setSelectedTeacher(null)
       setStudentHint(''); setHelpMessage('I forgot my name or password.')
+      setPinCode(''); setPinClassCode(''); setPinTeacherName(''); setPinDisplayName('')
     }
   }, [authModalOpen, authModalView])
 
@@ -56,7 +66,51 @@ export default function AuthModal() {
       setStudentName(''); setStudentPassword(''); setSchools([]); setTeachers([]); setSelectedSchool(''); setSelectedTeacher(null)
       setStudentHint(''); setHelpMessage('I forgot my name or password.')
     }
+    if (!v.startsWith('pin')) {
+      setPinCode(''); setPinClassCode(''); setPinTeacherName(''); setPinDisplayName('')
+    }
     setView(v)
+  }
+
+  const handlePinSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!pinCode.trim()) { setError('Please enter your PIN.'); return }
+    setLoading(true); setError('')
+    try {
+      const res = await fetch('/api/pin/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: pinCode.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error || 'Invalid PIN.'); return }
+      setPinClassCode(data.classCode)
+      setPinTeacherName(data.teacherName)
+      setView('pin_name')
+    } catch {
+      setError('Network error. Please try again.')
+    } finally { setLoading(false) }
+  }
+
+  const handlePinNameSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!pinDisplayName.trim()) { setError('Please enter your name.'); return }
+    setLoading(true); setError('')
+    try {
+      const cred = await signInAnonymously(auth)
+      await setDoc(doc(db, 'users', cred.user.uid), {
+        uid: cred.user.uid,
+        displayName: pinDisplayName.trim(),
+        role: 'student',
+        classCode: pinClassCode,
+        isAnonymous: true,
+        createdAt: serverTimestamp(),
+        profileCompleted: true,
+      }, { merge: true })
+      closeAuthModal()
+    } catch {
+      setError('Sign in failed. Please try again.')
+    } finally { setLoading(false) }
   }
 
   const goToStudentLogin = async () => {
@@ -278,13 +332,22 @@ export default function AuthModal() {
                 <span className="text-[11px] text-[var(--text-subtle)]">Are you a student?</span>
                 <div className="flex-1 h-px bg-[var(--overlay-default)]" />
               </div>
-              <button
-                onClick={goToStudentLogin}
-                disabled={loading}
-                className="w-full mt-3 py-3 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 hover:border-blue-500/60 text-blue-300 font-semibold text-sm rounded-2xl transition-all disabled:opacity-50"
-              >
-                {loading ? 'Loading...' : 'Student Login'}
-              </button>
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={goToStudentLogin}
+                  disabled={loading}
+                  className="flex-1 py-3 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 hover:border-blue-500/60 text-blue-300 font-semibold text-sm rounded-2xl transition-all disabled:opacity-50"
+                >
+                  {loading ? 'Loading...' : 'Student Login'}
+                </button>
+                <button
+                  onClick={() => switchView('pin')}
+                  disabled={loading}
+                  className="flex-1 py-3 bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/30 hover:border-violet-500/60 text-violet-300 font-semibold text-sm rounded-2xl transition-all disabled:opacity-50"
+                >
+                  PIN Login
+                </button>
+              </div>
             </>
           )}
 
@@ -548,6 +611,72 @@ export default function AuthModal() {
                 Go to Login
               </button>
             </div>
+          )}
+
+          {/* ── PIN 로그인 Step 1: PIN 입력 ── */}
+          {view === 'pin' && (
+            <>
+              <button
+                onClick={() => switchView('login')}
+                className="flex items-center gap-1 text-xs text-[var(--text-subtle)] hover:text-white mb-5 transition-colors"
+              >
+                ← Back to Login
+              </button>
+              <h2 className="text-lg font-bold text-white text-center mb-1">PIN Login</h2>
+              <p className="text-[var(--text-subtle)] text-xs text-center mb-5">Enter the PIN code from your teacher.</p>
+              <form onSubmit={handlePinSubmit} className="flex flex-col gap-3">
+                <input
+                  type="text"
+                  value={pinCode}
+                  onChange={e => setPinCode(e.target.value)}
+                  placeholder="Enter PIN code"
+                  maxLength={8}
+                  className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white text-center tracking-widest placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-violet-500/50 transition-colors"
+                />
+                {error && <p className="text-red-400 text-xs text-center">{error}</p>}
+                <button
+                  type="submit"
+                  disabled={loading || !pinCode.trim()}
+                  className="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-2xl text-sm transition-colors disabled:opacity-50 mt-1"
+                >
+                  {loading ? 'Checking...' : 'Next →'}
+                </button>
+              </form>
+            </>
+          )}
+
+          {/* ── PIN 로그인 Step 2: 이름 입력 ── */}
+          {view === 'pin_name' && (
+            <>
+              <button
+                onClick={() => { setView('pin'); setError('') }}
+                className="flex items-center gap-1 text-xs text-[var(--text-subtle)] hover:text-white mb-5 transition-colors"
+              >
+                ← Change PIN
+              </button>
+              <div className="mb-5 text-center">
+                <div className="text-3xl mb-2">👋</div>
+                <h2 className="text-base font-bold text-white">{pinTeacherName ? `${pinTeacherName}'s Class` : 'Class Found!'}</h2>
+                <p className="text-xs text-[var(--text-subtle)] mt-1">Enter your name to join.</p>
+              </div>
+              <form onSubmit={handlePinNameSubmit} className="flex flex-col gap-3">
+                <input
+                  type="text"
+                  value={pinDisplayName}
+                  onChange={e => setPinDisplayName(e.target.value)}
+                  placeholder="Your name"
+                  className="w-full bg-[var(--bg-surface-2)] border border-[var(--border-default)] rounded-xl px-4 py-3 text-sm text-white placeholder:text-[var(--text-subtle)] focus:outline-none focus:border-violet-500/50 transition-colors"
+                />
+                {error && <p className="text-red-400 text-xs text-center">{error}</p>}
+                <button
+                  type="submit"
+                  disabled={loading || !pinDisplayName.trim()}
+                  className="w-full py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-2xl text-sm transition-colors disabled:opacity-50 mt-1"
+                >
+                  {loading ? 'Joining...' : 'Join Class'}
+                </button>
+              </form>
+            </>
           )}
 
           {/* ── 비밀번호 찾기 ── */}

@@ -112,6 +112,7 @@ export interface QuizQuestion {
   answer: string
   options?: string[]   // multiple_choice only
   hint?: string
+  timestamp?: string   // 영상 내 해당 구간 타임스탬프 (ClassWall ↔ 결과 페이지 연동)
 }
 
 export interface QuizData {

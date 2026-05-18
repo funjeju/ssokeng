@@ -11,12 +11,13 @@ service cloud.firestore {
       allow delete: if true;
     }
 
-    // saved_summaries: 본인, 공개 항목, 또는 '친구' 관계인 경우 읽기 허용
+    // saved_summaries: 본인, 공개 항목, 친구, 또는 익명 학생(ClassWall isDebate 조회용) 읽기 허용
     match /saved_summaries/{docId} {
       allow read: if resource.data.isPublic == true
                   || (request.auth != null && (
                       request.auth.uid == resource.data.userId ||
                       request.auth.token.email == resource.data.userId ||
+                      request.auth.token.firebase.sign_in_provider == 'anonymous' ||
                       exists(/databases/$(database)/documents/friendships/$(request.auth.uid < resource.data.userId ? request.auth.uid + '_' + resource.data.userId : resource.data.userId + '_' + request.auth.uid))
                   ));
       allow create: if request.auth != null;
@@ -197,6 +198,48 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
       allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
+    // vote_sessions: 로그인 유저(익명 포함) 읽기/생성/업데이트 (찬반투표)
+    match /vote_sessions/{sessionId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null;
+      allow delete: if false;
+
+      match /votes/{userId} {
+        allow read: if request.auth != null;
+        allow create: if request.auth != null && request.auth.uid == userId;
+        allow update, delete: if false;
+      }
+    }
+
+    // quiz_sets: 로그인 유저 읽기, 서버/교사 생성
+    match /quiz_sets/{docId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null;
+      allow delete: if false;
+    }
+
+    // pin_sessions: 로그인 유저(익명 포함) 읽기 전용 (서버에서만 생성)
+    match /pin_sessions/{docId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if false;
+    }
+
+    // review_schedule: 로그인 유저 읽기/쓰기 (학습 일정 관리)
+    match /review_schedule/{docId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    // classwall_memos: 로그인 유저(익명 포함) 읽기/쓰기, 본인 삭제
+    match /classwall_memos/{sessionId}/notes/{noteId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow delete: if request.auth != null && (
+        request.auth.uid == resource.data.authorId ||
+        request.auth.token.firebase.sign_in_provider != 'anonymous'
+      );
     }
 
     // activity_logs: 학생 본인 생성, 본인 및 담당 교사 읽기

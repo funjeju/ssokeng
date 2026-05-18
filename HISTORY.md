@@ -5,6 +5,52 @@
 
 ---
 
+## 2026-05-18
+
+### [기능] ClassWall — 수업용 실시간 인터랙션 시스템 (신규)
+- **내용**: 유튜브 영상 수업 중 선생님·학생이 실시간으로 메모잇·퀴즈카드·찬반투표를 함께 하는 전체화면 오버레이
+- **신규 파일**:
+  - `components/classwall/ClassWallModal.tsx` — 메인. 좌측 영상+요약, 우측 메모잇/퀴즈카드/찬반투표 탭
+  - `components/classwall/ClassWallCard.tsx` — 메모잇 개별 카드 컴포넌트
+  - `lib/voteSession.ts` — 찬반투표 세션 활성화·비활성화·실시간 구독 유틸
+  - `app/api/quiz/auto-generate/route.ts` — AI 퀴즈카드 자동생성 (영상 요약 기반 → `quiz_sets` 저장)
+  - `app/api/pin/join/route.ts` — PIN 검증 (`pin_sessions` 조회 → `classCode` 반환)
+
+### [기능] ClassWall — 타임스탬프 시크
+- **내용**: iframe에 `enablejsapi=1` 추가, `postMessage`로 YouTube API `seekTo` 직접 호출
+
+### [기능] ClassWall — isDebate 실시간 감지
+- **내용**: prop이 아닌 `onSnapshot`으로 `saved_summaries` 구독, 토론 수업이면 퀴즈탭 즉시 숨김
+
+### [기능] ClassWall — 선생님 퀴즈 수동 생성
+- **내용**: 퀴즈탭 상단에 `QuizCardGenerator` 컴포넌트 추가 (생성/재생성 버튼)
+
+### [버그] ClassWall — 찬반투표 Firestore 전체 차단
+- **증상**: 찬반투표 버튼 클릭 시 전혀 작동 안 함
+- **원인**: `vote_sessions` 컬렉션에 Firestore 규칙 미등록 → 기본 deny
+- **해결**: `firestore.rules`에 `vote_sessions`·`quiz_sets`·`pin_sessions`·`review_schedule` 규칙 신규 추가. `saved_summaries` read 규칙에 익명 인증 학생도 포함
+
+### [기능] AuthModal — PIN 로그인 플로우 추가
+- **내용**: `components/auth/AuthModal.tsx`에 학생 PIN 로그인 추가. `/join` 리다이렉트 없이 모달 내에서 `pin → pin_name` 뷰 전환 → `signInAnonymously` → `users` 문서 생성까지 처리
+
+### [개선] FlashcardTab — 퀴즈 다중 소스 병합 + 파스텔 UI
+- **내용**: `components/pinboard/FlashcardTab.tsx`
+  - 퀴즈 연동: `quiz_sets`(AI 생성) + `video_quizzes`(선생님 수동 등록) 두 컬렉션 추가 읽어 우선순위 병합
+  - UI: 어두운 zinc 계열 → sky/violet/rose/amber 등 8색 파스텔 순환. 플립카드 전면 amber-50, 뒷면 sky-50
+
+### [개선] ResultClient — ClassWall 퀴즈 양방향 연동
+- **내용**: `app/result/[sessionId]/ResultClient.tsx`
+  - `quiz_sets`의 `multiple_choice` 문제 중 `timestamp` 있는 것을 `video_quizzes` 포맷으로 변환 → 영상 팝업 퀴즈로 표시
+  - ClassWall에서 만든 퀴즈가 결과 페이지에도 반영되는 양방향 연동
+
+### [개선] claude.ts — learning 퀴즈 프롬프트 2단계 재작성
+- **내용**: "1단계: 제목에서 대상 학년/과목 파악 → 2단계: 해당 과목에 맞는 문제 유형 출제". 교사 관점 질문·자막 단순 요약 금지 명시
+
+### [개선] types/summary.ts — QuizQuestion timestamp 추가
+- **내용**: `QuizQuestion` 인터페이스에 `timestamp?: string` 추가 → 퀴즈 문제↔영상 구간 양방향 연동 활용
+
+---
+
 ## 2026-04-28
 
 ### [기능] 크롬 익스텐션 신규

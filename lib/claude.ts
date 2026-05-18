@@ -400,18 +400,23 @@ export async function generateQuiz(
     ? `From a language learning summary, create word/expression flashcards and multiple-choice usage questions.
 flashcard: front=English word/expression, back=meaning + real-world example sentence in English
 multiple_choice: find correct usage in real sentences, distinguish from easily confused expressions, 4 options`
-    : `Create questions that verify true understanding of the core concepts from this educational video.
+    : `STEP 1 — Identify the audience from the video title: determine the likely grade level (elementary / middle / high / university / adult) and subject area (math, science, history, literature, coding, etc.).
+STEP 2 — Generate questions appropriate for that grade and subject:
+  - Elementary: concrete facts, simple cause-effect, visual/story-based
+  - Middle/High school: conceptual understanding, application, compare-contrast
+  - University/Professional: analysis, synthesis, evaluation
 
 [Flashcard principles]
-- Front: name of concept/principle OR a question like "What happens when...?"
-- Back: explanation of the reason, principle, or mechanism (no simple definitions)
+- Front: concept name OR a question like "What happens when...?" / "Why does...?"
+- Back: explanation of the mechanism, principle, or reasoning (never a simple dictionary definition)
 
 [Multiple-choice principles — strictly follow]
-1. Never ask "what did the video say" verbatim recall questions
-2. Must include questions applying concepts to new situations/cases
-3. Prefer "why", "how", "what happens in this situation" formats
-4. Incorrect options should be based on common misconceptions (not random nonsense)
-5. Answering correctly must require understanding the underlying principle`
+1. NEVER ask verbatim recall ("According to the video, what did X say?")
+2. ALWAYS include at least 2 questions applying concepts to new situations
+3. Prefer "why", "how", "what would happen if" formats
+4. Incorrect options must reflect common misconceptions for that grade level — not random nonsense
+5. Correct answer requires understanding the underlying principle, not memorisation
+6. Do NOT write questions from a teacher's perspective ("What should you teach students about...")`
 
   const result = await classifyModel.generateContent(`${hint}
 
